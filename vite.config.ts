@@ -20,6 +20,7 @@ export default defineConfig({
                 secure: false,
             },
         },
+        port: 5175,
     },
     build: {
         outDir: 'build',
