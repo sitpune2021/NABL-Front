@@ -25,27 +25,15 @@ const navigationConfig: NavigationTree[] = [
         icon: 'master',
         type: NAV_ITEM_TYPE_TITLE,
         authority: [], // Add authority as per your access control
-        meta: {
-            horizontalMenu: {
-                layout: 'columns',
-                columns: 4,
-            },
-        },
         subMenu: [
             {
                 key: 'master.template',
                 path: '',
                 title: 'Template',
-                translateKey: 'nav.masterTemplate.template',
+                translateKey: 'nav.master.template',
                 icon: 'common',
                 type: NAV_ITEM_TYPE_COLLAPSE,
                 authority: [],
-                meta: {
-                    description: {
-                        translateKey: 'nav.masterTemplate.templateDesc',
-                        label: 'Template management',
-                    },
-                },
                 subMenu: [
                     {
                         key: 'master.template.list',
@@ -55,30 +43,39 @@ const navigationConfig: NavigationTree[] = [
                         icon: 'templateList',
                         type: NAV_ITEM_TYPE_ITEM,
                         authority: [],
-                        meta: {
-                            description: {
-                                translateKey: 'nav.masterTemplate.listDesc',
-                                label: 'List of all templates',
-                            },
-                        },
                         subMenu: [],
                     },
+                ],
+            },
+            {
+                key: 'master.category',
+                path: '',
+                title: 'category',
+                translateKey: 'nav.masterCategory.category',
+                icon: 'common',
+                type: NAV_ITEM_TYPE_COLLAPSE,
+                authority: [],
+                subMenu: [
                     {
-                        key: 'master.template.create',
-                        path: `/master/template/template-create`,
-                        title: 'Create Template',
-                        translateKey: 'nav.masterTemplate.create',
-                        icon: 'templateCreate',
+                        key: 'master.category.list',
+                        path: `/master/category`,
+                        title: 'Category List',
+                        translateKey: 'nav.masterCategory.list',
+                        icon: 'templateList',
                         type: NAV_ITEM_TYPE_ITEM,
                         authority: [],
-                        meta: {
-                            description: {
-                                translateKey: 'nav.masterTemplate.createDesc',
-                                label: 'Add a new template',
-                            },
-                        },
                         subMenu: [],
                     },
+                    // {
+                    //     key: 'master.category.create',
+                    //     path: `/master/category/category-create`,
+                    //     title: 'Create Category',
+                    //     translateKey: 'nav.masterCategory.create',
+                    //     icon: 'templateCreate',
+                    //     type: NAV_ITEM_TYPE_ITEM,
+                    //     authority: [],
+                    //     subMenu: [],
+                    // },
                 ],
             },
         ],

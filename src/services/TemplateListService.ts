@@ -10,6 +10,16 @@ export async function apiGetCustomersList<T, U extends Record<string, unknown>>(
     })
 }
 
+export async function apiGetCategoryList<T, U extends Record<string, unknown>>(
+    params: U,
+) {
+    return ApiService.fetchDataWithAxios<T>({
+        url: '/category',
+        method: 'get',
+        params,
+    })
+}
+
 // export async function apiGetCustomer<T, U extends Record<string, unknown>>({
 //     id,
 //     ...params

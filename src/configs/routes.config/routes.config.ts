@@ -13,25 +13,28 @@ export const protectedRoutes: Routes = [
         authority: [],
     },
     {
-        key: 'template',
+        key: 'master.template.list',
         path: `/master/template`,
-        component: lazy(() => import('@/views/template/TemplateList')),
+        component: lazy(() => import('@/views/master/template/TemplateList')),
         authority: [],
     },
     {
-        key: 'template.templateCreate',
+        key: 'master.template.list',
         path: `/master/template/template-create`,
-        component: lazy(() => import('@/views/template/TemplateCreate')),
+        component: lazy(() => import('@/views/master/template/TemplateCreate')),
         authority: [],
-        meta: {
-            header: {
-                title: 'Create customer',
-                description:
-                    'Manage customer details, track purchases, and update preferences easily.',
-                contained: true,
-            },
-            footer: false,
-        },
+    },
+    {
+        key: 'master.category.list',
+        path: `/master/category`,
+        component: lazy(() => import('@/views/master/category/CategoryList')),
+        authority: [],
+    },
+    {
+        key: 'master.category.list',
+        path: `/master/category/category-create`,
+        component: lazy(() => import('@/views/master/category/CategoryCreate')),
+        authority: [],
     },
     ...othersRoute,
 ]
