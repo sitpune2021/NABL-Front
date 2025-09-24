@@ -1,4 +1,5 @@
 import Button from '@/components/ui/Button'
+import { MASTER_PREFIX_PATH } from '@/constants/route.constant'
 import { TbBorderBottomPlus } from 'react-icons/tb'
 import { useNavigate } from 'react-router'
 
@@ -10,7 +11,9 @@ const CustomerListActionTools = () => {
             <Button
                 variant="solid"
                 icon={<TbBorderBottomPlus className="text-xl" />}
-                onClick={() => navigate('/master/category/category-create')}
+                onClick={() =>
+                    navigate(`${MASTER_PREFIX_PATH}/category/create`)
+                }
             >
                 Add new Category
             </Button>
