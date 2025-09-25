@@ -9,9 +9,12 @@ import sleep from '@/utils/sleep'
 import { TbTrash } from 'react-icons/tb'
 import { useNavigate } from 'react-router'
 import type { CustomerFormSchema } from '../CategoryForm'
+import useCategoryList from '../CategoryList/hooks/useCategoryList'
+import endpointConfig from '@/configs/endpoint.config'
 
-const TemplateEdit = () => {
+const CategoryAddEdit = () => {
     const navigate = useNavigate()
+    const { saveCategoryData } = useCategoryList()
 
     const [discardConfirmationOpen, setDiscardConfirmationOpen] =
         useState(false)
@@ -20,13 +23,14 @@ const TemplateEdit = () => {
     const handleFormSubmit = async (values: CustomerFormSchema) => {
         console.log('Submitted values', values)
         setIsSubmiting(true)
+        await saveCategoryData(values)
         await sleep(800)
         setIsSubmiting(false)
         toast.push(
             <Notification type="success">Customer created!</Notification>,
             { placement: 'top-center' },
         )
-        navigate('/master/category')
+        navigate(`${endpointConfig.master.category.list}`)
     }
 
     const handleConfirmDiscard = () => {
@@ -35,7 +39,7 @@ const TemplateEdit = () => {
             <Notification type="success">Customer discardd!</Notification>,
             { placement: 'top-center' },
         )
-        navigate('/master/category')
+        navigate(`${endpointConfig.master.category.list}`)
     }
 
     const handleDiscard = () => {
@@ -99,4 +103,4 @@ const TemplateEdit = () => {
     )
 }
 
-export default TemplateEdit
+export default CategoryAddEdit

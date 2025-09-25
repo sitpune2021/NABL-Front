@@ -1,7 +1,7 @@
-import { apiGetCategoryList } from '@/services/TemplateListService'
+import { apiCategory, apiGetCategoryList } from '@/services/TemplateListService'
 import useSWR from 'swr'
 import { useCustomerListStore } from '../store/customerListStore'
-import type { GetCustomersListResponse } from '../types'
+import type { CategoryAdd, GetCategoryListResponse } from '../types'
 import type { TableQueries } from '@/@types/common'
 
 export default function useCategoryList() {
@@ -19,11 +19,15 @@ export default function useCategoryList() {
         ['/api/category', { ...tableData, ...filterData }],
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         ([_, params]) =>
-            apiGetCategoryList<GetCustomersListResponse, TableQueries>(params),
+            apiGetCategoryList<GetCategoryListResponse, TableQueries>(params),
         {
             revalidateOnFocus: false,
         },
     )
+    const saveCategoryData = async (category: CategoryAdd) => {
+        await apiCategory(category)
+        await mutate() // refresh list
+    }
 
     const customerList = data?.list || []
 
@@ -42,5 +46,6 @@ export default function useCategoryList() {
         setSelectedCustomer,
         setSelectAllCustomer,
         setFilterData,
+        saveCategoryData,
     }
 }

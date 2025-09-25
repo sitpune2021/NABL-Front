@@ -1,40 +1,14 @@
 import { mock } from '../MockAdapter'
-import { TEMPLATES_KEY, CATEGORIES_KEY } from '@/constants/api.constant'
+import { CATEGORIES_KEY } from '@/constants/api.constant'
 
-interface ComponentAttribute {
-    id: string
-}
-
-interface Component {
-    attributes: ComponentAttribute
-}
-
-interface JsonItem {
-    type: string
-    components: Component[]
-}
-
-interface Metadata {
-    status: string
-}
-
-interface Template {
+interface Category {
     id: string
     name: string
-    type: string
-    archived: boolean
-    createdAt: string
-    updatedAt: string
-    css: string
-    html: string
-    json: JsonItem[]
-    metadata: Metadata
 }
 
-mock.onGet(`/api/customers`).reply(() => {
-    const raw = localStorage.getItem(TEMPLATES_KEY)
-    const Data = raw ? (JSON.parse(raw) as Template[]) : []
-
+mock.onGet(`/api/category`).reply(() => {
+    const raw = localStorage.getItem(CATEGORIES_KEY)
+    const Data = raw ? (JSON.parse(raw) as Category[]) : []
     const response = {
         list: Data,
         total: Data.length,
@@ -43,13 +17,27 @@ mock.onGet(`/api/customers`).reply(() => {
     return [200, response]
 })
 
-mock.onGet(`/api/category`).reply(() => {
+mock.onPost('/api/category').reply((config) => {
     const raw = localStorage.getItem(CATEGORIES_KEY)
-    const Data = raw ? (JSON.parse(raw) as Template[]) : []
-    const response = {
-        list: Data,
-        total: Data.length,
+    const existing = raw ? (JSON.parse(raw) as Category[]) : []
+
+    const category = JSON.parse(config.data)
+
+    let updated: Category[]
+
+    const index = existing.findIndex((c) => c.id === category.id)
+
+    if (index > -1) {
+        // Update existing
+        existing[index] = { ...existing[index], ...category }
+        updated = [...existing]
+    } else {
+        // Add new
+        category.id = category.id || Date.now()
+        updated = [...existing, category]
     }
 
-    return [200, response]
+    localStorage.setItem(CATEGORIES_KEY, JSON.stringify(updated))
+
+    return [200, { message: 'Category saved successfully' }]
 })

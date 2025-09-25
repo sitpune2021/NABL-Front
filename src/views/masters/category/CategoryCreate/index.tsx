@@ -1,3 +1,3 @@
-import TemplateCreate from './CategoryCreate'
+import CategoryAddEdit from './CategoryCreate'
 
-export default TemplateCreate
+export default CategoryAddEdit
