@@ -1,10 +1,10 @@
-import useCustomerList from '../hooks/useCustomerList'
-import CustomerListSearch from './CustomerListSearch'
-import CustomerTableFilter from './CustomerListTableFilter'
+import useCategoryList from '../hooks/useCategoryList'
+import CategoryListSearch from './CategoryListSearch'
+import CategoryListTableFilter from './CategoryListTableFilter'
 import cloneDeep from 'lodash/cloneDeep'
 
-const CustomersListTableTools = () => {
-    const { tableData, setTableData } = useCustomerList()
+const CategoryListTableTools = () => {
+    const { tableData, setTableData } = useCategoryList()
 
     const handleInputChange = (val: string) => {
         const newTableData = cloneDeep(tableData)
@@ -21,10 +21,10 @@ const CustomersListTableTools = () => {
 
     return (
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2">
-            <CustomerListSearch onInputChange={handleInputChange} />
-            <CustomerTableFilter />
+            <CategoryListSearch onInputChange={handleInputChange} />
+            <CategoryListTableFilter />
         </div>
     )
 }
 
-export default CustomersListTableTools
+export default CategoryListTableTools

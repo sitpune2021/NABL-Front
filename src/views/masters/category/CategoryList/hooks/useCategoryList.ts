@@ -1,10 +1,10 @@
-import { apiGetCustomersList } from '@/services/TemplateListService'
+import { apiGetCategoryList } from '@/services/TemplateListService'
 import useSWR from 'swr'
 import { useCustomerListStore } from '../store/customerListStore'
 import type { GetCustomersListResponse } from '../types'
 import type { TableQueries } from '@/@types/common'
 
-export default function useCustomerList() {
+export default function useCategoryList() {
     const {
         tableData,
         filterData,
@@ -16,10 +16,10 @@ export default function useCustomerList() {
     } = useCustomerListStore((state) => state)
 
     const { data, error, isLoading, mutate } = useSWR(
-        ['/api/customers', { ...tableData, ...filterData }],
+        ['/api/category', { ...tableData, ...filterData }],
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         ([_, params]) =>
-            apiGetCustomersList<GetCustomersListResponse, TableQueries>(params),
+            apiGetCategoryList<GetCustomersListResponse, TableQueries>(params),
         {
             revalidateOnFocus: false,
         },

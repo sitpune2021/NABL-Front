@@ -1,18 +1,13 @@
 import { useMemo } from 'react'
 import Tooltip from '@/components/ui/Tooltip'
 import DataTable from '@/components/shared/DataTable'
-import useCustomerList from '../hooks/useCustomerList'
+import useCustomerList from '../hooks/useCategoryList'
 import { useNavigate } from 'react-router'
 import cloneDeep from 'lodash/cloneDeep'
 import { TbPencil, TbEye } from 'react-icons/tb'
 import type { OnSortParam, ColumnDef, Row } from '@/components/shared/DataTable'
 import type { Customer } from '../types'
 import type { TableQueries } from '@/@types/common'
-
-// const statusColor: Record<string, string> = {
-//     active: 'bg-emerald-200 dark:bg-emerald-200 text-gray-900 dark:text-gray-900',
-//     blocked: 'bg-red-200 dark:bg-red-200 text-gray-900 dark:text-gray-900',
-// }
 
 const ActionColumn = ({
     onEdit,
@@ -45,7 +40,7 @@ const ActionColumn = ({
     )
 }
 
-const CustomerListTable = () => {
+const CategoryListTable = () => {
     const navigate = useNavigate()
 
     const {
@@ -73,36 +68,6 @@ const CustomerListTable = () => {
                 header: 'Name',
                 accessorKey: 'name',
             },
-
-            // {
-            //     header: 'Created At',
-            //     accessorKey: 'createdAt',
-            // },
-            // {
-            //     header: 'updated At',
-            //     accessorKey: 'updatedAt',
-            // },
-            // {
-            //     header: 'Status',
-            //     accessorKey: 'status',
-            //     cell: (props) => {
-            //         const row = props.row.original
-            //         return (
-            //             <div className="flex items-center">
-            //                 <Tag className={statusColor[row.status]}>
-            //                     <span className="capitalize">{row.status}</span>
-            //                 </Tag>
-            //             </div>
-            //         )
-            //     },
-            // },
-            // {
-            //     header: 'Spent',
-            //     accessorKey: 'totalSpending',
-            //     cell: (props) => {
-            //         return <span>${props.row.original.totalSpending}</span>
-            //     },
-            // },
             {
                 header: '',
                 id: 'action',
@@ -185,4 +150,4 @@ const CustomerListTable = () => {
     )
 }
 
-export default CustomerListTable
+export default CategoryListTable

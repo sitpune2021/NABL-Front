@@ -19,39 +19,6 @@ const masterNavigationConfig: NavigationTree[] = [
         meta: {},
         subMenu: [
             {
-                key: 'masters.templates',
-                path: '',
-                title: 'Template',
-                translateKey: 'nav.mastersTemplates.templates',
-                icon: 'ai',
-                type: NAV_ITEM_TYPE_COLLAPSE,
-                authority: [],
-                meta: {
-                    description: {
-                        translateKey: 'nav.mastersTemplates.templatesDesc',
-                        label: 'AI tools and resources',
-                    },
-                },
-                subMenu: [
-                    {
-                        key: 'masters.templates.list',
-                        path: `${MASTER_PREFIX_PATH}/templates/list`,
-                        title: 'List',
-                        translateKey: 'nav.mastersTemplates.list',
-                        icon: 'aiChat',
-                        type: NAV_ITEM_TYPE_ITEM,
-                        authority: [],
-                        meta: {
-                            description: {
-                                translateKey: 'nav.mastersTemplates.listDesc',
-                                label: 'AI-powered chat systems',
-                            },
-                        },
-                        subMenu: [],
-                    },
-                ],
-            },
-            {
                 key: 'masters.category',
                 path: '',
                 title: 'Category',

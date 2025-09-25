@@ -8,17 +8,17 @@ import Notification from '@/components/ui/Notification'
 import toast from '@/components/ui/toast'
 import RichTextEditor from '@/components/shared/RichTextEditor'
 import ConfirmDialog from '@/components/shared/ConfirmDialog'
-import useCustomerList from '../hooks/useCustomerList'
 import { TbChecks } from 'react-icons/tb'
+import useCategoryList from '../hooks/useCategoryList'
 
-const CustomerListSelected = () => {
+const CategoryListSelected = () => {
     const {
         selectedCustomer,
         customerList,
         mutate,
         customerListTotal,
         setSelectAllCustomer,
-    } = useCustomerList()
+    } = useCategoryList()
 
     const [deleteConfirmationOpen, setDeleteConfirmationOpen] = useState(false)
     const [sendMessageDialogOpen, setSendMessageDialogOpen] = useState(false)
@@ -174,4 +174,4 @@ const CustomerListSelected = () => {
     )
 }
 
-export default CustomerListSelected
+export default CategoryListSelected

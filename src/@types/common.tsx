@@ -22,3 +22,13 @@ export type TraslationFn = (
     key: string,
     fallback?: string | Record<string, string | number>,
 ) => string
+
+export interface ActionButton {
+    label: string
+    icon?: React.ReactNode
+    path: string
+}
+
+export interface ListActionToolsProps {
+    buttons: ActionButton[]
+}
