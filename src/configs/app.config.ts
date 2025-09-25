@@ -1,3 +1,5 @@
+import endpointConfig from './endpoint.config'
+
 export type AppConfig = {
     apiPrefix: string
     authenticatedEntryPath: string
@@ -10,7 +12,7 @@ export type AppConfig = {
 
 const appConfig: AppConfig = {
     apiPrefix: '/api',
-    authenticatedEntryPath: '/home',
+    authenticatedEntryPath: `${endpointConfig.dashbord}`,
     unAuthenticatedEntryPath: '/sign-in',
     locale: 'en',
     accessTokenPersistStrategy: 'cookies',

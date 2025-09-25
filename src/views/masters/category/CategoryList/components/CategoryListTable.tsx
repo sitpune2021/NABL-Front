@@ -1,13 +1,14 @@
 import { useMemo } from 'react'
 import Tooltip from '@/components/ui/Tooltip'
 import DataTable from '@/components/shared/DataTable'
-import useCustomerList from '../hooks/useCategoryList'
 import { useNavigate } from 'react-router'
 import cloneDeep from 'lodash/cloneDeep'
 import { TbPencil, TbEye } from 'react-icons/tb'
 import type { OnSortParam, ColumnDef, Row } from '@/components/shared/DataTable'
-import type { Customer } from '../types'
 import type { TableQueries } from '@/@types/common'
+import { Category } from '../types'
+import useCategoryList from '../hooks/useCategoryList'
+import endpointConfig from '@/configs/endpoint.config'
 
 const ActionColumn = ({
     onEdit,
@@ -52,17 +53,17 @@ const CategoryListTable = () => {
         setSelectAllCustomer,
         setSelectedCustomer,
         selectedCustomer,
-    } = useCustomerList()
+    } = useCategoryList()
 
-    const handleEdit = (customer: Customer) => {
-        navigate(`/concepts/customers/customer-edit/${customer.id}`)
+    const handleEdit = (category: Category) => {
+        navigate(`${endpointConfig.master.category.edit}/${category.id}`)
     }
 
-    const handleViewDetails = (customer: Customer) => {
-        navigate(`/concepts/customers/customer-details/${customer.id}`)
+    const handleViewDetails = (category: Category) => {
+        navigate(`${endpointConfig.master.category.details}/${category.id}`)
     }
 
-    const columns: ColumnDef<Customer>[] = useMemo(
+    const columns: ColumnDef<Category>[] = useMemo(
         () => [
             {
                 header: 'Name',
@@ -111,11 +112,11 @@ const CategoryListTable = () => {
         handleSetTableData(newTableData)
     }
 
-    const handleRowSelect = (checked: boolean, row: Customer) => {
+    const handleRowSelect = (checked: boolean, row: Category) => {
         setSelectedCustomer(checked, row)
     }
 
-    const handleAllRowSelect = (checked: boolean, rows: Row<Customer>[]) => {
+    const handleAllRowSelect = (checked: boolean, rows: Row<Category>[]) => {
         if (checked) {
             const originalRows = rows.map((row) => row.original)
             setSelectAllCustomer(originalRows)

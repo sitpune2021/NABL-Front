@@ -1,4 +1,3 @@
-import { MASTER_PREFIX_PATH } from '@/constants/route.constant'
 import {
     NAV_ITEM_TYPE_TITLE,
     NAV_ITEM_TYPE_COLLAPSE,
@@ -6,6 +5,7 @@ import {
 } from '@/constants/navigation.constant'
 import {} from '@/constants/roles.constant'
 import type { NavigationTree } from '@/@types/navigation'
+import endpointConfig from '../endpoint.config'
 
 const masterNavigationConfig: NavigationTree[] = [
     {
@@ -35,7 +35,7 @@ const masterNavigationConfig: NavigationTree[] = [
                 subMenu: [
                     {
                         key: 'masters.category.list',
-                        path: `${MASTER_PREFIX_PATH}/category/list`,
+                        path: `${endpointConfig.master.category.list}`,
                         title: 'List',
                         translateKey: 'nav.mastersCategory.list',
                         icon: 'aiChat',

@@ -1,3 +1,5 @@
+import { MASTER_PREFIX_PATH } from '@/constants/route.constant'
+
 export const apiPrefix = '/api'
 
 const endpointConfig = {
@@ -6,6 +8,15 @@ const endpointConfig = {
     signUp: '/sign-up',
     forgotPassword: '/forgot-password',
     resetPassword: '/reset-password',
+    dashbord: '/home',
+    master: {
+        category: {
+            list: `${MASTER_PREFIX_PATH}/category/list`,
+            create: `${MASTER_PREFIX_PATH}/category/create`,
+            edit: `${MASTER_PREFIX_PATH}/category/edit`,
+            details: `${MASTER_PREFIX_PATH}/category/details`,
+        },
+    },
 }
 
 export default endpointConfig
