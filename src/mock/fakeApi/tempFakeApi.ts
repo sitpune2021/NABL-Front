@@ -1,10 +1,6 @@
+import { Category } from '@/@types/category'
 import { mock } from '../MockAdapter'
 import { CATEGORIES_KEY } from '@/constants/api.constant'
-
-interface Category {
-    id: string
-    name: string
-}
 
 mock.onGet(`/api/category`).reply(() => {
     const raw = localStorage.getItem(CATEGORIES_KEY)

@@ -2,22 +2,20 @@ import { useState } from 'react'
 import StickyFooter from '@/components/shared/StickyFooter'
 import Button from '@/components/ui/Button'
 import Dialog from '@/components/ui/Dialog'
-import Avatar from '@/components/ui/Avatar'
-import Tooltip from '@/components/ui/Tooltip'
 import Notification from '@/components/ui/Notification'
 import toast from '@/components/ui/toast'
 import RichTextEditor from '@/components/shared/RichTextEditor'
 import ConfirmDialog from '@/components/shared/ConfirmDialog'
 import { TbChecks } from 'react-icons/tb'
-import useCategoryList from '../hooks/useCategoryList'
+import useCategoryList from '../hooks/useList'
 
 const CategoryListSelected = () => {
     const {
-        selectedCustomer,
-        customerList,
+        selectedCategory,
+        categoryList,
         mutate,
-        customerListTotal,
-        setSelectAllCustomer,
+        categoryListTotal,
+        setSelectAllCategory,
     } = useCategoryList()
 
     const [deleteConfirmationOpen, setDeleteConfirmationOpen] = useState(false)
@@ -33,16 +31,16 @@ const CategoryListSelected = () => {
     }
 
     const handleConfirmDelete = () => {
-        const newCustomerList = customerList.filter((customer) => {
-            return !selectedCustomer.some(
-                (selected) => selected.id === customer.id,
+        const newCategoryList = categoryList.filter((category) => {
+            return !selectedCategory.some(
+                (selected) => selected.id === category.id,
             )
         })
-        setSelectAllCustomer([])
+        setSelectAllCategory([])
         mutate(
             {
-                list: newCustomerList,
-                total: customerListTotal - selectedCustomer.length,
+                list: newCategoryList,
+                total: categoryListTotal - selectedCategory.length,
             },
             false,
         )
@@ -58,13 +56,13 @@ const CategoryListSelected = () => {
             )
             setSendMessageLoading(false)
             setSendMessageDialogOpen(false)
-            setSelectAllCustomer([])
+            setSelectAllCategory([])
         }, 500)
     }
 
     return (
         <>
-            {selectedCustomer.length > 0 && (
+            {selectedCategory.length > 0 && (
                 <StickyFooter
                     className=" flex items-center justify-between py-4 bg-white dark:bg-gray-800"
                     stickyClass="-mx-4 sm:-mx-8 border-t border-gray-200 dark:border-gray-700 px-8"
@@ -73,15 +71,15 @@ const CategoryListSelected = () => {
                     <div className="container mx-auto">
                         <div className="flex items-center justify-between">
                             <span>
-                                {selectedCustomer.length > 0 && (
+                                {selectedCategory.length > 0 && (
                                     <span className="flex items-center gap-2">
                                         <span className="text-lg text-primary">
                                             <TbChecks />
                                         </span>
                                         <span className="font-semibold flex items-center gap-1">
                                             <span className="heading-text">
-                                                {selectedCustomer.length}{' '}
-                                                Customers
+                                                {selectedCategory.length}{' '}
+                                                Categorys
                                             </span>
                                             <span>selected</span>
                                         </span>
@@ -118,7 +116,7 @@ const CategoryListSelected = () => {
             <ConfirmDialog
                 isOpen={deleteConfirmationOpen}
                 type="danger"
-                title="Remove customers"
+                title="Remove categories"
                 onClose={handleCancel}
                 onRequestClose={handleCancel}
                 onCancel={handleCancel}
@@ -126,8 +124,8 @@ const CategoryListSelected = () => {
             >
                 <p>
                     {' '}
-                    Are you sure you want to remove these customers? This action
-                    can&apos;t be undo.{' '}
+                    Are you sure you want to remove these categories? This
+                    action can&apos;t be undo.{' '}
                 </p>
             </ConfirmDialog>
             <Dialog
@@ -136,20 +134,20 @@ const CategoryListSelected = () => {
                 onClose={() => setSendMessageDialogOpen(false)}
             >
                 <h5 className="mb-2">Send Message</h5>
-                <p>Send message to the following customers</p>
-                <Avatar.Group
+                <p>Send message to the following categories</p>
+                {/* <Avatar.Group
                     chained
                     omittedAvatarTooltip
                     className="mt-4"
                     maxCount={4}
                     omittedAvatarProps={{ size: 30 }}
                 >
-                    {selectedCustomer.map((customer) => (
-                        <Tooltip key={customer.id} title={customer.name}>
-                            <Avatar size={30} src={customer.img} alt="" />
+                    {selectedCategory.map((category) => (
+                        <Tooltip key={category.id} title={category.name}>
+                            <Avatar size={30} src={category.img} alt="" />
                         </Tooltip>
                     ))}
-                </Avatar.Group>
+                </Avatar.Group> */}
                 <div className="my-4">
                     <RichTextEditor content={''} />
                 </div>

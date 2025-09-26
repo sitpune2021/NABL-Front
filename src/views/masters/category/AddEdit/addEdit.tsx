@@ -3,14 +3,13 @@ import Container from '@/components/shared/Container'
 import Button from '@/components/ui/Button'
 import Notification from '@/components/ui/Notification'
 import toast from '@/components/ui/toast'
-import CustomerForm from '../CategoryForm'
 import ConfirmDialog from '@/components/shared/ConfirmDialog'
 import sleep from '@/utils/sleep'
 import { TbTrash } from 'react-icons/tb'
 import { useNavigate } from 'react-router'
-import type { CustomerFormSchema } from '../CategoryForm'
-import useCategoryList from '../CategoryList/hooks/useCategoryList'
 import endpointConfig from '@/configs/endpoint.config'
+import useCategoryList from '../List/hooks/useList'
+import CategoryForm, { CategoryFormSchema } from '../Form'
 
 const CategoryAddEdit = () => {
     const navigate = useNavigate()
@@ -20,14 +19,14 @@ const CategoryAddEdit = () => {
         useState(false)
     const [isSubmiting, setIsSubmiting] = useState(false)
 
-    const handleFormSubmit = async (values: CustomerFormSchema) => {
+    const handleFormSubmit = async (values: CategoryFormSchema) => {
         console.log('Submitted values', values)
         setIsSubmiting(true)
         await saveCategoryData(values)
         await sleep(800)
         setIsSubmiting(false)
         toast.push(
-            <Notification type="success">Customer created!</Notification>,
+            <Notification type="success">Category created!</Notification>,
             { placement: 'top-center' },
         )
         navigate(`${endpointConfig.master.category.list}`)
@@ -36,7 +35,7 @@ const CategoryAddEdit = () => {
     const handleConfirmDiscard = () => {
         setDiscardConfirmationOpen(true)
         toast.push(
-            <Notification type="success">Customer discardd!</Notification>,
+            <Notification type="success">Category discardd!</Notification>,
             { placement: 'top-center' },
         )
         navigate(`${endpointConfig.master.category.list}`)
@@ -52,8 +51,8 @@ const CategoryAddEdit = () => {
 
     return (
         <>
-            <CustomerForm
-                newCustomer
+            <CategoryForm
+                newCategory
                 defaultValues={{
                     name: '',
                 }}
@@ -84,7 +83,7 @@ const CategoryAddEdit = () => {
                         </div>
                     </div>
                 </Container>
-            </CustomerForm>
+            </CategoryForm>
             <ConfirmDialog
                 isOpen={discardConfirmationOpen}
                 type="danger"

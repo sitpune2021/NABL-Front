@@ -8,7 +8,7 @@ import { TbFilter } from 'react-icons/tb'
 import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import useCategoryList from '../hooks/useCategoryList'
+import useCategoryList from '../hooks/useList'
 
 type FormSchema = {
     purchasedProducts: string

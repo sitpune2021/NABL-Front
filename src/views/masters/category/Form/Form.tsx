@@ -8,23 +8,23 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import type { CommonProps } from '@/@types/common'
-import type { CustomerFormSchema } from './types'
+import { CategoryFormSchema } from '@/@types/category'
 
-type CustomerFormProps = {
-    onFormSubmit: (values: CustomerFormSchema) => void
-    defaultValues?: CustomerFormSchema
-    newCustomer?: boolean
+type CategoryFormProps = {
+    onFormSubmit: (values: CategoryFormSchema) => void
+    defaultValues?: CategoryFormSchema
+    newCategory?: boolean
 } & CommonProps
 
 const validationSchema = z.object({
     name: z.string().min(1, { message: ' name required' }),
 })
 
-const CustomerForm = (props: CustomerFormProps) => {
+const CategoryForm = (props: CategoryFormProps) => {
     const {
         onFormSubmit,
         defaultValues = {},
-        // newCustomer = false,
+        // newCategory = false,
         children,
     } = props
 
@@ -33,7 +33,7 @@ const CustomerForm = (props: CustomerFormProps) => {
         reset,
         formState: { errors },
         control,
-    } = useForm<CustomerFormSchema>({
+    } = useForm<CategoryFormSchema>({
         defaultValues: {
             ...defaultValues,
         },
@@ -47,7 +47,7 @@ const CustomerForm = (props: CustomerFormProps) => {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [JSON.stringify(defaultValues)])
 
-    const onSubmit = (values: CustomerFormSchema) => {
+    const onSubmit = (values: CategoryFormSchema) => {
         onFormSubmit?.(values)
     }
 
@@ -69,4 +69,4 @@ const CustomerForm = (props: CustomerFormProps) => {
     )
 }
 
-export default CustomerForm
+export default CategoryForm

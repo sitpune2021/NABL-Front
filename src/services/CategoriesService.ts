@@ -1,4 +1,4 @@
-import { CategoryAdd } from '@/views/masters/category/CategoryList/types'
+import { Fields } from '@/@types/category'
 import ApiService from './ApiService'
 
 export async function apiGetCategoryList<T, U extends Record<string, unknown>>(
@@ -11,8 +11,8 @@ export async function apiGetCategoryList<T, U extends Record<string, unknown>>(
     })
 }
 
-export async function apiCategory(data: CategoryAdd) {
-    return ApiService.fetchDataWithAxios<CategoryAdd>({
+export async function apiCategory(data: Fields) {
+    return ApiService.fetchDataWithAxios<Fields>({
         url: '/category',
         method: 'post',
         data,

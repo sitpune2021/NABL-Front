@@ -6,15 +6,13 @@ const masterRoute: Routes = [
     {
         key: 'masters.category.list',
         path: `${endpointConfig.master.category.list}`,
-        component: lazy(() => import('@/views/masters/category/CategoryList')),
+        component: lazy(() => import('@/views/masters/category/List')),
         authority: [],
     },
     {
         key: 'masters.category.list',
         path: `${endpointConfig.master.category.create}`,
-        component: lazy(
-            () => import('@/views/masters/category/CategoryCreate'),
-        ),
+        component: lazy(() => import('@/views/masters/category/AddEdit')),
         authority: [],
     },
 ]

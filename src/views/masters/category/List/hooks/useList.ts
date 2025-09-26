@@ -1,19 +1,19 @@
-import { apiCategory, apiGetCategoryList } from '@/services/TemplateListService'
+import { apiCategory, apiGetCategoryList } from '@/services/CategoriesService'
 import useSWR from 'swr'
-import { useCustomerListStore } from '../store/customerListStore'
-import type { CategoryAdd, GetCategoryListResponse } from '../types'
+import { useCategoryListStore } from '../store/listStore'
 import type { TableQueries } from '@/@types/common'
+import { Fields, GetCategoryListResponse } from '@/@types/category'
 
 export default function useCategoryList() {
     const {
         tableData,
         filterData,
         setTableData,
-        selectedCustomer,
-        setSelectedCustomer,
-        setSelectAllCustomer,
+        selectedCategory,
+        setSelectedCategory,
+        setSelectAllCategory,
         setFilterData,
-    } = useCustomerListStore((state) => state)
+    } = useCategoryListStore((state) => state)
 
     const { data, error, isLoading, mutate } = useSWR(
         ['/api/category', { ...tableData, ...filterData }],
@@ -24,27 +24,27 @@ export default function useCategoryList() {
             revalidateOnFocus: false,
         },
     )
-    const saveCategoryData = async (category: CategoryAdd) => {
+    const saveCategoryData = async (category: Fields) => {
         await apiCategory(category)
         await mutate() // refresh list
     }
 
-    const customerList = data?.list || []
+    const categoryList = data?.list || []
 
-    const customerListTotal = data?.total || 0
+    const categoryListTotal = data?.total || 0
 
     return {
-        customerList,
-        customerListTotal,
+        categoryList,
+        categoryListTotal,
         error,
         isLoading,
         tableData,
         filterData,
         mutate,
         setTableData,
-        selectedCustomer,
-        setSelectedCustomer,
-        setSelectAllCustomer,
+        selectedCategory,
+        setSelectedCategory,
+        setSelectAllCategory,
         setFilterData,
         saveCategoryData,
     }

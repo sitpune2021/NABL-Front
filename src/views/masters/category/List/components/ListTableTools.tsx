@@ -1,6 +1,6 @@
-import useCategoryList from '../hooks/useCategoryList'
-import CategoryListSearch from './CategoryListSearch'
-import CategoryListTableFilter from './CategoryListTableFilter'
+import useCategoryList from '../hooks/useList'
+import CategoryListSearch from './ListSearch'
+import CategoryListTableFilter from './ListTableFilter'
 import cloneDeep from 'lodash/cloneDeep'
 
 const CategoryListTableTools = () => {

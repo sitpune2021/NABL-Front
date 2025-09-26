@@ -2,7 +2,7 @@ import Card from '@/components/ui/Card'
 import Input from '@/components/ui/Input'
 import { FormItem } from '@/components/ui/Form'
 import { Controller } from 'react-hook-form'
-import type { FormSectionBaseProps } from './types'
+import { FormSectionBaseProps } from '@/@types/category'
 
 type OverviewSectionProps = FormSectionBaseProps
 
