@@ -77,6 +77,31 @@ const masterRoute: Routes = [
         component: lazy(() => import('@/views/masters/unit/AddEdit')),
         authority: [],
     },
+
+    {
+        key: 'masters.roles.list',
+        path: `${endpointConfig.master.roles.list}`,
+        component: lazy(() => import('@/views/masters/roles/List')),
+        authority: [],
+    },
+    {
+        key: 'masters.roles.list',
+        path: `${endpointConfig.master.roles.create}`,
+        component: lazy(() => import('@/views/masters/roles/AddEdit')),
+        authority: [],
+    },
+    {
+        key: 'masters.roles.list',
+        path: endpointConfig.master.roles.edit,
+        component: lazy(() => import('@/views/masters/roles/AddEdit')),
+        authority: [],
+    },
+    {
+        key: 'masters.roles.list',
+        path: endpointConfig.master.roles.view,
+        component: lazy(() => import('@/views/masters/roles/AddEdit')),
+        authority: [],
+    },
 ]
 
 export default masterRoute
