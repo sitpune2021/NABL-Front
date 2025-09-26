@@ -22,6 +22,12 @@ const endpointConfig = {
             edit: `${MASTER_PREFIX_PATH}/department/edit/:id`,
             view: `${MASTER_PREFIX_PATH}/department/view/:id`,
         },
+        unit: {
+            list: `${MASTER_PREFIX_PATH}/unit/list`,
+            create: `${MASTER_PREFIX_PATH}/unit/create`,
+            edit: `${MASTER_PREFIX_PATH}/unit/edit/:id`,
+            view: `${MASTER_PREFIX_PATH}/unit/view/:id`,
+        },
     },
 }
 

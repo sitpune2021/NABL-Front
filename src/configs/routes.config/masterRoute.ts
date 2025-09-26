@@ -52,6 +52,31 @@ const masterRoute: Routes = [
         component: lazy(() => import('@/views/masters/department/AddEdit')),
         authority: [],
     },
+
+    {
+        key: 'masters.unit.list',
+        path: `${endpointConfig.master.unit.list}`,
+        component: lazy(() => import('@/views/masters/unit/List')),
+        authority: [],
+    },
+    {
+        key: 'masters.unit.list',
+        path: `${endpointConfig.master.unit.create}`,
+        component: lazy(() => import('@/views/masters/unit/AddEdit')),
+        authority: [],
+    },
+    {
+        key: 'masters.unit.list',
+        path: endpointConfig.master.unit.edit,
+        component: lazy(() => import('@/views/masters/unit/AddEdit')),
+        authority: [],
+    },
+    {
+        key: 'masters.unit.list',
+        path: endpointConfig.master.unit.view,
+        component: lazy(() => import('@/views/masters/unit/AddEdit')),
+        authority: [],
+    },
 ]
 
 export default masterRoute
