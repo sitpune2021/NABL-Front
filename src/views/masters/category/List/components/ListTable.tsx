@@ -1,13 +1,13 @@
 import { useMemo } from 'react'
 import Tooltip from '@/components/ui/Tooltip'
 import DataTable from '@/components/shared/DataTable'
-// import { useNavigate } from 'react-router'
+import { useNavigate } from 'react-router'
 import cloneDeep from 'lodash/cloneDeep'
 import { TbPencil, TbEye } from 'react-icons/tb'
 import type { OnSortParam, ColumnDef, Row } from '@/components/shared/DataTable'
 import type { TableQueries } from '@/@types/common'
 import useCategoryList from '../hooks/useList'
-// import endpointConfig from '@/configs/endpoint.config'
+import endpointConfig from '@/configs/endpoint.config'
 import { Category } from '@/@types/category'
 
 const ActionColumn = ({
@@ -42,7 +42,7 @@ const ActionColumn = ({
 }
 
 const CategoryListTable = () => {
-    // const navigate = useNavigate()
+    const navigate = useNavigate()
 
     const {
         categoryList,
@@ -55,13 +55,21 @@ const CategoryListTable = () => {
         selectedCategory,
     } = useCategoryList()
 
-    // const handleEdit = (category: Category) => {
-    //     // navigate(`${endpointConfig.master.category.edit}/${category.id}`)
-    // }
+    const handleEdit = (category: Category) => {
+        const path = endpointConfig.master.category.edit.replace(
+            ':id',
+            String(category.id),
+        )
+        navigate(path)
+    }
 
-    // const handleViewDetails = (category: Category) => {
-    //     // navigate(`${endpointConfig.master.category.details}/${category.id}`)
-    // }
+    const handleViewDetails = (category: Category) => {
+        const path = endpointConfig.master.category.view.replace(
+            ':id',
+            String(category.id),
+        )
+        navigate(path)
+    }
 
     const columns: ColumnDef<Category>[] = useMemo(
         () => [
@@ -72,13 +80,11 @@ const CategoryListTable = () => {
             {
                 header: '',
                 id: 'action',
-                cell: () => (
+                cell: (props) => (
                     <ActionColumn
-                        onEdit={() => null}
-                        // onEdit={() => handleEdit(props.row.original)}
+                        onEdit={() => handleEdit(props.row.original)}
                         onViewDetail={() =>
-                            // handleViewDetails(props.row.original)
-                            null
+                            handleViewDetails(props.row.original)
                         }
                     />
                 ),

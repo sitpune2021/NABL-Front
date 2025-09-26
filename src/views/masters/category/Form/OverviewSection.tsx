@@ -6,7 +6,11 @@ import { FormSectionBaseProps } from '@/@types/category'
 
 type OverviewSectionProps = FormSectionBaseProps
 
-const OverviewSection = ({ control, errors }: OverviewSectionProps) => {
+const OverviewSection = ({
+    control,
+    errors,
+    readOnly,
+}: OverviewSectionProps) => {
     return (
         <Card>
             <h4 className="mb-6">Overview</h4>
@@ -23,6 +27,7 @@ const OverviewSection = ({ control, errors }: OverviewSectionProps) => {
                             <Input
                                 type="text"
                                 autoComplete="off"
+                                readOnly={readOnly}
                                 placeholder="First Name"
                                 {...field}
                             />

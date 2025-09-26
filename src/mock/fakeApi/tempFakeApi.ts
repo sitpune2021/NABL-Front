@@ -37,3 +37,45 @@ mock.onPost('/api/category').reply((config) => {
 
     return [200, { message: 'Category saved successfully' }]
 })
+
+mock.onGet(new RegExp('/api/category/\\d+')).reply((config) => {
+    const id = config.url?.split('/').pop()
+
+    const raw = localStorage.getItem(CATEGORIES_KEY)
+    const categories = raw ? (JSON.parse(raw) as Category[]) : []
+
+    const category = categories.find((c) => String(c.id) === id)
+
+    if (category) {
+        return [200, category]
+    } else {
+        return [404, { message: 'Category not found' }]
+    }
+})
+
+mock.onPut(new RegExp('^/api/category/\\d+$')).reply((config) => {
+    const url = config.url || ''
+    const id = url.split('/').pop()
+
+    if (!id) {
+        return [400, { message: 'Category ID is required' }]
+    }
+
+    const raw = localStorage.getItem(CATEGORIES_KEY)
+    const categories = raw ? (JSON.parse(raw) as Category[]) : []
+
+    const updatedCategory = JSON.parse(config.data)
+
+    const index = categories.findIndex((c) => String(c.id) === id)
+
+    if (index === -1) {
+        return [404, { message: 'Category not found' }]
+    }
+
+    // Update the category at found index
+    categories[index] = { ...categories[index], ...updatedCategory }
+
+    localStorage.setItem(CATEGORIES_KEY, JSON.stringify(categories))
+
+    return [200, { message: 'Category updated successfully' }]
+})

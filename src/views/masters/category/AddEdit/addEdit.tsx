@@ -1,4 +1,5 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import { useParams, useNavigate, useLocation } from 'react-router'
 import Container from '@/components/shared/Container'
 import Button from '@/components/ui/Button'
 import Notification from '@/components/ui/Notification'
@@ -6,27 +7,53 @@ import toast from '@/components/ui/toast'
 import ConfirmDialog from '@/components/shared/ConfirmDialog'
 import sleep from '@/utils/sleep'
 import { TbTrash } from 'react-icons/tb'
-import { useNavigate } from 'react-router'
 import endpointConfig from '@/configs/endpoint.config'
 import useCategoryList from '../List/hooks/useList'
 import CategoryForm, { CategoryFormSchema } from '../Form'
 
 const CategoryAddEdit = () => {
     const navigate = useNavigate()
-    const { saveCategoryData } = useCategoryList()
+    const location = useLocation()
+    const { id: categoryId } = useParams()
+    const { saveCategoryData, getCategoryById } = useCategoryList()
 
     const [discardConfirmationOpen, setDiscardConfirmationOpen] =
         useState(false)
     const [isSubmiting, setIsSubmiting] = useState(false)
+    const [categoryData, setCategoryData] = useState<CategoryFormSchema | null>(
+        null,
+    )
+    const [loadingData, setLoadingData] = useState(false)
+
+    const isEdit = location.pathname.includes('/edit')
+    const isView = location.pathname.includes('/view')
+    const isAdd = location.pathname.includes('/create')
+
+    // Load existing category data in edit or view mode
+    useEffect(() => {
+        if (!isAdd && categoryId) {
+            setLoadingData(true)
+            getCategoryById(categoryId)
+                .then((data) => {
+                    console.log('Fetched category data:', data)
+
+                    setCategoryData(data)
+                })
+                .finally(() => setLoadingData(false))
+        }
+    }, [categoryId, isAdd])
 
     const handleFormSubmit = async (values: CategoryFormSchema) => {
-        console.log('Submitted values', values)
+        if (isView) return
         setIsSubmiting(true)
-        await saveCategoryData(values)
+        const payload = isEdit ? { ...values, id: categoryId } : values
+        await saveCategoryData(payload)
         await sleep(800)
         setIsSubmiting(false)
         toast.push(
-            <Notification type="success">Category created!</Notification>,
+            <Notification type="success">
+                {isEdit ? 'Category updated!' : 'Category created!'}
+            </Notification>,
             { placement: 'top-center' },
         )
         navigate(`${endpointConfig.master.category.list}`)
@@ -35,52 +62,52 @@ const CategoryAddEdit = () => {
     const handleConfirmDiscard = () => {
         setDiscardConfirmationOpen(true)
         toast.push(
-            <Notification type="success">Category discardd!</Notification>,
+            <Notification type="success">Changes discarded!</Notification>,
             { placement: 'top-center' },
         )
         navigate(`${endpointConfig.master.category.list}`)
     }
 
-    const handleDiscard = () => {
-        setDiscardConfirmationOpen(true)
-    }
+    const handleDiscard = () => setDiscardConfirmationOpen(true)
+    const handleCancel = () => setDiscardConfirmationOpen(false)
 
-    const handleCancel = () => {
-        setDiscardConfirmationOpen(false)
+    if (loadingData && !isAdd) {
+        return <p className="p-4">Loading category data...</p>
     }
 
     return (
         <>
             <CategoryForm
-                newCategory
-                defaultValues={{
-                    name: '',
-                }}
+                newCategory={isAdd}
+                defaultValues={categoryData ?? { name: '' }}
+                readOnly={isView}
                 onFormSubmit={handleFormSubmit}
             >
                 <Container>
                     <div className="flex items-center justify-between px-8">
                         <span></span>
-                        <div className="flex items-center">
-                            <Button
-                                className="ltr:mr-3 rtl:ml-3"
-                                type="button"
-                                customColorClass={() =>
-                                    'border-error ring-1 ring-error text-error hover:border-error hover:ring-error hover:text-error bg-transparent'
-                                }
-                                icon={<TbTrash />}
-                                onClick={handleDiscard}
-                            >
-                                Discard
-                            </Button>
-                            <Button
-                                variant="solid"
-                                type="submit"
-                                loading={isSubmiting}
-                            >
-                                Create
-                            </Button>
-                        </div>
+                        {!isView && (
+                            <div className="flex items-center">
+                                <Button
+                                    className="ltr:mr-3 rtl:ml-3"
+                                    type="button"
+                                    customColorClass={() =>
+                                        'border-error ring-1 ring-error text-error hover:border-error hover:ring-error hover:text-error bg-transparent'
+                                    }
+                                    icon={<TbTrash />}
+                                    onClick={handleDiscard}
+                                >
+                                    Discard
+                                </Button>
+                                <Button
+                                    variant="solid"
+                                    type="submit"
+                                    loading={isSubmiting}
+                                >
+                                    {isEdit ? 'Update' : 'Create'}
+                                </Button>
+                            </div>
+                        )}
                     </div>
                 </Container>
             </CategoryForm>

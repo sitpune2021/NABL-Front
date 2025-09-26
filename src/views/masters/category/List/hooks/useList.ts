@@ -1,4 +1,9 @@
-import { apiCategory, apiGetCategoryList } from '@/services/CategoriesService'
+import {
+    apiCategory,
+    apiGetCategoryList,
+    apiGetCategoryById,
+    apiUpdateCategory,
+} from '@/services/CategoriesService'
 import useSWR from 'swr'
 import { useCategoryListStore } from '../store/listStore'
 import type { TableQueries } from '@/@types/common'
@@ -25,8 +30,18 @@ export default function useCategoryList() {
         },
     )
     const saveCategoryData = async (category: Fields) => {
-        await apiCategory(category)
+        if (category.id) {
+            await apiUpdateCategory(category.id, category)
+        } else {
+            await apiCategory(category)
+        }
         await mutate() // refresh list
+    }
+
+    // ✅ Get single category by ID (for edit or view)
+    const getCategoryById = async (id: string) => {
+        const category = await apiGetCategoryById(id)
+        return category
     }
 
     const categoryList = data?.list || []
@@ -47,5 +62,6 @@ export default function useCategoryList() {
         setSelectAllCategory,
         setFilterData,
         saveCategoryData,
+        getCategoryById, // ✅ Now defined properly
     }
 }

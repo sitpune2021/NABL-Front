@@ -13,8 +13,8 @@ const endpointConfig = {
         category: {
             list: `${MASTER_PREFIX_PATH}/category/list`,
             create: `${MASTER_PREFIX_PATH}/category/create`,
-            edit: `${MASTER_PREFIX_PATH}/category/edit`,
-            details: `${MASTER_PREFIX_PATH}/category/details`,
+            edit: `${MASTER_PREFIX_PATH}/category/edit/:id`,
+            view: `${MASTER_PREFIX_PATH}/category/view/:id`,
         },
     },
 }

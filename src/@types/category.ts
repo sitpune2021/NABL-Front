@@ -31,6 +31,7 @@ export type CategoryListAction = {
 }
 
 export type Fields = {
+    id?: string
     name: string
 }
 
@@ -43,4 +44,5 @@ export type CategoryFormSchema = Fields
 export type FormSectionBaseProps = {
     control: Control<CategoryFormSchema>
     errors: FieldErrors<CategoryFormSchema>
+    readOnly?: boolean
 }

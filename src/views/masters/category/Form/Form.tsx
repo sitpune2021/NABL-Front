@@ -14,6 +14,7 @@ type CategoryFormProps = {
     onFormSubmit: (values: CategoryFormSchema) => void
     defaultValues?: CategoryFormSchema
     newCategory?: boolean
+    readOnly?: boolean
 } & CommonProps
 
 const validationSchema = z.object({
@@ -24,7 +25,7 @@ const CategoryForm = (props: CategoryFormProps) => {
     const {
         onFormSubmit,
         defaultValues = {},
-        // newCategory = false,
+        readOnly = false,
         children,
     } = props
 
@@ -60,7 +61,11 @@ const CategoryForm = (props: CategoryFormProps) => {
             <Container>
                 <div className="flex flex-col md:flex-row gap-4">
                     <div className="gap-4 flex flex-col flex-auto">
-                        <OverviewSection control={control} errors={errors} />
+                        <OverviewSection
+                            control={control}
+                            errors={errors}
+                            readOnly={readOnly}
+                        />
                     </div>
                 </div>
             </Container>
