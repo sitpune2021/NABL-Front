@@ -102,6 +102,31 @@ const masterRoute: Routes = [
         component: lazy(() => import('@/views/masters/roles/AddEdit')),
         authority: [],
     },
+
+    {
+        key: 'masters.subcategory.list',
+        path: `${endpointConfig.master.subcategory.list}`,
+        component: lazy(() => import('@/views/masters/subcategory/List')),
+        authority: [],
+    },
+    {
+        key: 'masters.subcategory.list',
+        path: `${endpointConfig.master.subcategory.create}`,
+        component: lazy(() => import('@/views/masters/subcategory/AddEdit')),
+        authority: [],
+    },
+    {
+        key: 'masters.subcategory.list',
+        path: endpointConfig.master.subcategory.edit,
+        component: lazy(() => import('@/views/masters/subcategory/AddEdit')),
+        authority: [],
+    },
+    {
+        key: 'masters.subcategory.list',
+        path: endpointConfig.master.subcategory.view,
+        component: lazy(() => import('@/views/masters/subcategory/AddEdit')),
+        authority: [],
+    },
 ]
 
 export default masterRoute
