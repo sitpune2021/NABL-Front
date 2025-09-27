@@ -152,6 +152,39 @@ const masterNavigationConfig: NavigationTree[] = [
                     },
                 ],
             },
+            {
+                key: 'masters.signatoryBy',
+                path: '',
+                title: 'SignatoryBy',
+                translateKey: 'nav.mastersSignatoryBy.signatoryBy',
+                icon: 'ai',
+                type: NAV_ITEM_TYPE_COLLAPSE,
+                authority: [],
+                meta: {
+                    description: {
+                        translateKey: 'nav.mastersSignatoryBy.signatoryByDesc',
+                        label: 'AI tools and resources',
+                    },
+                },
+                subMenu: [
+                    {
+                        key: 'masters.signatoryBy.list',
+                        path: `${endpointConfig.master.signatoryBy.list}`,
+                        title: 'List',
+                        translateKey: 'nav.mastersSignatoryBy.list',
+                        icon: 'aiChat',
+                        type: NAV_ITEM_TYPE_ITEM,
+                        authority: [],
+                        meta: {
+                            description: {
+                                translateKey: 'nav.mastersSignatoryBy.listDesc',
+                                label: 'AI-powered chat systems',
+                            },
+                        },
+                        subMenu: [],
+                    },
+                ],
+            },
         ],
     },
 ]
