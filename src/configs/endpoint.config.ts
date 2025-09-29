@@ -40,6 +40,12 @@ const endpointConfig = {
             edit: `${MASTER_PREFIX_PATH}/subcategory/edit/:id`,
             view: `${MASTER_PREFIX_PATH}/subcategory/view/:id`,
         },
+        document: {
+            list: `${MASTER_PREFIX_PATH}/document/list`,
+            create: `${MASTER_PREFIX_PATH}/document/create`,
+            edit: `${MASTER_PREFIX_PATH}/document/edit/:id`,
+            view: `${MASTER_PREFIX_PATH}/document/view/:id`,
+        },
     },
 }
 
