@@ -129,6 +129,32 @@ const masterRoute: Routes = [
         component: lazy(() => import('@/views/masters/signatoryBy/AddEdit')),
         authority: [],
     },
+    // signatoryOn
+
+    {
+        key: 'masters.signatoryOn.list',
+        path: `${endpointConfig.master.signatoryOn.list}`,
+        component: lazy(() => import('@/views/masters/signatoryOn/List')),
+        authority: [],
+    },
+    {
+        key: 'masters.signatoryOn.list',
+        path: `${endpointConfig.master.signatoryOn.create}`,
+        component: lazy(() => import('@/views/masters/signatoryOn/AddEdit')),
+        authority: [],
+    },
+    {
+        key: 'masters.signatoryOn.list',
+        path: endpointConfig.master.signatoryOn.edit,
+        component: lazy(() => import('@/views/masters/signatoryOn/AddEdit')),
+        authority: [],
+    },
+    {
+        key: 'masters.signatoryOn.list',
+        path: endpointConfig.master.signatoryOn.view,
+        component: lazy(() => import('@/views/masters/signatoryOn/AddEdit')),
+        authority: [],
+    },
 ]
 
 export default masterRoute

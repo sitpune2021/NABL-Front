@@ -1,0 +1,162 @@
+import { useMemo } from 'react'
+import Tooltip from '@/components/ui/Tooltip'
+import DataTable from '@/components/shared/DataTable'
+import { useNavigate } from 'react-router'
+import cloneDeep from 'lodash/cloneDeep'
+import { TbPencil, TbEye } from 'react-icons/tb'
+import type { OnSortParam, ColumnDef, Row } from '@/components/shared/DataTable'
+import type { TableQueries } from '@/@types/common'
+import useSignatoryOnList from '../hooks/useList'
+import endpointConfig from '@/configs/endpoint.config'
+import { SignatoryOn } from '@/@types/signatoryOn'
+
+const ActionColumn = ({
+    onEdit,
+    onViewDetail,
+}: {
+    onEdit: () => void
+    onViewDetail: () => void
+}) => {
+    return (
+        <div className="flex items-center gap-3">
+            <Tooltip title="Edit">
+                <div
+                    className={`text-xl cursor-pointer select-none font-semibold`}
+                    role="button"
+                    onClick={onEdit}
+                >
+                    <TbPencil />
+                </div>
+            </Tooltip>
+            <Tooltip title="View">
+                <div
+                    className={`text-xl cursor-pointer select-none font-semibold`}
+                    role="button"
+                    onClick={onViewDetail}
+                >
+                    <TbEye />
+                </div>
+            </Tooltip>
+        </div>
+    )
+}
+
+const SignatoryOnListTable = () => {
+    const navigate = useNavigate()
+
+    const {
+        signatoryOnList,
+        signatoryOnListTotal,
+        tableData,
+        isLoading,
+        setTableData,
+        setSelectAllSignatoryOn,
+        setSelectedSignatoryOn,
+        selectedSignatoryOn,
+    } = useSignatoryOnList()
+
+    const handleEdit = (signatoryOn: SignatoryOn) => {
+        const path = endpointConfig.master.signatoryOn.edit.replace(
+            ':id',
+            String(signatoryOn.id),
+        )
+        navigate(path)
+    }
+
+    const handleViewDetails = (signatoryOn: SignatoryOn) => {
+        const path = endpointConfig.master.signatoryOn.view.replace(
+            ':id',
+            String(signatoryOn.id),
+        )
+        navigate(path)
+    }
+
+    const columns: ColumnDef<SignatoryOn>[] = useMemo(
+        () => [
+            {
+                header: 'Name',
+                accessorKey: 'name',
+            },
+            {
+                header: 'Action',
+                id: 'action',
+                cell: (props) => (
+                    <ActionColumn
+                        onEdit={() => handleEdit(props.row.original)}
+                        onViewDetail={() =>
+                            handleViewDetails(props.row.original)
+                        }
+                    />
+                ),
+            },
+        ],
+
+        [],
+    )
+
+    const handleSetTableData = (data: TableQueries) => {
+        setTableData(data)
+        if (selectedSignatoryOn.length > 0) {
+            setSelectAllSignatoryOn([])
+        }
+    }
+
+    const handlePaginationChange = (page: number) => {
+        const newTableData = cloneDeep(tableData)
+        newTableData.pageIndex = page
+        handleSetTableData(newTableData)
+    }
+
+    const handleSelectChange = (value: number) => {
+        const newTableData = cloneDeep(tableData)
+        newTableData.pageSize = Number(value)
+        newTableData.pageIndex = 1
+        handleSetTableData(newTableData)
+    }
+
+    const handleSort = (sort: OnSortParam) => {
+        const newTableData = cloneDeep(tableData)
+        newTableData.sort = sort
+        handleSetTableData(newTableData)
+    }
+
+    const handleRowSelect = (checked: boolean, row: SignatoryOn) => {
+        setSelectedSignatoryOn(checked, row)
+    }
+
+    const handleAllRowSelect = (checked: boolean, rows: Row<SignatoryOn>[]) => {
+        if (checked) {
+            const originalRows = rows.map((row) => row.original)
+            setSelectAllSignatoryOn(originalRows)
+        } else {
+            setSelectAllSignatoryOn([])
+        }
+    }
+
+    return (
+        <DataTable
+            selectable
+            columns={columns}
+            data={signatoryOnList}
+            noData={!isLoading && signatoryOnList.length === 0}
+            skeletonAvatarColumns={[0]}
+            skeletonAvatarProps={{ width: 28, height: 28 }}
+            loading={isLoading}
+            pagingData={{
+                total: signatoryOnListTotal,
+                pageIndex: tableData.pageIndex as number,
+                pageSize: tableData.pageSize as number,
+            }}
+            checkboxChecked={(row) =>
+                selectedSignatoryOn.some((selected) => selected.id === row.id)
+            }
+            onPaginationChange={handlePaginationChange}
+            onSelectChange={handleSelectChange}
+            onSort={handleSort}
+            onCheckBoxChange={handleRowSelect}
+            onIndeterminateCheckBoxChange={handleAllRowSelect}
+        />
+    )
+}
+
+export default SignatoryOnListTable

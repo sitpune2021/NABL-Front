@@ -40,6 +40,12 @@ const endpointConfig = {
             edit: `${MASTER_PREFIX_PATH}/signatoryBy/edit/:id`,
             view: `${MASTER_PREFIX_PATH}/signatoryBy/view/:id`,
         },
+        signatoryOn: {
+            list: `${MASTER_PREFIX_PATH}/signatoryOn/list`,
+            create: `${MASTER_PREFIX_PATH}/signatoryOn/create`,
+            edit: `${MASTER_PREFIX_PATH}/signatoryOn/edit/:id`,
+            view: `${MASTER_PREFIX_PATH}/signatoryOn/view/:id`,
+        },
     },
 }
 
