@@ -34,6 +34,10 @@ const endpointConfig = {
             edit: `${MASTER_PREFIX_PATH}/roles/edit/:id`,
             view: `${MASTER_PREFIX_PATH}/roles/view/:id`,
         },
+        template: {
+            list: `${MASTER_PREFIX_PATH}/template/list`,
+            create: `${MASTER_PREFIX_PATH}/template/create`,
+        },
     },
 }
 

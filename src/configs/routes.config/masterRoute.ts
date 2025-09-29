@@ -27,7 +27,6 @@ const masterRoute: Routes = [
         component: lazy(() => import('@/views/masters/category/AddEdit')),
         authority: [],
     },
-
     {
         key: 'masters.department.list',
         path: `${endpointConfig.master.department.list}`,
@@ -52,7 +51,6 @@ const masterRoute: Routes = [
         component: lazy(() => import('@/views/masters/department/AddEdit')),
         authority: [],
     },
-
     {
         key: 'masters.unit.list',
         path: `${endpointConfig.master.unit.list}`,
@@ -77,7 +75,6 @@ const masterRoute: Routes = [
         component: lazy(() => import('@/views/masters/unit/AddEdit')),
         authority: [],
     },
-
     {
         key: 'masters.roles.list',
         path: `${endpointConfig.master.roles.list}`,
@@ -101,6 +98,23 @@ const masterRoute: Routes = [
         path: endpointConfig.master.roles.view,
         component: lazy(() => import('@/views/masters/roles/AddEdit')),
         authority: [],
+    },
+    {
+        key: 'masters.template.list',
+        path: `${endpointConfig.master.template.list}`,
+        component: lazy(() => import('@/views/masters/template/List')),
+        authority: [],
+    },
+    {
+        key: 'masters.template.list',
+        path: `${endpointConfig.master.template.create}`,
+        component: lazy(() => import('@/views/masters/template/AddEdit')),
+        authority: [],
+        meta: {
+            layout: 'blank',
+            footer: false,
+            pageContainerType: 'gutterless',
+        },
     },
 ]
 
