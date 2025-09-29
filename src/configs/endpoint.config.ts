@@ -46,6 +46,13 @@ const endpointConfig = {
             edit: `${MASTER_PREFIX_PATH}/signatoryOn/edit/:id`,
             view: `${MASTER_PREFIX_PATH}/signatoryOn/view/:id`,
         },
+
+        lab: {
+            list: `${MASTER_PREFIX_PATH}/lab/list`,
+            create: `${MASTER_PREFIX_PATH}/lab/create`,
+            edit: `${MASTER_PREFIX_PATH}/lab/edit/:id`,
+            view: `${MASTER_PREFIX_PATH}/lab/view/:id`,
+        },
     },
 }
 

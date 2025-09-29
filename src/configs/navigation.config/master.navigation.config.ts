@@ -219,6 +219,40 @@ const masterNavigationConfig: NavigationTree[] = [
                     },
                 ],
             },
+
+            {
+                key: 'masters.lab',
+                path: '',
+                title: 'Lab',
+                translateKey: 'nav.mastersLab.lab',
+                icon: 'ai',
+                type: NAV_ITEM_TYPE_COLLAPSE,
+                authority: [],
+                meta: {
+                    description: {
+                        translateKey: 'nav.mastersLab.labDesc',
+                        label: 'AI tools and resources',
+                    },
+                },
+                subMenu: [
+                    {
+                        key: 'masters.lab.list',
+                        path: `${endpointConfig.master.lab.list}`,
+                        title: 'List',
+                        translateKey: 'nav.mastersLab.list',
+                        icon: 'aiChat',
+                        type: NAV_ITEM_TYPE_ITEM,
+                        authority: [],
+                        meta: {
+                            description: {
+                                translateKey: 'nav.mastersLab.listDesc',
+                                label: 'AI-powered chat systems',
+                            },
+                        },
+                        subMenu: [],
+                    },
+                ],
+            },
         ],
     },
 ]

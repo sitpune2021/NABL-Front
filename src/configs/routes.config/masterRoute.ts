@@ -155,6 +155,31 @@ const masterRoute: Routes = [
         component: lazy(() => import('@/views/masters/signatoryOn/AddEdit')),
         authority: [],
     },
+    // lab
+    {
+        key: 'masters.lab.list',
+        path: `${endpointConfig.master.lab.list}`,
+        component: lazy(() => import('@/views/masters/lab/List')),
+        authority: [],
+    },
+    {
+        key: 'masters.lab.list',
+        path: `${endpointConfig.master.lab.create}`,
+        component: lazy(() => import('@/views/masters/lab/AddEdit')),
+        authority: [],
+    },
+    {
+        key: 'masters.lab.list',
+        path: endpointConfig.master.lab.edit,
+        component: lazy(() => import('@/views/masters/lab/AddEdit')),
+        authority: [],
+    },
+    {
+        key: 'masters.lab.list',
+        path: endpointConfig.master.lab.view,
+        component: lazy(() => import('@/views/masters/lab/AddEdit')),
+        authority: [],
+    },
 ]
 
 export default masterRoute
