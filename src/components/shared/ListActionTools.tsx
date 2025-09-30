@@ -12,7 +12,15 @@ const ListActionTools = ({ buttons }: ListActionToolsProps) => {
                     key={index}
                     variant="solid"
                     icon={btn.icon}
-                    onClick={() => navigate(btn.path)}
+                    disabled={btn.disabled}
+                    onClick={(event) => {
+                        if (btn.disabled) return
+                        if (btn.action) {
+                            btn.action(event)
+                        } else if (btn.path) {
+                            navigate(btn.path)
+                        }
+                    }}
                 >
                     {btn.label}
                 </Button>

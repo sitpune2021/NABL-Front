@@ -77,7 +77,6 @@ const getTopRouteKey = (
 function useMenuActive(navTree: NavigationTree[], key: string) {
     const activedRoute = useMemo(() => {
         const route = getRouteInfo(navTree, key)
-        console.log(route, key)
         return route
     }, [navTree, key])
 

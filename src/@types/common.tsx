@@ -27,8 +27,19 @@ export interface ActionButton {
     label: string
     icon?: React.ReactNode
     path: string
+    disabled?: boolean
+    action?: (
+        event: React.MouseEvent<HTMLButtonElement | HTMLAnchorElement>,
+    ) => void
 }
 
 export interface ListActionToolsProps {
     buttons: ActionButton[]
 }
+
+export type PrefixFormSchema = {
+    id?: string
+    prefix: string
+}
+
+export type GetPrefixResponse = PrefixFormSchema[]
