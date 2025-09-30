@@ -100,6 +100,55 @@ const masterRoute: Routes = [
         authority: [],
     },
     {
+        key: 'masters.subcategory.list',
+        path: `${endpointConfig.master.subcategory.list}`,
+        component: lazy(() => import('@/views/masters/subcategory/List')),
+        authority: [],
+    },
+    {
+        key: 'masters.subcategory.list',
+        path: `${endpointConfig.master.subcategory.create}`,
+        component: lazy(() => import('@/views/masters/subcategory/AddEdit')),
+        authority: [],
+    },
+    {
+        key: 'masters.subcategory.list',
+        path: endpointConfig.master.subcategory.edit,
+        component: lazy(() => import('@/views/masters/subcategory/AddEdit')),
+        authority: [],
+    },
+    {
+        key: 'masters.subcategory.list',
+        path: endpointConfig.master.subcategory.view,
+        component: lazy(() => import('@/views/masters/subcategory/AddEdit')),
+        authority: [],
+    },
+
+    {
+        key: 'masters.document.list',
+        path: `${endpointConfig.master.document.list}`,
+        component: lazy(() => import('@/views/masters/document/List')),
+        authority: [],
+    },
+    {
+        key: 'masters.document.list',
+        path: `${endpointConfig.master.document.create}`,
+        component: lazy(() => import('@/views/masters/document/AddEdit')),
+        authority: [],
+    },
+    {
+        key: 'masters.document.list',
+        path: endpointConfig.master.document.edit,
+        component: lazy(() => import('@/views/masters/document/AddEdit')),
+        authority: [],
+    },
+    {
+        key: 'masters.document.list',
+        path: endpointConfig.master.document.view,
+        component: lazy(() => import('@/views/masters/document/AddEdit')),
+        authority: [],
+    },
+    {
         key: 'masters.template.list',
         path: `${endpointConfig.master.template.list}`,
         component: lazy(() => import('@/views/masters/template/List')),
