@@ -5,13 +5,21 @@ import {
     DEPARTMENTS_KEY,
     ROLES_KEY,
     UNIT_KEY,
+    SIGNATORYBY_KEY,
+    SIGNATORYON_KEY,
+    LAB_KEY,
+    USER_KEY,
     TEMPLATE_KEY,
     SUBCATEGORIES_KEY,
     DOCUMENT_KEY,
 } from '@/constants/api.constant'
 import { Department } from '@/@types/department'
 import { Unit } from '@/@types/unit'
+import { SignatoryBy } from '@/@types/signatoryBy'
+import { SignatoryOn } from '@/@types/signatoryOn'
 import { Roles } from '@/@types/roles'
+import { Lab } from '@/@types/lab'
+import { User } from '@/@types/user'
 import { Template } from '@/@types/template'
 import { SubCategory } from '@/@types/subcategory'
 import { Document } from '@/@types/document'
@@ -94,6 +102,7 @@ mock.onPut(new RegExp('^/api/category/\\d+$')).reply((config) => {
     return [200, { message: 'Category updated successfully' }]
 })
 
+// department
 mock.onGet(`/api/department`).reply(() => {
     const raw = localStorage.getItem(DEPARTMENTS_KEY)
     const Data = raw ? (JSON.parse(raw) as Department[]) : []
@@ -172,6 +181,7 @@ mock.onPut(new RegExp('^/api/department/\\d+$')).reply((config) => {
     return [200, { message: 'Department updated successfully' }]
 })
 
+// unit
 mock.onGet(`/api/unit`).reply(() => {
     const raw = localStorage.getItem(UNIT_KEY)
     const Data = raw ? (JSON.parse(raw) as Unit[]) : []
@@ -250,6 +260,7 @@ mock.onPut(new RegExp('^/api/unit/\\d+$')).reply((config) => {
     return [200, { message: 'Unit updated successfully' }]
 })
 
+// Roles
 mock.onGet(`/api/roles`).reply(() => {
     const raw = localStorage.getItem(ROLES_KEY)
     const Data = raw ? (JSON.parse(raw) as Roles[]) : []
@@ -559,4 +570,323 @@ mock.onPut(new RegExp('^/api/document/\\d+$')).reply((config) => {
     localStorage.setItem(DOCUMENT_KEY, JSON.stringify(document))
 
     return [200, { message: 'Document updated successfully' }]
+})
+
+// signatoryBy
+
+mock.onGet(`/api/signatoryBy`).reply(() => {
+    const raw = localStorage.getItem(SIGNATORYBY_KEY)
+    const Data = raw ? (JSON.parse(raw) as SignatoryBy[]) : []
+    const response = {
+        list: Data,
+        total: Data.length,
+    }
+
+    return [200, response]
+})
+
+mock.onPost('/api/signatoryBy').reply((config) => {
+    const raw = localStorage.getItem(SIGNATORYBY_KEY)
+    const existing = raw ? (JSON.parse(raw) as SignatoryBy[]) : []
+
+    const signatoryBy = JSON.parse(config.data)
+
+    let updated: SignatoryBy[]
+
+    const index = existing.findIndex((c) => c.id === signatoryBy.id)
+
+    if (index > -1) {
+        // Update existing
+        existing[index] = { ...existing[index], ...signatoryBy }
+        updated = [...existing]
+    } else {
+        // Add new
+        signatoryBy.id = signatoryBy.id || Date.now()
+        updated = [...existing, signatoryBy]
+    }
+
+    localStorage.setItem(SIGNATORYBY_KEY, JSON.stringify(updated))
+
+    return [200, { message: 'SignatoryBy saved successfully' }]
+})
+
+mock.onGet(new RegExp('/api/signatoryBy/\\d+')).reply((config) => {
+    const id = config.url?.split('/').pop()
+
+    const raw = localStorage.getItem(SIGNATORYBY_KEY)
+    const signatoryBys = raw ? (JSON.parse(raw) as SignatoryBy[]) : []
+
+    const signatoryBy = signatoryBys.find((d) => String(d.id) === id)
+
+    if (signatoryBy) {
+        return [200, signatoryBy]
+    } else {
+        return [404, { message: 'SignatoryBy not found' }]
+    }
+})
+
+mock.onPut(new RegExp('^/api/signatoryBy/\\d+$')).reply((config) => {
+    const url = config.url || ''
+    const id = url.split('/').pop()
+
+    if (!id) {
+        return [400, { message: 'SignatoryBy ID is required' }]
+    }
+
+    const raw = localStorage.getItem(SIGNATORYBY_KEY)
+    const signatoryBy = raw ? (JSON.parse(raw) as SignatoryBy[]) : []
+
+    const updatedSignatoryBy = JSON.parse(config.data)
+
+    const index = signatoryBy.findIndex((c) => String(c.id) === id)
+
+    if (index === -1) {
+        return [404, { message: 'SignatoryBy not found' }]
+    }
+
+    // Update the signatoryBy at found index
+    signatoryBy[index] = { ...signatoryBy[index], ...updatedSignatoryBy }
+
+    localStorage.setItem(SIGNATORYBY_KEY, JSON.stringify(signatoryBy))
+
+    return [200, { message: 'SignatoryBy updated successfully' }]
+})
+
+// signatoryOn
+
+mock.onGet(`/api/signatoryOn`).reply(() => {
+    const raw = localStorage.getItem(SIGNATORYON_KEY)
+    const Data = raw ? (JSON.parse(raw) as SignatoryOn[]) : []
+    const response = {
+        list: Data,
+        total: Data.length,
+    }
+
+    return [200, response]
+})
+
+mock.onPost('/api/signatoryOn').reply((config) => {
+    const raw = localStorage.getItem(SIGNATORYON_KEY)
+    const existing = raw ? (JSON.parse(raw) as SignatoryOn[]) : []
+
+    const signatoryOn = JSON.parse(config.data)
+
+    let updated: SignatoryOn[]
+
+    const index = existing.findIndex((c) => c.id === signatoryOn.id)
+
+    if (index > -1) {
+        // Update existing
+        existing[index] = { ...existing[index], ...signatoryOn }
+        updated = [...existing]
+    } else {
+        // Add new
+        signatoryOn.id = signatoryOn.id || Date.now()
+        updated = [...existing, signatoryOn]
+    }
+
+    localStorage.setItem(SIGNATORYON_KEY, JSON.stringify(updated))
+
+    return [200, { message: 'SignatoryOn saved successfully' }]
+})
+
+mock.onGet(new RegExp('/api/signatoryOn/\\d+')).reply((config) => {
+    const id = config.url?.split('/').pop()
+
+    const raw = localStorage.getItem(SIGNATORYON_KEY)
+    const signatoryOns = raw ? (JSON.parse(raw) as SignatoryOn[]) : []
+
+    const signatoryOn = signatoryOns.find((d) => String(d.id) === id)
+
+    if (signatoryOn) {
+        return [200, signatoryOn]
+    } else {
+        return [404, { message: 'SignatoryOn not found' }]
+    }
+})
+
+mock.onPut(new RegExp('^/api/signatoryOn/\\d+$')).reply((config) => {
+    const url = config.url || ''
+    const id = url.split('/').pop()
+
+    if (!id) {
+        return [400, { message: 'SignatoryOn ID is required' }]
+    }
+
+    const raw = localStorage.getItem(SIGNATORYON_KEY)
+    const signatoryOn = raw ? (JSON.parse(raw) as SignatoryOn[]) : []
+
+    const updatedSignatoryOn = JSON.parse(config.data)
+
+    const index = signatoryOn.findIndex((c) => String(c.id) === id)
+
+    if (index === -1) {
+        return [404, { message: 'SignatoryOn not found' }]
+    }
+
+    // Update the signatoryOn at found index
+    signatoryOn[index] = { ...signatoryOn[index], ...updatedSignatoryOn }
+
+    localStorage.setItem(SIGNATORYON_KEY, JSON.stringify(signatoryOn))
+
+    return [200, { message: 'SignatoryOn updated successfully' }]
+})
+
+// Lab mock APIs
+
+mock.onGet(`/api/lab`).reply(() => {
+    const raw = localStorage.getItem(LAB_KEY)
+    const Data = raw ? (JSON.parse(raw) as Lab[]) : []
+    const response = {
+        list: Data,
+        total: Data.length,
+    }
+
+    return [200, response]
+})
+
+mock.onPost('/api/lab').reply((config) => {
+    const raw = localStorage.getItem(LAB_KEY)
+    const existing = raw ? (JSON.parse(raw) as Lab[]) : []
+
+    const lab = JSON.parse(config.data)
+
+    let updated: Lab[]
+
+    const index = existing.findIndex((c) => c.id === lab.id)
+
+    if (index > -1) {
+        // Update existing
+        existing[index] = { ...existing[index], ...lab }
+        updated = [...existing]
+    } else {
+        // Add new
+        lab.id = lab.id || Date.now()
+        updated = [...existing, lab]
+    }
+
+    localStorage.setItem(LAB_KEY, JSON.stringify(updated))
+
+    return [200, { message: 'Lab saved successfully' }]
+})
+
+mock.onGet(new RegExp('/api/lab/\\d+')).reply((config) => {
+    const id = config.url?.split('/').pop()
+
+    const raw = localStorage.getItem(LAB_KEY)
+    const labs = raw ? (JSON.parse(raw) as Lab[]) : []
+
+    const lab = labs.find((d) => String(d.id) === id)
+
+    if (lab) {
+        return [200, lab]
+    } else {
+        return [404, { message: 'Lab not found' }]
+    }
+})
+
+mock.onPut(new RegExp('^/api/lab/\\d+$')).reply((config) => {
+    const url = config.url || ''
+    const id = url.split('/').pop()
+
+    if (!id) {
+        return [400, { message: 'Lab ID is required' }]
+    }
+
+    const raw = localStorage.getItem(LAB_KEY)
+    const lab = raw ? (JSON.parse(raw) as Lab[]) : []
+
+    const updatedLab = JSON.parse(config.data)
+
+    const index = lab.findIndex((c) => String(c.id) === id)
+
+    if (index === -1) {
+        return [404, { message: 'Lab not found' }]
+    }
+
+    // Update the lab at found index
+    lab[index] = { ...lab[index], ...updatedLab }
+
+    localStorage.setItem(LAB_KEY, JSON.stringify(lab))
+
+    return [200, { message: 'Lab updated successfully' }]
+})
+
+// User mock APIs
+mock.onGet(`/api/user`).reply(() => {
+    const raw = localStorage.getItem(USER_KEY)
+    const Data = raw ? (JSON.parse(raw) as User[]) : []
+    const response = {
+        list: Data,
+        total: Data.length,
+    }
+
+    return [200, response]
+})
+
+mock.onPost('/api/user').reply((config) => {
+    const raw = localStorage.getItem(USER_KEY)
+    const existing = raw ? (JSON.parse(raw) as User[]) : []
+
+    const user = JSON.parse(config.data)
+
+    let updated: User[]
+
+    const index = existing.findIndex((c) => c.id === user.id)
+
+    if (index > -1) {
+        // Update existing
+        existing[index] = { ...existing[index], ...user }
+        updated = [...existing]
+    } else {
+        // Add new
+        user.id = user.id || Date.now()
+        updated = [...existing, user]
+    }
+
+    localStorage.setItem(USER_KEY, JSON.stringify(updated))
+
+    return [200, { message: 'User saved successfully' }]
+})
+
+mock.onGet(new RegExp('/api/user/\\d+')).reply((config) => {
+    const id = config.url?.split('/').pop()
+
+    const raw = localStorage.getItem(USER_KEY)
+    const users = raw ? (JSON.parse(raw) as User[]) : []
+
+    const user = users.find((d) => String(d.id) === id)
+
+    if (user) {
+        return [200, user]
+    } else {
+        return [404, { message: 'User not found' }]
+    }
+})
+
+mock.onPut(new RegExp('^/api/user/\\d+$')).reply((config) => {
+    const url = config.url || ''
+    const id = url.split('/').pop()
+
+    if (!id) {
+        return [400, { message: 'User ID is required' }]
+    }
+
+    const raw = localStorage.getItem(USER_KEY)
+    const user = raw ? (JSON.parse(raw) as User[]) : []
+
+    const updatedUser = JSON.parse(config.data)
+
+    const index = user.findIndex((c) => String(c.id) === id)
+
+    if (index === -1) {
+        return [404, { message: 'User not found' }]
+    }
+
+    // Update the user at found index
+    user[index] = { ...user[index], ...updatedUser }
+
+    localStorage.setItem(USER_KEY, JSON.stringify(user))
+
+    return [200, { message: 'User updated successfully' }]
 })

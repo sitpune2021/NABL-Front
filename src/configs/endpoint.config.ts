@@ -34,6 +34,32 @@ const endpointConfig = {
             edit: `${MASTER_PREFIX_PATH}/roles/edit/:id`,
             view: `${MASTER_PREFIX_PATH}/roles/view/:id`,
         },
+        signatoryBy: {
+            list: `${MASTER_PREFIX_PATH}/signatoryBy/list`,
+            create: `${MASTER_PREFIX_PATH}/signatoryBy/create`,
+            edit: `${MASTER_PREFIX_PATH}/signatoryBy/edit/:id`,
+            view: `${MASTER_PREFIX_PATH}/signatoryBy/view/:id`,
+        },
+        signatoryOn: {
+            list: `${MASTER_PREFIX_PATH}/signatoryOn/list`,
+            create: `${MASTER_PREFIX_PATH}/signatoryOn/create`,
+            edit: `${MASTER_PREFIX_PATH}/signatoryOn/edit/:id`,
+            view: `${MASTER_PREFIX_PATH}/signatoryOn/view/:id`,
+        },
+
+        lab: {
+            list: `${MASTER_PREFIX_PATH}/lab/list`,
+            create: `${MASTER_PREFIX_PATH}/lab/create`,
+            edit: `${MASTER_PREFIX_PATH}/lab/edit/:id`,
+            view: `${MASTER_PREFIX_PATH}/lab/view/:id`,
+        },
+
+        user: {
+            list: `${MASTER_PREFIX_PATH}/user/list`,
+            create: `${MASTER_PREFIX_PATH}/user/create`,
+            edit: `${MASTER_PREFIX_PATH}/user/edit/:id`,
+            view: `${MASTER_PREFIX_PATH}/user/view/:id`,
+        },
         subcategory: {
             list: `${MASTER_PREFIX_PATH}/subcategory/list`,
             create: `${MASTER_PREFIX_PATH}/subcategory/create`,

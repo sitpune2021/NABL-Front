@@ -99,6 +99,110 @@ const masterRoute: Routes = [
         component: lazy(() => import('@/views/masters/roles/AddEdit')),
         authority: [],
     },
+
+    // signatoryBy
+
+    {
+        key: 'masters.signatoryBy.list',
+        path: `${endpointConfig.master.signatoryBy.list}`,
+        component: lazy(() => import('@/views/masters/signatoryBy/List')),
+        authority: [],
+    },
+    {
+        key: 'masters.signatoryBy.list',
+        path: `${endpointConfig.master.signatoryBy.create}`,
+        component: lazy(() => import('@/views/masters/signatoryBy/AddEdit')),
+        authority: [],
+    },
+    {
+        key: 'masters.signatoryBy.list',
+        path: endpointConfig.master.signatoryBy.edit,
+        component: lazy(() => import('@/views/masters/signatoryBy/AddEdit')),
+        authority: [],
+    },
+    {
+        key: 'masters.signatoryBy.list',
+        path: endpointConfig.master.signatoryBy.view,
+        component: lazy(() => import('@/views/masters/signatoryBy/AddEdit')),
+        authority: [],
+    },
+    // signatoryOn
+
+    {
+        key: 'masters.signatoryOn.list',
+        path: `${endpointConfig.master.signatoryOn.list}`,
+        component: lazy(() => import('@/views/masters/signatoryOn/List')),
+        authority: [],
+    },
+    {
+        key: 'masters.signatoryOn.list',
+        path: `${endpointConfig.master.signatoryOn.create}`,
+        component: lazy(() => import('@/views/masters/signatoryOn/AddEdit')),
+        authority: [],
+    },
+    {
+        key: 'masters.signatoryOn.list',
+        path: endpointConfig.master.signatoryOn.edit,
+        component: lazy(() => import('@/views/masters/signatoryOn/AddEdit')),
+        authority: [],
+    },
+    {
+        key: 'masters.signatoryOn.list',
+        path: endpointConfig.master.signatoryOn.view,
+        component: lazy(() => import('@/views/masters/signatoryOn/AddEdit')),
+        authority: [],
+    },
+    // lab
+    {
+        key: 'masters.lab.list',
+        path: `${endpointConfig.master.lab.list}`,
+        component: lazy(() => import('@/views/masters/lab/List')),
+        authority: [],
+    },
+    {
+        key: 'masters.lab.list',
+        path: `${endpointConfig.master.lab.create}`,
+        component: lazy(() => import('@/views/masters/lab/AddEdit')),
+        authority: [],
+    },
+    {
+        key: 'masters.lab.list',
+        path: endpointConfig.master.lab.edit,
+        component: lazy(() => import('@/views/masters/lab/AddEdit')),
+        authority: [],
+    },
+    {
+        key: 'masters.lab.list',
+        path: endpointConfig.master.lab.view,
+        component: lazy(() => import('@/views/masters/lab/AddEdit')),
+        authority: [],
+    },
+    // user
+    {
+        key: 'masters.user.list',
+        path: `${endpointConfig.master.user.list}`,
+        component: lazy(() => import('@/views/masters/user/List')),
+        authority: [],
+    },
+    {
+        key: 'masters.user.list',
+        path: `${endpointConfig.master.user.create}`,
+        component: lazy(() => import('@/views/masters/user/AddEdit')),
+        authority: [],
+    },
+    {
+        key: 'masters.user.list',
+        path: endpointConfig.master.user.edit,
+        component: lazy(() => import('@/views/masters/user/AddEdit')),
+        authority: [],
+    },
+    {
+        key: 'masters.user.list',
+        path: endpointConfig.master.user.view,
+        component: lazy(() => import('@/views/masters/user/AddEdit')),
+        authority: [],
+    },
+    // template
     {
         key: 'masters.subcategory.list',
         path: `${endpointConfig.master.subcategory.list}`,
