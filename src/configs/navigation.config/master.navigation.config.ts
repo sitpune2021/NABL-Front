@@ -3,7 +3,6 @@ import {
     NAV_ITEM_TYPE_COLLAPSE,
     NAV_ITEM_TYPE_ITEM,
 } from '@/constants/navigation.constant'
-import {} from '@/constants/roles.constant'
 import type { NavigationTree } from '@/@types/navigation'
 import endpointConfig from '../endpoint.config'
 
@@ -85,7 +84,6 @@ const masterNavigationConfig: NavigationTree[] = [
                     },
                 ],
             },
-
             {
                 key: 'masters.unit',
                 path: '',
@@ -119,7 +117,6 @@ const masterNavigationConfig: NavigationTree[] = [
                     },
                 ],
             },
-
             {
                 key: 'masters.roles',
                 path: '',
@@ -146,6 +143,39 @@ const masterNavigationConfig: NavigationTree[] = [
                         meta: {
                             description: {
                                 translateKey: 'nav.mastersRoles.listDesc',
+                                label: 'AI-powered chat systems',
+                            },
+                        },
+                        subMenu: [],
+                    },
+                ],
+            },
+            {
+                key: 'masters.template',
+                path: '',
+                title: 'Template',
+                translateKey: 'nav.mastersTemplate.template',
+                icon: 'ai',
+                type: NAV_ITEM_TYPE_COLLAPSE,
+                authority: [],
+                meta: {
+                    description: {
+                        translateKey: 'nav.mastersTemplate.templateDesc',
+                        label: 'AI tools and resources',
+                    },
+                },
+                subMenu: [
+                    {
+                        key: 'masters.template.list',
+                        path: `${endpointConfig.master.template.list}`,
+                        title: 'List',
+                        translateKey: 'nav.mastersTemplate.list',
+                        icon: 'aiChat',
+                        type: NAV_ITEM_TYPE_ITEM,
+                        authority: [],
+                        meta: {
+                            description: {
+                                translateKey: 'nav.mastersTemplate.listDesc',
                                 label: 'AI-powered chat systems',
                             },
                         },

@@ -60,6 +60,10 @@ const endpointConfig = {
             edit: `${MASTER_PREFIX_PATH}/user/edit/:id`,
             view: `${MASTER_PREFIX_PATH}/user/view/:id`,
         },
+        template: {
+            list: `${MASTER_PREFIX_PATH}/template/list`,
+            create: `${MASTER_PREFIX_PATH}/template/create`,
+        },
     },
 }
 
