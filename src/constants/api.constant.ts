@@ -1,7 +1,6 @@
 export const TOKEN_TYPE = 'Bearer '
 export const REQUEST_HEADER_AUTH_KEY = 'Authorization'
 export const TOKEN_NAME_IN_STORAGE = 'token'
-export const TEMPLATES_KEY = 'grapes_templates_v1'
 export const CATEGORIES_KEY = 'categories'
 export const DEPARTMENTS_KEY = 'departments'
 export const UNIT_KEY = 'units'
