@@ -15,6 +15,7 @@ export type Filter = {
 export type Category = {
     id: string
     name: string
+    prefix: string
 }
 
 export type CategoryListState = {
@@ -33,6 +34,7 @@ export type CategoryListAction = {
 export type Fields = {
     id?: string
     name: string
+    prefix: string
 }
 
 export type TagsFields = {

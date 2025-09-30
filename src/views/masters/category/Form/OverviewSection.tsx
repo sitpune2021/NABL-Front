@@ -34,6 +34,25 @@ const OverviewSection = ({
                         )}
                     />
                 </FormItem>
+                <FormItem
+                    label="Prefix"
+                    invalid={Boolean(errors.name)}
+                    errorMessage={errors.name?.message}
+                >
+                    <Controller
+                        name="prefix"
+                        control={control}
+                        render={({ field }) => (
+                            <Input
+                                type="text"
+                                autoComplete="off"
+                                readOnly={true}
+                                placeholder="First Name"
+                                {...field}
+                            />
+                        )}
+                    />
+                </FormItem>
             </div>
         </Card>
     )

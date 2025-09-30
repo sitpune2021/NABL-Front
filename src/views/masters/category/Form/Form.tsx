@@ -19,6 +19,7 @@ type CategoryFormProps = {
 
 const validationSchema = z.object({
     name: z.string().min(1, { message: ' name required' }),
+    prefix: z.string(),
 })
 
 const CategoryForm = (props: CategoryFormProps) => {
