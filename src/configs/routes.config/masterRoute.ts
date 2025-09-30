@@ -180,6 +180,31 @@ const masterRoute: Routes = [
         component: lazy(() => import('@/views/masters/lab/AddEdit')),
         authority: [],
     },
+    // user
+    {
+        key: 'masters.user.list',
+        path: `${endpointConfig.master.user.list}`,
+        component: lazy(() => import('@/views/masters/user/List')),
+        authority: [],
+    },
+    {
+        key: 'masters.user.list',
+        path: `${endpointConfig.master.user.create}`,
+        component: lazy(() => import('@/views/masters/user/AddEdit')),
+        authority: [],
+    },
+    {
+        key: 'masters.user.list',
+        path: endpointConfig.master.user.edit,
+        component: lazy(() => import('@/views/masters/user/AddEdit')),
+        authority: [],
+    },
+    {
+        key: 'masters.user.list',
+        path: endpointConfig.master.user.view,
+        component: lazy(() => import('@/views/masters/user/AddEdit')),
+        authority: [],
+    },
 ]
 
 export default masterRoute

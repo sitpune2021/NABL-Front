@@ -53,6 +53,13 @@ const endpointConfig = {
             edit: `${MASTER_PREFIX_PATH}/lab/edit/:id`,
             view: `${MASTER_PREFIX_PATH}/lab/view/:id`,
         },
+
+        user: {
+            list: `${MASTER_PREFIX_PATH}/user/list`,
+            create: `${MASTER_PREFIX_PATH}/user/create`,
+            edit: `${MASTER_PREFIX_PATH}/user/edit/:id`,
+            view: `${MASTER_PREFIX_PATH}/user/view/:id`,
+        },
     },
 }
 
