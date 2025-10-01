@@ -9,12 +9,14 @@ import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import type { CommonProps } from '@/@types/common'
 import { DocumentFormSchema } from '@/@types/document'
+import GrapesEditor from './GrapesEditor'
 
 type DocumentFormProps = {
     onFormSubmit: (values: DocumentFormSchema) => void
     defaultValues?: DocumentFormSchema
     newDocument?: boolean
     readOnly?: boolean
+    isEditor?: boolean
 } & CommonProps
 
 const validationSchema = z.object({
@@ -54,6 +56,7 @@ const DocumentForm = (props: DocumentFormProps) => {
         defaultValues = {},
         readOnly = false,
         children,
+        isEditor,
     } = props
 
     const {
@@ -88,11 +91,23 @@ const DocumentForm = (props: DocumentFormProps) => {
             <Container>
                 <div className="flex flex-col md:flex-row gap-4">
                     <div className="gap-4 flex flex-col flex-auto">
-                        <OverviewSection
-                            control={control}
-                            errors={errors}
-                            readOnly={readOnly}
-                        />
+                        {isEditor ? (
+                            <GrapesEditor
+                                control={control}
+                                errors={errors}
+                                readOnly={readOnly}
+                                dialogIsOpen={false}
+                                isSubmiting={true}
+                                isEdit={false}
+                                onDialogClose={() => {}}
+                            />
+                        ) : (
+                            <OverviewSection
+                                control={control}
+                                errors={errors}
+                                readOnly={readOnly}
+                            />
+                        )}
                     </div>
                 </div>
             </Container>
