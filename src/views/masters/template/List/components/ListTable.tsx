@@ -77,6 +77,11 @@ const TemplateListTable = () => {
                 header: 'Name',
                 accessorKey: 'name',
             },
+
+            {
+                header: 'Type',
+                accessorKey: 'type',
+            },
             {
                 header: '',
                 id: 'action',
