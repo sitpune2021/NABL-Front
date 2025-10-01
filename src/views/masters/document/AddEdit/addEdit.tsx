@@ -29,6 +29,7 @@ const DocumentAddEdit = () => {
     const isEdit = location.pathname.includes('/edit')
     const isView = location.pathname.includes('/view')
     const isAdd = location.pathname.includes('/create')
+    const isEditor = location.pathname.includes('/editor')
 
     // Load existing document data in edit or view mode
     useEffect(() => {
@@ -57,7 +58,7 @@ const DocumentAddEdit = () => {
             </Notification>,
             { placement: 'top-center' },
         )
-        navigate(`${endpointConfig.master.document.list}`)
+        navigate(`${endpointConfig.master.document.create}/editor`)
     }
 
     const handleConfirmDiscard = () => {
@@ -80,6 +81,7 @@ const DocumentAddEdit = () => {
         <>
             <DocumentForm
                 newDocument={isAdd}
+                isEditor={isEditor}
                 defaultValues={
                     documentData ?? {
                         labName: '',
