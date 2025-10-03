@@ -36,8 +36,8 @@ const OverviewSection = ({
                 </FormItem>
                 <FormItem
                     label="Prefix"
-                    invalid={Boolean(errors.name)}
-                    errorMessage={errors.name?.message}
+                    invalid={Boolean(errors.prefix)}
+                    errorMessage={errors.prefix?.message}
                 >
                     <Controller
                         name="prefix"

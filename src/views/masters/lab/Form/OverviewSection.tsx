@@ -3,7 +3,7 @@ import Input from '@/components/ui/Input'
 import { FormItem } from '@/components/ui/Form'
 import { Controller } from 'react-hook-form'
 import { FormSectionBaseProps } from '@/@types/lab'
-import useCategoryList from '../../category/List/hooks/useList'
+// import useCategoryList from '../../category/List/hooks/useList'
 import useDepartmentList from '../../department/List/hooks/useList'
 import { Select } from '@/components/ui'
 
@@ -14,13 +14,13 @@ const OverviewSection = ({
     errors,
     readOnly,
 }: OverviewSectionProps) => {
-    const { categoryList } = useCategoryList()
+    // const { categoryList } = useCategoryList()
     const { departmentList } = useDepartmentList()
 
-    const options = categoryList.map((category) => ({
-        value: category.name,
-        label: category.name.toUpperCase(),
-    }))
+    // const options = categoryList.map((category) => ({
+    //     value: category.name,
+    //     label: category.name.toUpperCase(),
+    // }))
 
     const departmentOptions = departmentList.map((dept) => ({
         value: dept.name,
@@ -95,7 +95,7 @@ const OverviewSection = ({
                 </FormItem>
 
                 <FormItem
-                    label="Category"
+                    label="Locations"
                     invalid={Boolean(errors.category)}
                     errorMessage={errors.category?.message}
                 >
@@ -103,17 +103,24 @@ const OverviewSection = ({
                         name="category"
                         control={control}
                         render={({ field }) => (
-                            <Select
+                            // <Select
+                            //     {...field}
+                            //     value={options.filter(
+                            //         (option) => option.value === field.value,
+                            //     )}
+                            //     options={options}
+                            //     placeholder="Select Department"
+                            //     isDisabled={readOnly}
+                            //     onChange={(option) =>
+                            //         field.onChange(option?.value)
+                            //     }
+                            // />
+                            <Input
+                                type="text"
+                                autoComplete="off"
+                                readOnly={readOnly}
+                                placeholder="Enter Locations"
                                 {...field}
-                                value={options.filter(
-                                    (option) => option.value === field.value,
-                                )}
-                                options={options}
-                                placeholder="Select Department"
-                                isDisabled={readOnly}
-                                onChange={(option) =>
-                                    field.onChange(option?.value)
-                                }
                             />
                         )}
                     />

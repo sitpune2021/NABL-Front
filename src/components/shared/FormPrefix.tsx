@@ -5,13 +5,15 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { Controller, useForm } from 'react-hook-form'
 import { z } from 'zod'
 import type { CommonProps, PrefixFormSchema } from '@/@types/common'
-import { Input } from '@/components/ui'
+import { Dialog, Input } from '@/components/ui'
 
 type PrefixFormProps = {
     onFormSubmit: (values: PrefixFormSchema) => void
     defaultValues?: PrefixFormSchema
     newCategory?: boolean
     readOnly?: boolean
+    dialogOpen: boolean
+    setDialogOpen: (open: boolean) => void
 } & CommonProps
 
 const validationSchema = z.object({
@@ -33,6 +35,8 @@ const PrefixForm = (props: PrefixFormProps) => {
         defaultValues = {},
         readOnly = false,
         children,
+        dialogOpen,
+        setDialogOpen,
     } = props
 
     const {
@@ -58,36 +62,41 @@ const PrefixForm = (props: PrefixFormProps) => {
     }
 
     return (
-        <Form
-            className="flex w-full h-full"
-            containerClassName="flex flex-col w-full justify-between"
-            onSubmit={handleSubmit(onSubmit)}
-        >
-            <div className="flex flex-col md:flex-row gap-4 items-center">
-                <div className="gap-4 flex flex-col flex-auto">
-                    <FormItem
-                        label="Name"
-                        invalid={Boolean(errors.prefix)}
-                        errorMessage={errors.prefix?.message}
-                    >
-                        <Controller
-                            name="prefix"
-                            control={control}
-                            render={({ field }) => (
-                                <Input
-                                    type="text"
-                                    autoComplete="off"
-                                    readOnly={readOnly}
-                                    placeholder="Prefix"
-                                    {...field}
+        <Dialog isOpen={dialogOpen} onClose={() => setDialogOpen(false)}>
+            <h4>Prefix</h4>
+            <div className="mt-4">
+                <Form
+                    className="flex w-full h-full"
+                    containerClassName="flex flex-col w-full justify-between"
+                    onSubmit={handleSubmit(onSubmit)}
+                >
+                    <div className="flex flex-col md:flex-row gap-4 items-center">
+                        <div className="gap-4 flex flex-col flex-auto">
+                            <FormItem
+                                label="Name"
+                                invalid={Boolean(errors.prefix)}
+                                errorMessage={errors.prefix?.message}
+                            >
+                                <Controller
+                                    name="prefix"
+                                    control={control}
+                                    render={({ field }) => (
+                                        <Input
+                                            type="text"
+                                            autoComplete="off"
+                                            readOnly={readOnly}
+                                            placeholder="Prefix"
+                                            {...field}
+                                        />
+                                    )}
                                 />
-                            )}
-                        />
-                    </FormItem>
-                </div>
-                {children}
+                            </FormItem>
+                        </div>
+                        {children}
+                    </div>
+                </Form>
             </div>
-        </Form>
+        </Dialog>
     )
 }
 

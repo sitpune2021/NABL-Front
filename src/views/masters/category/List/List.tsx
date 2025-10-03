@@ -6,7 +6,7 @@ import { TbTemplate } from 'react-icons/tb'
 import { ActionButton, PrefixFormSchema } from '@/@types/common'
 import endpointConfig from '@/configs/endpoint.config'
 import { useState } from 'react'
-import { Button, Dialog, Notification, toast } from '@/components/ui'
+import { Button, Notification, toast } from '@/components/ui'
 import usePrefixCategory from './hooks/usePrefixList'
 import sleep from '@/utils/sleep'
 import PrefixCategoryForm from '@/components/shared/FormPrefix'
@@ -80,27 +80,20 @@ const CategoryList = () => {
                 Table={<CategoryListTable />}
                 SelectedComponent={<CategoryListSelected />}
             />
-            <Dialog isOpen={dialogOpen} onClose={() => setDialogOpen(false)}>
-                <h4>Prefix</h4>
-                <div className="mt-4">
-                    <PrefixCategoryForm
-                        defaultValues={
-                            Array.isArray(prefixCategory)
-                                ? (prefixCategory[0] ?? { prefix: '' })
-                                : (prefixCategory ?? { prefix: '' })
-                        }
-                        onFormSubmit={handleFormSubmit}
-                    >
-                        <Button
-                            variant="solid"
-                            type="submit"
-                            loading={isSubmiting}
-                        >
-                            save
-                        </Button>
-                    </PrefixCategoryForm>
-                </div>
-            </Dialog>
+            <PrefixCategoryForm
+                defaultValues={
+                    Array.isArray(prefixCategory)
+                        ? (prefixCategory[0] ?? { prefix: '' })
+                        : (prefixCategory ?? { prefix: '' })
+                }
+                dialogOpen={dialogOpen}
+                setDialogOpen={setDialogOpen}
+                onFormSubmit={handleFormSubmit}
+            >
+                <Button variant="solid" type="submit" loading={isSubmiting}>
+                    save
+                </Button>
+            </PrefixCategoryForm>
         </>
     )
 }
