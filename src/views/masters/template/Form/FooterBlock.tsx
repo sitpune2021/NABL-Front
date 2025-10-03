@@ -45,7 +45,7 @@ export default function FooterBlock() {
                             Document Name
                         </td>
                         <td
-                            colSpan="3"
+                            colSpan={3}
                             style={{ border: '1px solid #000', padding: '8px' }}
                             contentEditable={true}
                         ></td>
@@ -63,7 +63,7 @@ export default function FooterBlock() {
                             Prepared By
                         </td>
                         <td
-                            colSpan="2"
+                            colSpan={2}
                             style={{
                                 border: '1px solid #000',
                                 padding: '8px',
@@ -74,7 +74,7 @@ export default function FooterBlock() {
                             Name:{' '}
                         </td>
                         <td
-                            colSpan="2"
+                            colSpan={2}
                             style={{
                                 border: '1px solid #000',
                                 padding: '8px',
@@ -108,7 +108,7 @@ export default function FooterBlock() {
                             Approved By
                         </td>
                         <td
-                            colSpan="2"
+                            colSpan={2}
                             style={{
                                 border: '1px solid #000',
                                 padding: '8px',
@@ -119,7 +119,7 @@ export default function FooterBlock() {
                             Name:{' '}
                         </td>
                         <td
-                            colSpan="2"
+                            colSpan={2}
                             style={{
                                 border: '1px solid #000',
                                 padding: '8px',
@@ -153,7 +153,7 @@ export default function FooterBlock() {
                             Issued By
                         </td>
                         <td
-                            colSpan="2"
+                            colSpan={2}
                             style={{
                                 border: '1px solid #000',
                                 padding: '8px',
@@ -164,7 +164,7 @@ export default function FooterBlock() {
                             Name:{' '}
                         </td>
                         <td
-                            colSpan="2"
+                            colSpan={2}
                             style={{
                                 border: '1px solid #000',
                                 padding: '8px',

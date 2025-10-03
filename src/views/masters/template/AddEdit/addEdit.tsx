@@ -15,7 +15,7 @@ import { TemplateFormSchema } from '@/@types/template'
 const TemplateAddEdit = () => {
     const navigate = useNavigate()
     const location = useLocation()
-    const { id: templateId } = useParams()
+    const { id: templateId, type } = useParams()
     const { saveTemplateData, getTemplateById } = useTemplateList()
 
     const [discardConfirmationOpen, setDiscardConfirmationOpen] =
@@ -91,7 +91,7 @@ const TemplateAddEdit = () => {
         <>
             <TemplateForm
                 newTemplate={isAdd}
-                defaultValues={templateData ?? { name: '' }}
+                defaultValues={templateData ?? { name: '', type: type || '' }}
                 readOnly={isView}
                 dialogIsOpen={dialogIsOpen}
                 isSubmiting={isSubmiting}
