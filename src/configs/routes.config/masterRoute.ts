@@ -242,6 +242,17 @@ const masterRoute: Routes = [
     },
     {
         key: 'masters.document.list',
+        path: `${endpointConfig.master.document.create}/editor`,
+        component: lazy(() => import('@/views/masters/document/AddEdit')),
+        authority: [],
+        meta: {
+            layout: 'blank',
+            footer: false,
+            pageContainerType: 'gutterless',
+        },
+    },
+    {
+        key: 'masters.document.list',
         path: endpointConfig.master.document.edit,
         component: lazy(() => import('@/views/masters/document/AddEdit')),
         authority: [],
@@ -260,7 +271,7 @@ const masterRoute: Routes = [
     },
     {
         key: 'masters.template.list',
-        path: `${endpointConfig.master.template.create}`,
+        path: `${endpointConfig.master.template.create}/:type`,
         component: lazy(() => import('@/views/masters/template/AddEdit')),
         authority: [],
         meta: {

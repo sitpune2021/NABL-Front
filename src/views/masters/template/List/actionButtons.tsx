@@ -6,6 +6,16 @@ export const actionButtons: ActionButton[] = [
     {
         label: 'Add new Template',
         icon: <TbTemplate className="text-xl" />,
-        path: `${endpointConfig.master.template.create}`,
+        path: `${endpointConfig.master.template.create}/template`,
+    },
+    {
+        label: 'Add new Header',
+        icon: <TbTemplate className="text-xl" />,
+        path: `${endpointConfig.master.template.create}/header`,
+    },
+    {
+        label: 'Add new Footer',
+        icon: <TbTemplate className="text-xl" />,
+        path: `${endpointConfig.master.template.create}/footer`,
     },
 ]

@@ -3,13 +3,16 @@
 import { useEffect, useRef } from 'react'
 import grapesjs from 'grapesjs'
 import 'grapesjs/dist/css/grapes.min.css'
-import { addCustomBlocks, addDynamicFields } from './BlockManager'
 import ReactDOMServer from 'react-dom/server'
-import HeaderBlock from './HeaderBlock'
-import FooterBlock from './FooterBlock'
-import { useParams } from 'react-router'
+import { useLocation } from 'react-router'
 import { Button, Dialog, FormItem, Input } from '@/components/ui'
 import { Controller } from 'react-hook-form'
+import {
+    addCustomBlocks,
+    addDynamicFields,
+} from '../../template/Form/BlockManager'
+import HeaderBlock from '../../template/Form/HeaderBlock'
+import FooterBlock from '../../template/Form/FooterBlock'
 
 interface GrapesEditorProps {
     control: any
@@ -33,7 +36,8 @@ export default function GrapesEditor({
 }: GrapesEditorProps) {
     const editorRef = useRef<any | null>(null)
     const containerRef = useRef<HTMLDivElement>(null)
-    const { type } = useParams<{ type: string }>()
+    const location = useLocation()
+    // const { documentList } = useDocumentList()
 
     useEffect(() => {
         if (!editorRef.current && containerRef.current) {
@@ -77,16 +81,20 @@ export default function GrapesEditor({
                 },
             })
 
-            if (type) {
-                if (type === 'header') editor.runCommand('insert-header')
-                else if (type === 'footer') editor.runCommand('insert-footer')
-                else if (type === 'template') {
+            // Auto insert blocks based on location state
+            const autoInsert = location?.state?.auto
+            if (autoInsert) {
+                if (autoInsert === 'header') editor.runCommand('insert-header')
+                else if (autoInsert === 'footer')
+                    editor.runCommand('insert-footer')
+                else if (autoInsert === 'header-footer') {
                     editor.runCommand('insert-header')
                     editor.runCommand('insert-footer')
                 }
             }
 
             editorRef.current = editor
+            // onInit(editor);
         }
 
         return () => {
@@ -95,7 +103,7 @@ export default function GrapesEditor({
                 editorRef.current = null
             }
         }
-    }, [type])
+    }, [location?.state])
 
     return (
         <>
@@ -106,18 +114,8 @@ export default function GrapesEditor({
                 />
                 <div ref={containerRef} id="gjs" className="flex-1 h-full" />
             </div>
-
-            {/* Hidden type input to save template type */}
-            <Controller
-                name="type"
-                control={control}
-                render={({ field }) => (
-                    <input type="hidden" {...field} value={type} />
-                )}
-            />
-
             <Dialog isOpen={dialogIsOpen} closable={false}>
-                <h5 className="mb-4">Template Name</h5>
+                <h5 className="mb-4">Dialog Title</h5>
                 <FormItem
                     label="Name"
                     invalid={Boolean(errors.name)}
@@ -131,7 +129,7 @@ export default function GrapesEditor({
                                 type="text"
                                 autoComplete="off"
                                 readOnly={readOnly}
-                                placeholder="Template Name"
+                                placeholder="First Name"
                                 {...field}
                             />
                         )}

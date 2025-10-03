@@ -23,6 +23,7 @@ type TemplateFormProps = {
 
 const validationSchema = z.object({
     name: z.string().min(1, { message: ' name required' }),
+    type: z.string().min(1, { message: ' type required' }),
 })
 
 const TemplateForm = (props: TemplateFormProps) => {

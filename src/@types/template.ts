@@ -15,6 +15,7 @@ export type Filter = {
 export type Template = {
     id: string
     name: string
+    type: string
 }
 
 export type TemplateListState = {
@@ -33,6 +34,7 @@ export type TemplateListAction = {
 export type Fields = {
     id?: string
     name: string
+    type: string
 }
 
 export type TagsFields = {

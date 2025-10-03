@@ -75,6 +75,8 @@ const endpointConfig = {
         template: {
             list: `${MASTER_PREFIX_PATH}/template/list`,
             create: `${MASTER_PREFIX_PATH}/template/create`,
+            edit: `${MASTER_PREFIX_PATH}/template/edit/:id`,
+            view: `${MASTER_PREFIX_PATH}/template/view/:id`,
         },
     },
 }
