@@ -57,7 +57,7 @@ const OverviewSection = ({
 
     const options = categoryList.map((category) => ({
         value: category.name,
-        label: category.name.toUpperCase(),
+        label: `${category.name.toUpperCase()} - ${category.prefix}`,
     }))
 
     const departmentOptions = departmentList.map((dept) => ({
@@ -695,7 +695,7 @@ const OverviewSection = ({
                 </FormItem>
 
                 <FormItem
-                    label="Frequency"
+                    label="Review Frequency"
                     invalid={Boolean(errors.frequency)}
                     errorMessage={errors.frequency?.message}
                 >
@@ -718,7 +718,7 @@ const OverviewSection = ({
                                     { value: 'Monthly', label: 'Monthly' },
                                     { value: 'Yearly', label: 'Yearly' },
                                 ]}
-                                placeholder="Select Frequency"
+                                placeholder="Select Review Frequency"
                                 isDisabled={readOnly}
                                 onChange={(option) =>
                                     field.onChange(option?.value)
@@ -729,7 +729,7 @@ const OverviewSection = ({
                 </FormItem>
 
                 <FormItem
-                    label="Duration"
+                    label="Notification Duration"
                     invalid={Boolean(errors.duration)}
                     errorMessage={errors.duration?.message}
                 >
@@ -747,7 +747,7 @@ const OverviewSection = ({
                                         : null
                                 }
                                 options={durationOptions}
-                                placeholder="Select Duration"
+                                placeholder="Select Notification Duration"
                                 isDisabled={!frequency}
                                 onChange={(option) =>
                                     field.onChange(option?.value)

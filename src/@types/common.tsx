@@ -42,4 +42,8 @@ export type PrefixFormSchema = {
     prefix: string
 }
 
+export type PrefixFEntity = {
+    prefix: string
+}
+
 export type GetPrefixResponse = PrefixFormSchema[]

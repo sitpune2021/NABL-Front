@@ -18,8 +18,17 @@ type CategoryFormProps = {
 } & CommonProps
 
 const validationSchema = z.object({
-    name: z.string().min(1, { message: ' name required' }),
-    prefix: z.string(),
+    name: z.string().min(1, { message: ' Name required' }),
+    prefix: z
+        .string()
+        .min(1, { message: 'Prefix is required' })
+        .max(4, { message: 'Prefix must be at most 4 characters' })
+        .regex(/^[A-Z]+$/, {
+            message: 'Prefix must contain only uppercase letters',
+        })
+        .refine((val) => !/\s{2,}/.test(val), {
+            message: 'Prefix must not contain double spaces',
+        }),
 })
 
 const CategoryForm = (props: CategoryFormProps) => {

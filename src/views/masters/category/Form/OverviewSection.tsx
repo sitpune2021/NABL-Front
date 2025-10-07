@@ -28,7 +28,7 @@ const OverviewSection = ({
                                 type="text"
                                 autoComplete="off"
                                 readOnly={readOnly}
-                                placeholder="First Name"
+                                placeholder="Name"
                                 {...field}
                             />
                         )}
@@ -36,8 +36,8 @@ const OverviewSection = ({
                 </FormItem>
                 <FormItem
                     label="Prefix"
-                    invalid={Boolean(errors.name)}
-                    errorMessage={errors.name?.message}
+                    invalid={Boolean(errors.prefix)}
+                    errorMessage={errors.prefix?.message}
                 >
                     <Controller
                         name="prefix"
@@ -46,8 +46,8 @@ const OverviewSection = ({
                             <Input
                                 type="text"
                                 autoComplete="off"
-                                readOnly={true}
-                                placeholder="First Name"
+                                readOnly={readOnly}
+                                placeholder="Prefix"
                                 {...field}
                             />
                         )}

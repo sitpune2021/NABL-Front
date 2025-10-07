@@ -28,7 +28,6 @@ const DepartmentAddEdit = () => {
     const isView = location.pathname.includes('/view')
     const isAdd = location.pathname.includes('/create')
 
-    // Load existing department data in edit or view mode
     useEffect(() => {
         if (!isAdd && departmentId) {
             setLoadingData(true)
@@ -78,7 +77,12 @@ const DepartmentAddEdit = () => {
         <>
             <DepartmentForm
                 newDepartment={isAdd}
-                defaultValues={departmentData ?? { name: '' }}
+                defaultValues={
+                    departmentData ?? {
+                        name: '',
+                        prefix: '',
+                    }
+                }
                 readOnly={isView}
                 onFormSubmit={handleFormSubmit}
             >
