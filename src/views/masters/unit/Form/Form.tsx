@@ -19,6 +19,7 @@ type UnitFormProps = {
 
 const validationSchema = z.object({
     name: z.string().min(1, { message: ' name required' }),
+    prefix: z.string(),
 })
 
 const UnitForm = (props: UnitFormProps) => {

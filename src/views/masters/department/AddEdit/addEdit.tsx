@@ -10,14 +10,12 @@ import { TbTrash } from 'react-icons/tb'
 import endpointConfig from '@/configs/endpoint.config'
 import useDepartmentList from '../List/hooks/useList'
 import DepartmentForm, { DepartmentFormSchema } from '../Form'
-import usePrefixDepartment from '../List/hooks/usePrefixList'
 
 const DepartmentAddEdit = () => {
     const navigate = useNavigate()
     const location = useLocation()
     const { id: departmentId } = useParams()
     const { saveDepartmentData, getDepartmentById } = useDepartmentList()
-    const { prefixDepartment } = usePrefixDepartment()
 
     const [discardConfirmationOpen, setDiscardConfirmationOpen] =
         useState(false)
@@ -82,7 +80,7 @@ const DepartmentAddEdit = () => {
                 defaultValues={
                     departmentData ?? {
                         name: '',
-                        prefix: prefixDepartment?.prefix ?? '',
+                        prefix: '',
                     }
                 }
                 readOnly={isView}

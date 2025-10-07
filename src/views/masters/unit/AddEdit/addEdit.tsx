@@ -78,7 +78,7 @@ const UnitAddEdit = () => {
         <>
             <UnitForm
                 newUnit={isAdd}
-                defaultValues={unitData ?? { name: '' }}
+                defaultValues={unitData ?? { name: '', type: '' }}
                 readOnly={isView}
                 onFormSubmit={handleFormSubmit}
             >

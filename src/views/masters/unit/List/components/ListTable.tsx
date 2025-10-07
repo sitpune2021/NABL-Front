@@ -74,6 +74,15 @@ const UnitListTable = () => {
     const columns: ColumnDef<Unit>[] = useMemo(
         () => [
             {
+                header: 'Id',
+                accessorKey: 'id',
+                cell: (props) => (
+                    <>
+                        {props.row.original.prefix}-{props.row.original.id}
+                    </>
+                ),
+            },
+            {
                 header: 'Name',
                 accessorKey: 'name',
             },

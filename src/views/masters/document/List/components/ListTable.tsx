@@ -74,6 +74,10 @@ const DocumentListTable = () => {
     const columns: ColumnDef<Document>[] = useMemo(
         () => [
             {
+                header: 'Document No',
+                accessorKey: 'documentNo',
+            },
+            {
                 header: 'Document Name',
                 accessorKey: 'documentName',
             },

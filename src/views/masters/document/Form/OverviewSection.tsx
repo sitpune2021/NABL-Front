@@ -57,7 +57,7 @@ const OverviewSection = ({
 
     const options = categoryList.map((category) => ({
         value: category.name,
-        label: category.name.toUpperCase(),
+        label: `${category.name.toUpperCase()} - ${category.prefix}`,
     }))
 
     const departmentOptions = departmentList.map((dept) => ({

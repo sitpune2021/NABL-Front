@@ -10,14 +10,12 @@ import { TbTrash } from 'react-icons/tb'
 import endpointConfig from '@/configs/endpoint.config'
 import useCategoryList from '../List/hooks/useList'
 import CategoryForm, { CategoryFormSchema } from '../Form'
-import usePrefixCategory from '../List/hooks/usePrefixList'
 
 const CategoryAddEdit = () => {
     const navigate = useNavigate()
     const location = useLocation()
     const { id: categoryId } = useParams()
     const { saveCategoryData, getCategoryById } = useCategoryList()
-    const { prefixCategory } = usePrefixCategory()
 
     const [discardConfirmationOpen, setDiscardConfirmationOpen] =
         useState(false)
@@ -31,7 +29,6 @@ const CategoryAddEdit = () => {
     const isView = location.pathname.includes('/view')
     const isAdd = location.pathname.includes('/create')
 
-    // Load existing category data in edit or view mode
     useEffect(() => {
         if (!isAdd && categoryId) {
             setLoadingData(true)
@@ -82,7 +79,7 @@ const CategoryAddEdit = () => {
                 defaultValues={
                     categoryData ?? {
                         name: '',
-                        prefix: prefixCategory?.prefix ?? '',
+                        prefix: '',
                     }
                 }
                 readOnly={isView}

@@ -15,6 +15,7 @@ export type Filter = {
 export type Unit = {
     id: string
     name: string
+    prefix: string
 }
 
 export type UnitListState = {
@@ -33,6 +34,7 @@ export type UnitListAction = {
 export type Fields = {
     id?: string
     name: string
+    prefix: string
 }
 
 export type TagsFields = {
