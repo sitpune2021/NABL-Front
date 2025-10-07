@@ -35,6 +35,11 @@ export type Fields = {
     id?: string
     name: string
     type: string
+    template: {
+        html: string | undefined
+        css: string | undefined
+        json?: undefined
+    }
 }
 
 export type TagsFields = {
