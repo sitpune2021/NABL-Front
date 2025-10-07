@@ -7,7 +7,7 @@ import {
 import useSWR from 'swr'
 import { useCategoryListStore } from '../store/listStore'
 import type { TableQueries } from '@/@types/common'
-import { Fields, GetCategoryListResponse } from '@/@types/category'
+import type { Fields, GetCategoryListResponse } from '@/@types/category'
 
 export default function useCategoryList() {
     const {

@@ -3,8 +3,8 @@ import { PrefixFEntity, TableQueries } from './common'
 import type { Control, FieldErrors } from 'react-hook-form'
 
 export type GetCategoryListResponse = {
-    list: Category[]
-    total: number
+    data: Category[]
+    total?: number
 }
 
 export type Filter = {
