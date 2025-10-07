@@ -9,7 +9,8 @@ import HeaderBlock from './HeaderBlock'
 import FooterBlock from './FooterBlock'
 import { useParams } from 'react-router'
 import { Button, Dialog, FormItem, Input } from '@/components/ui'
-import { Controller } from 'react-hook-form'
+import { Controller, UseFormSetValue } from 'react-hook-form'
+import { TemplateFormSchema } from '@/@types/template'
 
 interface GrapesEditorProps {
     control: any
@@ -20,6 +21,7 @@ interface GrapesEditorProps {
     isSubmiting: boolean
     docData?: any
     isEdit?: any
+    setValue: UseFormSetValue<TemplateFormSchema>
 }
 
 export default function GrapesEditor({
@@ -30,6 +32,8 @@ export default function GrapesEditor({
     onDialogClose,
     isSubmiting,
     isEdit,
+    setValue, // ✅ here
+    docData,
 }: GrapesEditorProps) {
     const editorRef = useRef<any | null>(null)
     const containerRef = useRef<HTMLDivElement>(null)
@@ -77,7 +81,11 @@ export default function GrapesEditor({
                 },
             })
 
-            if (type) {
+            if (docData?.template) {
+                const { html, css } = docData.template
+                editor.setComponents(html || '')
+                editor.setStyle(css || '')
+            } else if (type) {
                 if (type === 'header') editor.runCommand('insert-header')
                 else if (type === 'footer') editor.runCommand('insert-footer')
                 else if (type === 'template') {
@@ -85,6 +93,13 @@ export default function GrapesEditor({
                     editor.runCommand('insert-footer')
                 }
             }
+
+            editor.on('change', () => {
+                const html = editor.getHtml()
+                const css = editor.getCss()
+                const json = editor.getComponents()
+                setValue('template', { html, css, json }) // ✅ use the prop
+            })
 
             editorRef.current = editor
         }
@@ -95,7 +110,7 @@ export default function GrapesEditor({
                 editorRef.current = null
             }
         }
-    }, [type])
+    }, [type, control])
 
     return (
         <>
@@ -146,7 +161,7 @@ export default function GrapesEditor({
                         Cancel
                     </Button>
                     <Button variant="solid" type="submit" loading={isSubmiting}>
-                        {isEdit ? 'Update' : 'Create'}
+                        {isEdit} {isEdit ? 'Update' : 'Create'}
                     </Button>
                 </div>
             </Dialog>

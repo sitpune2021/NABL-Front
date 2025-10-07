@@ -280,6 +280,17 @@ const masterRoute: Routes = [
             pageContainerType: 'gutterless',
         },
     },
+    {
+        key: 'masters.template.list',
+        path: `${endpointConfig.master.template.edit}`,
+        component: lazy(() => import('@/views/masters/template/AddEdit')),
+        authority: [],
+        meta: {
+            layout: 'blank',
+            footer: false,
+            pageContainerType: 'gutterless',
+        },
+    },
 ]
 
 export default masterRoute

@@ -24,6 +24,7 @@ type TemplateFormProps = {
 const validationSchema = z.object({
     name: z.string().min(1, { message: ' name required' }),
     type: z.string().min(1, { message: ' type required' }),
+    template: z.any(),
 })
 
 const TemplateForm = (props: TemplateFormProps) => {
@@ -43,6 +44,7 @@ const TemplateForm = (props: TemplateFormProps) => {
         reset,
         formState: { errors },
         control,
+        setValue,
     } = useForm<TemplateFormSchema>({
         defaultValues: {
             ...defaultValues,
@@ -77,6 +79,8 @@ const TemplateForm = (props: TemplateFormProps) => {
                             dialogIsOpen={dialogIsOpen}
                             isSubmiting={isSubmiting}
                             isEdit={isEdit}
+                            setValue={setValue} // ✅ here
+                            docData={defaultValues}
                             onDialogClose={onDialogClose}
                         />
                     </div>
