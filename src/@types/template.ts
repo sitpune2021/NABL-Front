@@ -38,7 +38,8 @@ export type Fields = {
     template: {
         html: string | undefined
         css: string | undefined
-        json?: undefined
+        /* eslint-disable @typescript-eslint/no-explicit-any */
+        json: any
     }
 }
 

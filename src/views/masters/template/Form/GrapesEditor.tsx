@@ -81,7 +81,7 @@ export default function GrapesEditor({
                 },
             })
 
-            if (docData?.template) {
+            if (docData?.template.html !== '' && docData?.template.css !== '') {
                 const { html, css } = docData.template
                 editor.setComponents(html || '')
                 editor.setStyle(css || '')
