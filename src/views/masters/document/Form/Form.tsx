@@ -65,6 +65,7 @@ const DocumentForm = (props: DocumentFormProps) => {
         reset,
         formState: { errors },
         control,
+        setValue,
     } = useForm<DocumentFormSchema>({
         defaultValues: {
             ...defaultValues,
@@ -107,6 +108,7 @@ const DocumentForm = (props: DocumentFormProps) => {
                                 control={control}
                                 errors={errors}
                                 readOnly={readOnly}
+                                setValue={setValue}
                             />
                         )}
                     </div>

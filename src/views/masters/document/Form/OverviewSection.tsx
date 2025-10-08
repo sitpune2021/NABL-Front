@@ -51,6 +51,7 @@ const OverviewSection = ({
     control,
     errors,
     readOnly,
+    setValue,
 }: OverviewSectionProps) => {
     const { categoryList } = useCategoryList()
     const { departmentList } = useDepartmentList()
@@ -67,7 +68,6 @@ const OverviewSection = ({
 
     const [selectedCategory, setSelectedCategory] = useState(null)
     const [selectedDepartments, setSelectedDepartments] = useState([]) // array for multiple select
-    const [documentNo, setDocumentNo] = useState('')
     const [counter] = useState(1) // temporary increment
     const generateDocumentNo = (
         categoryOption: { value: string; label: string } | null,
@@ -93,12 +93,12 @@ const OverviewSection = ({
     ) => {
         setSelectedCategory(option)
         const newDocNo = generateDocumentNo(option, selectedDepartments)
-        setDocumentNo(newDocNo)
+        setValue('documentNo', newDocNo)
     }
     const handleDepartmentChange = (options) => {
         setSelectedDepartments(options || [])
         const newDocNo = generateDocumentNo(selectedCategory, options || [])
-        setDocumentNo(newDocNo)
+        setValue('documentNo', newDocNo) // update form value
     }
 
     const frequency = useWatch({ control, name: 'frequency' })
@@ -453,7 +453,6 @@ const OverviewSection = ({
                                 type="text"
                                 placeholder="Document No"
                                 {...field}
-                                value={documentNo || field.value}
                             />
                         )}
                     />
