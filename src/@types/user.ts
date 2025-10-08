@@ -38,7 +38,10 @@ export type Fields = {
     role: string
     username: string
     address?: string
-    profileImage?: string
+    issuedBy: boolean
+    approvedBy: boolean
+    signUpload?: string
+    preparedBy: boolean
 }
 
 export type TagsFields = {

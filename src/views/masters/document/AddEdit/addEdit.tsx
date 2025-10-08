@@ -86,7 +86,7 @@ const DocumentAddEdit = () => {
                     documentData ?? {
                         labName: '',
                         location: '',
-                        department: '',
+                        department: [],
                         category: '',
                         documentName: '',
                         documentNo: '',
@@ -107,6 +107,7 @@ const DocumentAddEdit = () => {
                         effectiveDate: '',
                         frequency: '',
                         duration: '',
+                        prefix: '',
                     }
                 }
                 readOnly={isView}

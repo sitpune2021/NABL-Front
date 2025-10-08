@@ -77,6 +77,11 @@ const SubCategoryListTable = () => {
                 header: 'Category',
                 accessorKey: 'name',
             },
+
+            {
+                header: 'Prefix',
+                accessorKey: 'prefix',
+            },
             {
                 header: 'Sub Category',
                 accessorKey: 'subcategory',

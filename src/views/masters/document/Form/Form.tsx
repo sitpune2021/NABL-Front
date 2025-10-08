@@ -22,7 +22,7 @@ type DocumentFormProps = {
 const validationSchema = z.object({
     labName: z.string().min(1, { message: 'Lab Name is required' }),
     location: z.string().optional(),
-    department: z.string().optional(),
+    department: z.array(z.string()).optional(),
     header: z.string().optional(),
     footer: z.string().optional(),
     category: z.string().optional(),
@@ -48,6 +48,7 @@ const validationSchema = z.object({
     effectiveDate: z.string().min(1, { message: 'Effective Date is required' }),
     frequency: z.string().optional(),
     duration: z.string().optional(),
+    prefix: z.string().optional(),
 })
 
 const DocumentForm = (props: DocumentFormProps) => {

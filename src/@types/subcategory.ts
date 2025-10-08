@@ -1,4 +1,5 @@
 import { TableQueries } from './common'
+import type { PrefixFEntity } from './common'
 
 import type { Control, FieldErrors } from 'react-hook-form'
 
@@ -15,7 +16,7 @@ export type Filter = {
 export type SubCategory = {
     id: string
     name: string
-}
+} & PrefixFEntity
 
 export type SubCategoryListState = {
     tableData: TableQueries
@@ -36,7 +37,7 @@ export type Fields = {
     subcategory: string
     required: boolean
     initialtimezone: boolean
-}
+} & PrefixFEntity
 
 export type TagsFields = {
     tags: Array<{ value: string; label: string }>

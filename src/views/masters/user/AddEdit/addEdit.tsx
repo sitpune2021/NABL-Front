@@ -86,7 +86,10 @@ const UserAddEdit = () => {
                         role: '',
                         phone: '',
                         address: '',
-                        profileImage: '',
+                        preparedBy: false,
+                        issuedBy: false,
+                        approvedBy: false,
+                        signUpload: '',
                     }
                 }
                 readOnly={isView}
