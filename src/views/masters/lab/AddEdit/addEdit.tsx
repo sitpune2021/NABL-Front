@@ -88,6 +88,7 @@ const LabAddEdit = () => {
                         email: '',
                         phone: '',
                         address: '',
+                        location: '',
                     }
                 }
                 readOnly={isView}
