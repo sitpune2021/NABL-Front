@@ -47,8 +47,6 @@ const TemplateAddEdit = () => {
             setLoadingData(true)
             getTemplateById(templateId)
                 .then((data) => {
-                    console.log('Fetched template data:', data)
-
                     setTemplateData(data)
                 })
                 .finally(() => setLoadingData(false))
@@ -91,7 +89,13 @@ const TemplateAddEdit = () => {
         <>
             <TemplateForm
                 newTemplate={isAdd}
-                defaultValues={templateData ?? { name: '', type: type || '' }}
+                defaultValues={
+                    templateData ?? {
+                        name: '',
+                        type: type || '',
+                        template: { html: '', css: '', json: '' },
+                    }
+                }
                 readOnly={isView}
                 dialogIsOpen={dialogIsOpen}
                 isSubmiting={isSubmiting}

@@ -35,6 +35,12 @@ export type Fields = {
     id?: string
     name: string
     type: string
+    template: {
+        html: string | undefined
+        css: string | undefined
+        /* eslint-disable @typescript-eslint/no-explicit-any */
+        json: any
+    }
 }
 
 export type TagsFields = {
