@@ -1,9 +1,14 @@
-import { PrefixFEntity, TableQueries } from './common'
+import { TableQueries } from './common'
 
 import type { Control, FieldErrors } from 'react-hook-form'
 
 export type GetDocumentListResponse = {
-    list: Document[]
+    data: Document[]
+    total: number
+}
+
+export type GetDocumentResponse = {
+    data: Document
     total: number
 }
 
@@ -13,9 +18,31 @@ export type Filter = {
 }
 
 export type Document = {
-    id: string
-    name: string
-} & PrefixFEntity
+    id?: string
+    labName: string
+    location?: string
+    department?: string
+    header?: string
+    footer?: string
+    category?: string
+    documentName: string
+    documentNo?: string
+    issuedNo?: string
+    amendmentNo?: string
+    copyNo?: string
+    date?: string
+    preparedByDate?: string
+    time?: string
+    preparedBy: string
+    quantityPrepared?: string | number
+    approvedBy: string
+    issuedBy?: string
+    issueDate: string
+    amendmentDate?: string
+    effectiveDate: string
+    frequency?: string
+    duration?: string
+}
 
 export type DocumentListState = {
     tableData: TableQueries
@@ -55,7 +82,7 @@ export type Fields = {
     effectiveDate: string
     frequency?: string
     duration?: string
-} & PrefixFEntity
+}
 
 export type TagsFields = {
     tags: Array<{ value: string; label: string }>

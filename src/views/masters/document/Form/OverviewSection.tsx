@@ -9,6 +9,7 @@ import useDepartmentList from '../../department/List/hooks/useList'
 import { Select } from '@/components/ui'
 import DatePicker from '@/components/ui/DatePicker'
 import TimeInput from '@/components/ui/TimeInput'
+import { Category } from '@/@types/category'
 
 type OverviewSectionProps = FormSectionBaseProps
 type TemplateOption = {
@@ -55,7 +56,7 @@ const OverviewSection = ({
     const { categoryList } = useCategoryList()
     const { departmentList } = useDepartmentList()
 
-    const options = categoryList.map((category) => ({
+    const options = categoryList.map((category: Category) => ({
         value: category.name,
         label: `${category.name.toUpperCase()} - ${category.prefix}`,
     }))

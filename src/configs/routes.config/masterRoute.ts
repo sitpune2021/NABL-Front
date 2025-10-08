@@ -242,7 +242,18 @@ const masterRoute: Routes = [
     },
     {
         key: 'masters.document.list',
-        path: `${endpointConfig.master.document.create}/editor`,
+        path: `${endpointConfig.master.document.editor}/:id`,
+        component: lazy(() => import('@/views/masters/document/AddEdit')),
+        authority: [],
+        meta: {
+            layout: 'blank',
+            footer: false,
+            pageContainerType: 'gutterless',
+        },
+    },
+    {
+        key: 'masters.document.list',
+        path: `${endpointConfig.master.document.editorEdit}`,
         component: lazy(() => import('@/views/masters/document/AddEdit')),
         authority: [],
         meta: {
