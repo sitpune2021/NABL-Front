@@ -31,7 +31,10 @@ const validationSchema = z.object({
         .optional()
         .or(z.literal('')),
     address: z.string().optional().or(z.literal('')),
-    profileImage: z.string().optional().or(z.literal('')),
+    preparedBy: z.boolean(),
+    issuedBy: z.boolean(),
+    approvedBy: z.boolean(),
+    signUpload: z.string().optional().or(z.literal('')),
 })
 
 const UserForm = (props: UserFormProps) => {

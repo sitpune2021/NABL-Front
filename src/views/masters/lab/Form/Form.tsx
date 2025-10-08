@@ -30,6 +30,7 @@ const validationSchema = z.object({
         .or(z.literal('')),
     phone: z.string().optional().or(z.literal('')),
     address: z.string().optional().or(z.literal('')),
+    location: z.string().min(1, { message: 'Location required' }),
 })
 
 const LabForm = (props: LabFormProps) => {

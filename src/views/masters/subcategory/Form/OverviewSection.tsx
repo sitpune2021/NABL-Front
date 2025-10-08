@@ -47,6 +47,26 @@ const OverviewSection = ({
                     />
                 </FormItem>
                 <FormItem
+                    label="Prefix"
+                    invalid={Boolean(errors.prefix)}
+                    errorMessage={errors.prefix?.message}
+                >
+                    <Controller
+                        name="prefix"
+                        control={control}
+                        render={({ field }) => (
+                            <Input
+                                type="text"
+                                autoComplete="off"
+                                readOnly={readOnly}
+                                placeholder="Prefix"
+                                {...field}
+                            />
+                        )}
+                    />
+                </FormItem>
+
+                <FormItem
                     label="Sub Category"
                     invalid={Boolean(errors.subcategory)}
                     errorMessage={errors.subcategory?.message}

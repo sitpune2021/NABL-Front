@@ -3,7 +3,7 @@ import { DocumentFormSchema } from '@/@types/document'
 export const defaultDocumentValues: DocumentFormSchema = {
     labName: '',
     location: '',
-    department: '',
+    department: [],
     category: '',
     documentName: '',
     documentNo: '',

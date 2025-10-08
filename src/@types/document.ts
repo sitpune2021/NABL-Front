@@ -61,7 +61,7 @@ export type Fields = {
     id?: string
     labName: string
     location?: string
-    department?: string
+    department?: string[]
     header?: string
     footer?: string
     category?: string
