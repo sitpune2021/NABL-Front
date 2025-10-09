@@ -385,6 +385,40 @@ const masterNavigationConfig: NavigationTree[] = [
                     },
                 ],
             },
+
+            {
+                key: 'masters.clauses',
+                path: '',
+                title: 'Clauses',
+                translateKey: 'nav.mastersClauses.clauses',
+                icon: 'ai',
+                type: NAV_ITEM_TYPE_COLLAPSE,
+                authority: [],
+                meta: {
+                    description: {
+                        translateKey: 'nav.mastersClauses.clausesDesc',
+                        label: 'AI tools and resources',
+                    },
+                },
+                subMenu: [
+                    {
+                        key: 'masters.clauses.list',
+                        path: `${endpointConfig.master.clauses.list}`,
+                        title: 'List',
+                        translateKey: 'nav.mastersClauses.list',
+                        icon: 'aiChat',
+                        type: NAV_ITEM_TYPE_ITEM,
+                        authority: [],
+                        meta: {
+                            description: {
+                                translateKey: 'nav.mastersClauses.listDesc',
+                                label: 'AI-powered chat systems',
+                            },
+                        },
+                        subMenu: [],
+                    },
+                ],
+            },
         ],
     },
 ]
