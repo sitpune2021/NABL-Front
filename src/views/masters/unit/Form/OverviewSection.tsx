@@ -46,8 +46,8 @@ const OverviewSection = ({
                             <Input
                                 type="text"
                                 autoComplete="off"
-                                readOnly={true}
-                                placeholder="First Name"
+                                readOnly={readOnly}
+                                placeholder="Prefix"
                                 {...field}
                             />
                         )}

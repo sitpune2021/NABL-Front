@@ -3,34 +3,47 @@ import Input from '@/components/ui/Input'
 import { FormItem } from '@/components/ui/Form'
 import { Controller } from 'react-hook-form'
 import { FormSectionBaseProps } from '@/@types/lab'
-// import useCategoryList from '../../category/List/hooks/useList'
 import useDepartmentList from '../../department/List/hooks/useList'
 import { Select } from '@/components/ui'
 
-type OverviewSectionProps = FormSectionBaseProps
+type OverviewSectionProps = FormSectionBaseProps & {
+    existingLabCodes?: string[] // Existing Lab codes list for auto-generation
+}
 
 const OverviewSection = ({
     control,
     errors,
-    readOnly,
+    readOnly = false,
+    existingLabCodes = [],
 }: OverviewSectionProps) => {
-    // const { categoryList } = useCategoryList()
     const { departmentList } = useDepartmentList()
-
-    // const options = categoryList.map((category) => ({
-    //     value: category.name,
-    //     label: category.name.toUpperCase(),
-    // }))
 
     const departmentOptions = departmentList.map((dept) => ({
         value: dept.name,
         label: dept.name.toUpperCase(),
     }))
 
+    // Lab Code auto-generation function
+    const getNextLabCode = () => {
+        if (!existingLabCodes || existingLabCodes.length === 0) return 'LAB-1'
+
+        // Extract numbers from existing codes and remove duplicates
+        const numbers = Array.from(new Set(existingLabCodes))
+            .map((code) => {
+                const match = code.match(/^LAB-(\d+)$/)
+                return match ? parseInt(match[1], 10) : 0
+            })
+            .filter(Boolean)
+
+        const nextNumber = numbers.length > 0 ? Math.max(...numbers) + 1 : 1
+        return `LAB-${nextNumber}`
+    }
+
     return (
         <Card>
             <h4 className="mb-6">Overview</h4>
             <div className="grid md:grid-cols-2 gap-4">
+                {/* Lab Name */}
                 <FormItem
                     label="Lab Name"
                     invalid={Boolean(errors.name)}
@@ -44,12 +57,14 @@ const OverviewSection = ({
                                 type="text"
                                 autoComplete="off"
                                 readOnly={readOnly}
-                                placeholder="First Name"
+                                placeholder="Lab Name"
                                 {...field}
                             />
                         )}
                     />
                 </FormItem>
+
+                {/* Lab Type */}
                 <FormItem
                     label="Lab Type"
                     invalid={Boolean(errors.labType)}
@@ -69,6 +84,8 @@ const OverviewSection = ({
                         )}
                     />
                 </FormItem>
+
+                {/* Department Name */}
                 <FormItem
                     label="Department Name"
                     invalid={Boolean(errors.department)}
@@ -94,6 +111,7 @@ const OverviewSection = ({
                     />
                 </FormItem>
 
+                {/* Locations */}
                 <FormItem
                     label="Locations"
                     invalid={Boolean(errors.category)}
@@ -103,18 +121,6 @@ const OverviewSection = ({
                         name="category"
                         control={control}
                         render={({ field }) => (
-                            // <Select
-                            //     {...field}
-                            //     value={options.filter(
-                            //         (option) => option.value === field.value,
-                            //     )}
-                            //     options={options}
-                            //     placeholder="Select Department"
-                            //     isDisabled={readOnly}
-                            //     onChange={(option) =>
-                            //         field.onChange(option?.value)
-                            //     }
-                            // />
                             <Input
                                 type="text"
                                 autoComplete="off"
@@ -126,6 +132,7 @@ const OverviewSection = ({
                     />
                 </FormItem>
 
+                {/* Lab Code */}
                 <FormItem
                     label="Lab Code"
                     invalid={Boolean(errors.labCode)}
@@ -134,6 +141,17 @@ const OverviewSection = ({
                     <Controller
                         name="labCode"
                         control={control}
+                        rules={{
+                            required: 'Lab Code is required',
+                            pattern: {
+                                value: /^LAB-\d+$/,
+                                message:
+                                    'Lab Code must be in format LAB-<number>',
+                            },
+                            validate: (value) =>
+                                !existingLabCodes.includes(value) ||
+                                'This Lab Code already exists',
+                        }}
                         render={({ field }) => (
                             <Input
                                 type="text"
@@ -141,14 +159,21 @@ const OverviewSection = ({
                                 readOnly={readOnly}
                                 placeholder="Enter Lab Code"
                                 {...field}
+                                onFocus={() => {
+                                    if (!field.value) {
+                                        field.onChange(getNextLabCode())
+                                    }
+                                }}
                             />
                         )}
                     />
                 </FormItem>
             </div>
+
             {/* Personal Details Section */}
             <h4 className="mt-8 mb-4">Personal Details</h4>
             <div className="grid md:grid-cols-2 gap-4">
+                {/* Email */}
                 <FormItem
                     label="Email"
                     invalid={Boolean(errors.email)}
@@ -169,6 +194,7 @@ const OverviewSection = ({
                     />
                 </FormItem>
 
+                {/* Phone */}
                 <FormItem
                     label="Phone"
                     invalid={Boolean(errors.phone)}
@@ -188,6 +214,8 @@ const OverviewSection = ({
                         )}
                     />
                 </FormItem>
+
+                {/* Address */}
                 <FormItem
                     label="Address"
                     invalid={Boolean(errors.address)}

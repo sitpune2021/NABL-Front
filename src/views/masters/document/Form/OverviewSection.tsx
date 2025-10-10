@@ -51,6 +51,7 @@ const OverviewSection = ({
     control,
     errors,
     readOnly,
+    setValue,
 }: OverviewSectionProps) => {
     const { categoryList } = useCategoryList()
     const { departmentList } = useDepartmentList()
@@ -62,8 +63,43 @@ const OverviewSection = ({
 
     const departmentOptions = departmentList.map((dept) => ({
         value: dept.name,
-        label: dept.name.toUpperCase(),
+        label: `${dept.name.toUpperCase()} - ${dept.prefix}`,
     }))
+
+    const [selectedCategory, setSelectedCategory] = useState(null)
+    const [selectedDepartments, setSelectedDepartments] = useState([]) // array for multiple select
+    const [counter] = useState(1) // temporary increment
+    const generateDocumentNo = (
+        categoryOption: { value: string; label: string } | null,
+        departmentOptions: { value: string; label: string }[],
+    ) => {
+        if (!categoryOption) return ''
+
+        const categoryPrefix = categoryOption.label.split(' - ')[1]
+
+        let docPrefix = categoryPrefix
+
+        if (departmentOptions.length === 1) {
+            // Only one department selected → include its prefix
+            const deptPrefix = departmentOptions[0].label.split(' - ')[1]
+            docPrefix = `${categoryPrefix}-${deptPrefix}`
+        }
+
+        // Multiple departments or none → only category prefix used
+        return `${docPrefix}-${counter}`
+    }
+    const handleCategoryChange = (
+        option: { value: string; label: string } | null,
+    ) => {
+        setSelectedCategory(option)
+        const newDocNo = generateDocumentNo(option, selectedDepartments)
+        setValue('documentNo', newDocNo)
+    }
+    const handleDepartmentChange = (options) => {
+        setSelectedDepartments(options || [])
+        const newDocNo = generateDocumentNo(selectedCategory, options || [])
+        setValue('documentNo', newDocNo) // update form value
+    }
 
     const frequency = useWatch({ control, name: 'frequency' })
     const effectiveDate = useWatch({ control, name: 'effectiveDate' })
@@ -239,15 +275,16 @@ const OverviewSection = ({
                         render={({ field }) => (
                             <Select
                                 {...field}
-                                value={departmentOptions.find(
-                                    (option) => option.value === field.value,
-                                )}
+                                isMulti
                                 options={departmentOptions}
+                                value={departmentOptions.filter((o) =>
+                                    field.value?.includes(o.value),
+                                )}
                                 placeholder="Select Department"
-                                isDisabled={readOnly}
-                                onChange={(option) =>
-                                    field.onChange(option?.value)
-                                }
+                                onChange={(options) => {
+                                    field.onChange(options.map((o) => o.value))
+                                    handleDepartmentChange(options || [])
+                                }}
                             />
                         )}
                     />
@@ -264,14 +301,16 @@ const OverviewSection = ({
                         render={({ field }) => (
                             <Select
                                 {...field}
-                                value={options.find(
-                                    (option) => option.value === field.value,
-                                )}
                                 options={options}
+                                value={options.find(
+                                    (o: { value: string; label: string }) =>
+                                        o.value === field.value,
+                                )}
                                 placeholder="Select Category"
-                                onChange={(option) =>
+                                onChange={(option) => {
                                     field.onChange(option?.value)
-                                }
+                                    handleCategoryChange(option)
+                                }}
                             />
                         )}
                     />
@@ -410,9 +449,9 @@ const OverviewSection = ({
                         control={control}
                         render={({ field }) => (
                             <Input
+                                readOnly
                                 type="text"
-                                readOnly={readOnly}
-                                placeholder="Enter Document No"
+                                placeholder="Document No"
                                 {...field}
                             />
                         )}

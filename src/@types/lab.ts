@@ -40,6 +40,7 @@ export type Fields = {
     email?: string
     phone?: string
     address?: string
+    location: string
 }
 
 export type TagsFields = {

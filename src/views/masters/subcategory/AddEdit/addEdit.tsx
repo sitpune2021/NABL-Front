@@ -83,6 +83,7 @@ const SubCategoryAddEdit = () => {
                     subcategoryData ?? {
                         name: '',
                         subcategory: '',
+                        prefix: '',
                         required: false,
                         initialtimezone: false,
                     }
