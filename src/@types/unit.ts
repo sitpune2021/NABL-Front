@@ -1,4 +1,4 @@
-import { TableQueries, PrefixFEntity } from './common'
+import { TableQueries } from './common'
 
 import type { Control, FieldErrors } from 'react-hook-form'
 
@@ -15,7 +15,7 @@ export type Filter = {
 export type Unit = {
     id: string
     name: string
-} & PrefixFEntity
+}
 
 export type UnitListState = {
     tableData: TableQueries
@@ -33,7 +33,7 @@ export type UnitListAction = {
 export type Fields = {
     id?: string
     name: string
-} & PrefixFEntity
+}
 
 export type TagsFields = {
     tags: Array<{ value: string; label: string }>

@@ -74,13 +74,8 @@ const DepartmentListTable = () => {
     const columns: ColumnDef<Department>[] = useMemo(
         () => [
             {
-                header: 'Id',
-                accessorKey: 'id',
-                cell: (props) => (
-                    <>
-                        {props.row.original.prefix}-{props.row.original.id}
-                    </>
-                ),
+                header: 'Prefix',
+                accessorKey: 'prefix',
             },
             {
                 header: 'Name',

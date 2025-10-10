@@ -40,7 +40,9 @@ const DocumentAddEdit = () => {
                 try {
                     setLoadingData(true)
                     const data = isEditor
-                        ? await apiGetDocumentEditortById(documentId)
+                        ? isEdit
+                            ? await apiGetDocumentEditortById(documentId)
+                            : await getDocumentById(documentId)
                         : await getDocumentById(documentId)
                     setDocumentData(data)
                 } catch (err) {

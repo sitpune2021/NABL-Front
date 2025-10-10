@@ -24,8 +24,8 @@ const validationSchema = z.object({
     labName: z.string().min(1, 'Lab Name is required'),
     location: z.string().optional(),
     department: z.array(z.string()).optional(),
-    header: z.string().optional(),
-    footer: z.string().optional(),
+    header: z.union([z.string(), z.number()]).optional(),
+    footer: z.union([z.string(), z.number()]).optional(),
     category: z.string().optional(),
     documentName: z.string().min(1, 'Document Name is required'),
     documentNo: z.string().optional(),
@@ -74,8 +74,6 @@ const DocumentForm = ({
 
     const { handleSubmit, reset, formState, control, setValue } = formMethods
     const { errors } = formState
-    console.log(isEditor)
-
     const memoizedDefaults = useMemo(() => defaultValues, [defaultValues])
 
     useEffect(() => {

@@ -4,7 +4,7 @@ import { useEffect, useRef } from 'react'
 import grapesjs from 'grapesjs'
 import 'grapesjs/dist/css/grapes.min.css'
 import ReactDOMServer from 'react-dom/server'
-import { useLocation } from 'react-router'
+import { useParams } from 'react-router'
 import { Controller, UseFormSetValue } from 'react-hook-form'
 import {
     addCustomBlocks,
@@ -12,6 +12,8 @@ import {
 } from '../../template/Form/BlockManager'
 import HeaderBlock from '../../template/Form/HeaderBlock'
 import FooterBlock from '../../template/Form/FooterBlock'
+// import useTemplateList from '../../template/List/hooks/useList'
+// import useDocumentList from '../List/hooks/useList'
 
 interface GrapesEditorProps {
     control: any
@@ -28,7 +30,41 @@ export default function GrapesEditor({
 }: GrapesEditorProps) {
     const editorRef = useRef<any | null>(null)
     const containerRef = useRef<HTMLDivElement>(null)
-    const location = useLocation()
+    const { id: documentId } = useParams()
+    // const { templateList } = useTemplateList()
+    // const { documentList } = useDocumentList()
+
+    // const selectedDocument = useMemo(() => {
+    //     return documentList?.find(doc => doc.id === documentId) || null
+    // }, [documentList, documentId])
+
+    // const availableHeaders = useMemo(() => {
+    //     return templateList?.filter(t => t.type === 'header').map(t => ({
+    //         value: t.id,
+    //         label: t.name || t.id,
+    //         html: t.template?.html || '',
+    //         css: t.template?.css || '',
+    //     })) || []
+    // }, [templateList])
+
+    // // ✅ Compute availableFooters (all footers)
+    // const availableFooters = useMemo(() => {
+    //     return templateList?.filter(t => t.type === 'footer').map(t => ({
+    //         value: t.id,
+    //         label: t.name || t.id,
+    //         html: t.template?.html || '',
+    //         css: t.template?.css || '',
+    //     })) || []
+    // }, [templateList])
+
+    // const selectedHeader = useMemo(() => {
+    //     return availableHeaders.find(h => h.value === selectedDocument?.header) || null
+    // }, [availableHeaders, selectedDocument])
+
+    // const selectedFooter = useMemo(() => {
+    //     return availableFooters.find(f => f.value === selectedDocument?.footer) || null
+    // }, [availableFooters, selectedDocument])
+    // console.log(selectedDocument);
 
     useEffect(() => {
         if (!editorRef.current && containerRef.current) {
@@ -72,17 +108,8 @@ export default function GrapesEditor({
                 },
             })
 
-            // Auto insert blocks based on location state
-            const autoInsert = location?.state?.auto
-            if (autoInsert) {
-                if (autoInsert === 'header') editor.runCommand('insert-header')
-                else if (autoInsert === 'footer')
-                    editor.runCommand('insert-footer')
-                else if (autoInsert === 'header-footer') {
-                    editor.runCommand('insert-header')
-                    editor.runCommand('insert-footer')
-                }
-            }
+            editor.runCommand('insert-header')
+            editor.runCommand('insert-footer')
             editor.on('change', () => {
                 const html = editor.getHtml()
                 const css = editor.getCss()
@@ -100,7 +127,7 @@ export default function GrapesEditor({
                 editorRef.current = null
             }
         }
-    }, [location?.state])
+    }, [documentId])
 
     return (
         <>

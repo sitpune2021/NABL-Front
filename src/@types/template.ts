@@ -16,6 +16,12 @@ export type Template = {
     id: string
     name: string
     type: string
+    template: {
+        html: string | undefined
+        css: string | undefined
+        /* eslint-disable @typescript-eslint/no-explicit-any */
+        json: any
+    }
 }
 
 export type TemplateListState = {

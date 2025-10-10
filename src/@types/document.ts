@@ -1,6 +1,6 @@
 import { TableQueries } from './common'
 
-import type { Control, FieldErrors } from 'react-hook-form'
+import type { Control, FieldErrors, UseFormSetValue } from 'react-hook-form'
 
 export type GetDocumentListResponse = {
     data: Document[]
@@ -94,4 +94,5 @@ export type FormSectionBaseProps = {
     control: Control<DocumentFormSchema>
     errors: FieldErrors<DocumentFormSchema>
     readOnly?: boolean
+    setValue: UseFormSetValue<DocumentFormSchema>
 }
