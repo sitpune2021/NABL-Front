@@ -66,14 +66,14 @@ const OverviewSection = ({
     const { departmentList } = useDepartmentList()
     const { templateList } = useTemplateList()
 
-    const options = categoryList.map((category: Category) => ({
-        value: category.name,
-        label: `${category.name.toUpperCase()} - ${category.prefix}`,
-    }))
-
     const departmentOptions = departmentList.map((dept) => ({
         value: dept.name,
         label: `${dept.name.toUpperCase()} - ${dept.prefix}`,
+    }))
+
+    const options = categoryList.map((category: Category) => ({
+        value: category.name,
+        label: `${category.name.toUpperCase()} - ${category.prefix}`,
     }))
 
     const [selectedCategory, setSelectedCategory] = useState<{
@@ -97,7 +97,7 @@ const OverviewSection = ({
         if (departmentOptions.length === 1) {
             // Only one department selected → include its prefix
             const deptPrefix = departmentOptions[0].label.split(' - ')[1]
-            docPrefix = `${categoryPrefix}-${deptPrefix}`
+            docPrefix = `${deptPrefix}-${categoryPrefix}`
         }
 
         // Multiple departments or none → only category prefix used
@@ -666,6 +666,7 @@ const OverviewSection = ({
                                 value={
                                     field.value ? new Date(field.value) : null
                                 }
+                                minDate={new Date()}
                                 onChange={(date: Date | null) =>
                                     field.onChange(
                                         date ? date.toISOString() : undefined,
