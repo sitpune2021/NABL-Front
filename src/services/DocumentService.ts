@@ -1,4 +1,4 @@
-import { Fields } from '@/@types/document'
+import { Fields, GetDocumentResponse } from '@/@types/document'
 import ApiService from './ApiService'
 
 export async function apiGetDocumentList<T, U extends Record<string, unknown>>(
@@ -12,7 +12,7 @@ export async function apiGetDocumentList<T, U extends Record<string, unknown>>(
 }
 
 export async function apiDocument(data: Fields) {
-    return ApiService.fetchDataWithAxios<Fields>({
+    return ApiService.fetchDataWithAxios<GetDocumentResponse>({
         url: '/document',
         method: 'post',
         data,
@@ -27,10 +27,31 @@ export async function apiGetDocumentById(id: string) {
 }
 
 export async function apiUpdateDocument(id: string, data: Fields) {
-    console.log('Updating document with ID:', id, 'and data:', data) // Debug log;
-
-    return ApiService.fetchDataWithAxios<Fields>({
+    return ApiService.fetchDataWithAxios<GetDocumentResponse>({
         url: `/document/${id}`,
+        method: 'put',
+        data,
+    })
+}
+
+export async function apiDocumenEditort(data: Fields) {
+    return ApiService.fetchDataWithAxios<GetDocumentResponse>({
+        url: '/document-editor',
+        method: 'post',
+        data,
+    })
+}
+
+export async function apiGetDocumentEditortById(id: string) {
+    return ApiService.fetchDataWithAxios<Fields>({
+        url: `/document-editor/${id}`,
+        method: 'get',
+    })
+}
+
+export async function apiUpdateDocumentEditor(id: string, data: Fields) {
+    return ApiService.fetchDataWithAxios<GetDocumentResponse>({
+        url: `/document-editor/${id}`,
         method: 'put',
         data,
     })

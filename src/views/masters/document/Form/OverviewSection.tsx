@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import Card from '@/components/ui/Card'
 import Input from '@/components/ui/Input'
 import { FormItem } from '@/components/ui/Form'
@@ -9,15 +9,23 @@ import useDepartmentList from '../../department/List/hooks/useList'
 import { Select } from '@/components/ui'
 import DatePicker from '@/components/ui/DatePicker'
 import TimeInput from '@/components/ui/TimeInput'
+import { Category } from '@/@types/category'
+import useTemplateList from '../../template/List/hooks/useList'
 
 type OverviewSectionProps = FormSectionBaseProps
 type TemplateOption = {
     value: string
     label: string
     html: string
+    css: string
 }
 
-const wrapWithStyle = (html: string) => `
+type DepartmentOption = {
+    label: string
+    value: string
+}
+
+const wrapWithStyle = (html: string, css: string) => `
 <html>
   <head>
     <style>
@@ -39,6 +47,7 @@ const wrapWithStyle = (html: string) => `
       tbody tr:nth-child(even) {
         background: #fafafa;
       }
+        ${css}
     </style>
   </head>
   <body>
@@ -55,8 +64,9 @@ const OverviewSection = ({
 }: OverviewSectionProps) => {
     const { categoryList } = useCategoryList()
     const { departmentList } = useDepartmentList()
+    const { templateList } = useTemplateList()
 
-    const options = categoryList.map((category) => ({
+    const options = categoryList.map((category: Category) => ({
         value: category.name,
         label: `${category.name.toUpperCase()} - ${category.prefix}`,
     }))
@@ -66,8 +76,13 @@ const OverviewSection = ({
         label: `${dept.name.toUpperCase()} - ${dept.prefix}`,
     }))
 
-    const [selectedCategory, setSelectedCategory] = useState(null)
-    const [selectedDepartments, setSelectedDepartments] = useState([]) // array for multiple select
+    const [selectedCategory, setSelectedCategory] = useState<{
+        value: string
+        label: string
+    } | null>(null)
+    const [selectedDepartments, setSelectedDepartments] = useState<
+        DepartmentOption[]
+    >([])
     const [counter] = useState(1) // temporary increment
     const generateDocumentNo = (
         categoryOption: { value: string; label: string } | null,
@@ -95,7 +110,7 @@ const OverviewSection = ({
         const newDocNo = generateDocumentNo(option, selectedDepartments)
         setValue('documentNo', newDocNo)
     }
-    const handleDepartmentChange = (options) => {
+    const handleDepartmentChange = (options: DepartmentOption[]) => {
         setSelectedDepartments(options || [])
         const newDocNo = generateDocumentNo(selectedCategory, options || [])
         setValue('documentNo', newDocNo) // update form value
@@ -104,20 +119,12 @@ const OverviewSection = ({
     const frequency = useWatch({ control, name: 'frequency' })
     const effectiveDate = useWatch({ control, name: 'effectiveDate' })
     const duration = useWatch({ control, name: 'duration' })
-    const headerValue = useWatch({ control, name: 'header' })
-    const footerValue = useWatch({ control, name: 'footer' })
 
     const [durationOptions, setDurationOptions] = useState<
         { value: string; label: string }[]
     >([])
     const [notificationDate, setNotificationDate] = useState<string | null>(
         null,
-    )
-    const [availableHeaders, setAvailableHeaders] = useState<TemplateOption[]>(
-        [],
-    )
-    const [availableFooters, setAvailableFooters] = useState<TemplateOption[]>(
-        [],
     )
     const [selectedHeaderHtml, setSelectedHeaderHtml] = useState<string>('')
     const [selectedFooterHtml, setSelectedFooterHtml] = useState<string>('')
@@ -174,53 +181,31 @@ const OverviewSection = ({
         setNotificationDate(notifyDate.toDateString())
     }, [effectiveDate, frequency, duration])
 
-    useEffect(() => {
-        const data = localStorage.getItem('grapes_templates_v1')
-        if (data) {
-            const templates = JSON.parse(data)
+    const availableHeaders: TemplateOption[] = useMemo(() => {
+        return (
+            templateList
+                ?.filter((t) => t.type === 'header')
+                .map((t) => ({
+                    value: t.id,
+                    label: t.name || t.id,
+                    html: t.template?.html || '',
+                    css: t.template?.css || '',
+                })) || []
+        )
+    }, [templateList])
 
-            setAvailableHeaders(
-                templates
-                    .filter((t: { type: string }) => t.type === 'header')
-                    .map((t: { id: string; name: string; html: string }) => ({
-                        value: t.id,
-                        label: t.name || t.id,
-                        html: t.html,
-                    })),
-            )
-
-            setAvailableFooters(
-                templates
-                    .filter((t: { type: string }) => t.type === 'footer')
-                    .map((t: { id: string; name: string; html: string }) => ({
-                        value: t.id,
-                        label: t.name || t.id,
-                        html: t.html,
-                    })),
-            )
-        }
-    }, [])
-
-    // ---------------------------
-    // Sync preview when form already has value
-    // ---------------------------
-    useEffect(() => {
-        if (headerValue) {
-            const html =
-                availableHeaders.find((h) => h.value === headerValue)?.html ||
-                ''
-            setSelectedHeaderHtml(wrapWithStyle(html))
-        }
-    }, [headerValue, availableHeaders])
-
-    useEffect(() => {
-        if (footerValue) {
-            const html =
-                availableFooters.find((f) => f.value === footerValue)?.html ||
-                ''
-            setSelectedFooterHtml(wrapWithStyle(html))
-        }
-    }, [footerValue, availableFooters])
+    const availableFooters: TemplateOption[] = useMemo(() => {
+        return (
+            templateList
+                ?.filter((t) => t.type === 'footer')
+                .map((t) => ({
+                    value: t.id,
+                    label: t.name || t.id,
+                    html: t.template?.html || '',
+                    css: t.template?.css || '',
+                })) || []
+        )
+    }, [templateList])
 
     return (
         <Card>
@@ -282,8 +267,10 @@ const OverviewSection = ({
                                 )}
                                 placeholder="Select Department"
                                 onChange={(options) => {
-                                    field.onChange(options.map((o) => o.value))
-                                    handleDepartmentChange(options || [])
+                                    const selected = (options ||
+                                        []) as DepartmentOption[]
+                                    field.onChange(selected.map((o) => o.value)) // update form field with values only
+                                    handleDepartmentChange(selected) // update documentNo and selectedDepartments
                                 }}
                             />
                         )}
@@ -317,106 +304,110 @@ const OverviewSection = ({
                 </FormItem>
 
                 {/* ✅ Header with preview */}
-                <FormItem label="Header">
+                <FormItem
+                    label="Header"
+                    invalid={Boolean(errors.header)}
+                    errorMessage={errors.header?.message}
+                >
                     <Controller
                         name="header"
                         control={control}
-                        render={({ field }) => (
-                            <>
-                                <Select
-                                    {...field}
-                                    value={
-                                        field.value
-                                            ? availableHeaders.find(
-                                                  (h) =>
-                                                      h.value === field.value,
-                                              )
-                                            : null
-                                    }
-                                    options={availableHeaders}
-                                    placeholder="-- Select Header --"
-                                    isDisabled={readOnly}
-                                    onChange={(option) => {
-                                        field.onChange(option?.value)
-                                        const html =
-                                            availableHeaders.find(
-                                                (h) =>
-                                                    h.value === option?.value,
-                                            )?.html || ''
-                                        setSelectedHeaderHtml(
-                                            wrapWithStyle(html),
-                                        )
-                                    }}
-                                />
+                        render={({ field }) => {
+                            const selectedOption = availableHeaders.find(
+                                (h) => h.value === field.value,
+                            )
 
-                                {field.value && selectedHeaderHtml && (
-                                    <iframe
-                                        style={{
-                                            width: '100%',
-                                            height: '150px',
-                                            border: '1px solid #ddd',
-                                            marginTop: '8px',
-                                            borderRadius: '6px',
-                                            background: '#fff',
+                            return (
+                                <>
+                                    <Select
+                                        {...field}
+                                        value={selectedOption || null}
+                                        options={availableHeaders}
+                                        placeholder="-- Select Header --"
+                                        isDisabled={readOnly}
+                                        onChange={(option) => {
+                                            field.onChange(option?.value || '')
+                                            const html = option?.html || ''
+                                            const css = option?.css || ''
+                                            setSelectedHeaderHtml(
+                                                html
+                                                    ? wrapWithStyle(html, css)
+                                                    : '',
+                                            )
                                         }}
-                                        srcDoc={selectedHeaderHtml}
-                                        title="Header Preview"
                                     />
-                                )}
-                            </>
-                        )}
+
+                                    {field.value && selectedHeaderHtml && (
+                                        <iframe
+                                            style={{
+                                                width: '100%',
+                                                height: '150px',
+                                                border: '1px solid #ddd',
+                                                marginTop: '8px',
+                                                borderRadius: '6px',
+                                                background: '#fff',
+                                            }}
+                                            srcDoc={selectedHeaderHtml}
+                                            title="Header Preview"
+                                        />
+                                    )}
+                                </>
+                            )
+                        }}
                     />
                 </FormItem>
 
                 {/* ✅ Footer with preview */}
-                <FormItem label="Footer">
+                <FormItem
+                    label="Footer"
+                    invalid={Boolean(errors.footer)}
+                    errorMessage={errors.footer?.message}
+                >
                     <Controller
                         name="footer"
                         control={control}
-                        render={({ field }) => (
-                            <>
-                                <Select
-                                    {...field}
-                                    value={
-                                        field.value
-                                            ? availableFooters.find(
-                                                  (f) =>
-                                                      f.value === field.value,
-                                              )
-                                            : null
-                                    }
-                                    options={availableFooters}
-                                    placeholder="-- Select Footer --"
-                                    isDisabled={readOnly}
-                                    onChange={(option) => {
-                                        field.onChange(option?.value)
-                                        const html =
-                                            availableFooters.find(
-                                                (f) =>
-                                                    f.value === option?.value,
-                                            )?.html || ''
-                                        setSelectedFooterHtml(
-                                            wrapWithStyle(html),
-                                        )
-                                    }}
-                                />
+                        render={({ field }) => {
+                            const selectedOption = availableFooters.find(
+                                (f) => f.value === field.value,
+                            )
 
-                                {field.value && selectedFooterHtml && (
-                                    <iframe
-                                        style={{
-                                            width: '100%',
-                                            height: '150px',
-                                            border: '1px solid #ddd',
-                                            marginTop: '8px',
-                                            borderRadius: '6px',
-                                            background: '#fff',
+                            return (
+                                <>
+                                    <Select
+                                        {...field}
+                                        value={selectedOption || null}
+                                        options={availableFooters}
+                                        placeholder="-- Select Footer --"
+                                        isDisabled={readOnly}
+                                        onChange={(option) => {
+                                            field.onChange(option?.value || '')
+                                            const html = option?.html || ''
+                                            const css = option?.css || ''
+                                            setSelectedFooterHtml(
+                                                html
+                                                    ? wrapWithStyle(html, css)
+                                                    : '',
+                                            )
                                         }}
-                                        srcDoc={selectedFooterHtml}
-                                        title="Footer Preview"
                                     />
-                                )}
-                            </>
-                        )}
+
+                                    {field.value && selectedFooterHtml && (
+                                        <iframe
+                                            style={{
+                                                width: '100%',
+                                                height: '150px',
+                                                border: '1px solid #ddd',
+                                                marginTop: '8px',
+                                                borderRadius: '6px',
+                                                background: '#fff',
+                                            }}
+                                            srcDoc={selectedFooterHtml}
+                                            title="Footer Preview"
+                                        />
+                                    )}
+                                </>
+                            )
+                        }}
                     />
                 </FormItem>
 

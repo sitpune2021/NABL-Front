@@ -44,7 +44,7 @@ export default function useCategoryList() {
         return category
     }
 
-    const categoryList = data?.list || []
+    const categoryList = data?.data || []
 
     const categoryListTotal = data?.total || 0
 
