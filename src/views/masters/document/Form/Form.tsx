@@ -1,32 +1,33 @@
-import { useEffect } from 'react'
+import { useEffect, useMemo } from 'react'
 import { Form } from '@/components/ui/Form'
 import Container from '@/components/shared/Container'
 import BottomStickyBar from '@/components/template/BottomStickyBar'
 import OverviewSection from './OverviewSection'
-import isEmpty from 'lodash/isEmpty'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import type { CommonProps } from '@/@types/common'
-import { DocumentFormSchema } from '@/@types/document'
+import type { DocumentFormSchema } from '@/@types/document'
 import GrapesEditor from './GrapesEditor'
+import { useParams } from 'react-router'
 
 type DocumentFormProps = {
     onFormSubmit: (values: DocumentFormSchema) => void
-    defaultValues?: DocumentFormSchema
+    defaultValues?: Partial<DocumentFormSchema>
     newDocument?: boolean
     readOnly?: boolean
     isEditor?: boolean
 } & CommonProps
 
+// ✅ Validation schema using Zod
 const validationSchema = z.object({
-    labName: z.string().min(1, { message: 'Lab Name is required' }),
+    labName: z.string().min(1, 'Lab Name is required'),
     location: z.string().optional(),
     department: z.array(z.string()).optional(),
-    header: z.string().optional(),
-    footer: z.string().optional(),
+    header: z.union([z.string(), z.number()]).optional(),
+    footer: z.union([z.string(), z.number()]).optional(),
     category: z.string().optional(),
-    documentName: z.string().min(1, { message: 'Document Name is required' }),
+    documentName: z.string().min(1, 'Document Name is required'),
     documentNo: z.string().optional(),
     issuedNo: z.string().optional(),
     amendmentNo: z.string().optional(),
@@ -34,51 +35,52 @@ const validationSchema = z.object({
     date: z.string().optional(),
     preparedByDate: z.string().optional(),
     time: z.string().optional(),
-    preparedBy: z.string().min(1, { message: 'Prepared By is required' }),
+    preparedBy: z.string().min(1, 'Prepared By is required'),
     quantityPrepared: z
         .union([z.string(), z.number()])
         .optional()
         .refine((val) => !val || Number(val) >= 0, {
             message: 'Quantity must be a positive number',
         }),
-    approvedBy: z.string().min(1, { message: 'Approved By is required' }),
+    approvedBy: z.string().min(1, 'Approved By is required'),
     issuedBy: z.string().optional(),
-    issueDate: z.string().min(1, { message: 'Issue Date is required' }),
+    issueDate: z.string().min(1, 'Issue Date is required'),
     amendmentDate: z.string().optional(),
-    effectiveDate: z.string().min(1, { message: 'Effective Date is required' }),
+    effectiveDate: z.string().min(1, 'Effective Date is required'),
     frequency: z.string().optional(),
     duration: z.string().optional(),
     prefix: z.string().optional(),
 })
 
-const DocumentForm = (props: DocumentFormProps) => {
-    const {
-        onFormSubmit,
-        defaultValues = {},
-        readOnly = false,
-        children,
-        isEditor,
-    } = props
+const editorSchema = z.object({
+    documentId: z.string().min(1, 'Document ID is required'),
+    document: z.any(),
+})
 
-    const {
-        handleSubmit,
-        reset,
-        formState: { errors },
-        control,
-        setValue,
-    } = useForm<DocumentFormSchema>({
-        defaultValues: {
-            ...defaultValues,
-        },
-        resolver: zodResolver(validationSchema),
+const DocumentForm = ({
+    onFormSubmit,
+    defaultValues = {},
+    readOnly = false,
+    children,
+    isEditor = false,
+}: DocumentFormProps) => {
+    const { id: documentId } = useParams()
+    const formMethods = useForm({
+        defaultValues: isEditor
+            ? { documentId: documentId, document: '' }
+            : (defaultValues as DocumentFormSchema),
+        resolver: zodResolver(isEditor ? editorSchema : validationSchema),
     })
 
+    const { handleSubmit, reset, formState, control, setValue } = formMethods
+    const { errors } = formState
+    const memoizedDefaults = useMemo(() => defaultValues, [defaultValues])
+
     useEffect(() => {
-        if (!isEmpty(defaultValues)) {
-            reset(defaultValues)
+        if (memoizedDefaults && Object.keys(memoizedDefaults).length > 0) {
+            reset(memoizedDefaults)
         }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [JSON.stringify(defaultValues)])
+    }, [memoizedDefaults, reset])
 
     const onSubmit = (values: DocumentFormSchema) => {
         onFormSubmit?.(values)
@@ -92,16 +94,13 @@ const DocumentForm = (props: DocumentFormProps) => {
         >
             <Container>
                 <div className="flex flex-col md:flex-row gap-4">
-                    <div className="gap-4 flex flex-col flex-auto">
+                    <div className="flex flex-col flex-auto gap-4">
                         {isEditor ? (
                             <GrapesEditor
                                 control={control}
                                 errors={errors}
                                 readOnly={readOnly}
-                                dialogIsOpen={false}
-                                isSubmiting={true}
-                                isEdit={false}
-                                onDialogClose={() => {}}
+                                setValue={setValue}
                             />
                         ) : (
                             <OverviewSection

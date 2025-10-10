@@ -6,7 +6,7 @@ mock.onGet(`/api/category`).reply(() => {
     const raw = localStorage.getItem(CATEGORIES_KEY)
     const Data = raw ? (JSON.parse(raw) as Category[]) : []
     const response = {
-        list: Data,
+        data: Data,
         total: Data.length,
     }
 

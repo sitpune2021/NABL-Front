@@ -16,7 +16,7 @@ const LabAddEdit = () => {
     const navigate = useNavigate()
     const location = useLocation()
     const { id: labId } = useParams()
-    const { saveLabData, getLabById } = useLabList()
+    const { saveLabData, getLabById, labList } = useLabList()
 
     const [discardConfirmationOpen, setDiscardConfirmationOpen] =
         useState(false)
@@ -34,8 +34,6 @@ const LabAddEdit = () => {
             setLoadingData(true)
             getLabById(labId)
                 .then((data) => {
-                    console.log('Fetched lab data:', data)
-
                     setLabData(data)
                 })
                 .finally(() => setLoadingData(false))
@@ -83,8 +81,9 @@ const LabAddEdit = () => {
                         name: '',
                         labType: '',
                         department: '',
-                        category: '',
-                        labCode: '',
+                        labCode: !isSubmiting
+                            ? `LAB-${labList.length + 1}`
+                            : '',
                         email: '',
                         phone: '',
                         address: '',
