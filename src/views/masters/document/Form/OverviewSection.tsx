@@ -11,6 +11,8 @@ import DatePicker from '@/components/ui/DatePicker'
 import TimeInput from '@/components/ui/TimeInput'
 import { Category } from '@/@types/category'
 import useTemplateList from '../../template/List/hooks/useList'
+import useUserList from '../../user/List/hooks/useList'
+import { User } from '@/@types/user'
 
 type OverviewSectionProps = FormSectionBaseProps
 type TemplateOption = {
@@ -65,15 +67,28 @@ const OverviewSection = ({
     const { categoryList } = useCategoryList()
     const { departmentList } = useDepartmentList()
     const { templateList } = useTemplateList()
-
-    const departmentOptions = departmentList.map((dept) => ({
-        value: dept.name,
-        label: `${dept.name.toUpperCase()} - ${dept.prefix}`,
-    }))
+    const { userList } = useUserList()
 
     const options = categoryList.map((category: Category) => ({
         value: category.name,
         label: `${category.name.toUpperCase()} - ${category.prefix}`,
+    }))
+
+    const getUserOptions = (users: User[], roleKey: keyof User) =>
+        users
+            .filter((user) => user[roleKey])
+            .map((user) => ({
+                value: user.name,
+                label: user.name.toUpperCase(),
+            }))
+
+    const preparedByOptions = getUserOptions(userList, 'preparedBy')
+    const issuedByOptions = getUserOptions(userList, 'issuedBy')
+    const approvedByOptions = getUserOptions(userList, 'approvedBy')
+
+    const departmentOptions = departmentList.map((dept) => ({
+        value: dept.name,
+        label: `${dept.name.toUpperCase()} - ${dept.prefix}`,
     }))
 
     const [selectedCategory, setSelectedCategory] = useState<{
@@ -585,11 +600,23 @@ const OverviewSection = ({
                         name="preparedBy"
                         control={control}
                         render={({ field }) => (
-                            <Input
-                                type="text"
-                                readOnly={readOnly}
-                                placeholder="Prepared By"
+                            // <Input
+                            //     type="text"
+                            //     readOnly={readOnly}
+                            //     placeholder="Prepared By"
+                            //     {...field}
+                            // />
+                            <Select
                                 {...field}
+                                options={preparedByOptions}
+                                value={preparedByOptions.find(
+                                    (o: { value: string; label: string }) =>
+                                        o.value === field.value,
+                                )}
+                                placeholder="Select Prepared By"
+                                onChange={(option) => {
+                                    field.onChange(option?.value)
+                                }}
                             />
                         )}
                     />
@@ -623,11 +650,17 @@ const OverviewSection = ({
                         name="approvedBy"
                         control={control}
                         render={({ field }) => (
-                            <Input
-                                type="text"
-                                readOnly={readOnly}
-                                placeholder="Approved By"
+                            <Select
                                 {...field}
+                                options={approvedByOptions}
+                                value={approvedByOptions.find(
+                                    (o: { value: string; label: string }) =>
+                                        o.value === field.value,
+                                )}
+                                placeholder="Select Approved By"
+                                onChange={(option) => {
+                                    field.onChange(option?.value)
+                                }}
                             />
                         )}
                     />
@@ -642,11 +675,17 @@ const OverviewSection = ({
                         name="issuedBy"
                         control={control}
                         render={({ field }) => (
-                            <Input
-                                type="text"
-                                readOnly={readOnly}
-                                placeholder="Issued By"
+                            <Select
                                 {...field}
+                                options={issuedByOptions}
+                                value={issuedByOptions.find(
+                                    (o: { value: string; label: string }) =>
+                                        o.value === field.value,
+                                )}
+                                placeholder="Select Issued By"
+                                onChange={(option) => {
+                                    field.onChange(option?.value)
+                                }}
                             />
                         )}
                     />

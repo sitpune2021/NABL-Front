@@ -17,6 +17,7 @@ type DocumentFormProps = {
     newDocument?: boolean
     readOnly?: boolean
     isEditor?: boolean
+    documentData?: DocumentFormSchema | null
 } & CommonProps
 
 // ✅ Validation schema using Zod
@@ -63,9 +64,13 @@ const DocumentForm = ({
     readOnly = false,
     children,
     isEditor = false,
+    documentData,
 }: DocumentFormProps) => {
     const { id: documentId } = useParams()
-    const formMethods = useForm({
+    /* eslint-disable @typescript-eslint/no-explicit-any */
+    const formMethods = useForm<
+        DocumentFormSchema | { documentId: string | undefined; document: any }
+    >({
         defaultValues: isEditor
             ? { documentId: documentId, document: '' }
             : (defaultValues as DocumentFormSchema),
@@ -101,6 +106,7 @@ const DocumentForm = ({
                                 errors={errors}
                                 readOnly={readOnly}
                                 setValue={setValue}
+                                documentData={documentData}
                             />
                         ) : (
                             <OverviewSection

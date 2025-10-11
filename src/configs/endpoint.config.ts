@@ -80,6 +80,9 @@ const endpointConfig = {
             edit: `${MASTER_PREFIX_PATH}/template/edit/:id`,
             view: `${MASTER_PREFIX_PATH}/template/view/:id`,
         },
+        rolesPermission: {
+            list: `${MASTER_PREFIX_PATH}/roles-permission/list`,
+        },
     },
 }
 
