@@ -68,7 +68,6 @@ const OverviewSection = ({
                     />
                 </FormItem>
 
-                {/* Department Name */}
                 <FormItem
                     label="Department Name"
                     invalid={Boolean(errors.department)}
@@ -80,15 +79,14 @@ const OverviewSection = ({
                         render={({ field }) => (
                             <Select
                                 {...field}
-                                value={departmentOptions.filter(
-                                    (option) => option.value === field.value,
-                                )}
+                                isMulti
                                 options={departmentOptions}
-                                placeholder="Select Department"
+                                value={field.value || []}
+                                placeholder="Select Departments"
                                 isDisabled={readOnly}
-                                onChange={(option) =>
-                                    field.onChange(option?.value)
-                                }
+                                onChange={(options) => {
+                                    field.onChange(options || [])
+                                }}
                             />
                         )}
                     />
@@ -115,7 +113,6 @@ const OverviewSection = ({
                     />
                 </FormItem>
 
-                {/* Lab Code */}
                 <FormItem
                     label="Lab Code"
                     invalid={Boolean(errors.labCode)}
