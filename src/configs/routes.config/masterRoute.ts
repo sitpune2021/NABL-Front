@@ -302,6 +302,16 @@ const masterRoute: Routes = [
             pageContainerType: 'gutterless',
         },
     },
+    {
+        key: 'masters.rolesPermission.list',
+        path: `${endpointConfig.master.rolesPermission.list}`,
+        component: lazy(() => import('@/views/masters/RolesPermissions')),
+        authority: [],
+        meta: {
+            pageContainerType: 'contained',
+            pageBackgroundType: 'plain',
+        },
+    },
 ]
 
 export default masterRoute

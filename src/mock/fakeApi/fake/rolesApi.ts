@@ -1,11 +1,20 @@
 import { Roles } from '@/@types/roles'
-import { ROLES_KEY } from '@/constants/api.constant'
+import { ROLES_KEY, USER_KEY } from '@/constants/api.constant'
 import { mock } from '@/mock/MockAdapter'
 
 // Roles
 mock.onGet(`/api/roles`).reply(() => {
     const raw = localStorage.getItem(ROLES_KEY)
-    const Data = raw ? (JSON.parse(raw) as Roles[]) : []
+    const roleGroupsData = raw ? (JSON.parse(raw) as Roles[]) : []
+    const userRaw = localStorage.getItem(USER_KEY)
+    const users = userRaw ? (JSON.parse(userRaw) as []) : []
+    const Data = roleGroupsData.map((group) => {
+        const assignedUsers = users.filter((user) => user.role === group.name)
+        return {
+            ...group,
+            users: assignedUsers,
+        }
+    })
     const response = {
         list: Data,
         total: Data.length,
@@ -17,8 +26,15 @@ mock.onGet(`/api/roles`).reply(() => {
 mock.onPost('/api/roles').reply((config) => {
     const raw = localStorage.getItem(ROLES_KEY)
     const existing = raw ? (JSON.parse(raw) as Roles[]) : []
-
     const roles = JSON.parse(config.data)
+    roles.users = [] // Set users to an empty array as intended
+    roles.accessRight = {
+        categories: ['write', 'read', 'delete'],
+        departments: ['write', 'read', 'delete'],
+        units: ['write', 'read', 'delete'],
+        files: ['write', 'read', 'delete'],
+        reports: ['write', 'read', 'delete'],
+    }
 
     let updated: Roles[]
 
@@ -64,7 +80,7 @@ mock.onPut(new RegExp('^/api/roles/\\d+$')).reply((config) => {
 
     const raw = localStorage.getItem(ROLES_KEY)
     const roles = raw ? (JSON.parse(raw) as Roles[]) : []
-
+    config.data.users = []
     const updatedRoles = JSON.parse(config.data)
 
     const index = roles.findIndex((c) => String(c.id) === id)
