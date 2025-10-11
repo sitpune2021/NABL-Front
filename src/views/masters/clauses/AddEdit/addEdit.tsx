@@ -30,7 +30,6 @@ const ClausesAddEdit = () => {
     const isView = location.pathname.includes('/view')
     const isAdd = location.pathname.includes('/create')
 
-    // Load existing clauses data in edit or view mode
     useEffect(() => {
         if (!isAdd && clausesId) {
             setLoadingData(true)
@@ -80,7 +79,20 @@ const ClausesAddEdit = () => {
         <>
             <ClausesForm
                 newClauses={isAdd}
-                defaultValues={clausesData ?? { name: '' }}
+                defaultValues={
+                    clausesData ?? {
+                        notes: [''],
+                        clauses: [
+                            {
+                                category: '',
+                                documentName: '',
+                                frequency: '',
+                                required: false,
+                                timezone: false,
+                            },
+                        ],
+                    }
+                }
                 readOnly={isView}
                 onFormSubmit={handleFormSubmit}
             >

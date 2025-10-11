@@ -74,13 +74,12 @@ const SubCategoryListTable = () => {
     const columns: ColumnDef<SubCategory>[] = useMemo(
         () => [
             {
-                header: 'Category',
-                accessorKey: 'name',
-            },
-
-            {
                 header: 'Prefix',
                 accessorKey: 'prefix',
+            },
+            {
+                header: 'Category',
+                accessorKey: 'name',
             },
             {
                 header: 'Sub Category',

@@ -12,13 +12,28 @@ import { ClausesFormSchema } from '@/@types/clauses'
 
 type ClausesFormProps = {
     onFormSubmit: (values: ClausesFormSchema) => void
-    defaultValues?: ClausesFormSchema
+    defaultValues?: Partial<ClausesFormSchema>
     newClauses?: boolean
     readOnly?: boolean
 } & CommonProps
 
 const validationSchema = z.object({
-    name: z.string().min(1, { message: ' name required' }),
+    notes: z
+        .array(z.string().min(1, { message: 'Note text required' }))
+        .min(1, { message: 'At least one note required' }),
+    clauses: z
+        .array(
+            z.object({
+                category: z.string().min(1, { message: 'Category required' }),
+                documentName: z
+                    .string()
+                    .min(1, { message: 'Document required' }),
+                frequency: z.string().min(1, { message: 'Frequency required' }),
+                required: z.boolean(),
+                timezone: z.boolean(),
+            }),
+        )
+        .min(1, { message: 'At least one clause required' }),
 })
 
 const ClausesForm = (props: ClausesFormProps) => {
@@ -34,21 +49,48 @@ const ClausesForm = (props: ClausesFormProps) => {
         reset,
         formState: { errors },
         control,
+        setValue,
+        getValues,
     } = useForm<ClausesFormSchema>({
         defaultValues: {
-            ...defaultValues,
+            notes: [''],
+            clauses: [
+                {
+                    category: '',
+                    documentName: '',
+                    frequency: '',
+                    required: false,
+                    timezone: false,
+                },
+            ],
         },
         resolver: zodResolver(validationSchema),
     })
 
     useEffect(() => {
         if (!isEmpty(defaultValues)) {
-            reset(defaultValues)
+            const transformedValues: ClausesFormSchema = {
+                notes: Array.isArray(defaultValues.notes)
+                    ? defaultValues.notes
+                    : [defaultValues.notes || ''],
+                clauses: Array.isArray(defaultValues.clauses)
+                    ? defaultValues.clauses
+                    : [
+                          {
+                              category: defaultValues.category || '',
+                              documentName: defaultValues.documentName || '',
+                              frequency: defaultValues.frequency || '',
+                              required: defaultValues.required || false,
+                              timezone: defaultValues.timezone || false,
+                          },
+                      ],
+            }
+            reset(transformedValues)
         }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [JSON.stringify(defaultValues)])
+    }, [JSON.stringify(defaultValues), reset])
 
     const onSubmit = (values: ClausesFormSchema) => {
+        console.log('Form submitted:', values)
         onFormSubmit?.(values)
     }
 
@@ -65,6 +107,8 @@ const ClausesForm = (props: ClausesFormProps) => {
                             control={control}
                             errors={errors}
                             readOnly={readOnly}
+                            setValue={setValue}
+                            getValues={getValues}
                         />
                     </div>
                 </div>

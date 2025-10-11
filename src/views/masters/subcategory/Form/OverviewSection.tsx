@@ -47,26 +47,6 @@ const OverviewSection = ({
                     />
                 </FormItem>
                 <FormItem
-                    label="Prefix"
-                    invalid={Boolean(errors.prefix)}
-                    errorMessage={errors.prefix?.message}
-                >
-                    <Controller
-                        name="prefix"
-                        control={control}
-                        render={({ field }) => (
-                            <Input
-                                type="text"
-                                autoComplete="off"
-                                readOnly={readOnly}
-                                placeholder="Prefix"
-                                {...field}
-                            />
-                        )}
-                    />
-                </FormItem>
-
-                <FormItem
                     label="Sub Category"
                     invalid={Boolean(errors.subcategory)}
                     errorMessage={errors.subcategory?.message}
@@ -86,40 +66,61 @@ const OverviewSection = ({
                     />
                 </FormItem>
                 <FormItem
-                    label="Required"
-                    invalid={Boolean(errors.required)}
-                    errorMessage={errors.required?.message}
+                    label="Prefix"
+                    invalid={Boolean(errors.prefix)}
+                    errorMessage={errors.prefix?.message}
                 >
                     <Controller
-                        name="required"
+                        name="prefix"
                         control={control}
                         render={({ field }) => (
-                            <Checkbox
-                                key={field.ref.name}
-                                defaultChecked={field.value}
+                            <Input
+                                type="text"
+                                autoComplete="off"
+                                readOnly={readOnly}
+                                placeholder="Prefix"
                                 {...field}
                             />
                         )}
                     />
                 </FormItem>
+                <div className="flex gap-5">
+                    <FormItem
+                        label="Required"
+                        invalid={Boolean(errors.required)}
+                        errorMessage={errors.required?.message}
+                    >
+                        <Controller
+                            name="required"
+                            control={control}
+                            render={({ field }) => (
+                                <Checkbox
+                                    key={field.ref.name}
+                                    defaultChecked={field.value}
+                                    {...field}
+                                />
+                            )}
+                        />
+                    </FormItem>
 
-                <FormItem
-                    label="Initial Timezone"
-                    invalid={Boolean(errors.initialtimezone)}
-                    errorMessage={errors.initialtimezone?.message}
-                >
-                    <Controller
-                        name="initialtimezone"
-                        control={control}
-                        render={({ field }) => (
-                            <Checkbox
-                                key={field.ref.name}
-                                defaultChecked={field.value}
-                                {...field}
-                            />
-                        )}
-                    />
-                </FormItem>
+                    <FormItem
+                        label="Initial Timezone"
+                        invalid={Boolean(errors.initialtimezone)}
+                        errorMessage={errors.initialtimezone?.message}
+                    >
+                        <Controller
+                            name="initialtimezone"
+                            control={control}
+                            render={({ field }) => (
+                                <Checkbox
+                                    key={field.ref.name}
+                                    defaultChecked={field.value}
+                                    {...field}
+                                />
+                            )}
+                        />
+                    </FormItem>
+                </div>
             </div>
         </Card>
     )

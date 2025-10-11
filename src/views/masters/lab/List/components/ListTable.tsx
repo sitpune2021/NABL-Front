@@ -81,14 +81,10 @@ const LabListTable = () => {
                 header: 'Lab Type',
                 accessorKey: 'labType',
             },
-            {
-                header: 'department',
-                accessorKey: 'department',
-            },
-            {
-                header: 'Category',
-                accessorKey: 'category',
-            },
+            // {
+            //     header: 'department',
+            //     accessorKey: 'department',
+            // },
             {
                 header: 'Lab Code',
                 accessorKey: 'labCode',

@@ -12,6 +12,17 @@ export async function apiGetClausesList<T, U extends Record<string, unknown>>(
     })
 }
 
+export async function apiGetClausesDataList<
+    T,
+    U extends Record<string, unknown>,
+>(params: U) {
+    return ApiService.fetchDataWithAxios<T>({
+        url: '/clauses-data',
+        method: 'get',
+        params,
+    })
+}
+
 export async function apiClauses(data: Fields) {
     return ApiService.fetchDataWithAxios<Fields>({
         url: '/clauses',

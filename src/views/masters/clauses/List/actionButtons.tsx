@@ -4,7 +4,7 @@ import endpointConfig from '@/configs/endpoint.config'
 
 export const actionButtons: ActionButton[] = [
     {
-        label: 'Add new Clauses',
+        label: 'Add Clauses',
         icon: <TbTemplate className="text-xl" />,
         path: `${endpointConfig.master.clauses.create}`,
     },

@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-
 import { useEffect, useRef } from 'react'
 import grapesjs from 'grapesjs'
 import 'grapesjs/dist/css/grapes.min.css'
@@ -9,19 +7,31 @@ import HeaderBlock from './HeaderBlock'
 import FooterBlock from './FooterBlock'
 import { useParams } from 'react-router'
 import { Button, Dialog, FormItem, Input } from '@/components/ui'
-import { Controller, UseFormSetValue } from 'react-hook-form'
+import {
+    Controller,
+    Control,
+    FieldErrors,
+    SubmitHandler,
+    UseFormSetValue,
+} from 'react-hook-form'
 import { TemplateFormSchema } from '@/@types/template'
 
 interface GrapesEditorProps {
-    control: any
-    errors: any
+    control: Control<TemplateFormSchema>
+    errors: FieldErrors<TemplateFormSchema>
     readOnly: boolean
     dialogIsOpen: boolean
-    onDialogClose: (e: any) => void
+    onDialogClose: () => void
     isSubmiting: boolean
-    docData?: any
-    isEdit?: any
+    docData?: {
+        template?: {
+            html?: string
+            css?: string
+        }
+    }
+    isEdit?: boolean
     setValue: UseFormSetValue<TemplateFormSchema>
+    onSubmit: SubmitHandler<TemplateFormSchema>
 }
 
 export default function GrapesEditor({
@@ -32,10 +42,10 @@ export default function GrapesEditor({
     onDialogClose,
     isSubmiting,
     isEdit,
-    setValue, // ✅ here
+    setValue,
     docData,
 }: GrapesEditorProps) {
-    const editorRef = useRef<any | null>(null)
+    const editorRef = useRef<grapesjs.Editor | null>(null)
     const containerRef = useRef<HTMLDivElement>(null)
     const { type } = useParams<{ type: string }>()
 
@@ -81,10 +91,10 @@ export default function GrapesEditor({
                 },
             })
 
-            if (docData?.template.html !== '' && docData?.template.css !== '') {
+            if (docData?.template?.html && docData?.template?.css) {
                 const { html, css } = docData.template
-                editor.setComponents(html || '')
-                editor.setStyle(css || '')
+                editor.setComponents(html)
+                editor.setStyle(css)
             } else if (type) {
                 if (type === 'header') editor.runCommand('insert-header')
                 else if (type === 'footer') editor.runCommand('insert-footer')
@@ -98,7 +108,7 @@ export default function GrapesEditor({
                 const html = editor.getHtml()
                 const css = editor.getCss()
                 const json = editor.getComponents()
-                setValue('template', { html, css, json }) // ✅ use the prop
+                setValue('template', { html, css, json })
             })
 
             editorRef.current = editor
@@ -110,7 +120,7 @@ export default function GrapesEditor({
                 editorRef.current = null
             }
         }
-    }, [type, control])
+    }, [type, control, setValue, docData])
 
     return (
         <>
@@ -122,12 +132,11 @@ export default function GrapesEditor({
                 <div ref={containerRef} id="gjs" className="flex-1 h-full" />
             </div>
 
-            {/* Hidden type input to save template type */}
             <Controller
                 name="type"
                 control={control}
                 render={({ field }) => (
-                    <input type="hidden" {...field} value={type} />
+                    <input type="hidden" {...field} value={type || ''} />
                 )}
             />
 
@@ -160,8 +169,16 @@ export default function GrapesEditor({
                     >
                         Cancel
                     </Button>
-                    <Button variant="solid" type="submit" loading={isSubmiting}>
-                        {isEdit} {isEdit ? 'Update' : 'Create'}
+                    <Button
+                        variant="solid"
+                        type="button"
+                        loading={isSubmiting}
+                        onClick={() => {
+                            const form = document.querySelector('form')
+                            if (form) form.requestSubmit()
+                        }}
+                    >
+                        {isEdit ? 'Update' : 'Create'}
                     </Button>
                 </div>
             </Dialog>

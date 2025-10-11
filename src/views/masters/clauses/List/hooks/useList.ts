@@ -1,8 +1,8 @@
 import {
     apiClauses,
-    apiGetClausesList,
     apiGetClausesById,
     apiUpdateClauses,
+    apiGetClausesDataList,
 } from '@/services/ClausesService'
 import useSWR from 'swr'
 import { useClausesListStore } from '../store/listStore'
@@ -21,31 +21,27 @@ export default function useClausesList() {
     } = useClausesListStore((state) => state)
 
     const { data, error, isLoading, mutate } = useSWR(
-        ['/api/clauses', { ...tableData, ...filterData }],
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        ([_, params]) =>
-            apiGetClausesList<GetClausesListResponse, TableQueries>(params),
-        {
-            revalidateOnFocus: false,
-        },
+        ['/clauses-data', { ...tableData, ...filterData }],
+        ([params]) =>
+            apiGetClausesDataList<GetClausesListResponse, TableQueries>(params),
+        { revalidateOnFocus: false },
     )
+
     const saveClausesData = async (clauses: Fields) => {
         if (clauses.id) {
             await apiUpdateClauses(clauses.id, clauses)
         } else {
             await apiClauses(clauses)
         }
-        await mutate() // refresh list
+        await mutate()
     }
 
-    // ✅ Get single clauses by ID (for edit or view)
     const getClausesById = async (id: string) => {
         const clauses = await apiGetClausesById(id)
         return clauses
     }
 
     const clausesList = data?.list || []
-
     const clausesListTotal = data?.total || 0
 
     return {
@@ -62,6 +58,6 @@ export default function useClausesList() {
         setSelectAllClauses,
         setFilterData,
         saveClausesData,
-        getClausesById, // ✅ Now defined properly
+        getClausesById,
     }
 }

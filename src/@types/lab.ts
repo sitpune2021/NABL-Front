@@ -35,7 +35,6 @@ export type Fields = {
     name: string
     labType: string
     department: string
-    category: string
     labCode: string
     email?: string
     phone?: string

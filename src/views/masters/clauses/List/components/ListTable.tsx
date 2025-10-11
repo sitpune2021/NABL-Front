@@ -74,12 +74,16 @@ const ClausesListTable = () => {
     const columns: ColumnDef<Clauses>[] = useMemo(
         () => [
             {
-                header: 'Id',
-                accessorKey: 'id',
+                header: 'Title',
+                accessorKey: 'title',
             },
             {
-                header: 'Name',
-                accessorKey: 'name',
+                header: 'Category',
+                accessorKey: 'category',
+            },
+            {
+                header: 'document Name',
+                accessorKey: 'documentName',
             },
             {
                 header: '',

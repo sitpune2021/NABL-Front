@@ -1,0 +1,27 @@
+import { DocumentFormSchema } from '@/@types/document'
+
+export const defaultDocumentValues: DocumentFormSchema = {
+    labName: '',
+    location: '',
+    department: [],
+    category: '',
+    documentName: '',
+    documentNo: '',
+    header: '',
+    footer: '',
+    issuedNo: '',
+    amendmentNo: '',
+    copyNo: '',
+    date: '',
+    preparedByDate: '',
+    time: '',
+    preparedBy: '',
+    quantityPrepared: '',
+    approvedBy: '',
+    issuedBy: '',
+    issueDate: '',
+    amendmentDate: '',
+    effectiveDate: '',
+    frequency: '',
+    duration: '',
+}

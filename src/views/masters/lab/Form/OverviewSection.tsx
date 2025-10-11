@@ -14,7 +14,6 @@ const OverviewSection = ({
     control,
     errors,
     readOnly = false,
-    existingLabCodes = [],
 }: OverviewSectionProps) => {
     const { departmentList } = useDepartmentList()
 
@@ -22,22 +21,6 @@ const OverviewSection = ({
         value: dept.name,
         label: dept.name.toUpperCase(),
     }))
-
-    // Lab Code auto-generation function
-    const getNextLabCode = () => {
-        if (!existingLabCodes || existingLabCodes.length === 0) return 'LAB-1'
-
-        // Extract numbers from existing codes and remove duplicates
-        const numbers = Array.from(new Set(existingLabCodes))
-            .map((code) => {
-                const match = code.match(/^LAB-(\d+)$/)
-                return match ? parseInt(match[1], 10) : 0
-            })
-            .filter(Boolean)
-
-        const nextNumber = numbers.length > 0 ? Math.max(...numbers) + 1 : 1
-        return `LAB-${nextNumber}`
-    }
 
     return (
         <Card>
@@ -85,7 +68,6 @@ const OverviewSection = ({
                     />
                 </FormItem>
 
-                {/* Department Name */}
                 <FormItem
                     label="Department Name"
                     invalid={Boolean(errors.department)}
@@ -97,15 +79,14 @@ const OverviewSection = ({
                         render={({ field }) => (
                             <Select
                                 {...field}
-                                value={departmentOptions.filter(
-                                    (option) => option.value === field.value,
-                                )}
+                                isMulti
                                 options={departmentOptions}
-                                placeholder="Select Department"
+                                value={field.value || []}
+                                placeholder="Select Departments"
                                 isDisabled={readOnly}
-                                onChange={(option) =>
-                                    field.onChange(option?.value)
-                                }
+                                onChange={(options) => {
+                                    field.onChange(options || [])
+                                }}
                             />
                         )}
                     />
@@ -114,11 +95,11 @@ const OverviewSection = ({
                 {/* Locations */}
                 <FormItem
                     label="Locations"
-                    invalid={Boolean(errors.category)}
-                    errorMessage={errors.category?.message}
+                    invalid={Boolean(errors.location)}
+                    errorMessage={errors.location?.message}
                 >
                     <Controller
-                        name="category"
+                        name="location"
                         control={control}
                         render={({ field }) => (
                             <Input
@@ -132,7 +113,6 @@ const OverviewSection = ({
                     />
                 </FormItem>
 
-                {/* Lab Code */}
                 <FormItem
                     label="Lab Code"
                     invalid={Boolean(errors.labCode)}
@@ -141,29 +121,13 @@ const OverviewSection = ({
                     <Controller
                         name="labCode"
                         control={control}
-                        rules={{
-                            required: 'Lab Code is required',
-                            pattern: {
-                                value: /^LAB-\d+$/,
-                                message:
-                                    'Lab Code must be in format LAB-<number>',
-                            },
-                            validate: (value) =>
-                                !existingLabCodes.includes(value) ||
-                                'This Lab Code already exists',
-                        }}
                         render={({ field }) => (
                             <Input
                                 type="text"
                                 autoComplete="off"
-                                readOnly={readOnly}
+                                readOnly={true}
                                 placeholder="Enter Lab Code"
                                 {...field}
-                                onFocus={() => {
-                                    if (!field.value) {
-                                        field.onChange(getNextLabCode())
-                                    }
-                                }}
                             />
                         )}
                     />

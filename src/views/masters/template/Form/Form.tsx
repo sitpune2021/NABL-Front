@@ -79,9 +79,10 @@ const TemplateForm = (props: TemplateFormProps) => {
                             dialogIsOpen={dialogIsOpen}
                             isSubmiting={isSubmiting}
                             isEdit={isEdit}
-                            setValue={setValue} // ✅ here
+                            setValue={setValue}
                             docData={defaultValues}
                             onDialogClose={onDialogClose}
+                            onSubmit={onSubmit}
                         />
                     </div>
                 </div>

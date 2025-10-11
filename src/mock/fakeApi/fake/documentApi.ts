@@ -1,12 +1,12 @@
 import { Document } from '@/@types/document'
-import { DOCUMENT_KEY } from '@/constants/api.constant'
+import { DOCUMENT_KEY, DOCUMENT_KEY_EDITOR } from '@/constants/api.constant'
 import { mock } from '@/mock/MockAdapter'
 
 mock.onGet(`/api/document`).reply(() => {
     const raw = localStorage.getItem(DOCUMENT_KEY)
     const Data = raw ? (JSON.parse(raw) as Document[]) : []
     const response = {
-        list: Data,
+        data: Data,
         total: Data.length,
     }
 
@@ -20,6 +20,7 @@ mock.onPost('/api/document').reply((config) => {
     const document = JSON.parse(config.data)
 
     let updated: Document[]
+    let savedDocument: Document
 
     const index = existing.findIndex((c) => c.id === document.id)
 
@@ -27,15 +28,20 @@ mock.onPost('/api/document').reply((config) => {
         // Update existing
         existing[index] = { ...existing[index], ...document }
         updated = [...existing]
+        savedDocument = existing[index]
     } else {
         // Add new
         document.id = document.id || Date.now()
         updated = [...existing, document]
+        savedDocument = document
     }
 
     localStorage.setItem(DOCUMENT_KEY, JSON.stringify(updated))
 
-    return [200, { message: 'Document saved successfully' }]
+    return [
+        200,
+        { message: 'Document saved successfully', data: savedDocument },
+    ]
 })
 
 mock.onGet(new RegExp('/api/document/\\d+')).reply((config) => {
@@ -76,6 +82,76 @@ mock.onPut(new RegExp('^/api/document/\\d+$')).reply((config) => {
     document[index] = { ...document[index], ...updatedDocument }
 
     localStorage.setItem(DOCUMENT_KEY, JSON.stringify(document))
+    const rawEditor = localStorage.getItem(DOCUMENT_KEY_EDITOR)
+    const documentEditors = rawEditor ? JSON.parse(rawEditor) : []
+    const documentEditor = documentEditors.find(
+        (d: { documentId: string | number }) => String(d.documentId) === id,
+    )
 
-    return [200, { message: 'Document updated successfully' }]
+    return [
+        200,
+        { message: 'Document updated successfully', data: documentEditor },
+    ]
+})
+
+mock.onPost('/api/document-editor').reply((config) => {
+    const raw = localStorage.getItem(DOCUMENT_KEY_EDITOR)
+    const existing = raw ? (JSON.parse(raw) as Document[]) : []
+
+    const document = JSON.parse(config.data)
+
+    let updated: Document[]
+    let savedDocument: Document
+
+    const index = existing.findIndex((c) => c.id === document.id)
+
+    if (index > -1) {
+        // Update existing
+        existing[index] = { ...existing[index], ...document }
+        updated = [...existing]
+        savedDocument = existing[index]
+    } else {
+        // Add new
+        document.id = document.id || Date.now()
+        updated = [...existing, document]
+        savedDocument = document
+    }
+
+    localStorage.setItem(DOCUMENT_KEY_EDITOR, JSON.stringify(updated))
+
+    return [
+        200,
+        { message: 'Document saved successfully', data: savedDocument },
+    ]
+})
+
+mock.onGet(new RegExp('/api/document-editor/\\d+')).reply((config) => {
+    const id = config.url?.split('/').pop()
+
+    const rawEditor = localStorage.getItem(DOCUMENT_KEY_EDITOR)
+    const documentsEditor = rawEditor ? JSON.parse(rawEditor) : []
+
+    const rawD = localStorage.getItem(DOCUMENT_KEY)
+    const documentsD = rawD ? JSON.parse(rawD) : []
+
+    const documentEditor = documentsEditor.find(
+        (d: { id: string | number }) => String(d.id) === id,
+    )
+    const documentD = documentsD.find(
+        (d: { id: string | number }) =>
+            String(d.id) === documentEditor?.documentId,
+    )
+
+    if (documentEditor || documentD) {
+        const combinedDocument = {
+            id: documentEditor?.id,
+            ...documentD,
+            ...documentEditor,
+        }
+        console.log(combinedDocument)
+
+        return [200, combinedDocument]
+    } else {
+        return [404, { message: 'Document not found' }]
+    }
 })

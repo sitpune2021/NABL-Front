@@ -20,8 +20,7 @@ type LabFormProps = {
 const validationSchema = z.object({
     name: z.string().min(1, { message: ' name required' }),
     labType: z.string().min(1, { message: 'Lab Type required' }),
-    department: z.string().min(1, { message: 'Department Name required' }),
-    category: z.string().min(1, { message: 'Category required' }),
+    department: z.any(),
     labCode: z.string().min(1, { message: 'Lab Code required' }),
     email: z
         .string()

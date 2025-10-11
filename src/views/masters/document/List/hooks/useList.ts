@@ -3,6 +3,9 @@ import {
     apiGetDocumentList,
     apiGetDocumentById,
     apiUpdateDocument,
+    apiUpdateDocumentEditor,
+    apiDocumenEditort,
+    apiGetDocumentEditortById,
 } from '@/services/DocumentService'
 import useSWR from 'swr'
 import { useDocumentListStore } from '../store/listStore'
@@ -30,12 +33,25 @@ export default function useDocumentList() {
         },
     )
     const saveDocumentData = async (document: Fields) => {
+        let response
         if (document.id) {
-            await apiUpdateDocument(document.id, document)
+            response = await apiUpdateDocument(document.id, document)
         } else {
-            await apiDocument(document)
+            response = await apiDocument(document)
         }
-        await mutate() // refresh list
+        await mutate()
+        return response
+    }
+
+    const saveDocumentEditorData = async (document: Fields) => {
+        let response
+        if (document.id) {
+            response = await apiUpdateDocumentEditor(document.id, document)
+        } else {
+            response = await apiDocumenEditort(document)
+        }
+        await mutate()
+        return response
     }
 
     // ✅ Get single document by ID (for edit or view)
@@ -44,7 +60,12 @@ export default function useDocumentList() {
         return document
     }
 
-    const documentList = data?.list || []
+    const getDocumentEditortById = async (id: string) => {
+        const document = await apiGetDocumentEditortById(id)
+        return document
+    }
+
+    const documentList = data?.data || []
 
     const documentListTotal = data?.total || 0
 
@@ -63,5 +84,7 @@ export default function useDocumentList() {
         setFilterData,
         saveDocumentData,
         getDocumentById, // ✅ Now defined properly
+        saveDocumentEditorData,
+        getDocumentEditortById,
     }
 }

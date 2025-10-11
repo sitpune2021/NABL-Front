@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 import { TableQueries } from './common'
 
 import type { Control, FieldErrors } from 'react-hook-form'
@@ -31,9 +33,24 @@ export type ClausesListAction = {
     setSelectAllClauses: (customer: Clauses[]) => void
 }
 
+export type ClauseItem = {
+    category: string
+    documentName: string
+    frequency: string
+    required: boolean
+    timezone: boolean
+}
+
 export type Fields = {
+    accordionData(arg0: string, accordionData: any): unknown
     id?: string
-    name: string
+    notes: string[]
+    clauses: ClauseItem[]
+    category?: string
+    documentName?: string
+    frequency?: string
+    required?: boolean
+    timezone?: boolean
 }
 
 export type TagsFields = {

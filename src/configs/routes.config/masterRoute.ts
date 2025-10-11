@@ -242,7 +242,18 @@ const masterRoute: Routes = [
     },
     {
         key: 'masters.document.list',
-        path: `${endpointConfig.master.document.create}/editor`,
+        path: `${endpointConfig.master.document.editor}/:id`,
+        component: lazy(() => import('@/views/masters/document/AddEdit')),
+        authority: [],
+        meta: {
+            layout: 'blank',
+            footer: false,
+            pageContainerType: 'gutterless',
+        },
+    },
+    {
+        key: 'masters.document.list',
+        path: `${endpointConfig.master.document.editorEdit}`,
         component: lazy(() => import('@/views/masters/document/AddEdit')),
         authority: [],
         meta: {
@@ -291,7 +302,16 @@ const masterRoute: Routes = [
             pageContainerType: 'gutterless',
         },
     },
-
+    {
+        key: 'masters.rolesPermission.list',
+        path: `${endpointConfig.master.rolesPermission.list}`,
+        component: lazy(() => import('@/views/masters/RolesPermissions')),
+        authority: [],
+        meta: {
+            pageContainerType: 'contained',
+            pageBackgroundType: 'plain',
+        },
+    },
     {
         key: 'masters.clauses.list',
         path: `${endpointConfig.master.clauses.list}`,
