@@ -29,8 +29,6 @@ export async function apiGetDepartmentById(id: string) {
 }
 
 export async function apiUpdateDepartment(id: string, data: Fields) {
-    console.log('Updating department with ID:', id, 'and data:', data) // Debug log;
-
     return ApiService.fetchDataWithAxios<Fields>({
         url: `/department/${id}`,
         method: 'put',

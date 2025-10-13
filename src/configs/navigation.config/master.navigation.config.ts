@@ -133,22 +133,6 @@ const masterNavigationConfig: NavigationTree[] = [
                 },
                 subMenu: [
                     {
-                        key: 'masters.roles.list',
-                        path: `${endpointConfig.master.roles.list}`,
-                        title: 'List',
-                        translateKey: 'nav.mastersRoles.list',
-                        icon: 'aiChat',
-                        type: NAV_ITEM_TYPE_ITEM,
-                        authority: [],
-                        meta: {
-                            description: {
-                                translateKey: 'nav.mastersRoles.listDesc',
-                                label: 'AI-powered chat systems',
-                            },
-                        },
-                        subMenu: [],
-                    },
-                    {
                         key: 'masters.rolesPermission.list',
                         path: `${endpointConfig.master.rolesPermission.list}`,
                         title: 'Permission',

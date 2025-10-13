@@ -34,8 +34,6 @@ const UserAddEdit = () => {
             setLoadingData(true)
             getUserById(userId)
                 .then((data) => {
-                    console.log('Fetched user data:', data)
-
                     setUserData(data)
                 })
                 .finally(() => setLoadingData(false))

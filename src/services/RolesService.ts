@@ -27,8 +27,6 @@ export async function apiGetRolesById(id: string) {
 }
 
 export async function apiUpdateRoles(id: string, data: Fields) {
-    console.log('Updating roles with ID:', id, 'and data:', data) // Debug log;
-
     return ApiService.fetchDataWithAxios<Fields>({
         url: `/roles/${id}`,
         method: 'put',
