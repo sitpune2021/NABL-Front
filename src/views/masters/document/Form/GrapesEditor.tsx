@@ -197,7 +197,67 @@ export default function GrapesEditor({
 
         insertTemplates()
     }, [template, isEditorReady, isEdit, readOnly])
-    console.log(documentData, 'documentData')
+
+    const parsedContent = {
+        header: '',
+        content: '',
+        footer: '',
+    }
+
+    if (readOnly && template.section?.html) {
+        try {
+            const parser = new DOMParser()
+            const doc = parser.parseFromString(
+                template.section.html,
+                'text/html',
+            )
+
+            // Extract header
+            const headerEl = doc.querySelector('.header-section')
+            if (headerEl) {
+                parsedContent.header = headerEl.outerHTML
+                headerEl.remove()
+            }
+
+            // Extract footer
+            const footerEl = doc.querySelector('.footer-section')
+            if (footerEl) {
+                parsedContent.footer = footerEl.outerHTML
+                footerEl.remove()
+            }
+
+            // Remaining content
+            parsedContent.content = doc.body.innerHTML.trim()
+        } catch (err) {
+            console.error('Failed to parse section HTML', err)
+        }
+    }
+
+    function extractMediaQueryStyles(css: string, mediaQuery: string) {
+        if (!css) return ''
+
+        const regex = new RegExp(
+            `@media\\s*\\(${mediaQuery}\\)\\s*{([\\s\\S]*?)}\\s*}`,
+            'g',
+        )
+
+        let extractedStyles = ''
+        let match
+
+        while ((match = regex.exec(css)) !== null) {
+            extractedStyles += match[1].trim() + '\n'
+        }
+
+        const cleanedCss = css.replace(regex, '').trim()
+
+        return cleanedCss + '\n' + extractedStyles
+    }
+
+    // In your render function (readOnly part)
+    const updatedCss = extractMediaQueryStyles(
+        template.section?.css || '',
+        'max-width: 210mm',
+    )
 
     return (
         <>
@@ -206,18 +266,59 @@ export default function GrapesEditor({
                     style={{
                         width: '210mm',
                         height: '297mm',
+                        overflow: 'hidden',
+                        boxSizing: 'border-box',
+                        border: '1px solid #ccc',
+                        position: 'relative',
                     }}
                 >
                     <style
                         dangerouslySetInnerHTML={{
-                            __html: template.section?.css || '',
+                            __html:
+                                updatedCss +
+                                `
+        .editable-section,
+        .header-section,
+        .footer-section {
+          max-width: 210mm;
+          word-wrap: break-word;
+          overflow-wrap: break-word;
+          box-sizing: border-box;
+          margin: 0 auto;
+        }
+      `,
                         }}
-                    ></style>
-                    <div
-                        dangerouslySetInnerHTML={{
-                            __html: template.section?.html || '',
-                        }}
-                    ></div>
+                    />
+
+                    {/* Header */}
+                    {parsedContent.header && (
+                        <div
+                            className="header-section"
+                            dangerouslySetInnerHTML={{
+                                __html: parsedContent.header,
+                            }}
+                        />
+                    )}
+
+                    {/* Main content */}
+                    {parsedContent.content && (
+                        <div
+                            className="editable-section"
+                            dangerouslySetInnerHTML={{
+                                __html: parsedContent.content,
+                            }}
+                        />
+                    )}
+
+                    {/* Footer */}
+                    {parsedContent.footer && (
+                        <div
+                            className="footer-section"
+                            dangerouslySetInnerHTML={{
+                                __html: parsedContent.footer,
+                            }}
+                        />
+                    )}
                 </Card>
             ) : (
                 <>

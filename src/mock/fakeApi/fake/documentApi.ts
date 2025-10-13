@@ -15,7 +15,7 @@ mock.onGet(`/api/document`).reply(() => {
         : []
 
     const enrichedDocuments = documents.map((doc) => {
-        const editor = editors.find((e) => e.documentId === doc.id)
+        const editor = editors.find((e) => e.documentId == doc.id)
         return {
             ...doc,
             editor: editor || null, // attach matching editor if exists
