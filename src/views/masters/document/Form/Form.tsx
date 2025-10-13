@@ -113,7 +113,9 @@ const DocumentForm = ({
         >
             <Container>
                 <div className="flex flex-col md:flex-row gap-4">
-                    <div className="flex flex-col flex-auto gap-4 items-center">
+                    <div
+                        className={`flex flex-col flex-auto gap-4 ${isEditor ? 'items-center' : ''}`}
+                    >
                         {isEditor ? (
                             <GrapesEditor
                                 control={control}
