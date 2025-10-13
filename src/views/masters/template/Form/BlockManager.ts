@@ -86,55 +86,10 @@ export function addCustomBlocks(editor: any) {
             content: {
                 type: 'image',
                 attributes: {
-                    src: 'https://via.placeholder.com/200',
+                    src: 'https://iconape.com/wp-content/files/ge/264650/png/NABL_India-logo.png',
                     alt: 'image',
                 },
                 stylable: ['width', 'height', 'border-radius', 'box-shadow'],
-            },
-        },
-        {
-            id: 'button-block',
-            label: 'Button',
-            category: 'Basic',
-            content: {
-                type: 'default',
-                components: [
-                    {
-                        tagName: 'button',
-                        content: 'Click Me',
-                        classes: ['custom-button'],
-                        stylable: true,
-                    },
-                ],
-            },
-        },
-        {
-            id: 'row-col',
-            label: 'Row/Column',
-            category: 'Layout',
-            content: {
-                type: 'default',
-                components: [
-                    {
-                        tagName: 'div',
-                        classes: ['row'],
-                        stylable: true,
-                        components: [
-                            {
-                                tagName: 'div',
-                                classes: ['col'],
-                                content: 'Column 1',
-                                stylable: true,
-                            },
-                            {
-                                tagName: 'div',
-                                classes: ['col'],
-                                content: 'Column 2',
-                                stylable: true,
-                            },
-                        ],
-                    },
-                ],
             },
         },
     ]

@@ -7,17 +7,18 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import type { CommonProps } from '@/@types/common'
-import type { DocumentFormSchema } from '@/@types/document'
+import type { DocumentFormSchema, EditorFormSchema } from '@/@types/document'
 import GrapesEditor from './GrapesEditor'
 import { useParams } from 'react-router'
 
 type DocumentFormProps = {
-    onFormSubmit: (values: DocumentFormSchema) => void
-    defaultValues?: Partial<DocumentFormSchema>
+    onFormSubmit: (values: DocumentFormSchema & EditorFormSchema) => void
+    defaultValues?: Partial<DocumentFormSchema> & Partial<EditorFormSchema>
     newDocument?: boolean
     readOnly?: boolean
     isEditor?: boolean
     documentData?: DocumentFormSchema | null
+    isEdit?: boolean
 } & CommonProps
 
 // ✅ Validation schema using Zod
@@ -64,17 +65,30 @@ const DocumentForm = ({
     readOnly = false,
     children,
     isEditor = false,
+    isEdit = false,
     documentData,
 }: DocumentFormProps) => {
     const { id: documentId } = useParams()
-    /* eslint-disable @typescript-eslint/no-explicit-any */
-    const formMethods = useForm<
-        DocumentFormSchema | { documentId: string | undefined; document: any }
-    >({
+
+    const formMethods = useForm<DocumentFormSchema | EditorFormSchema>({
         defaultValues: isEditor
-            ? { documentId: documentId, document: '' }
+            ? isEdit
+                ? ({
+                      documentId: documentId ?? '',
+                      document: defaultValues.document,
+                  } as EditorFormSchema)
+                : ({
+                      documentId: documentId ?? '',
+                      document: {
+                          html: '',
+                          css: '',
+                      },
+                  } as EditorFormSchema)
             : (defaultValues as DocumentFormSchema),
-        resolver: zodResolver(isEditor ? editorSchema : validationSchema),
+        /* eslint-disable @typescript-eslint/no-explicit-any */
+        resolver: zodResolver(
+            isEditor ? editorSchema : validationSchema,
+        ) as any,
     })
 
     const { handleSubmit, reset, formState, control, setValue } = formMethods
@@ -87,8 +101,8 @@ const DocumentForm = ({
         }
     }, [memoizedDefaults, reset])
 
-    const onSubmit = (values: DocumentFormSchema) => {
-        onFormSubmit?.(values)
+    const onSubmit = (values: DocumentFormSchema | EditorFormSchema) => {
+        onFormSubmit?.(values as DocumentFormSchema & EditorFormSchema)
     }
 
     return (
@@ -107,6 +121,7 @@ const DocumentForm = ({
                                 readOnly={readOnly}
                                 setValue={setValue}
                                 documentData={documentData}
+                                isEdit={isEdit}
                             />
                         ) : (
                             <OverviewSection

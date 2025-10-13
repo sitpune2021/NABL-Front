@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-
 import { useEffect, useRef, useState } from 'react'
 import grapesjs from 'grapesjs'
 import 'grapesjs/dist/css/grapes.min.css'
@@ -11,18 +10,16 @@ import {
     addDynamicFields,
 } from '../../template/Form/BlockManager'
 import useTemplateList from '../../template/List/hooks/useList'
+import { DocumentFormSchema } from '@/@types/document'
+import { Card } from '@/components/ui'
 
 interface GrapesEditorProps {
     control: Control<any>
     errors: any
     readOnly: boolean
     setValue: UseFormSetValue<any>
-    documentData?: DocumentData
-}
-
-interface DocumentData {
-    header?: string
-    footer?: string
+    documentData?: DocumentFormSchema | null
+    isEdit?: boolean
 }
 
 interface TemplatePart {
@@ -33,28 +30,32 @@ interface TemplatePart {
 interface Template {
     header: TemplatePart
     footer: TemplatePart
+    section?: TemplatePart
 }
 
 export default function GrapesEditor({
     control,
     setValue,
     documentData,
+    isEdit = false,
+    readOnly = false,
 }: GrapesEditorProps) {
     const containerRef = useRef<HTMLDivElement | null>(null)
     const editorRef = useRef<any | null>(null)
-    const hasInsertedTemplates = useRef(false)
+    const [isEditorReady, setIsEditorReady] = useState(false)
 
     const { getTemplateById } = useTemplateList()
 
     const [template, setTemplate] = useState<Template>({
         header: { html: '', css: '' },
         footer: { html: '', css: '' },
+        section: { html: '', css: '' },
     })
 
-    // 1. Load header and footer templates
+    // 1. Load templates (header/footer and section for edit)
     useEffect(() => {
         const loadTemplates = async () => {
-            if (!documentData?.header && !documentData?.footer) return
+            if (!documentData) return
 
             try {
                 const [header, footer] = await Promise.all([
@@ -75,6 +76,10 @@ export default function GrapesEditor({
                         html: footer?.template?.html || '',
                         css: footer?.template?.css || '',
                     },
+                    section: {
+                        html: documentData.document?.html || '',
+                        css: documentData.document?.css || '',
+                    },
                 })
             } catch (error) {
                 console.error('Error loading templates:', error)
@@ -82,10 +87,11 @@ export default function GrapesEditor({
         }
 
         loadTemplates()
-    }, [documentData?.header, documentData?.footer])
+    }, [documentData])
 
     // 2. Initialize GrapesJS editor once
     useEffect(() => {
+        if (readOnly) return
         if (!containerRef.current || editorRef.current) return
 
         const editor = grapesjs.init({
@@ -107,6 +113,22 @@ export default function GrapesEditor({
             },
         })
 
+        editor.DomComponents.addType('non-editable', {
+            isComponent: (el) => el.classList?.contains('non-editable'),
+            model: {
+                defaults: {
+                    editable: false,
+                    selectable: false,
+                    draggable: false,
+                    droppable: false,
+                    removable: false,
+                    highlightable: false,
+                    copyable: false,
+                    hoverable: false,
+                },
+            },
+        })
+
         addCustomBlocks(editor)
         addDynamicFields(editor)
 
@@ -121,62 +143,105 @@ export default function GrapesEditor({
         editor.on('change', handleChange)
 
         editorRef.current = editor
+        setIsEditorReady(true)
 
         return () => {
             editor.off('change', handleChange)
             handleChange.cancel?.()
             editor.destroy()
             editorRef.current = null
+            setIsEditorReady(false)
         }
-    }, [setValue])
+    }, [setValue, readOnly])
 
-    // 3. Add commands and insert header/footer only once
+    // 3. Insert templates after both editor is ready AND templates are loaded
     useEffect(() => {
+        if (readOnly) return
         const editor = editorRef.current
-        if (!editor || hasInsertedTemplates.current) return
+        if (!editor || !isEditorReady) return
 
-        const hasHeader = template.header.html.trim().length > 0
-        const hasFooter = template.footer.html.trim().length > 0
+        const insertTemplates = () => {
+            const { header, footer, section } = template
 
-        // Add commands
-        editor.Commands.add('insert-header', {
-            run(ed: any) {
-                ed.addComponents(template.header.html)
-                if (template.header.css) ed.addStyle(template.header.css)
-            },
-        })
+            const insertNonEditable = (
+                html: string,
+                className: string,
+                css: string,
+            ) => {
+                if (!html) return
+                const wrappedHtml = `<div class="non-editable ${className}">${html}</div>`
+                editor.addComponents(wrappedHtml)
+                if (css) editor.addStyle(css)
+            }
 
-        editor.Commands.add('insert-footer', {
-            run(ed: any) {
-                ed.addComponents(template.footer.html)
-                if (template.footer.css) ed.addStyle(template.footer.css)
-            },
-        })
+            if (isEdit) {
+                // EDIT MODE: only insert section
+                if (section?.html) {
+                    editor.addComponents(section.html)
+                    if (section.css) editor.addStyle(section.css)
+                }
+            } else {
+                // ADD MODE: insert header/footer
+                insertNonEditable(header.html, 'header-section', header.css)
+                insertNonEditable(footer.html, 'footer-section', footer.css)
+            }
 
-        // Insert header/footer
-        if (hasHeader) editor.runCommand('insert-header')
-        if (hasFooter) editor.runCommand('insert-footer')
-
-        if (hasHeader || hasFooter) {
-            hasInsertedTemplates.current = true
+            // Apply CSS to lock non-editable sections
+            editor.addStyle(`
+                .non-editable {
+                    pointer-events: none;
+                    opacity: 0.9;
+                }
+            `)
         }
-    }, [template])
+
+        insertTemplates()
+    }, [template, isEditorReady, isEdit, readOnly])
+    console.log(documentData, 'documentData')
 
     return (
         <>
-            <div className="flex h-full w-full">
-                <div
-                    id="blocks"
-                    className="flex-none w-[15%] h-full overflow-auto bg-gray-100 border-r"
-                />
-                <div ref={containerRef} id="gjs" className="flex-1 h-full" />
-            </div>
+            {readOnly ? (
+                <Card
+                    style={{
+                        width: '210mm',
+                        height: '297mm',
+                    }}
+                >
+                    <style
+                        dangerouslySetInnerHTML={{
+                            __html: template.section?.css || '',
+                        }}
+                    ></style>
+                    <div
+                        dangerouslySetInnerHTML={{
+                            __html: template.section?.html || '',
+                        }}
+                    ></div>
+                </Card>
+            ) : (
+                <>
+                    <div className="flex h-full w-full">
+                        <div
+                            id="blocks"
+                            className="flex-none w-[15%] h-full overflow-auto bg-gray-100 border-r"
+                        />
+                        <div
+                            ref={containerRef}
+                            id="gjs"
+                            className="flex-1 h-full"
+                        />
+                    </div>
 
-            <Controller
-                name="documentId"
-                control={control}
-                render={({ field }) => <input type="hidden" {...field} />}
-            />
+                    <Controller
+                        name="documentId"
+                        control={control}
+                        render={({ field }) => (
+                            <input type="hidden" {...field} />
+                        )}
+                    />
+                </>
+            )}
         </>
     )
 }

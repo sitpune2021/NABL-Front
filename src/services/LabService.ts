@@ -27,8 +27,6 @@ export async function apiGetLabById(id: string) {
 }
 
 export async function apiUpdateLab(id: string, data: Fields) {
-    console.log('Updating lab with ID:', id, 'and data:', data) // Debug log;
-
     return ApiService.fetchDataWithAxios<Fields>({
         url: `/lab/${id}`,
         method: 'put',

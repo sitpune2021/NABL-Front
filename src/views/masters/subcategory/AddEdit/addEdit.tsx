@@ -35,8 +35,6 @@ const SubCategoryAddEdit = () => {
             setLoadingData(true)
             getSubCategoryById(subcategoryId)
                 .then((data) => {
-                    console.log('Fetched subcategory data:', data)
-
                     setSubCategoryData(data)
                 })
                 .finally(() => setLoadingData(false))

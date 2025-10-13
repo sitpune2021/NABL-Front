@@ -1,4 +1,4 @@
-import { MouseEvent, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useParams, useNavigate, useLocation } from 'react-router'
 import Container from '@/components/shared/Container'
 import Button from '@/components/ui/Button'
@@ -32,8 +32,7 @@ const TemplateAddEdit = () => {
         setIsOpen(true)
     }
 
-    const onDialogClose = (e: MouseEvent) => {
-        console.log('onDialogClose', e)
+    const onDialogClose = () => {
         setIsOpen(false)
     }
 
