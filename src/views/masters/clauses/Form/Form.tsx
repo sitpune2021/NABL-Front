@@ -4,11 +4,10 @@ import Container from '@/components/shared/Container'
 import BottomStickyBar from '@/components/template/BottomStickyBar'
 import OverviewSection from './OverviewSection'
 import isEmpty from 'lodash/isEmpty'
-import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
-import { z } from 'zod'
 import type { CommonProps } from '@/@types/common'
-import { ClausesFormSchema } from '@/@types/clauses'
+import { ClausesFormSchema, TitleSpecificData } from '@/@types/clauses'
+import { accordionData, AccordionItem } from '@/mock/data/clausesData'
 
 type ClausesFormProps = {
     onFormSubmit: (values: ClausesFormSchema) => void
@@ -16,25 +15,6 @@ type ClausesFormProps = {
     newClauses?: boolean
     readOnly?: boolean
 } & CommonProps
-
-const validationSchema = z.object({
-    notes: z
-        .array(z.string().min(1, { message: 'Note text required' }))
-        .min(1, { message: 'At least one note required' }),
-    clauses: z
-        .array(
-            z.object({
-                category: z.string().min(1, { message: 'Category required' }),
-                documentName: z
-                    .string()
-                    .min(1, { message: 'Document required' }),
-                frequency: z.string().min(1, { message: 'Frequency required' }),
-                required: z.boolean(),
-                timezone: z.boolean(),
-            }),
-        )
-        .min(1, { message: 'At least one clause required' }),
-})
 
 const ClausesForm = (props: ClausesFormProps) => {
     const {
@@ -53,45 +33,89 @@ const ClausesForm = (props: ClausesFormProps) => {
         getValues,
     } = useForm<ClausesFormSchema>({
         defaultValues: {
-            notes: [''],
-            clauses: [
-                {
-                    category: '',
-                    documentName: '',
-                    frequency: '',
-                    required: false,
-                    timezone: false,
-                },
-            ],
+            titleSpecificData: [],
         },
-        resolver: zodResolver(validationSchema),
     })
 
     useEffect(() => {
-        if (!isEmpty(defaultValues)) {
-            const transformedValues: ClausesFormSchema = {
-                notes: Array.isArray(defaultValues.notes)
-                    ? defaultValues.notes
-                    : [defaultValues.notes || ''],
-                clauses: Array.isArray(defaultValues.clauses)
-                    ? defaultValues.clauses
-                    : [
-                          {
-                              category: defaultValues.category || '',
-                              documentName: defaultValues.documentName || '',
-                              frequency: defaultValues.frequency || '',
-                              required: defaultValues.required || false,
-                              timezone: defaultValues.timezone || false,
-                          },
-                      ],
-            }
-            reset(transformedValues)
+        const initializeTitleData = (
+            items: AccordionItem[],
+            parentKey = '',
+        ): TitleSpecificData[] => {
+            let allData: TitleSpecificData[] = []
+
+            items.forEach((item, idx) => {
+                const key = `${parentKey}${idx}-${item.title}`
+                allData.push({
+                    titleKey: key,
+                    title: item.title,
+                    notes: [''],
+                    clauses: [
+                        {
+                            category: '',
+                            documentName: '',
+                            frequency: '',
+                            required: false,
+                            timezone: false,
+                        },
+                    ],
+                })
+
+                // Add children recursively
+                if (item.children && item.children.length > 0) {
+                    allData = [
+                        ...allData,
+                        ...initializeTitleData(item.children, key + '-'),
+                    ]
+                }
+            })
+
+            return allData
+        }
+
+        console.log('ClausesForm - defaultValues:', defaultValues)
+
+        if (!isEmpty(defaultValues) && defaultValues.titleSpecificData) {
+            // If editing/viewing, use existing data (from URL or API)
+            console.log('ClausesForm - Using existing titleSpecificData')
+            reset(defaultValues)
+        } else {
+            // If new, initialize from accordion structure
+            console.log('ClausesForm - Initializing default titleSpecificData')
+            const initialTitleData = initializeTitleData(accordionData)
+            reset({ titleSpecificData: initialTitleData })
         }
     }, [JSON.stringify(defaultValues), reset])
 
     const onSubmit = (values: ClausesFormSchema) => {
         console.log('Form submitted:', values)
-        onFormSubmit?.(values)
+
+        //  Filter out completely empty data before submitting
+        const cleanedData = {
+            ...values,
+            titleSpecificData: values.titleSpecificData
+                .map((titleData) => ({
+                    ...titleData,
+                    // Remove empty notes
+                    notes: titleData.notes.filter((note) => note.trim() !== ''),
+                    // Remove completely empty clauses
+                    clauses: titleData.clauses.filter(
+                        (clause) =>
+                            clause.category.trim() !== '' ||
+                            clause.documentName.trim() !== '' ||
+                            clause.frequency.trim() !== '',
+                    ),
+                }))
+                .filter(
+                    (titleData) =>
+                        // Keep only titles that have some data
+                        titleData.notes.length > 0 ||
+                        titleData.clauses.length > 0,
+                ),
+        }
+
+        console.log('Cleaned data for submission:', cleanedData)
+        onFormSubmit?.(cleanedData)
     }
 
     return (

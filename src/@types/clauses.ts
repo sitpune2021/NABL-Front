@@ -1,7 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-
 import { TableQueries } from './common'
-
 import type { Control, FieldErrors } from 'react-hook-form'
 
 export type GetClausesListResponse = {
@@ -15,9 +13,14 @@ export type Filter = {
 }
 
 export type Clauses = {
+    titleSpecificData: any
     id: string
+    title: string
+    category: string
+    documentName: string
+    status: 'active' | 'inactive'
+    created_at: string
     name: string
-    prefix: string
 }
 
 export type ClausesListState = {
@@ -41,16 +44,29 @@ export type ClauseItem = {
     timezone: boolean
 }
 
-export type Fields = {
-    accordionData(arg0: string, accordionData: any): unknown
-    id?: string
+export type AccordionItem = {
+    title: string
+    message: string
+    note?: boolean
+    children?: AccordionItem[]
+}
+
+export type TitleSpecificData = {
+    titleKey: string
+    title: string
     notes: string[]
     clauses: ClauseItem[]
+}
+
+export type Fields = {
+    id?: string
+    titleSpecificData: TitleSpecificData[]
     category?: string
     documentName?: string
     frequency?: string
     required?: boolean
     timezone?: boolean
+    titles?: string[]
 }
 
 export type TagsFields = {
@@ -63,4 +79,6 @@ export type FormSectionBaseProps = {
     control: Control<ClausesFormSchema>
     errors: FieldErrors<ClausesFormSchema>
     readOnly?: boolean
+    setValue: any
+    getValues: any
 }

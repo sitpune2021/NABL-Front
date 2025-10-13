@@ -36,7 +36,6 @@ const ClausesAddEdit = () => {
             getClausesById(clausesId)
                 .then((data) => {
                     console.log('Fetched clauses data:', data)
-
                     setClausesData(data)
                 })
                 .finally(() => setLoadingData(false))
@@ -46,7 +45,9 @@ const ClausesAddEdit = () => {
     const handleFormSubmit = async (values: ClausesFormSchema) => {
         if (isView) return
         setIsSubmiting(true)
+
         const payload = isEdit ? { ...values, id: clausesId } : values
+
         await saveClausesData(payload)
         await sleep(800)
         setIsSubmiting(false)
@@ -79,20 +80,7 @@ const ClausesAddEdit = () => {
         <>
             <ClausesForm
                 newClauses={isAdd}
-                defaultValues={
-                    clausesData ?? {
-                        notes: [''],
-                        clauses: [
-                            {
-                                category: '',
-                                documentName: '',
-                                frequency: '',
-                                required: false,
-                                timezone: false,
-                            },
-                        ],
-                    }
-                }
+                defaultValues={clausesData || undefined}
                 readOnly={isView}
                 onFormSubmit={handleFormSubmit}
             >

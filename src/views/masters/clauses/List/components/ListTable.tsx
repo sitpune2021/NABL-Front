@@ -9,25 +9,33 @@ import type { TableQueries } from '@/@types/common'
 import useClausesList from '../hooks/useList'
 import endpointConfig from '@/configs/endpoint.config'
 import { Clauses } from '@/@types/clauses'
+import Tag from '@/components/ui/Tag'
 
 const ActionColumn = ({
     onEdit,
     onViewDetail,
+    status,
 }: {
     onEdit: () => void
     onViewDetail: () => void
+    status: string
 }) => {
     return (
         <div className="flex items-center gap-3">
-            <Tooltip title="Edit">
-                <div
-                    className={`text-xl cursor-pointer select-none font-semibold`}
-                    role="button"
-                    onClick={onEdit}
-                >
-                    <TbPencil />
-                </div>
-            </Tooltip>
+            {/* Edit button - only for active clauses */}
+            {status === 'active' && (
+                <Tooltip title="Edit">
+                    <div
+                        className={`text-xl cursor-pointer select-none font-semibold`}
+                        role="button"
+                        onClick={onEdit}
+                    >
+                        <TbPencil />
+                    </div>
+                </Tooltip>
+            )}
+
+            {/*  View button - always visible */}
             <Tooltip title="View">
                 <div
                     className={`text-xl cursor-pointer select-none font-semibold`}
@@ -40,9 +48,13 @@ const ActionColumn = ({
         </div>
     )
 }
-
 const ClausesListTable = () => {
     const navigate = useNavigate()
+
+    const statusColor: Record<string, string> = {
+        active: 'bg-emerald-100 text-emerald-700',
+        inactive: 'bg-red-100 text-red-700',
+    }
 
     const {
         clausesList,
@@ -74,31 +86,59 @@ const ClausesListTable = () => {
     const columns: ColumnDef<Clauses>[] = useMemo(
         () => [
             {
-                header: 'Title',
-                accessorKey: 'title',
+                header: 'Name',
+                accessorKey: 'name',
+                cell: (props) => {
+                    const row = props.row.original
+                    return row.name || 'No Name'
+                },
             },
             {
-                header: 'Category',
-                accessorKey: 'category',
+                header: 'Created At',
+                accessorKey: 'created_at',
+                cell: (props) => {
+                    const row = props.row.original
+                    return new Date(row.created_at).toLocaleDateString(
+                        'en-IN',
+                        {
+                            day: '2-digit',
+                            month: '2-digit',
+                            year: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit',
+                        },
+                    )
+                },
             },
             {
-                header: 'document Name',
-                accessorKey: 'documentName',
+                header: 'Status',
+                accessorKey: 'status',
+                cell: (props) => {
+                    const row = props.row.original
+                    return (
+                        <div className="flex items-center">
+                            <Tag className={statusColor[row.status]}>
+                                <span className="capitalize">{row.status}</span>
+                            </Tag>
+                        </div>
+                    )
+                },
             },
             {
                 header: '',
                 id: 'action',
-                cell: (props) => (
-                    <ActionColumn
-                        onEdit={() => handleEdit(props.row.original)}
-                        onViewDetail={() =>
-                            handleViewDetails(props.row.original)
-                        }
-                    />
-                ),
+                cell: (props) => {
+                    const row = props.row.original
+                    return (
+                        <ActionColumn
+                            status={row.status}
+                            onEdit={() => handleEdit(row)}
+                            onViewDetail={() => handleViewDetails(row)}
+                        />
+                    )
+                },
             },
         ],
-
         [],
     )
 

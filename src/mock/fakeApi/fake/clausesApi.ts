@@ -2,79 +2,107 @@ import { Clauses } from '@/@types/clauses'
 import { CLAUSES_KEY } from '@/constants/api.constant'
 import { mock } from '@/mock/MockAdapter'
 
-mock.onGet(`/api/clauses`).reply(() => {
+// Get all clauses from localStorage
+mock.onGet(new RegExp('^/api/clauses/\\d+$')).reply((config) => {
+    const id = config.url?.split('/').pop()
     const raw = localStorage.getItem(CLAUSES_KEY)
-    const Data = raw ? (JSON.parse(raw) as Clauses[]) : []
-    const response = {
-        list: Data,
-        total: Data.length,
+    const clauses = raw ? (JSON.parse(raw) as Clauses[]) : []
+
+    const clause = clauses.find((c) => String(c.id) === id)
+
+    if (!clause) {
+        return [404, { message: 'Clause not found' }]
     }
 
-    return [200, response]
+    if (!clause.name) {
+        const createdYear = new Date(clause.created_at).getFullYear()
+        const nextYear = createdYear + 1
+        clause.name = `ISO-STANDARD-${createdYear}-${nextYear.toString().slice(-2)}`
+    }
+
+    return [200, clause]
 })
+
+// Create new clause
 
 mock.onPost('/api/clauses').reply((config) => {
     const raw = localStorage.getItem(CLAUSES_KEY)
     const existing = raw ? (JSON.parse(raw) as Clauses[]) : []
 
-    const clauses = JSON.parse(config.data)
+    const newClause = JSON.parse(config.data)
+    newClause.id = newClause.id || Date.now().toString()
+    newClause.status = 'active'
+    newClause.created_at = new Date().toISOString()
 
-    let updated: Clauses[]
+    // Generate name in format "ISO-STANDARD-YYYY-YY"
+    const currentYear = new Date().getFullYear()
+    const nextYear = currentYear + 1
+    newClause.name = `ISO-STANDARD-${currentYear}-${nextYear.toString().slice(-2)}`
 
-    const index = existing.findIndex((c) => c.id === clauses.id)
+    // Deactivate all other clauses
+    const updated = existing.map((clause) => ({
+        ...clause,
+        status: 'inactive',
+    }))
 
-    if (index > -1) {
-        // Update existing
-        existing[index] = { ...existing[index], ...clauses }
-        updated = [...existing]
-    } else {
-        // Add new
-        clauses.id = clauses.id || Date.now()
-        updated = [...existing, clauses]
-    }
-
+    updated.push(newClause)
     localStorage.setItem(CLAUSES_KEY, JSON.stringify(updated))
 
     return [200, { message: 'Clauses saved successfully' }]
 })
 
-mock.onGet(new RegExp('/api/clauses/\\d+')).reply((config) => {
-    const id = config.url?.split('/').pop()
-
+// Get clause by ID
+mock.onGet('/api/clauses').reply(() => {
     const raw = localStorage.getItem(CLAUSES_KEY)
-    const clausess = raw ? (JSON.parse(raw) as Clauses[]) : []
+    let data = raw ? (JSON.parse(raw) as Clauses[]) : []
 
-    const clauses = clausess.find((d) => String(d.id) === id)
+    // Add name if missing for existing data
+    data = data.map((clause) => {
+        if (!clause.name) {
+            const createdYear = new Date(clause.created_at).getFullYear()
+            const nextYear = createdYear + 1
+            return {
+                ...clause,
+                name: `ISO-STANDARD-${createdYear}-${nextYear.toString().slice(-2)}`,
+            }
+        }
+        return clause
+    })
 
-    if (clauses) {
-        return [200, clauses]
-    } else {
-        return [404, { message: 'Clauses not found' }]
+    data = data.sort((a, b) => {
+        if (a.status === 'active' && b.status !== 'active') return -1
+        if (a.status !== 'active' && b.status === 'active') return 1
+        return Number(b.id) - Number(a.id)
+    })
+
+    const response = {
+        list: data,
+        total: data.length,
     }
+    return [200, response]
 })
 
+// Update clause
 mock.onPut(new RegExp('^/api/clauses/\\d+$')).reply((config) => {
-    const url = config.url || ''
-    const id = url.split('/').pop()
-
-    if (!id) {
-        return [400, { message: 'Clauses ID is required' }]
-    }
-
+    const id = config.url?.split('/').pop()
     const raw = localStorage.getItem(CLAUSES_KEY)
     const clauses = raw ? (JSON.parse(raw) as Clauses[]) : []
 
-    const updatedClauses = JSON.parse(config.data)
+    const updatedData = JSON.parse(config.data)
+
+    // If activating a clause, deactivate others
+    if (updatedData.status === 'active') {
+        clauses.forEach((clause) => {
+            clause.status = 'inactive'
+        })
+    }
 
     const index = clauses.findIndex((c) => String(c.id) === id)
-
     if (index === -1) {
         return [404, { message: 'Clauses not found' }]
     }
 
-    // Update the clauses at found index
-    clauses[index] = { ...clauses[index], ...updatedClauses }
-
+    clauses[index] = { ...clauses[index], ...updatedData }
     localStorage.setItem(CLAUSES_KEY, JSON.stringify(clauses))
 
     return [200, { message: 'Clauses updated successfully' }]

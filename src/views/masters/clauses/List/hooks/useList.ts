@@ -1,8 +1,8 @@
 import {
-    apiClauses,
+    apiGetClausesList,
     apiGetClausesById,
     apiUpdateClauses,
-    apiGetClausesDataList,
+    apiCreateClauses,
 } from '@/services/ClausesService'
 import useSWR from 'swr'
 import { useClausesListStore } from '../store/listStore'
@@ -21,9 +21,9 @@ export default function useClausesList() {
     } = useClausesListStore((state) => state)
 
     const { data, error, isLoading, mutate } = useSWR(
-        ['/clauses-data', { ...tableData, ...filterData }],
-        ([params]) =>
-            apiGetClausesDataList<GetClausesListResponse, TableQueries>(params),
+        ['/clauses', { ...tableData, ...filterData }],
+        ([, params]) =>
+            apiGetClausesList<GetClausesListResponse, TableQueries>(params),
         { revalidateOnFocus: false },
     )
 
@@ -31,7 +31,7 @@ export default function useClausesList() {
         if (clauses.id) {
             await apiUpdateClauses(clauses.id, clauses)
         } else {
-            await apiClauses(clauses)
+            await apiCreateClauses(clauses)
         }
         await mutate()
     }
