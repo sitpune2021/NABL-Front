@@ -31,8 +31,6 @@ export default function useTemplateList() {
     )
     const saveTemplateData = async (template: Fields) => {
         if (template.id) {
-            console.log(template)
-
             await apiUpdateTemplate(template.id, template)
         } else {
             await apiTemplate(template)

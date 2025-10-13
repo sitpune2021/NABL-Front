@@ -31,8 +31,6 @@ const statusColor: Record<string, string> = {
 
 const RolesPermissionsUserTable = (props: RolesPermissionsUserTableProps) => {
     const { userList, userListTotal, isLoading, roleList, mutate } = props
-    console.log(userList, roleList)
-
     const {
         tableData,
         selectedUser,

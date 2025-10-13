@@ -49,7 +49,9 @@ const DocumentAddEdit = () => {
                     const data = isEditor
                         ? isEdit
                             ? await apiGetDocumentEditortById(documentId)
-                            : await getDocumentById(documentId)
+                            : isView
+                              ? await apiGetDocumentEditortById(documentId)
+                              : await getDocumentById(documentId)
                         : await getDocumentById(documentId)
                     setDocumentData(data)
                 } catch (err) {
@@ -155,6 +157,7 @@ const DocumentAddEdit = () => {
                 defaultValues={defaultValues}
                 readOnly={isView}
                 documentData={documentData} // Pass the documentData prop here
+                isEdit={isEdit}
                 onFormSubmit={handleFormSubmit}
             >
                 <Container>
