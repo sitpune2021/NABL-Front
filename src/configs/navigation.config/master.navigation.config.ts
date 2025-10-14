@@ -18,244 +18,195 @@ const masterNavigationConfig: NavigationTree[] = [
         meta: {},
         subMenu: [
             {
-                key: 'masters.category',
-                path: '',
+                key: 'masters.category.list',
+                path: `${endpointConfig.master.category.list}`,
                 title: 'Category',
-                translateKey: 'nav.mastersCategory.category',
-                icon: 'ai',
-                type: NAV_ITEM_TYPE_COLLAPSE,
+                translateKey: 'nav.mastersCategory.list',
+                icon: 'documentation',
+                type: NAV_ITEM_TYPE_ITEM,
                 authority: [],
                 meta: {
                     description: {
-                        translateKey: 'nav.mastersCategory.categoryDesc',
-                        label: 'AI tools and resources',
+                        translateKey: 'nav.mastersCategory.listDesc',
+                        label: 'AI-powered chat systems',
                     },
                 },
-                subMenu: [
-                    {
-                        key: 'masters.category.list',
-                        path: `${endpointConfig.master.category.list}`,
-                        title: 'List',
-                        translateKey: 'nav.mastersCategory.list',
-                        icon: 'aiChat',
-                        type: NAV_ITEM_TYPE_ITEM,
-                        authority: [],
-                        meta: {
-                            description: {
-                                translateKey: 'nav.mastersCategory.listDesc',
-                                label: 'AI-powered chat systems',
-                            },
-                        },
-                        subMenu: [],
-                    },
-                ],
+                subMenu: [],
             },
-
             {
-                key: 'masters.department',
-                path: '',
+                key: 'masters.subcategory.list',
+                path: `${endpointConfig.master.subcategory.list}`,
+                title: 'Sub Category',
+                translateKey: 'nav.mastersSubCategory.list',
+                icon: 'products',
+                type: NAV_ITEM_TYPE_ITEM,
+                authority: [],
+                meta: {
+                    description: {
+                        translateKey: 'nav.mastersSubCategory.listDesc',
+                        label: 'AI-powered chat systems',
+                    },
+                },
+                subMenu: [],
+            },
+            {
+                key: 'masters.department.list',
+                path: `${endpointConfig.master.department.list}`,
                 title: 'Department',
-                translateKey: 'nav.mastersDepartment.department',
-                icon: 'ai',
-                type: NAV_ITEM_TYPE_COLLAPSE,
+                translateKey: 'nav.mastersDepartment.list',
+                icon: 'utilsDoc',
+                type: NAV_ITEM_TYPE_ITEM,
                 authority: [],
                 meta: {
                     description: {
-                        translateKey: 'nav.mastersDepartment.departmentDesc',
-                        label: 'AI tools and resources',
+                        translateKey: 'nav.mastersDepartment.listDesc',
+                        label: 'AI-powered chat systems',
                     },
                 },
-                subMenu: [
-                    {
-                        key: 'masters.department.list',
-                        path: `${endpointConfig.master.department.list}`,
-                        title: 'List',
-                        translateKey: 'nav.mastersDepartment.list',
-                        icon: 'aiChat',
-                        type: NAV_ITEM_TYPE_ITEM,
-                        authority: [],
-                        meta: {
-                            description: {
-                                translateKey: 'nav.mastersDepartment.listDesc',
-                                label: 'AI-powered chat systems',
-                            },
-                        },
-                        subMenu: [],
-                    },
-                ],
+                subMenu: [],
             },
             {
-                key: 'masters.unit',
-                path: '',
-                title: 'Unit',
-                translateKey: 'nav.mastersUnit.unit',
-                icon: 'ai',
-                type: NAV_ITEM_TYPE_COLLAPSE,
-                authority: [],
-                meta: {
-                    description: {
-                        translateKey: 'nav.mastersUnit.unitDesc',
-                        label: 'AI tools and resources',
-                    },
-                },
-                subMenu: [
-                    {
-                        key: 'masters.unit.list',
-                        path: `${endpointConfig.master.unit.list}`,
-                        title: 'List',
-                        translateKey: 'nav.mastersUnit.list',
-                        icon: 'aiChat',
-                        type: NAV_ITEM_TYPE_ITEM,
-                        authority: [],
-                        meta: {
-                            description: {
-                                translateKey: 'nav.mastersUnit.listDesc',
-                                label: 'AI-powered chat systems',
-                            },
-                        },
-                        subMenu: [],
-                    },
-                ],
-            },
-            {
-                key: 'masters.roles',
-                path: '',
-                title: 'Roles',
-                translateKey: 'nav.mastersRoles.roles',
-                icon: 'ai',
-                type: NAV_ITEM_TYPE_COLLAPSE,
-                authority: [],
-                meta: {
-                    description: {
-                        translateKey: 'nav.mastersRoles.rolesDesc',
-                        label: 'AI tools and resources',
-                    },
-                },
-                subMenu: [
-                    {
-                        key: 'masters.rolesPermission.list',
-                        path: `${endpointConfig.master.rolesPermission.list}`,
-                        title: 'Permission',
-                        translateKey: 'nav.mastersRoles.list',
-                        icon: 'aiChat',
-                        type: NAV_ITEM_TYPE_ITEM,
-                        authority: [],
-                        meta: {
-                            description: {
-                                translateKey: 'nav.mastersRoles.listDesc',
-                                label: 'AI-powered chat systems',
-                            },
-                        },
-                        subMenu: [],
-                    },
-                ],
-            },
-            {
-                key: 'masters.template',
-                path: '',
+                key: 'masters.template.list',
+                path: `${endpointConfig.master.template.list}`,
                 title: 'Template',
-                translateKey: 'nav.mastersTemplate.template',
-                icon: 'ai',
-                type: NAV_ITEM_TYPE_COLLAPSE,
+                translateKey: 'nav.mastersTemplate.list',
+                icon: 'uiComponents',
+                type: NAV_ITEM_TYPE_ITEM,
                 authority: [],
                 meta: {
                     description: {
-                        translateKey: 'nav.mastersTemplate.templateDesc',
-                        label: 'AI tools and resources',
+                        translateKey: 'nav.mastersTemplate.listDesc',
+                        label: 'AI-powered chat systems',
                     },
                 },
-                subMenu: [
-                    {
-                        key: 'masters.template.list',
-                        path: `${endpointConfig.master.template.list}`,
-                        title: 'List',
-                        translateKey: 'nav.mastersTemplate.list',
-                        icon: 'aiChat',
-                        type: NAV_ITEM_TYPE_ITEM,
-                        authority: [],
-                        meta: {
-                            description: {
-                                translateKey: 'nav.mastersTemplate.listDesc',
-                                label: 'AI-powered chat systems',
-                            },
-                        },
-                        subMenu: [],
-                    },
-                ],
+                subMenu: [],
             },
             {
-                key: 'masters.subcategory',
-                path: '',
-                title: 'SubCategory',
-                translateKey: 'nav.mastersSubCategory.subcategory',
-                icon: 'ai',
-                type: NAV_ITEM_TYPE_COLLAPSE,
-                authority: [],
-                meta: {
-                    description: {
-                        translateKey: 'nav.mastersSubCategory.subcategoryDesc',
-                        label: 'AI tools and resources',
-                    },
-                },
-                subMenu: [
-                    {
-                        key: 'masters.subcategory.list',
-                        path: `${endpointConfig.master.subcategory.list}`,
-                        title: 'List',
-                        translateKey: 'nav.mastersSubCategory.list',
-                        icon: 'aiChat',
-                        type: NAV_ITEM_TYPE_ITEM,
-                        authority: [],
-                        meta: {
-                            description: {
-                                translateKey: 'nav.mastersSubCategory.listDesc',
-                                label: 'AI-powered chat systems',
-                            },
-                        },
-                        subMenu: [],
-                    },
-                ],
-            },
-            {
-                key: 'masters.document',
-                path: '',
+                key: 'masters.document.list',
+                path: `${endpointConfig.master.document.list}`,
                 title: 'Document',
-                translateKey: 'nav.mastersDocument.document',
-                icon: 'ai',
-                type: NAV_ITEM_TYPE_COLLAPSE,
+                translateKey: 'nav.mastersDocument.list',
+                icon: 'dataDisplay',
+                type: NAV_ITEM_TYPE_ITEM,
                 authority: [],
                 meta: {
                     description: {
-                        translateKey: 'nav.mastersDocument.documentDesc',
-                        label: 'AI tools and resources',
+                        translateKey: 'nav.mastersDocument.listDesc',
+                        label: 'AI-powered chat systems',
                     },
                 },
-                subMenu: [
-                    {
-                        key: 'masters.document.list',
-                        path: `${endpointConfig.master.document.list}`,
-                        title: 'List',
-                        translateKey: 'nav.mastersDocument.list',
-                        icon: 'aiChat',
-                        type: NAV_ITEM_TYPE_ITEM,
-                        authority: [],
-                        meta: {
-                            description: {
-                                translateKey: 'nav.mastersDocument.listDesc',
-                                label: 'AI-powered chat systems',
-                            },
-                        },
-                        subMenu: [],
-                    },
-                ],
+                subMenu: [],
             },
-
+            {
+                key: 'masters.lab.list',
+                path: `${endpointConfig.master.lab.list}`,
+                title: 'Lab',
+                translateKey: 'nav.mastersLab.list',
+                icon: 'sharedComponentDoc',
+                type: NAV_ITEM_TYPE_ITEM,
+                authority: [],
+                meta: {
+                    description: {
+                        translateKey: 'nav.mastersLab.listDesc',
+                        label: 'AI-powered chat systems',
+                    },
+                },
+                subMenu: [],
+            },
+        ],
+    },
+    {
+        key: 'settings',
+        path: '',
+        title: 'Settings',
+        translateKey: 'nav.masters',
+        icon: 'concepts',
+        type: NAV_ITEM_TYPE_TITLE,
+        authority: [],
+        meta: {},
+        subMenu: [
+            {
+                key: 'masters.unit.list',
+                path: `${endpointConfig.master.unit.list}`,
+                title: 'Unit',
+                translateKey: 'nav.mastersUnit.list',
+                icon: 'uiFormsSelect',
+                type: NAV_ITEM_TYPE_ITEM,
+                authority: [],
+                meta: {
+                    description: {
+                        translateKey: 'nav.mastersUnit.listDesc',
+                        label: 'AI-powered chat systems',
+                    },
+                },
+                subMenu: [],
+            },
+            {
+                key: 'masters.rolesPermission.list',
+                path: `${endpointConfig.master.rolesPermission.list}`,
+                title: 'Roles & Permission',
+                translateKey: 'nav.mastersRoles.list',
+                icon: 'accountRoleAndPermission',
+                type: NAV_ITEM_TYPE_ITEM,
+                authority: [],
+                meta: {
+                    description: {
+                        translateKey: 'nav.mastersRoles.listDesc',
+                        label: 'AI-powered chat systems',
+                    },
+                },
+                subMenu: [],
+            },
+            {
+                key: 'masters.user.list',
+                path: `${endpointConfig.master.user.list}`,
+                title: 'User',
+                translateKey: 'nav.mastersUser.list',
+                icon: 'account',
+                type: NAV_ITEM_TYPE_ITEM,
+                authority: [],
+                meta: {
+                    description: {
+                        translateKey: 'nav.mastersUser.listDesc',
+                        label: 'AI-powered chat systems',
+                    },
+                },
+                subMenu: [],
+            },
+            {
+                key: 'masters.clauses.list',
+                path: `${endpointConfig.master.clauses.list}`,
+                title: 'Clauses',
+                translateKey: 'nav.mastersClauses.list',
+                icon: 'helpCeterEditArticle',
+                type: NAV_ITEM_TYPE_ITEM,
+                authority: [],
+                meta: {
+                    description: {
+                        translateKey: 'nav.mastersClauses.listDesc',
+                        label: 'AI-powered chat systems',
+                    },
+                },
+                subMenu: [],
+            },
+        ],
+    },
+    {
+        key: 'extra',
+        path: '',
+        title: 'Extra Settings',
+        translateKey: 'nav.masters',
+        icon: 'concepts',
+        type: NAV_ITEM_TYPE_TITLE,
+        authority: [],
+        meta: {},
+        subMenu: [
             {
                 key: 'masters.signatoryBy',
                 path: '',
-                title: 'SignatoryBy',
+                title: 'Signatory',
                 translateKey: 'nav.mastersSignatoryBy.signatoryBy',
-                icon: 'ai',
+                icon: 'common',
                 type: NAV_ITEM_TYPE_COLLAPSE,
                 authority: [],
                 meta: {
@@ -268,7 +219,7 @@ const masterNavigationConfig: NavigationTree[] = [
                     {
                         key: 'masters.signatoryBy.list',
                         path: `${endpointConfig.master.signatoryBy.list}`,
-                        title: 'List',
+                        title: 'By',
                         translateKey: 'nav.mastersSignatoryBy.list',
                         icon: 'aiChat',
                         type: NAV_ITEM_TYPE_ITEM,
@@ -281,28 +232,10 @@ const masterNavigationConfig: NavigationTree[] = [
                         },
                         subMenu: [],
                     },
-                ],
-            },
-
-            {
-                key: 'masters.signatoryOn',
-                path: '',
-                title: 'SignatoryOn',
-                translateKey: 'nav.mastersSignatoryOn.signatoryOn',
-                icon: 'ai',
-                type: NAV_ITEM_TYPE_COLLAPSE,
-                authority: [],
-                meta: {
-                    description: {
-                        translateKey: 'nav.mastersSignatoryOn.signatoryOnDesc',
-                        label: 'AI tools and resources',
-                    },
-                },
-                subMenu: [
                     {
                         key: 'masters.signatoryOn.list',
                         path: `${endpointConfig.master.signatoryOn.list}`,
-                        title: 'List',
+                        title: 'On',
                         translateKey: 'nav.mastersSignatoryOn.list',
                         icon: 'aiChat',
                         type: NAV_ITEM_TYPE_ITEM,
@@ -310,108 +243,6 @@ const masterNavigationConfig: NavigationTree[] = [
                         meta: {
                             description: {
                                 translateKey: 'nav.mastersSignatoryOn.listDesc',
-                                label: 'AI-powered chat systems',
-                            },
-                        },
-                        subMenu: [],
-                    },
-                ],
-            },
-
-            {
-                key: 'masters.lab',
-                path: '',
-                title: 'Lab',
-                translateKey: 'nav.mastersLab.lab',
-                icon: 'ai',
-                type: NAV_ITEM_TYPE_COLLAPSE,
-                authority: [],
-                meta: {
-                    description: {
-                        translateKey: 'nav.mastersLab.labDesc',
-                        label: 'AI tools and resources',
-                    },
-                },
-                subMenu: [
-                    {
-                        key: 'masters.lab.list',
-                        path: `${endpointConfig.master.lab.list}`,
-                        title: 'List',
-                        translateKey: 'nav.mastersLab.list',
-                        icon: 'aiChat',
-                        type: NAV_ITEM_TYPE_ITEM,
-                        authority: [],
-                        meta: {
-                            description: {
-                                translateKey: 'nav.mastersLab.listDesc',
-                                label: 'AI-powered chat systems',
-                            },
-                        },
-                        subMenu: [],
-                    },
-                ],
-            },
-
-            {
-                key: 'masters.user',
-                path: '',
-                title: 'User',
-                translateKey: 'nav.mastersUser.user',
-                icon: 'ai',
-                type: NAV_ITEM_TYPE_COLLAPSE,
-                authority: [],
-                meta: {
-                    description: {
-                        translateKey: 'nav.mastersUser.userDesc',
-                        label: 'AI tools and resources',
-                    },
-                },
-                subMenu: [
-                    {
-                        key: 'masters.user.list',
-                        path: `${endpointConfig.master.user.list}`,
-                        title: 'List',
-                        translateKey: 'nav.mastersUser.list',
-                        icon: 'aiChat',
-                        type: NAV_ITEM_TYPE_ITEM,
-                        authority: [],
-                        meta: {
-                            description: {
-                                translateKey: 'nav.mastersUser.listDesc',
-                                label: 'AI-powered chat systems',
-                            },
-                        },
-                        subMenu: [],
-                    },
-                ],
-            },
-
-            {
-                key: 'masters.clauses',
-                path: '',
-                title: 'Clauses',
-                translateKey: 'nav.mastersClauses.clauses',
-                icon: 'ai',
-                type: NAV_ITEM_TYPE_COLLAPSE,
-                authority: [],
-                meta: {
-                    description: {
-                        translateKey: 'nav.mastersClauses.clausesDesc',
-                        label: 'AI tools and resources',
-                    },
-                },
-                subMenu: [
-                    {
-                        key: 'masters.clauses.list',
-                        path: `${endpointConfig.master.clauses.list}`,
-                        title: 'List',
-                        translateKey: 'nav.mastersClauses.list',
-                        icon: 'aiChat',
-                        type: NAV_ITEM_TYPE_ITEM,
-                        authority: [],
-                        meta: {
-                            description: {
-                                translateKey: 'nav.mastersClauses.listDesc',
                                 label: 'AI-powered chat systems',
                             },
                         },

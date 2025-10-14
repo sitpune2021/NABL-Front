@@ -280,6 +280,17 @@ const masterRoute: Routes = [
         },
     },
     {
+        key: 'masters.template.list',
+        path: `${endpointConfig.master.template.view}`,
+        component: lazy(() => import('@/views/masters/template/AddEdit')),
+        authority: [],
+        meta: {
+            layout: 'blank',
+            footer: false,
+            pageContainerType: 'gutterless',
+        },
+    },
+    {
         key: 'masters.rolesPermission.list',
         path: `${endpointConfig.master.rolesPermission.list}`,
         component: lazy(() => import('@/views/masters/RolesPermissions')),
