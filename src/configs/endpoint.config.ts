@@ -81,6 +81,9 @@ const endpointConfig = {
             create: `${MASTER_PREFIX_PATH}/clauses/create`,
             edit: `${MASTER_PREFIX_PATH}/clauses/edit/:id`,
             view: `${MASTER_PREFIX_PATH}/clauses/view/:id`,
+            standardCreate: `${MASTER_PREFIX_PATH}/clauses/standard/create`,
+            standardEdit: `${MASTER_PREFIX_PATH}/clauses/standard/edit/:id`,
+            standardView: `${MASTER_PREFIX_PATH}/clauses/standard/view/:id`,
         },
         rolesPermission: {
             list: `${MASTER_PREFIX_PATH}/roles-permission/list`,
