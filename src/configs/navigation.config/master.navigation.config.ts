@@ -176,7 +176,7 @@ const masterNavigationConfig: NavigationTree[] = [
             {
                 key: 'masters.clauses.list',
                 path: `${endpointConfig.master.clauses.list}`,
-                title: 'Clauses',
+                title: 'Standards',
                 translateKey: 'nav.mastersClauses.list',
                 icon: 'helpCeterEditArticle',
                 type: NAV_ITEM_TYPE_ITEM,

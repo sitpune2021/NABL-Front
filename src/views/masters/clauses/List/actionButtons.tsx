@@ -8,4 +8,9 @@ export const actionButtons: ActionButton[] = [
         icon: <TbTemplate className="text-xl" />,
         path: `${endpointConfig.master.clauses.create}`,
     },
+    {
+        label: 'Add Standards',
+        icon: <TbTemplate className="text-xl" />,
+        path: `${endpointConfig.master.clauses.standardCreate}`,
+    },
 ]

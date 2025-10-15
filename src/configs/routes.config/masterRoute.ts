@@ -324,6 +324,30 @@ const masterRoute: Routes = [
         component: lazy(() => import('@/views/masters/clauses/AddEdit')),
         authority: [],
     },
+    {
+        key: 'masters.clauses.standard.create',
+        path: endpointConfig.master.clauses.standardCreate,
+        component: lazy(
+            () => import('@/views/masters/clauses/AddEdit/standardAddEdit'),
+        ),
+        authority: [],
+    },
+    {
+        key: 'masters.clauses.standard.edit',
+        path: endpointConfig.master.clauses.standardEdit,
+        component: lazy(
+            () => import('@/views/masters/clauses/AddEdit/standardAddEdit'),
+        ),
+        authority: [],
+    },
+    {
+        key: 'masters.clauses.standard.view',
+        path: endpointConfig.master.clauses.standardView,
+        component: lazy(
+            () => import('@/views/masters/clauses/AddEdit/standardAddEdit'),
+        ),
+        authority: [],
+    },
 ]
 
 export default masterRoute
