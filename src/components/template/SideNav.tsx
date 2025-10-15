@@ -5,7 +5,7 @@ import VerticalMenuContent from '@/components/template/VerticalMenuContent'
 import { useThemeStore } from '@/store/themeStore'
 import { useSessionUser } from '@/store/authStore'
 import { useRouteKeyStore } from '@/store/routeKeyStore'
-import navigationConfig from '@/configs/navigation.config'
+// import navigationConfig from '@/configs/navigation.config'
 import appConfig from '@/configs/app.config'
 import { Link } from 'react-router'
 import {
@@ -16,6 +16,8 @@ import {
     LOGO_X_GUTTER,
 } from '@/constants/theme.constant'
 import type { Mode } from '@/@types/theme'
+import useNavigationItemsList from '@/utils/hooks/useNavigationItem'
+// import axios from 'axios'
 
 type SideNavProps = {
     translationSetup?: boolean
@@ -52,6 +54,23 @@ const SideNav = ({
 
     const userAuthority = useSessionUser((state) => state.user.authority)
 
+    const { navigationItems } = useNavigationItemsList()
+
+    //     const uploadFullNavigationTree = async () => {
+    //         try {
+    //             const response = await axios.post('http://192.168.1.38:8000/api/navigation-items', navigationConfig)
+    //             const savedItem = response.data
+    //             return savedItem
+    //         } catch (error) {
+    //             // console.error('Failed to send item:', payload.key, error.response?.data || error.message)
+    //         }
+
+    //         console.log('✅ All navigation items uploaded')
+    //     }
+    // console.log(navigationConfig);
+
+    //     uploadFullNavigationTree()
+
     return (
         <div
             style={sideNavCollapse ? sideNavCollapseStyle : sideNavStyle}
@@ -83,7 +102,7 @@ const SideNav = ({
                 <ScrollBar style={{ height: '100%' }} direction={direction}>
                     <VerticalMenuContent
                         collapsed={sideNavCollapse}
-                        navigationTree={navigationConfig}
+                        navigationTree={navigationItems}
                         routeKey={currentRouteKey}
                         direction={direction}
                         translationSetup={translationSetup}

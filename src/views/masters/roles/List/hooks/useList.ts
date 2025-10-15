@@ -44,7 +44,7 @@ export default function useRolesList() {
         return roles
     }
 
-    const rolesList = data?.list || []
+    const rolesList = data || []
 
     const rolesListTotal = data?.total || 0
 
