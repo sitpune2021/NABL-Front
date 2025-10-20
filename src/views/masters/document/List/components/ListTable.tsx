@@ -13,9 +13,11 @@ import { Document } from '@/@types/document'
 const ActionColumn = ({
     onEdit,
     onViewDetail,
+    onEditorViewDetail,
 }: {
     onEdit: () => void
     onViewDetail: () => void
+    onEditorViewDetail: () => void
 }) => {
     return (
         <div className="flex items-center gap-3">
@@ -33,6 +35,15 @@ const ActionColumn = ({
                     className={`text-xl cursor-pointer select-none font-semibold`}
                     role="button"
                     onClick={onViewDetail}
+                >
+                    <TbEye />
+                </div>
+            </Tooltip>
+            <Tooltip title="Document Veiw">
+                <div
+                    className={`text-xl cursor-pointer select-none font-semibold`}
+                    role="button"
+                    onClick={onEditorViewDetail}
                 >
                     <TbEye />
                 </div>
@@ -71,6 +82,13 @@ const DocumentListTable = () => {
         navigate(path)
     }
 
+    const handleEditorViewDetails = (document: Document) => {
+        const path = endpointConfig.master.document.editorview
+            .replace(':docId', String(document.id))
+            .replace(':id', String(document.editor?.id))
+        navigate(path)
+    }
+
     const columns: ColumnDef<Document>[] = useMemo(
         () => [
             {
@@ -93,6 +111,9 @@ const DocumentListTable = () => {
                         onEdit={() => handleEdit(props.row.original)}
                         onViewDetail={() =>
                             handleViewDetails(props.row.original)
+                        }
+                        onEditorViewDetail={() =>
+                            handleEditorViewDetails(props.row.original)
                         }
                     />
                 ),

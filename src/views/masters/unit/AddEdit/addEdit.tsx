@@ -34,8 +34,6 @@ const UnitAddEdit = () => {
             setLoadingData(true)
             getUnitById(unitId)
                 .then((data) => {
-                    console.log('Fetched unit data:', data)
-
                     setUnitData(data)
                 })
                 .finally(() => setLoadingData(false))

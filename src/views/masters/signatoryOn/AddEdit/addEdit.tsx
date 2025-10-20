@@ -34,8 +34,6 @@ const SignatoryOnAddEdit = () => {
             setLoadingData(true)
             getSignatoryOnById(signatoryOnId)
                 .then((data) => {
-                    console.log('Fetched signatoryOn data:', data)
-
                     setSignatoryOnData(data)
                 })
                 .finally(() => setLoadingData(false))

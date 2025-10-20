@@ -14,6 +14,13 @@ import type { DocumentFormSchema } from '@/@types/document'
 import { defaultDocumentValues } from '@/constants/intial-doc.constant'
 import { apiGetDocumentEditortById } from '@/services/DocumentService'
 
+function buildPath(path: string, params: Record<string, string | number>) {
+    return Object.entries(params).reduce(
+        (acc, [key, value]) => acc.replace(`:${key}`, value.toString()),
+        path,
+    )
+}
+
 const DocumentAddEdit = () => {
     const navigate = useNavigate()
     const location = useLocation()
@@ -42,7 +49,9 @@ const DocumentAddEdit = () => {
                     const data = isEditor
                         ? isEdit
                             ? await apiGetDocumentEditortById(documentId)
-                            : await getDocumentById(documentId)
+                            : isView
+                              ? await apiGetDocumentEditortById(documentId)
+                              : await getDocumentById(documentId)
                         : await getDocumentById(documentId)
                     setDocumentData(data)
                 } catch (err) {
@@ -101,12 +110,13 @@ const DocumentAddEdit = () => {
                         </Notification>,
                         { placement: 'top-center' },
                     )
-                    isEdit
-                        ? navigate(`${location}/editor/${savedDoc.id}`)
-                        : navigate(
-                              `${endpointConfig.master.document.editor}/${savedDoc.id}`,
-                          )
-                    // navigate(`${endpointConfig.master.document.editor}/${savedDoc.id}`)
+                    const path = isEdit
+                        ? buildPath(endpointConfig.master.document.editorEdit, {
+                              docId: documentId ?? '',
+                              id: savedDoc.id ?? '',
+                          })
+                        : `${endpointConfig.master.document.editor}/${savedDoc.id}`
+                    navigate(path)
                 }
             } catch (error) {
                 console.error('Save failed:', error)
@@ -146,6 +156,8 @@ const DocumentAddEdit = () => {
                 isEditor={isEditor}
                 defaultValues={defaultValues}
                 readOnly={isView}
+                documentData={documentData} // Pass the documentData prop here
+                isEdit={isEdit}
                 onFormSubmit={handleFormSubmit}
             >
                 <Container>

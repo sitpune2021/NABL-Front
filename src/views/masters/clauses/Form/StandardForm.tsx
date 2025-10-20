@@ -2,26 +2,26 @@ import { useEffect } from 'react'
 import { Form } from '@/components/ui/Form'
 import Container from '@/components/shared/Container'
 import BottomStickyBar from '@/components/template/BottomStickyBar'
-import OverviewSection from './OverviewSection'
+import StandardSection from './StandardSection'
 import isEmpty from 'lodash/isEmpty'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import type { CommonProps } from '@/@types/common'
-import { RolesFormSchema } from '@/@types/roles'
+import { StandardFormSchema } from '@/@types/standard'
 
-type RolesFormProps = {
-    onFormSubmit: (values: RolesFormSchema) => void
-    defaultValues?: RolesFormSchema
-    newRoles?: boolean
+type StandardFormProps = {
+    onFormSubmit: (values: StandardFormSchema) => void
+    defaultValues?: StandardFormSchema
+    newStandard?: boolean
     readOnly?: boolean
 } & CommonProps
 
 const validationSchema = z.object({
-    name: z.string().min(1, { message: ' name required' }),
+    name: z.string().min(1, { message: 'Name is required' }),
 })
 
-const RolesForm = (props: RolesFormProps) => {
+const StandardForm = (props: StandardFormProps) => {
     const {
         onFormSubmit,
         defaultValues = {},
@@ -34,7 +34,7 @@ const RolesForm = (props: RolesFormProps) => {
         reset,
         formState: { errors },
         control,
-    } = useForm<RolesFormSchema>({
+    } = useForm<StandardFormSchema>({
         defaultValues: {
             ...defaultValues,
         },
@@ -48,7 +48,7 @@ const RolesForm = (props: RolesFormProps) => {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [JSON.stringify(defaultValues)])
 
-    const onSubmit = (values: RolesFormSchema) => {
+    const onSubmit = (values: StandardFormSchema) => {
         onFormSubmit?.(values)
     }
 
@@ -61,7 +61,7 @@ const RolesForm = (props: RolesFormProps) => {
             <Container>
                 <div className="flex flex-col md:flex-row gap-4">
                     <div className="gap-4 flex flex-col flex-auto">
-                        <OverviewSection
+                        <StandardSection
                             control={control}
                             errors={errors}
                             readOnly={readOnly}
@@ -74,4 +74,4 @@ const RolesForm = (props: RolesFormProps) => {
     )
 }
 
-export default RolesForm
+export default StandardForm

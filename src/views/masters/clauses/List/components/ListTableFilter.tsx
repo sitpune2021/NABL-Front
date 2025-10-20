@@ -8,7 +8,7 @@ import { TbFilter } from 'react-icons/tb'
 import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import useRolesList from '../hooks/useList'
+import useClausesList from '../hooks/useList'
 
 type FormSchema = {
     purchasedProducts: string
@@ -35,10 +35,10 @@ const validationSchema = z.object({
     purchaseChannel: z.array(z.string()),
 })
 
-const RolesListTableFilter = () => {
+const ClausesListTableFilter = () => {
     const [dialogIsOpen, setIsOpen] = useState(false)
 
-    const { filterData, setFilterData } = useRolesList()
+    const { filterData, setFilterData } = useClausesList()
 
     const openDialog = () => {
         setIsOpen(true)
@@ -122,4 +122,4 @@ const RolesListTableFilter = () => {
     )
 }
 
-export default RolesListTableFilter
+export default ClausesListTableFilter

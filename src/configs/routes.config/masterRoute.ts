@@ -76,33 +76,6 @@ const masterRoute: Routes = [
         authority: [],
     },
     {
-        key: 'masters.roles.list',
-        path: `${endpointConfig.master.roles.list}`,
-        component: lazy(() => import('@/views/masters/roles/List')),
-        authority: [],
-    },
-    {
-        key: 'masters.roles.list',
-        path: `${endpointConfig.master.roles.create}`,
-        component: lazy(() => import('@/views/masters/roles/AddEdit')),
-        authority: [],
-    },
-    {
-        key: 'masters.roles.list',
-        path: endpointConfig.master.roles.edit,
-        component: lazy(() => import('@/views/masters/roles/AddEdit')),
-        authority: [],
-    },
-    {
-        key: 'masters.roles.list',
-        path: endpointConfig.master.roles.view,
-        component: lazy(() => import('@/views/masters/roles/AddEdit')),
-        authority: [],
-    },
-
-    // signatoryBy
-
-    {
         key: 'masters.signatoryBy.list',
         path: `${endpointConfig.master.signatoryBy.list}`,
         component: lazy(() => import('@/views/masters/signatoryBy/List')),
@@ -126,8 +99,6 @@ const masterRoute: Routes = [
         component: lazy(() => import('@/views/masters/signatoryBy/AddEdit')),
         authority: [],
     },
-    // signatoryOn
-
     {
         key: 'masters.signatoryOn.list',
         path: `${endpointConfig.master.signatoryOn.list}`,
@@ -253,6 +224,12 @@ const masterRoute: Routes = [
     },
     {
         key: 'masters.document.list',
+        path: endpointConfig.master.document.edit,
+        component: lazy(() => import('@/views/masters/document/AddEdit')),
+        authority: [],
+    },
+    {
+        key: 'masters.document.list',
         path: `${endpointConfig.master.document.editorEdit}`,
         component: lazy(() => import('@/views/masters/document/AddEdit')),
         authority: [],
@@ -264,13 +241,13 @@ const masterRoute: Routes = [
     },
     {
         key: 'masters.document.list',
-        path: endpointConfig.master.document.edit,
+        path: endpointConfig.master.document.view,
         component: lazy(() => import('@/views/masters/document/AddEdit')),
         authority: [],
     },
     {
         key: 'masters.document.list',
-        path: endpointConfig.master.document.view,
+        path: endpointConfig.master.document.editorview,
         component: lazy(() => import('@/views/masters/document/AddEdit')),
         authority: [],
     },

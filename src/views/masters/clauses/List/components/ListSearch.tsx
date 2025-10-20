@@ -2,12 +2,12 @@ import DebouceInput from '@/components/shared/DebouceInput'
 import { TbSearch } from 'react-icons/tb'
 import { Ref } from 'react'
 
-type RolesListSearchProps = {
+type ClausesListSearchProps = {
     onInputChange: (value: string) => void
     ref?: Ref<HTMLInputElement>
 }
 
-const RolesListSearch = (props: RolesListSearchProps) => {
+const ClausesListSearch = (props: ClausesListSearchProps) => {
     const { onInputChange, ref } = props
 
     return (
@@ -20,4 +20,4 @@ const RolesListSearch = (props: RolesListSearchProps) => {
     )
 }
 
-export default RolesListSearch
+export default ClausesListSearch

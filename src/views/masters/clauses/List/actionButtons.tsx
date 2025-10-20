@@ -4,8 +4,13 @@ import endpointConfig from '@/configs/endpoint.config'
 
 export const actionButtons: ActionButton[] = [
     {
-        label: 'Add new Roles',
+        label: 'Add Clauses',
         icon: <TbTemplate className="text-xl" />,
-        path: `${endpointConfig.master.roles.create}`,
+        path: `${endpointConfig.master.clauses.create}`,
+    },
+    {
+        label: 'Add Standards',
+        icon: <TbTemplate className="text-xl" />,
+        path: `${endpointConfig.master.clauses.standardCreate}`,
     },
 ]

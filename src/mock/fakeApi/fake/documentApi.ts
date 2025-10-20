@@ -4,10 +4,27 @@ import { mock } from '@/mock/MockAdapter'
 
 mock.onGet(`/api/document`).reply(() => {
     const raw = localStorage.getItem(DOCUMENT_KEY)
-    const Data = raw ? (JSON.parse(raw) as Document[]) : []
+    const rawEditor = localStorage.getItem(DOCUMENT_KEY_EDITOR)
+
+    const documents = raw ? (JSON.parse(raw) as Document[]) : []
+    const editors = rawEditor
+        ? (JSON.parse(rawEditor) as {
+              documentId: string
+              [key: string]: unknown
+          }[])
+        : []
+
+    const enrichedDocuments = documents.map((doc) => {
+        const editor = editors.find((e) => e.documentId == doc.id)
+        return {
+            ...doc,
+            editor: editor || null, // attach matching editor if exists
+        }
+    })
+
     const response = {
-        data: Data,
-        total: Data.length,
+        data: enrichedDocuments,
+        total: enrichedDocuments.length,
     }
 
     return [200, response]
@@ -85,7 +102,7 @@ mock.onPut(new RegExp('^/api/document/\\d+$')).reply((config) => {
     const rawEditor = localStorage.getItem(DOCUMENT_KEY_EDITOR)
     const documentEditors = rawEditor ? JSON.parse(rawEditor) : []
     const documentEditor = documentEditors.find(
-        (d) => String(d.documentId) === id,
+        (d: { documentId: string | number }) => String(d.documentId) === id,
     )
 
     return [
@@ -128,14 +145,59 @@ mock.onPost('/api/document-editor').reply((config) => {
 mock.onGet(new RegExp('/api/document-editor/\\d+')).reply((config) => {
     const id = config.url?.split('/').pop()
 
-    const raw = localStorage.getItem(DOCUMENT_KEY_EDITOR)
-    const documents = raw ? (JSON.parse(raw) as Document[]) : []
+    const rawEditor = localStorage.getItem(DOCUMENT_KEY_EDITOR)
+    const documentsEditor = rawEditor ? JSON.parse(rawEditor) : []
 
-    const document = documents.find((d) => String(d.id) === id)
+    const rawD = localStorage.getItem(DOCUMENT_KEY)
+    const documentsD = rawD ? JSON.parse(rawD) : []
 
-    if (document) {
-        return [200, document]
+    const documentEditor = documentsEditor.find(
+        (d: { id: string | number }) => String(d.id) === id,
+    )
+    const documentD = documentsD.find(
+        (d: { id: string | number }) =>
+            String(d.id) === documentEditor?.documentId,
+    )
+
+    if (documentEditor || documentD) {
+        const combinedDocument = {
+            id: documentEditor?.id,
+            ...documentD,
+            ...documentEditor,
+        }
+
+        return [200, combinedDocument]
     } else {
         return [404, { message: 'Document not found' }]
     }
+})
+
+mock.onPut(new RegExp('^/api/document-editor/\\d+$')).reply((config) => {
+    const url = config.url || ''
+    const id = url.split('/').pop()
+
+    if (!id) {
+        return [400, { message: 'Document ID is required' }]
+    }
+
+    const raw = localStorage.getItem(DOCUMENT_KEY_EDITOR)
+    const document = raw ? (JSON.parse(raw) as Document[]) : []
+
+    const updatedDocument = JSON.parse(config.data)
+
+    const index = document.findIndex((c) => String(c.id) === id)
+
+    if (index === -1) {
+        return [404, { message: 'Document Editor not found' }]
+    }
+
+    // Update the document at found index
+    document[index] = { ...document[index], ...updatedDocument }
+
+    localStorage.setItem(DOCUMENT_KEY_EDITOR, JSON.stringify(document))
+
+    return [
+        200,
+        { message: 'Document updated successfully', data: updatedDocument },
+    ]
 })

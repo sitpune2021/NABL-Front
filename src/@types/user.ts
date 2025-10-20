@@ -15,6 +15,15 @@ export type Filter = {
 export type User = {
     id: string
     name: string
+    email: string
+    phone?: string
+    role: string
+    username: string
+    address?: string
+    issuedBy: boolean
+    approvedBy: boolean
+    signUpload?: string
+    preparedBy: boolean
 }
 
 export type UserListState = {

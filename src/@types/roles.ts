@@ -1,6 +1,7 @@
 import { TableQueries } from './common'
 
 import type { Control, FieldErrors } from 'react-hook-form'
+import { User } from './user'
 
 export type GetRolesListResponse = {
     list: Roles[]
@@ -15,6 +16,8 @@ export type Filter = {
 export type Roles = {
     id: string
     name: string
+    description: string
+    users: User[]
 }
 
 export type RolesListState = {
@@ -33,6 +36,7 @@ export type RolesListAction = {
 export type Fields = {
     id?: string
     name: string
+    description: string
 }
 
 export type TagsFields = {

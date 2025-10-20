@@ -28,12 +28,6 @@ const endpointConfig = {
             edit: `${MASTER_PREFIX_PATH}/unit/edit/:id`,
             view: `${MASTER_PREFIX_PATH}/unit/view/:id`,
         },
-        roles: {
-            list: `${MASTER_PREFIX_PATH}/roles/list`,
-            create: `${MASTER_PREFIX_PATH}/roles/create`,
-            edit: `${MASTER_PREFIX_PATH}/roles/edit/:id`,
-            view: `${MASTER_PREFIX_PATH}/roles/view/:id`,
-        },
         signatoryBy: {
             list: `${MASTER_PREFIX_PATH}/signatoryBy/list`,
             create: `${MASTER_PREFIX_PATH}/signatoryBy/create`,
@@ -73,6 +67,7 @@ const endpointConfig = {
             editorEdit: `${MASTER_PREFIX_PATH}/document/edit/:docId/editor/:id`,
             edit: `${MASTER_PREFIX_PATH}/document/edit/:id`,
             view: `${MASTER_PREFIX_PATH}/document/view/:id`,
+            editorview: `${MASTER_PREFIX_PATH}/document/view/:docId/editor/:id`,
         },
         template: {
             list: `${MASTER_PREFIX_PATH}/template/list`,
@@ -100,6 +95,19 @@ const endpointConfig = {
             create: `${MASTER_PREFIX_PATH}/cluster/create`,
             edit: `${MASTER_PREFIX_PATH}/cluster/edit/:id`,
             view: `${MASTER_PREFIX_PATH}/cluster/view/:id`,
+        },
+
+        clauses: {
+            list: `${MASTER_PREFIX_PATH}/clauses/list`,
+            create: `${MASTER_PREFIX_PATH}/clauses/create`,
+            edit: `${MASTER_PREFIX_PATH}/clauses/edit/:id`,
+            view: `${MASTER_PREFIX_PATH}/clauses/view/:id`,
+            standardCreate: `${MASTER_PREFIX_PATH}/clauses/standard/create`,
+            standardEdit: `${MASTER_PREFIX_PATH}/clauses/standard/edit/:id`,
+            standardView: `${MASTER_PREFIX_PATH}/clauses/standard/view/:id`,
+        },
+        rolesPermission: {
+            list: `${MASTER_PREFIX_PATH}/roles-permission/list`,
         },
     },
 }

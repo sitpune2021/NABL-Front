@@ -28,8 +28,6 @@ export async function apiGetCategoryById(id: string) {
 }
 
 export async function apiUpdateCategory(id: string, data: Fields) {
-    console.log('Updating category with ID:', id, 'and data:', data) // Debug log;
-
     return ApiService.fetchDataWithAxios<Fields>({
         url: `/category/${id}`,
         method: 'put',

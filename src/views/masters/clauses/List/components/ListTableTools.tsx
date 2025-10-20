@@ -1,10 +1,10 @@
-import useRolesList from '../hooks/useList'
-import RolesListSearch from './ListSearch'
-import RolesListTableFilter from './ListTableFilter'
+import useClausesList from '../hooks/useList'
+import ClausesListSearch from './ListSearch'
+import ClausesListTableFilter from './ListTableFilter'
 import cloneDeep from 'lodash/cloneDeep'
 
-const RolesListTableTools = () => {
-    const { tableData, setTableData } = useRolesList()
+const ClausesListTableTools = () => {
+    const { tableData, setTableData } = useClausesList()
 
     const handleInputChange = (val: string) => {
         const newTableData = cloneDeep(tableData)
@@ -21,10 +21,10 @@ const RolesListTableTools = () => {
 
     return (
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2">
-            <RolesListSearch onInputChange={handleInputChange} />
-            <RolesListTableFilter />
+            <ClausesListSearch onInputChange={handleInputChange} />
+            <ClausesListTableFilter />
         </div>
     )
 }
 
-export default RolesListTableTools
+export default ClausesListTableTools

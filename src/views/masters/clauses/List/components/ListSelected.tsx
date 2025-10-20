@@ -7,16 +7,16 @@ import toast from '@/components/ui/toast'
 import RichTextEditor from '@/components/shared/RichTextEditor'
 import ConfirmDialog from '@/components/shared/ConfirmDialog'
 import { TbChecks } from 'react-icons/tb'
-import useRolesList from '../hooks/useList'
+import useClausesList from '../hooks/useList'
 
-const RolesListSelected = () => {
+const ClausesListSelected = () => {
     const {
-        selectedRoles,
-        rolesList,
+        selectedClauses,
+        clausesList,
         mutate,
-        rolesListTotal,
-        setSelectAllRoles,
-    } = useRolesList()
+        clausesListTotal,
+        setSelectAllClauses,
+    } = useClausesList()
 
     const [deleteConfirmationOpen, setDeleteConfirmationOpen] = useState(false)
     const [sendMessageDialogOpen, setSendMessageDialogOpen] = useState(false)
@@ -31,14 +31,16 @@ const RolesListSelected = () => {
     }
 
     const handleConfirmDelete = () => {
-        const newRolesList = rolesList.filter((roles) => {
-            return !selectedRoles.some((selected) => selected.id === roles.id)
+        const newClausesList = clausesList.filter((clauses) => {
+            return !selectedClauses.some(
+                (selected) => selected.id === clauses.id,
+            )
         })
-        setSelectAllRoles([])
+        setSelectAllClauses([])
         mutate(
             {
-                list: newRolesList,
-                total: rolesListTotal - selectedRoles.length,
+                list: newClausesList,
+                total: clausesListTotal - selectedClauses.length,
             },
             false,
         )
@@ -54,13 +56,13 @@ const RolesListSelected = () => {
             )
             setSendMessageLoading(false)
             setSendMessageDialogOpen(false)
-            setSelectAllRoles([])
+            setSelectAllClauses([])
         }, 500)
     }
 
     return (
         <>
-            {selectedRoles.length > 0 && (
+            {selectedClauses.length > 0 && (
                 <StickyFooter
                     className=" flex items-center justify-between py-4 bg-white dark:bg-gray-800"
                     stickyClass="-mx-4 sm:-mx-8 border-t border-gray-200 dark:border-gray-700 px-8"
@@ -69,14 +71,15 @@ const RolesListSelected = () => {
                     <div className="container mx-auto">
                         <div className="flex items-center justify-between">
                             <span>
-                                {selectedRoles.length > 0 && (
+                                {selectedClauses.length > 0 && (
                                     <span className="flex items-center gap-2">
                                         <span className="text-lg text-primary">
                                             <TbChecks />
                                         </span>
                                         <span className="font-semibold flex items-center gap-1">
                                             <span className="heading-text">
-                                                {selectedRoles.length} Roless
+                                                {selectedClauses.length}{' '}
+                                                Clausess
                                             </span>
                                             <span>selected</span>
                                         </span>
@@ -139,9 +142,9 @@ const RolesListSelected = () => {
                     maxCount={4}
                     omittedAvatarProps={{ size: 30 }}
                 >
-                    {selectedRoles.map((roles) => (
-                        <Tooltip key={roles.id} title={roles.name}>
-                            <Avatar size={30} src={roles.img} alt="" />
+                    {selectedClauses.map((clauses) => (
+                        <Tooltip key={clauses.id} title={clauses.name}>
+                            <Avatar size={30} src={clauses.img} alt="" />
                         </Tooltip>
                     ))}
                 </Avatar.Group> */}
@@ -169,4 +172,4 @@ const RolesListSelected = () => {
     )
 }
 
-export default RolesListSelected
+export default ClausesListSelected

@@ -8,54 +8,56 @@ import ConfirmDialog from '@/components/shared/ConfirmDialog'
 import sleep from '@/utils/sleep'
 import { TbTrash } from 'react-icons/tb'
 import endpointConfig from '@/configs/endpoint.config'
-import useRolesList from '../List/hooks/useList'
-import RolesForm from '../Form'
-import { RolesFormSchema } from '@/@types/roles'
+import useClausesList from '../List/hooks/useList'
+import ClausesForm from '../Form'
+import { ClausesFormSchema } from '@/@types/clauses'
 
-const RolesAddEdit = () => {
+const ClausesAddEdit = () => {
     const navigate = useNavigate()
     const location = useLocation()
-    const { id: rolesId } = useParams()
-    const { saveRolesData, getRolesById } = useRolesList()
+    const { id: clausesId } = useParams()
+    const { saveClausesData, getClausesById } = useClausesList()
 
     const [discardConfirmationOpen, setDiscardConfirmationOpen] =
         useState(false)
     const [isSubmiting, setIsSubmiting] = useState(false)
-    const [rolesData, setRolesData] = useState<RolesFormSchema | null>(null)
+    const [clausesData, setClausesData] = useState<ClausesFormSchema | null>(
+        null,
+    )
     const [loadingData, setLoadingData] = useState(false)
 
     const isEdit = location.pathname.includes('/edit')
     const isView = location.pathname.includes('/view')
     const isAdd = location.pathname.includes('/create')
 
-    // Load existing roles data in edit or view mode
     useEffect(() => {
-        if (!isAdd && rolesId) {
+        if (!isAdd && clausesId) {
             setLoadingData(true)
-            getRolesById(rolesId)
+            getClausesById(clausesId)
                 .then((data) => {
-                    console.log('Fetched roles data:', data)
-
-                    setRolesData(data)
+                    console.log('Fetched clauses data:', data)
+                    setClausesData(data)
                 })
                 .finally(() => setLoadingData(false))
         }
-    }, [rolesId, isAdd])
+    }, [clausesId, isAdd])
 
-    const handleFormSubmit = async (values: RolesFormSchema) => {
+    const handleFormSubmit = async (values: ClausesFormSchema) => {
         if (isView) return
         setIsSubmiting(true)
-        const payload = isEdit ? { ...values, id: rolesId } : values
-        await saveRolesData(payload)
+
+        const payload = isEdit ? { ...values, id: clausesId } : values
+
+        await saveClausesData(payload)
         await sleep(800)
         setIsSubmiting(false)
         toast.push(
             <Notification type="success">
-                {isEdit ? 'Roles updated!' : 'Roles created!'}
+                {isEdit ? 'Clauses updated!' : 'Clauses created!'}
             </Notification>,
             { placement: 'top-center' },
         )
-        navigate(`${endpointConfig.master.roles.list}`)
+        navigate(`${endpointConfig.master.clauses.list}`)
     }
 
     const handleConfirmDiscard = () => {
@@ -64,21 +66,21 @@ const RolesAddEdit = () => {
             <Notification type="success">Changes discarded!</Notification>,
             { placement: 'top-center' },
         )
-        navigate(`${endpointConfig.master.roles.list}`)
+        navigate(`${endpointConfig.master.clauses.list}`)
     }
 
     const handleDiscard = () => setDiscardConfirmationOpen(true)
     const handleCancel = () => setDiscardConfirmationOpen(false)
 
     if (loadingData && !isAdd) {
-        return <p className="p-4">Loading roles data...</p>
+        return <p className="p-4">Loading clauses data...</p>
     }
 
     return (
         <>
-            <RolesForm
-                newRoles={isAdd}
-                defaultValues={rolesData ?? { name: '' }}
+            <ClausesForm
+                newClauses={isAdd}
+                defaultValues={clausesData || undefined}
                 readOnly={isView}
                 onFormSubmit={handleFormSubmit}
             >
@@ -109,7 +111,7 @@ const RolesAddEdit = () => {
                         )}
                     </div>
                 </Container>
-            </RolesForm>
+            </ClausesForm>
             <ConfirmDialog
                 isOpen={discardConfirmationOpen}
                 type="danger"
@@ -128,4 +130,4 @@ const RolesAddEdit = () => {
     )
 }
 
-export default RolesAddEdit
+export default ClausesAddEdit

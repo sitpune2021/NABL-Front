@@ -42,6 +42,15 @@ export type Document = {
     effectiveDate: string
     frequency?: string
     duration?: string
+    editor?: {
+        id?: string
+        documentId?: string | number
+        document?: {
+            html: string
+            css: string
+            js: string
+        }
+    }
 }
 
 export type DocumentListState = {
@@ -82,6 +91,11 @@ export type Fields = {
     effectiveDate: string
     frequency?: string
     duration?: string
+    document?: {
+        html: string
+        css: string
+        js: string
+    }
 }
 
 export type TagsFields = {
@@ -90,9 +104,17 @@ export type TagsFields = {
 
 export type DocumentFormSchema = Fields
 
+export type EditorFormSchema = {
+    documentId: string
+    document: {
+        html: string
+        css: string
+    }
+}
+
 export type FormSectionBaseProps = {
-    control: Control<DocumentFormSchema>
-    errors: FieldErrors<DocumentFormSchema>
+    control: Control<DocumentFormSchema | EditorFormSchema>
+    errors: FieldErrors<DocumentFormSchema & EditorFormSchema>
     readOnly?: boolean
-    setValue: UseFormSetValue<DocumentFormSchema>
+    setValue: UseFormSetValue<DocumentFormSchema | EditorFormSchema>
 }

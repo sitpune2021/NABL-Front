@@ -33,8 +33,6 @@ const DepartmentAddEdit = () => {
             setLoadingData(true)
             getDepartmentById(departmentId)
                 .then((data) => {
-                    console.log('Fetched department data:', data)
-
                     setDepartmentData(data)
                 })
                 .finally(() => setLoadingData(false))
