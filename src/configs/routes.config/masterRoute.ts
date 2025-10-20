@@ -327,6 +327,56 @@ const masterRoute: Routes = [
         component: lazy(() => import('@/views/masters/location/AddEdit')),
         authority: [],
     },
+
+    {
+        key: 'masters.zone.list',
+        path: `${endpointConfig.master.zone.list}`,
+        component: lazy(() => import('@/views/masters/zone/List')),
+        authority: [],
+    },
+    {
+        key: 'masters.zone.list',
+        path: `${endpointConfig.master.zone.create}`,
+        component: lazy(() => import('@/views/masters/zone/AddEdit')),
+        authority: [],
+    },
+    {
+        key: 'masters.zone.list',
+        path: endpointConfig.master.zone.edit,
+        component: lazy(() => import('@/views/masters/zone/AddEdit')),
+        authority: [],
+    },
+    {
+        key: 'masters.zone.list',
+        path: endpointConfig.master.zone.view,
+        component: lazy(() => import('@/views/masters/zone/AddEdit')),
+        authority: [],
+    },
+
+    {
+        key: 'masters.cluster.list',
+        path: `${endpointConfig.master.cluster.list}`,
+        component: lazy(() => import('@/views/masters/cluster/List')),
+        authority: [],
+    },
+    {
+        key: 'masters.cluster.list',
+        path: `${endpointConfig.master.cluster.create}`,
+        component: lazy(() => import('@/views/masters/cluster/AddEdit')),
+        authority: [],
+    },
+    {
+        key: 'masters.cluster.list',
+        path: endpointConfig.master.cluster.edit,
+        component: lazy(() => import('@/views/masters/cluster/AddEdit')),
+        authority: [],
+    },
+    {
+        key: 'masters.cluster.list',
+        path: endpointConfig.master.cluster.view,
+        component: lazy(() => import('@/views/masters/cluster/AddEdit')),
+        authority: [],
+    },
 ]
 
 export default masterRoute

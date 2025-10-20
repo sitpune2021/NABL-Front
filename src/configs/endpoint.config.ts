@@ -87,6 +87,20 @@ const endpointConfig = {
             edit: `${MASTER_PREFIX_PATH}/location/edit/:id`,
             view: `${MASTER_PREFIX_PATH}/location/view/:id`,
         },
+
+        zone: {
+            list: `${MASTER_PREFIX_PATH}/zone/list`,
+            create: `${MASTER_PREFIX_PATH}/zone/create`,
+            edit: `${MASTER_PREFIX_PATH}/zone/edit/:id`,
+            view: `${MASTER_PREFIX_PATH}/zone/view/:id`,
+        },
+
+        cluster: {
+            list: `${MASTER_PREFIX_PATH}/cluster/list`,
+            create: `${MASTER_PREFIX_PATH}/cluster/create`,
+            edit: `${MASTER_PREFIX_PATH}/cluster/edit/:id`,
+            view: `${MASTER_PREFIX_PATH}/cluster/view/:id`,
+        },
     },
 }
 

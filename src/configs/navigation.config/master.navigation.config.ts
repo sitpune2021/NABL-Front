@@ -419,6 +419,74 @@ const masterNavigationConfig: NavigationTree[] = [
                     },
                 ],
             },
+
+            {
+                key: 'masters.zone',
+                path: '',
+                title: 'Zone',
+                translateKey: 'nav.mastersZone.zone',
+                icon: 'ai',
+                type: NAV_ITEM_TYPE_COLLAPSE,
+                authority: [],
+                meta: {
+                    description: {
+                        translateKey: 'nav.mastersZone.zoneDesc',
+                        label: 'AI tools and resources',
+                    },
+                },
+                subMenu: [
+                    {
+                        key: 'masters.zone.list',
+                        path: `${endpointConfig.master.zone.list}`,
+                        title: 'List',
+                        translateKey: 'nav.mastersZone.list',
+                        icon: 'aiChat',
+                        type: NAV_ITEM_TYPE_ITEM,
+                        authority: [],
+                        meta: {
+                            description: {
+                                translateKey: 'nav.mastersZone.listDesc',
+                                label: 'AI-powered chat systems',
+                            },
+                        },
+                        subMenu: [],
+                    },
+                ],
+            },
+
+            {
+                key: 'masters.cluster',
+                path: '',
+                title: 'Cluster',
+                translateKey: 'nav.mastersCluster.cluster',
+                icon: 'ai',
+                type: NAV_ITEM_TYPE_COLLAPSE,
+                authority: [],
+                meta: {
+                    description: {
+                        translateKey: 'nav.mastersCluster.clusterDesc',
+                        label: 'AI tools and resources',
+                    },
+                },
+                subMenu: [
+                    {
+                        key: 'masters.cluster.list',
+                        path: `${endpointConfig.master.cluster.list}`,
+                        title: 'List',
+                        translateKey: 'nav.mastersCluster.list',
+                        icon: 'aiChat',
+                        type: NAV_ITEM_TYPE_ITEM,
+                        authority: [],
+                        meta: {
+                            description: {
+                                translateKey: 'nav.mastersCluster.listDesc',
+                                label: 'AI-powered chat systems',
+                            },
+                        },
+                        subMenu: [],
+                    },
+                ],
+            },
         ],
     },
 ]
