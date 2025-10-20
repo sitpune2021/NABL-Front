@@ -302,6 +302,31 @@ const masterRoute: Routes = [
             pageContainerType: 'gutterless',
         },
     },
+    //location
+    {
+        key: 'masters.location.list',
+        path: `${endpointConfig.master.location.list}`,
+        component: lazy(() => import('@/views/masters/location/List')),
+        authority: [],
+    },
+    {
+        key: 'masters.location.list',
+        path: `${endpointConfig.master.location.create}`,
+        component: lazy(() => import('@/views/masters/location/AddEdit')),
+        authority: [],
+    },
+    {
+        key: 'masters.location.list',
+        path: endpointConfig.master.location.edit,
+        component: lazy(() => import('@/views/masters/location/AddEdit')),
+        authority: [],
+    },
+    {
+        key: 'masters.location.list',
+        path: endpointConfig.master.location.view,
+        component: lazy(() => import('@/views/masters/location/AddEdit')),
+        authority: [],
+    },
 ]
 
 export default masterRoute
