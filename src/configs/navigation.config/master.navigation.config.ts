@@ -252,108 +252,6 @@ const masterNavigationConfig: NavigationTree[] = [
             },
 
             {
-                key: 'masters.lab',
-                path: '',
-                title: 'Lab',
-                translateKey: 'nav.mastersLab.lab',
-                icon: 'ai',
-                type: NAV_ITEM_TYPE_COLLAPSE,
-                authority: [],
-                meta: {
-                    description: {
-                        translateKey: 'nav.mastersLab.labDesc',
-                        label: 'AI tools and resources',
-                    },
-                },
-                subMenu: [
-                    {
-                        key: 'masters.lab.list',
-                        path: `${endpointConfig.master.lab.list}`,
-                        title: 'List',
-                        translateKey: 'nav.mastersLab.list',
-                        icon: 'aiChat',
-                        type: NAV_ITEM_TYPE_ITEM,
-                        authority: [],
-                        meta: {
-                            description: {
-                                translateKey: 'nav.mastersLab.listDesc',
-                                label: 'AI-powered chat systems',
-                            },
-                        },
-                        subMenu: [],
-                    },
-                ],
-            },
-
-            {
-                key: 'masters.user',
-                path: '',
-                title: 'User',
-                translateKey: 'nav.mastersUser.user',
-                icon: 'ai',
-                type: NAV_ITEM_TYPE_COLLAPSE,
-                authority: [],
-                meta: {
-                    description: {
-                        translateKey: 'nav.mastersUser.userDesc',
-                        label: 'AI tools and resources',
-                    },
-                },
-                subMenu: [
-                    {
-                        key: 'masters.user.list',
-                        path: `${endpointConfig.master.user.list}`,
-                        title: 'List',
-                        translateKey: 'nav.mastersUser.list',
-                        icon: 'aiChat',
-                        type: NAV_ITEM_TYPE_ITEM,
-                        authority: [],
-                        meta: {
-                            description: {
-                                translateKey: 'nav.mastersUser.listDesc',
-                                label: 'AI-powered chat systems',
-                            },
-                        },
-                        subMenu: [],
-                    },
-                ],
-            },
-
-            {
-                key: 'masters.location',
-                path: '',
-                title: 'Location',
-                translateKey: 'nav.mastersLocation.location',
-                icon: 'ai',
-                type: NAV_ITEM_TYPE_COLLAPSE,
-                authority: [],
-                meta: {
-                    description: {
-                        translateKey: 'nav.mastersLocation.locationDesc',
-                        label: 'AI tools and resources',
-                    },
-                },
-                subMenu: [
-                    {
-                        key: 'masters.location.list',
-                        path: `${endpointConfig.master.location.list}`,
-                        title: 'List',
-                        translateKey: 'nav.mastersLocation.list',
-                        icon: 'aiChat',
-                        type: NAV_ITEM_TYPE_ITEM,
-                        authority: [],
-                        meta: {
-                            description: {
-                                translateKey: 'nav.mastersLocation.listDesc',
-                                label: 'AI-powered chat systems',
-                            },
-                        },
-                        subMenu: [],
-                    },
-                ],
-            },
-
-            {
                 key: 'masters.zone',
                 path: '',
                 title: 'Zone',
@@ -413,6 +311,40 @@ const masterNavigationConfig: NavigationTree[] = [
                         meta: {
                             description: {
                                 translateKey: 'nav.mastersCluster.listDesc',
+                                label: 'AI-powered chat systems',
+                            },
+                        },
+                        subMenu: [],
+                    },
+                ],
+            },
+
+            {
+                key: 'masters.location',
+                path: '',
+                title: 'Location',
+                translateKey: 'nav.mastersLocation.location',
+                icon: 'ai',
+                type: NAV_ITEM_TYPE_COLLAPSE,
+                authority: [],
+                meta: {
+                    description: {
+                        translateKey: 'nav.mastersLocation.locationDesc',
+                        label: 'AI tools and resources',
+                    },
+                },
+                subMenu: [
+                    {
+                        key: 'masters.location.list',
+                        path: `${endpointConfig.master.location.list}`,
+                        title: 'List',
+                        translateKey: 'nav.mastersLocation.list',
+                        icon: 'aiChat',
+                        type: NAV_ITEM_TYPE_ITEM,
+                        authority: [],
+                        meta: {
+                            description: {
+                                translateKey: 'nav.mastersLocation.listDesc',
                                 label: 'AI-powered chat systems',
                             },
                         },

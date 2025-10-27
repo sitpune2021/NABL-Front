@@ -17,11 +17,11 @@ const OverviewSection = ({
             <div className="grid md:grid-cols-2 gap-4">
                 <FormItem
                     label="Name"
-                    invalid={Boolean(errors.name)}
-                    errorMessage={errors.name?.message}
+                    invalid={Boolean(errors.zone_name)}
+                    errorMessage={errors.zone_name?.message}
                 >
                     <Controller
-                        name="name"
+                        name="zone_name"
                         control={control}
                         render={({ field }) => (
                             <Input

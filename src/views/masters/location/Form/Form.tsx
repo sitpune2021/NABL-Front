@@ -18,7 +18,9 @@ type LocationFormProps = {
 } & CommonProps
 
 const validationSchema = z.object({
-    name: z.string().min(1, { message: ' name required' }),
+    location_name: z.string().min(1, { message: ' name required' }),
+    zone_name: z.string().min(1, { message: ' zone required' }),
+    cluster_name: z.string().min(1, { message: ' cluster required' }),
 })
 
 const LocationForm = (props: LocationFormProps) => {

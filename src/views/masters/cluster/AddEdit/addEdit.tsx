@@ -16,7 +16,7 @@ const ClusterAddEdit = () => {
     const navigate = useNavigate()
     const location = useLocation()
     const { id: clusterId } = useParams()
-    const { saveClusterData, getClusterById } = useClusterList()
+    const { saveClusterData, getClusterById } = useClusterList('')
 
     const [discardConfirmationOpen, setDiscardConfirmationOpen] =
         useState(false)
@@ -80,7 +80,9 @@ const ClusterAddEdit = () => {
         <>
             <ClusterForm
                 newCluster={isAdd}
-                defaultValues={clusterData ?? { name: '' }}
+                defaultValues={
+                    clusterData ?? { cluster_name: '', zone_name: '' }
+                }
                 readOnly={isView}
                 onFormSubmit={handleFormSubmit}
             >

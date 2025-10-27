@@ -78,7 +78,7 @@ const ZoneAddEdit = () => {
         <>
             <ZoneForm
                 newZone={isAdd}
-                defaultValues={zoneData ?? { name: '' }}
+                defaultValues={zoneData ?? { zone_name: '' }}
                 readOnly={isView}
                 onFormSubmit={handleFormSubmit}
             >

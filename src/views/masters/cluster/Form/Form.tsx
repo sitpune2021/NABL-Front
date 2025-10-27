@@ -18,7 +18,8 @@ type ClusterFormProps = {
 } & CommonProps
 
 const validationSchema = z.object({
-    name: z.string().min(1, { message: ' name required' }),
+    cluster_name: z.string().min(1, { message: ' name required' }),
+    zone_name: z.string().min(1, { message: 'Zone required' }),
 })
 
 const ClusterForm = (props: ClusterFormProps) => {

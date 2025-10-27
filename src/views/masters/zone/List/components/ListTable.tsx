@@ -75,7 +75,7 @@ const ZoneListTable = () => {
         () => [
             {
                 header: 'Name',
-                accessorKey: 'name',
+                accessorKey: 'zone_name',
             },
             {
                 header: 'Action',

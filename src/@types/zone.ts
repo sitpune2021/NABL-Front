@@ -14,7 +14,7 @@ export type Filter = {
 
 export type Zone = {
     id: string
-    name: string
+    zone_name: string
 }
 
 export type ZoneListState = {
@@ -32,7 +32,7 @@ export type ZoneListAction = {
 
 export type Fields = {
     id?: string
-    name: string
+    zone_name: string
 }
 
 export type TagsFields = {
