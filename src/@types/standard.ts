@@ -1,5 +1,4 @@
 import { TableQueries } from './common'
-
 import type { Control, FieldErrors } from 'react-hook-form'
 
 export type GetStandardListResponse = {
@@ -12,9 +11,46 @@ export type Filter = {
     purchaseChannel: Array<string>
 }
 
+// Note type
+export type Note = {
+    id?: number
+    content: string
+}
+
+// Field type
+export type Field = {
+    id?: number
+    category: string
+    documentName: string
+    frequency: string
+    isRequired: boolean
+    timezone: boolean
+}
+
+// Child type (recursive)
+export type Child = {
+    title: string
+    message: string
+    isNote: boolean
+    isChild: boolean
+    count: number
+    children: Child[]
+    notes: Note[]
+    fields: Field[]
+}
+
+// Standard type
 export type Standard = {
     id: string
     name: string
+    title: string
+    message: string
+    isNote: boolean
+    isChild: boolean
+    count: number
+    children: Child[]
+    notes: Note[]
+    fields: Field[]
 }
 
 export type StandardListState = {
@@ -33,6 +69,14 @@ export type StandardListAction = {
 export type Fields = {
     id?: string
     name: string
+    title: string
+    message: string
+    isNote: boolean
+    isChild: boolean
+    count: number
+    children: Child[]
+    notes: Note[]
+    fields: Field[]
 }
 
 export type TagsFields = {

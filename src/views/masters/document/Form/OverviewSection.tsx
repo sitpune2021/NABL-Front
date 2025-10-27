@@ -484,19 +484,50 @@ const OverviewSection = ({
                 </FormItem>
 
                 <FormItem
-                    label="Amendment No"
-                    invalid={Boolean(errors.amendmentNo)}
-                    errorMessage={errors.amendmentNo?.message}
+                    label="Issued By"
+                    invalid={Boolean(errors.issuedBy)}
+                    errorMessage={errors.issuedBy?.message}
                 >
                     <Controller
-                        name="amendmentNo"
+                        name="issuedBy"
                         control={control}
                         render={({ field }) => (
-                            <Input
-                                type="text"
-                                readOnly={readOnly}
-                                placeholder="Enter Amendment No"
+                            <Select
                                 {...field}
+                                options={issuedByOptions}
+                                value={issuedByOptions.find(
+                                    (o: { value: string; label: string }) =>
+                                        o.value === field.value,
+                                )}
+                                placeholder="Select Issued By"
+                                onChange={(option) => {
+                                    field.onChange(option?.value)
+                                }}
+                            />
+                        )}
+                    />
+                </FormItem>
+
+                <FormItem
+                    label="Issue Date"
+                    invalid={Boolean(errors.issueDate)}
+                    errorMessage={errors.issueDate?.message}
+                >
+                    <Controller
+                        name="issueDate"
+                        control={control}
+                        render={({ field }) => (
+                            <DatePicker
+                                placeholder="Pick a date"
+                                value={
+                                    field.value ? new Date(field.value) : null
+                                }
+                                minDate={new Date()}
+                                onChange={(date: Date | null) =>
+                                    field.onChange(
+                                        date ? date.toISOString() : undefined,
+                                    )
+                                }
                             />
                         )}
                     />
@@ -540,29 +571,6 @@ const OverviewSection = ({
                                         date ? date.toISOString() : undefined,
                                     )
                                 }}
-                            />
-                        )}
-                    />
-                </FormItem>
-                <FormItem
-                    label="Prepared By Date"
-                    invalid={Boolean(errors.preparedByDate)}
-                    errorMessage={errors.preparedByDate?.message}
-                >
-                    <Controller
-                        name="preparedByDate"
-                        control={control}
-                        render={({ field }) => (
-                            <DatePicker
-                                placeholder="Pick a date"
-                                value={
-                                    field.value ? new Date(field.value) : null
-                                }
-                                onChange={(date: Date | null) =>
-                                    field.onChange(
-                                        date ? date.toISOString() : undefined,
-                                    )
-                                }
                             />
                         )}
                     />
@@ -623,6 +631,30 @@ const OverviewSection = ({
                 </FormItem>
 
                 <FormItem
+                    label="Prepared By Date"
+                    invalid={Boolean(errors.preparedByDate)}
+                    errorMessage={errors.preparedByDate?.message}
+                >
+                    <Controller
+                        name="preparedByDate"
+                        control={control}
+                        render={({ field }) => (
+                            <DatePicker
+                                placeholder="Pick a date"
+                                value={
+                                    field.value ? new Date(field.value) : null
+                                }
+                                onChange={(date: Date | null) =>
+                                    field.onChange(
+                                        date ? date.toISOString() : undefined,
+                                    )
+                                }
+                            />
+                        )}
+                    />
+                </FormItem>
+
+                <FormItem
                     label="Quantity Prepared"
                     invalid={Boolean(errors.quantityPrepared)}
                     errorMessage={errors.quantityPrepared?.message}
@@ -667,50 +699,19 @@ const OverviewSection = ({
                 </FormItem>
 
                 <FormItem
-                    label="Issued By"
-                    invalid={Boolean(errors.issuedBy)}
-                    errorMessage={errors.issuedBy?.message}
+                    label="Amendment No"
+                    invalid={Boolean(errors.amendmentNo)}
+                    errorMessage={errors.amendmentNo?.message}
                 >
                     <Controller
-                        name="issuedBy"
+                        name="amendmentNo"
                         control={control}
                         render={({ field }) => (
-                            <Select
+                            <Input
+                                type="text"
+                                readOnly={readOnly}
+                                placeholder="Enter Amendment No"
                                 {...field}
-                                options={issuedByOptions}
-                                value={issuedByOptions.find(
-                                    (o: { value: string; label: string }) =>
-                                        o.value === field.value,
-                                )}
-                                placeholder="Select Issued By"
-                                onChange={(option) => {
-                                    field.onChange(option?.value)
-                                }}
-                            />
-                        )}
-                    />
-                </FormItem>
-
-                <FormItem
-                    label="Issue Date"
-                    invalid={Boolean(errors.issueDate)}
-                    errorMessage={errors.issueDate?.message}
-                >
-                    <Controller
-                        name="issueDate"
-                        control={control}
-                        render={({ field }) => (
-                            <DatePicker
-                                placeholder="Pick a date"
-                                value={
-                                    field.value ? new Date(field.value) : null
-                                }
-                                minDate={new Date()}
-                                onChange={(date: Date | null) =>
-                                    field.onChange(
-                                        date ? date.toISOString() : undefined,
-                                    )
-                                }
                             />
                         )}
                     />
