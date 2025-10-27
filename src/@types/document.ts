@@ -42,6 +42,7 @@ export type Document = {
     effectiveDate: string
     frequency?: string
     duration?: string
+    status?: 'Controlled' | 'Uncontrolled'
     editor?: {
         id?: string
         documentId?: string | number
@@ -91,6 +92,7 @@ export type Fields = {
     effectiveDate: string
     frequency?: string
     duration?: string
+    status?: 'Controlled' | 'Uncontrolled'
     document?: {
         html: string
         css: string
