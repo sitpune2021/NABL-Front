@@ -80,7 +80,13 @@ const LocationAddEdit = () => {
         <>
             <LocationForm
                 newLocation={isAdd}
-                defaultValues={locationData ?? { name: '' }}
+                defaultValues={
+                    locationData ?? {
+                        location_name: '',
+                        zone_name: '',
+                        cluster_name: '',
+                    }
+                }
                 readOnly={isView}
                 onFormSubmit={handleFormSubmit}
             >

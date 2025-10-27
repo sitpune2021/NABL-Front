@@ -18,7 +18,7 @@ type ZoneFormProps = {
 } & CommonProps
 
 const validationSchema = z.object({
-    name: z.string().min(1, { message: ' name required' }),
+    zone_name: z.string().min(1, { message: ' name required' }),
 })
 
 const ZoneForm = (props: ZoneFormProps) => {

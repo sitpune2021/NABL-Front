@@ -1,13 +1,14 @@
+import { useEffect } from 'react'
 import Card from '@/components/ui/Card'
 import Input from '@/components/ui/Input'
 import { FormItem } from '@/components/ui/Form'
-import { Controller } from 'react-hook-form'
+import { Controller, useFieldArray } from 'react-hook-form'
 import { FormSectionBaseProps } from '@/@types/lab'
 import useDepartmentList from '../../department/List/hooks/useList'
-import { Select } from '@/components/ui'
+import { Select, Button } from '@/components/ui'
 
 type OverviewSectionProps = FormSectionBaseProps & {
-    existingLabCodes?: string[] // Existing Lab codes list for auto-generation
+    existingLabCodes?: string[]
 }
 
 const OverviewSection = ({
@@ -22,11 +23,27 @@ const OverviewSection = ({
         label: dept.name.toUpperCase(),
     }))
 
+    const { fields, append, remove } = useFieldArray({
+        control,
+        name: 'location',
+    })
+
+    useEffect(() => {
+        if (fields.length === 0 && !readOnly) {
+            ;(append({ prefix: 'LOC-1', locationName: '', shortName: '' }),
+                { shouldFocus: false, shouldValidate: false })
+        }
+    }, [])
+
+    const addLocation = () => {
+        const nextIndex = fields.length + 1
+        append({ prefix: `LOC-${nextIndex}`, locationName: '', shortName: '' })
+    }
+
     return (
         <Card>
             <h4 className="mb-6">Overview</h4>
             <div className="grid md:grid-cols-2 gap-4">
-                {/* Lab Name */}
                 <FormItem
                     label="Lab Name"
                     invalid={Boolean(errors.name)}
@@ -47,7 +64,6 @@ const OverviewSection = ({
                     />
                 </FormItem>
 
-                {/* Lab Type */}
                 <FormItem
                     label="Lab Type"
                     invalid={Boolean(errors.labType)}
@@ -69,7 +85,7 @@ const OverviewSection = ({
                 </FormItem>
 
                 <FormItem
-                    label="Department Name"
+                    label="Departments"
                     invalid={Boolean(errors.department)}
                     errorMessage={errors.department?.message}
                 >
@@ -81,38 +97,24 @@ const OverviewSection = ({
                                 {...field}
                                 isMulti
                                 options={departmentOptions}
-                                value={field.value || []}
+                                value={departmentOptions.filter((opt) =>
+                                    field.value?.includes(opt.value),
+                                )}
                                 placeholder="Select Departments"
                                 isDisabled={readOnly}
-                                onChange={(options) => {
-                                    field.onChange(options || [])
-                                }}
+                                onChange={(options) =>
+                                    field.onChange(
+                                        options
+                                            ? options.map((o) => o.value)
+                                            : [],
+                                    )
+                                }
                             />
                         )}
                     />
                 </FormItem>
 
-                {/* Locations */}
-                <FormItem
-                    label="Locations"
-                    invalid={Boolean(errors.location)}
-                    errorMessage={errors.location?.message}
-                >
-                    <Controller
-                        name="location"
-                        control={control}
-                        render={({ field }) => (
-                            <Input
-                                type="text"
-                                autoComplete="off"
-                                readOnly={readOnly}
-                                placeholder="Enter Locations"
-                                {...field}
-                            />
-                        )}
-                    />
-                </FormItem>
-
+                {/* Lab Code*/}
                 <FormItem
                     label="Lab Code"
                     invalid={Boolean(errors.labCode)}
@@ -133,6 +135,76 @@ const OverviewSection = ({
                     />
                 </FormItem>
             </div>
+
+            <h4 className="mt-8 mb-4">Locations</h4>
+            {fields.map((item, index) => (
+                <div
+                    key={item.id}
+                    className="grid md:grid-cols-3 gap-4 border p-3 rounded-md mb-3"
+                >
+                    <FormItem label="Prefix">
+                        <Controller
+                            name={`locations.${index}.prefix`}
+                            control={control}
+                            render={({ field }) => (
+                                <Input
+                                    {...field}
+                                    readOnly
+                                    placeholder="LOC-1"
+                                />
+                            )}
+                        />
+                    </FormItem>
+
+                    <FormItem label="Location Name">
+                        <Controller
+                            name={`locations.${index}.locationName`}
+                            control={control}
+                            render={({ field }) => (
+                                <Input
+                                    {...field}
+                                    readOnly={readOnly}
+                                    placeholder="Full Location Name"
+                                />
+                            )}
+                        />
+                    </FormItem>
+
+                    <FormItem label="Short Name">
+                        <Controller
+                            name={`locations.${index}.shortName`}
+                            control={control}
+                            render={({ field }) => (
+                                <Input
+                                    {...field}
+                                    readOnly={readOnly}
+                                    placeholder="Short Name"
+                                />
+                            )}
+                        />
+                    </FormItem>
+
+                    {!readOnly && (
+                        <div className="col-span-3 flex justify-end">
+                            <Button
+                                variant="plain"
+                                color="red"
+                                onClick={() => remove(index)}
+                            >
+                                Remove Location
+                            </Button>
+                        </div>
+                    )}
+                </div>
+            ))}
+
+            {!readOnly && (
+                <div className="mt-2">
+                    <Button variant="solid" onClick={addLocation}>
+                        ➕ Add Location
+                    </Button>
+                </div>
+            )}
 
             {/* Personal Details Section */}
             <h4 className="mt-8 mb-4">Personal Details</h4>

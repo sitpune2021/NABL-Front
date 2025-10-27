@@ -53,7 +53,7 @@ const ClusterListTable = () => {
         setSelectAllCluster,
         setSelectedCluster,
         selectedCluster,
-    } = useClusterList()
+    } = useClusterList('')
 
     const handleEdit = (cluster: Cluster) => {
         const path = endpointConfig.master.cluster.edit.replace(
@@ -74,8 +74,12 @@ const ClusterListTable = () => {
     const columns: ColumnDef<Cluster>[] = useMemo(
         () => [
             {
-                header: 'Name',
-                accessorKey: 'name',
+                header: 'Zone',
+                accessorKey: 'zone_name',
+            },
+            {
+                header: 'Cluster',
+                accessorKey: 'cluster_name',
             },
             {
                 header: 'Action',

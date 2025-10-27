@@ -14,7 +14,8 @@ export type Filter = {
 
 export type Cluster = {
     id: string
-    name: string
+    cluster_name: string
+    zone_name: string
 }
 
 export type ClusterListState = {
@@ -32,7 +33,8 @@ export type ClusterListAction = {
 
 export type Fields = {
     id?: string
-    name: string
+    cluster_name: string
+    zone_name: string
 }
 
 export type TagsFields = {

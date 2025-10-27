@@ -14,7 +14,9 @@ export type Filter = {
 
 export type Location = {
     id: string
-    name: string
+    location_name: string
+    zone_name: string
+    cluster_name: string
 }
 
 export type LocationListState = {
@@ -32,7 +34,9 @@ export type LocationListAction = {
 
 export type Fields = {
     id?: string
-    name: string
+    location_name: string
+    zone_name: string
+    cluster_name: string
 }
 
 export type TagsFields = {
