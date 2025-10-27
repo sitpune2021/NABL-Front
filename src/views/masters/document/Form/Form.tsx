@@ -52,6 +52,7 @@ const validationSchema = z.object({
     frequency: z.string().optional(),
     duration: z.string().optional(),
     prefix: z.string().optional(),
+    status: z.enum(['Controlled', 'Uncontrolled']).optional(),
 })
 
 const editorSchema = z.object({
