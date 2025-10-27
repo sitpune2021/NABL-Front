@@ -16,6 +16,8 @@ import {
     LOGO_X_GUTTER,
 } from '@/constants/theme.constant'
 import type { Mode } from '@/@types/theme'
+// import useNavigationItemsList from '@/utils/hooks/useNavigationItem'
+// import axios from 'axios'
 
 type SideNavProps = {
     translationSetup?: boolean
@@ -51,6 +53,23 @@ const SideNav = ({
     const currentRouteKey = useRouteKeyStore((state) => state.currentRouteKey)
 
     const userAuthority = useSessionUser((state) => state.user.authority)
+
+    // const { navigationItems } = useNavigationItemsList()
+
+    //     const uploadFullNavigationTree = async () => {
+    //         try {
+    //             const response = await axios.post('http://192.168.1.38:8000/api/navigation-items', navigationConfig)
+    //             const savedItem = response.data
+    //             return savedItem
+    //         } catch (error) {
+    //             // console.error('Failed to send item:', payload.key, error.response?.data || error.message)
+    //         }
+
+    //         console.log('✅ All navigation items uploaded')
+    //     }
+    // console.log(navigationConfig);
+
+    //     uploadFullNavigationTree()
 
     return (
         <div

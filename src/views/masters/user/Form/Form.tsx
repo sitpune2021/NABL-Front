@@ -9,6 +9,9 @@ import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import type { CommonProps } from '@/@types/common'
 import { UserFormSchema } from '@/@types/user'
+import AddressSection from './AddressSection'
+import ProfileImageSection from './ProfileImageSection'
+import TagsSection from './TagsSection'
 
 type UserFormProps = {
     onFormSubmit: (values: UserFormSchema) => void
@@ -23,13 +26,19 @@ const validationSchema = z.object({
     email: z.string().min(1, { message: ' email required' }).email({
         message: 'Invalid email address',
     }),
-    role: z.string().min(1, { message: ' role required' }),
+    role: z
+        .array(
+            z.object({
+                value: z.string().min(1, { message: 'role required' }),
+                label: z.string().min(1, { message: 'role required' }),
+            }),
+        )
+        .min(1, { message: 'At least one role is required' }),
+    dialCode: z.string().min(1, { message: 'Please select your country code' }),
     phone: z
         .string()
-        .min(10, { message: ' phone number should be 10 digit' })
-        .max(10, { message: ' phone number should be 10 digit' })
-        .optional()
-        .or(z.literal('')),
+        .min(1, { message: 'Please input your mobile number' })
+        .max(10, { message: 'Please your mobile number should be 10 digit' }),
     address: z.string().optional().or(z.literal('')),
     preparedBy: z.boolean(),
     issuedBy: z.boolean(),
@@ -61,7 +70,6 @@ const UserForm = (props: UserFormProps) => {
         if (!isEmpty(defaultValues)) {
             reset(defaultValues)
         }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [JSON.stringify(defaultValues)])
 
     const onSubmit = (values: UserFormSchema) => {
@@ -82,6 +90,26 @@ const UserForm = (props: UserFormProps) => {
                             errors={errors}
                             readOnly={readOnly}
                         />
+                        <AddressSection
+                            control={control}
+                            errors={errors}
+                            readOnly={readOnly}
+                        />
+                    </div>
+                    <div className="md:w-[370px] gap-4 flex flex-col">
+                        <ProfileImageSection
+                            control={control}
+                            errors={errors}
+                            readOnly={readOnly}
+                        />
+                        <TagsSection
+                            control={control}
+                            errors={errors}
+                            readOnly={readOnly}
+                        />
+                        {/* {!newCustomer && (
+                            <AccountSection control={control} errors={errors} />
+                        )} */}
                     </div>
                 </div>
             </Container>
