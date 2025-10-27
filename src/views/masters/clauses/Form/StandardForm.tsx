@@ -9,6 +9,7 @@ import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import type { CommonProps } from '@/@types/common'
 import { StandardFormSchema } from '@/@types/standard'
+import StandardSectionTwo from './StandardSectionTwo'
 
 type StandardFormProps = {
     onFormSubmit: (values: StandardFormSchema) => void
@@ -17,10 +18,35 @@ type StandardFormProps = {
     readOnly?: boolean
 } & CommonProps
 
+// Updated validation schema for all fields
 const validationSchema = z.object({
     name: z.string().min(1, { message: 'Name is required' }),
+    id: z.string().min(1, { message: 'Unique ID is required' }),
+    title: z.string().min(1, { message: 'Title is required' }),
+    message: z.string().optional(),
+    isNote: z.boolean(),
+    isChild: z.boolean(),
+    count: z.number().min(0),
+    children: z.array(z.any()), // Recursive validation
+    notes: z.array(
+        z.object({
+            content: z.string().min(1, { message: 'Note content is required' }),
+        }),
+    ),
+    fields: z.array(
+        z.object({
+            category: z.string().min(1, { message: 'Category is required' }),
+            documentName: z
+                .string()
+                .min(1, { message: 'Document name is required' }),
+            frequency: z.string().min(1, { message: 'Frequency is required' }),
+            isRequired: z.boolean(),
+            timezone: z.boolean(),
+        }),
+    ),
 })
 
+// In StandardForm.tsx - Replace the entire form setup
 const StandardForm = (props: StandardFormProps) => {
     const {
         onFormSubmit,
@@ -36,6 +62,16 @@ const StandardForm = (props: StandardFormProps) => {
         control,
     } = useForm<StandardFormSchema>({
         defaultValues: {
+            name: '',
+            id: '',
+            title: '',
+            message: '',
+            isNote: false,
+            isChild: false,
+            count: 0,
+            children: [],
+            notes: [],
+            fields: [],
             ...defaultValues,
         },
         resolver: zodResolver(validationSchema),
@@ -45,8 +81,7 @@ const StandardForm = (props: StandardFormProps) => {
         if (!isEmpty(defaultValues)) {
             reset(defaultValues)
         }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [JSON.stringify(defaultValues)])
+    }, [defaultValues, reset])
 
     const onSubmit = (values: StandardFormSchema) => {
         onFormSubmit?.(values)
@@ -66,6 +101,11 @@ const StandardForm = (props: StandardFormProps) => {
                             errors={errors}
                             readOnly={readOnly}
                         />
+                        <StandardSectionTwo
+                            control={control}
+                            errors={errors}
+                            readOnly={readOnly}
+                        />
                     </div>
                 </div>
             </Container>
@@ -73,5 +113,4 @@ const StandardForm = (props: StandardFormProps) => {
         </Form>
     )
 }
-
 export default StandardForm

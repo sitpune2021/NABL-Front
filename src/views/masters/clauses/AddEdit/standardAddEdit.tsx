@@ -8,11 +8,11 @@ import ConfirmDialog from '@/components/shared/ConfirmDialog'
 import sleep from '@/utils/sleep'
 import { TbTrash } from 'react-icons/tb'
 import endpointConfig from '@/configs/endpoint.config'
-import useStandardList from '../List/hooks/useList'
+import useStandardList from '../List/hooks/useStandardList'
 import StandardForm from '../Form/StandardForm'
 import { StandardFormSchema } from '@/@types/standard'
 
-const standardAddEdit = () => {
+const StandardAddEdit = () => {
     const navigate = useNavigate()
     const location = useLocation()
     const { id: standardId } = useParams()
@@ -30,55 +30,118 @@ const standardAddEdit = () => {
     const isView = location.pathname.includes('/view')
     const isAdd = location.pathname.includes('/create')
 
+    // Default values for new standard
+    const defaultStandardData: StandardFormSchema = {
+        name: '',
+        id: '',
+        title: '',
+        message: '',
+        isNote: false,
+        isChild: false,
+        count: 0,
+        children: [],
+        notes: [],
+        fields: [],
+    }
+
     // Load existing standard data in edit or view mode
     useEffect(() => {
         if (!isAdd && standardId) {
             setLoadingData(true)
             getStandardById(standardId)
                 .then((data) => {
-                    setStandardData(data)
+                    if (data) {
+                        // Transform API data to form structure
+                        const formData: StandardFormSchema = {
+                            name: data.name || '',
+                            id: data.id || '',
+                            title: data.title || '',
+                            message: data.message || '',
+                            isNote: data.isNote || false,
+                            isChild: data.isChild || false,
+                            count: data.count || 0,
+                            children: data.children || [],
+                            notes: data.notes || [],
+                            fields: data.fields || [],
+                        }
+                        setStandardData(formData)
+                    }
+                })
+                .catch((error) => {
+                    console.error('Error loading standard:', error)
+                    toast.push(
+                        <Notification type="danger">
+                            Failed to load standard data
+                        </Notification>,
+                        { placement: 'top-center' },
+                    )
                 })
                 .finally(() => setLoadingData(false))
         }
-    }, [standardId, isAdd])
+    }, [standardId, isAdd, getStandardById])
 
     const handleFormSubmit = async (values: StandardFormSchema) => {
         if (isView) return
+        console.log('handleFormSubmit called with:', values)
         setIsSubmiting(true)
-        const payload = isEdit ? { ...values, id: standardId } : values
-        await saveStandardData(payload)
-        await sleep(800)
-        setIsSubmiting(false)
-        toast.push(
-            <Notification type="success">
-                {isEdit ? 'Standard updated!' : 'Standard created!'}
-            </Notification>,
-            { placement: 'top-center' },
-        )
-        navigate(`${endpointConfig.master.clauses.standard.list}`)
-    }
+        try {
+            const payload = isEdit ? { ...values, id: standardId } : values
+            console.log('Saving payload:', payload)
+            await saveStandardData(payload)
+            await sleep(800)
+            console.log('Save successful')
 
-    const handleConfirmDiscard = () => {
-        setDiscardConfirmationOpen(true)
-        toast.push(
-            <Notification type="success">Changes discarded!</Notification>,
-            { placement: 'top-center' },
-        )
-        navigate(`${endpointConfig.master.clauses.standard.list}`)
+            toast.push(
+                <Notification type="success">
+                    {isEdit
+                        ? 'Standard updated successfully!'
+                        : 'Standard created successfully!'}
+                </Notification>,
+                { placement: 'top-center' },
+            )
+
+            // Navigate to standards list
+            navigate(`${endpointConfig.master.clauses.create}`)
+        } catch (error) {
+            console.error('Error saving standard:', error)
+            toast.push(
+                <Notification type="danger">
+                    Failed to save standard
+                </Notification>,
+                { placement: 'top-center' },
+            )
+        } finally {
+            setIsSubmiting(false)
+        }
     }
 
     const handleDiscard = () => setDiscardConfirmationOpen(true)
     const handleCancel = () => setDiscardConfirmationOpen(false)
 
+    const handleConfirmDiscard = () => {
+        setDiscardConfirmationOpen(false)
+        toast.push(
+            <Notification type="success">Changes discarded!</Notification>,
+            { placement: 'top-center' },
+        )
+        navigate(`${endpointConfig.master.clauses.list}`)
+    }
+
     if (loadingData && !isAdd) {
-        return <p className="p-4">Loading standard data...</p>
+        return (
+            <Container>
+                <div className="flex justify-center items-center p-8">
+                    <p>Loading standard data...</p>
+                </div>
+            </Container>
+        )
     }
 
     return (
         <>
             <StandardForm
                 newStandard={isAdd}
-                defaultValues={standardData ?? { name: '' }}
+                defaultValues={standardData || defaultStandardData}
                 readOnly={isView}
                 onFormSubmit={handleFormSubmit}
             >
@@ -86,9 +149,8 @@ const standardAddEdit = () => {
                     <div className="flex items-center justify-between px-8">
                         <span></span>
                         {!isView && (
-                            <div className="flex items-center">
+                            <div className="flex items-center gap-3">
                                 <Button
-                                    className="ltr:mr-3 rtl:ml-3"
                                     type="button"
                                     customColorClass={() =>
                                         'border-error ring-1 ring-error text-error hover:border-error hover:ring-error hover:text-error bg-transparent'
@@ -103,13 +165,16 @@ const standardAddEdit = () => {
                                     type="submit"
                                     loading={isSubmiting}
                                 >
-                                    {isEdit ? 'Update' : 'Create'}
+                                    {isEdit
+                                        ? 'Update Standard'
+                                        : 'Create Standard'}
                                 </Button>
                             </div>
                         )}
                     </div>
                 </Container>
             </StandardForm>
+
             <ConfirmDialog
                 isOpen={discardConfirmationOpen}
                 type="danger"
@@ -120,12 +185,12 @@ const standardAddEdit = () => {
                 onConfirm={handleConfirmDiscard}
             >
                 <p>
-                    Are you sure you want discard this? This action can&apos;t
-                    be undo.{' '}
+                    Are you sure you want to discard your changes? This action
+                    cannot be undone.
                 </p>
             </ConfirmDialog>
         </>
     )
 }
 
-export default standardAddEdit
+export default StandardAddEdit

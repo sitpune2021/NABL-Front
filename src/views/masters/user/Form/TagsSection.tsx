@@ -30,9 +30,11 @@ const TagsSection = ({ control, errors, readOnly }: TagsSectionProps) => {
                         render={({ field }) => (
                             <Select
                                 isMulti
+                                {...field}
                                 isClearable
-                                placeholder="Add tags for customer..."
+                                placeholder="Add tags for curoleer..."
                                 componentAs={CreatableSelect}
+                                value={field.value || []}
                                 options={defaultOptions}
                                 isDisabled={readOnly}
                                 onChange={(option) => field.onChange(option)}
