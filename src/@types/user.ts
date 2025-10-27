@@ -44,13 +44,16 @@ export type Fields = {
     name: string
     email: string
     phone?: string
-    role: string
+    role: []
     username: string
     address?: string
     issuedBy: boolean
     approvedBy: boolean
     signUpload?: string
     preparedBy: boolean
+    dialCode?: string
+    city?: string
+    postcode?: string
 }
 
 export type TagsFields = {

@@ -7,7 +7,7 @@ import {
 import useSWR from 'swr'
 import { useRolesListStore } from '../store/listStore'
 import type { TableQueries } from '@/@types/common'
-import { Fields, GetRolesListResponse } from '@/@types/roles'
+import { Fields, Roles } from '@/@types/roles'
 
 export default function useRolesList() {
     const {
@@ -23,8 +23,7 @@ export default function useRolesList() {
     const { data, error, isLoading, mutate } = useSWR(
         ['/api/roles', { ...tableData, ...filterData }],
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        ([_, params]) =>
-            apiGetRolesList<GetRolesListResponse, TableQueries>(params),
+        ([_, params]) => apiGetRolesList<Roles[], TableQueries>(params),
         {
             revalidateOnFocus: false,
         },
@@ -46,11 +45,11 @@ export default function useRolesList() {
 
     const rolesList = data || []
 
-    const rolesListTotal = data?.total || 0
+    // const rolesListTotal = data?.total || 0
 
     return {
         rolesList,
-        rolesListTotal,
+        // rolesListTotal,
         error,
         isLoading,
         tableData,

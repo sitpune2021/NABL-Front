@@ -160,6 +160,15 @@ const masterRoute: Routes = [
         path: `${endpointConfig.master.user.create}`,
         component: lazy(() => import('@/views/masters/user/AddEdit')),
         authority: [],
+        meta: {
+            header: {
+                title: 'Create Users',
+                description:
+                    'Manage Users details, track Users, and update Users easily.',
+                contained: true,
+            },
+            footer: false,
+        },
     },
     {
         key: 'masters.user.list',
