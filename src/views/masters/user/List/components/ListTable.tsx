@@ -88,6 +88,13 @@ const UserListTable = () => {
             {
                 header: 'Role',
                 accessorKey: 'role',
+                cell: (props) => {
+                    const rolesArray = props.row.original.role // assuming this is an array
+                    // If it's a single value, wrap it in an array: [props.row.original.role]
+                    return Array.isArray(rolesArray)
+                        ? rolesArray.map((r) => r.label || r).join(' | ')
+                        : rolesArray
+                },
             },
             {
                 header: 'Phone',

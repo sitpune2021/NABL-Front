@@ -9,6 +9,7 @@ import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import type { CommonProps } from '@/@types/common'
 import { StandardFormSchema } from '@/@types/standard'
+import StandardSectionTwo from './StandardSectionTwo'
 
 type StandardFormProps = {
     onFormSubmit: (values: StandardFormSchema) => void
@@ -96,6 +97,11 @@ const StandardForm = (props: StandardFormProps) => {
                 <div className="flex flex-col md:flex-row gap-4">
                     <div className="gap-4 flex flex-col flex-auto">
                         <StandardSection
+                            control={control}
+                            errors={errors}
+                            readOnly={readOnly}
+                        />
+                        <StandardSectionTwo
                             control={control}
                             errors={errors}
                             readOnly={readOnly}
