@@ -10,7 +10,7 @@ import { useRolePermissionsStore } from '../store/rolePermissionsStore'
 import { accessModules } from '../constants'
 import classNames from '@/utils/classNames'
 import isLastChild from '@/utils/isLastChild'
-import sleep from '@/utils/sleep'
+// import sleep from '@/utils/sleep'
 import {
     TbUserCog,
     TbBox,
@@ -60,17 +60,45 @@ const RolesPermissionsAccessDialog = ({
 
     const {
         handleSubmit,
-        // reset,
         formState: { errors },
         control,
     } = useForm<RolesFormSchema>({
         defaultValues: {
-            // ...defaultValues,
+            name: '',
+            description: '',
         },
         resolver: zodResolver(validationSchema),
     })
 
-    // const [accessRight, setAccessRight] = useState<Record<string, string[]>>({})
+    // Track access rights per module
+    // const [accessRight, setAccessRight] = useState<Record<string, string[]>>(() => {
+    //     if (roleDialog.type === 'edit') {
+    //         // Initialize from existing role if editing
+    //         const role = roleList.find(role => role.id === selectedRole)
+    //         return role?.accessRight || {}
+    //     }
+    //     // New role: start empty
+    //     return {}
+    // })
+
+    const [accessRight, setAccessRight] = useState<Record<string, string[]>>(
+        () => {
+            if (roleDialog.type === 'edit') {
+                const role = roleList.find((role) => role.id === selectedRole)
+                return role?.accessRight || {}
+            }
+
+            // Default all modules to have all access rights selected
+            const defaultAccess: Record<string, string[]> = {}
+            accessModules.forEach((module) => {
+                defaultAccess[module.id] = module.accessor.map(
+                    (item) => item.value,
+                )
+            })
+            return defaultAccess
+        },
+    )
+
     const [isSubmiting, setIsSubmiting] = useState(false)
 
     const handleClose = () => {
@@ -81,36 +109,53 @@ const RolesPermissionsAccessDialog = ({
     }
 
     const onSubmit = async (values: RolesFormSchema) => {
-        const payload = values
+        // Combine form data with selected access rights
+        const payload = {
+            ...values,
+            accessRight,
+        }
+
+        console.log('Payload:', payload)
+
         setIsSubmiting(true)
-        await saveRolesData(payload)
-        await sleep(800)
-        setIsSubmiting(false)
-        toast.push(
-            <Notification type="success">{'Roles created!'}</Notification>,
-            { placement: 'top-center' },
-        )
-        handleClose()
+
+        try {
+            await saveRolesData(payload) // Your API call
+            toast.push(
+                <Notification type="success">
+                    {roleDialog.type === 'edit'
+                        ? 'Role updated!'
+                        : 'Role created!'}
+                </Notification>,
+                { placement: 'top-center' },
+            )
+            handleClose()
+        } catch (error) {
+            console.log(error)
+            toast.push(
+                <Notification type="danger">Error saving role</Notification>,
+                { placement: 'top-center' },
+            )
+        } finally {
+            setIsSubmiting(false)
+        }
     }
 
     const modules = useMemo(() => {
         return roleList.find((role) => role.id === selectedRole)
     }, [selectedRole, roleList])
 
-    const handleChange = (accessRight: string[], key: string) => {
-        if (roleDialog.type === 'new') {
-            // setAccessRight((value) => {
-            //     value[key] = accessRight
-            //     return value
-            // })
-        }
+    const handleChange = (selected: string[], key: string) => {
+        setAccessRight((prev) => ({
+            ...prev,
+            [key]: selected,
+        }))
 
         if (roleDialog.type === 'edit') {
             const newRoleList = structuredClone(roleList).map((role) => {
                 if (role.id === selectedRole) {
-                    role.accessRight[key] = accessRight
+                    role.accessRight[key] = selected
                 }
-
                 return role
             })
 
@@ -146,8 +191,7 @@ const RolesPermissionsAccessDialog = ({
                                         <Input
                                             type="text"
                                             autoComplete="off"
-                                            // readOnly={readOnly}
-                                            placeholder="First Name"
+                                            placeholder="Role Name"
                                             {...field}
                                         />
                                     )}
@@ -165,7 +209,6 @@ const RolesPermissionsAccessDialog = ({
                                         <Input
                                             type="text"
                                             autoComplete="off"
-                                            // readOnly={readOnly}
                                             placeholder="Description"
                                             {...field}
                                             textArea
@@ -203,7 +246,7 @@ const RolesPermissionsAccessDialog = ({
                                 <Segment
                                     className="bg-transparent dark:bg-transparent"
                                     selectionType="multiple"
-                                    value={modules?.accessRight[module.id]}
+                                    value={accessRight[module.id] || []}
                                     onChange={(val) =>
                                         handleChange(val as string[], module.id)
                                     }
@@ -216,37 +259,31 @@ const RolesPermissionsAccessDialog = ({
                                             {({
                                                 active,
                                                 onSegmentItemClick,
-                                            }) => {
-                                                return (
-                                                    <Button
-                                                        variant="default"
-                                                        icon={
-                                                            active ? (
-                                                                <TbCheck className="text-primary text-xl" />
-                                                            ) : (
-                                                                <></>
-                                                            )
-                                                        }
-                                                        active={active}
-                                                        type="button"
-                                                        className="md:min-w-[100px]"
-                                                        size="sm"
-                                                        customColorClass={({
-                                                            active,
-                                                        }) =>
-                                                            classNames(
-                                                                active &&
-                                                                    'bg-transparent dark:bg-transparent text-primary border-primary ring-1 ring-primary',
-                                                            )
-                                                        }
-                                                        onClick={
-                                                            onSegmentItemClick
-                                                        }
-                                                    >
-                                                        {access.label}
-                                                    </Button>
-                                                )
-                                            }}
+                                            }) => (
+                                                <Button
+                                                    variant="default"
+                                                    icon={
+                                                        active ? (
+                                                            <TbCheck className="text-primary text-xl" />
+                                                        ) : null
+                                                    }
+                                                    active={active}
+                                                    type="button"
+                                                    className="md:min-w-[100px]"
+                                                    size="sm"
+                                                    customColorClass={({
+                                                        active,
+                                                    }) =>
+                                                        classNames(
+                                                            active &&
+                                                                'bg-transparent dark:bg-transparent text-primary border-primary ring-1 ring-primary',
+                                                        )
+                                                    }
+                                                    onClick={onSegmentItemClick}
+                                                >
+                                                    {access.label}
+                                                </Button>
+                                            )}
                                         </Segment.Item>
                                     ))}
                                 </Segment>

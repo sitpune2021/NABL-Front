@@ -160,6 +160,15 @@ const masterRoute: Routes = [
         path: `${endpointConfig.master.user.create}`,
         component: lazy(() => import('@/views/masters/user/AddEdit')),
         authority: [],
+        meta: {
+            header: {
+                title: 'Create Users',
+                description:
+                    'Manage Users details, track Users, and update Users easily.',
+                contained: true,
+            },
+            footer: false,
+        },
     },
     {
         key: 'masters.user.list',
@@ -278,6 +287,75 @@ const masterRoute: Routes = [
             footer: false,
             pageContainerType: 'gutterless',
         },
+    },
+    {
+        key: 'masters.template.list',
+        path: `${endpointConfig.master.template.view}`,
+        component: lazy(() => import('@/views/masters/template/AddEdit')),
+        authority: [],
+        meta: {
+            layout: 'blank',
+            footer: false,
+            pageContainerType: 'gutterless',
+        },
+    },
+    {
+        key: 'masters.rolesPermission.list',
+        path: `${endpointConfig.master.rolesPermission.list}`,
+        component: lazy(() => import('@/views/masters/RolesPermissions')),
+        authority: [],
+        meta: {
+            pageContainerType: 'contained',
+            pageBackgroundType: 'plain',
+        },
+    },
+    {
+        key: 'masters.clauses.list',
+        path: `${endpointConfig.master.clauses.list}`,
+        component: lazy(() => import('@/views/masters/clauses/List')),
+        authority: [],
+    },
+    {
+        key: 'masters.clauses.list',
+        path: `${endpointConfig.master.clauses.create}`,
+        component: lazy(() => import('@/views/masters/clauses/AddEdit')),
+        authority: [],
+    },
+    {
+        key: 'masters.clauses.list',
+        path: endpointConfig.master.clauses.edit,
+        component: lazy(() => import('@/views/masters/clauses/AddEdit')),
+        authority: [],
+    },
+    {
+        key: 'masters.clauses.list',
+        path: endpointConfig.master.clauses.view,
+        component: lazy(() => import('@/views/masters/clauses/AddEdit')),
+        authority: [],
+    },
+    {
+        key: 'masters.clauses.standard.create',
+        path: endpointConfig.master.clauses.standardCreate,
+        component: lazy(
+            () => import('@/views/masters/clauses/AddEdit/standardAddEdit'),
+        ),
+        authority: [],
+    },
+    {
+        key: 'masters.clauses.standard.edit',
+        path: endpointConfig.master.clauses.standardEdit,
+        component: lazy(
+            () => import('@/views/masters/clauses/AddEdit/standardAddEdit'),
+        ),
+        authority: [],
+    },
+    {
+        key: 'masters.clauses.standard.view',
+        path: endpointConfig.master.clauses.standardView,
+        component: lazy(
+            () => import('@/views/masters/clauses/AddEdit/standardAddEdit'),
+        ),
+        authority: [],
     },
     //location
     {
