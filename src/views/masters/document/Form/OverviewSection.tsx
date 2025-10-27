@@ -827,6 +827,45 @@ const OverviewSection = ({
                         )}
                     />
                 </FormItem>
+
+                <FormItem
+                    label="Status"
+                    invalid={Boolean(errors.status)}
+                    errorMessage={errors.status?.message}
+                >
+                    <Controller
+                        name="status"
+                        control={control}
+                        render={({ field }) => (
+                            <Select
+                                {...field}
+                                value={
+                                    field.value
+                                        ? {
+                                              value: field.value,
+                                              label: field.value,
+                                          }
+                                        : null
+                                }
+                                options={[
+                                    {
+                                        value: 'Controlled',
+                                        label: 'Controlled',
+                                    },
+                                    {
+                                        value: 'Uncontrolled',
+                                        label: 'Uncontrolled',
+                                    },
+                                ]}
+                                placeholder="Select Status"
+                                isDisabled={readOnly}
+                                onChange={(option) =>
+                                    field.onChange(option?.value)
+                                }
+                            />
+                        )}
+                    />
+                </FormItem>
             </div>
 
             {notificationDate && (
