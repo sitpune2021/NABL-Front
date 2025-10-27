@@ -4,12 +4,15 @@ import { FormItem } from '@/components/ui/Form'
 import { Controller } from 'react-hook-form'
 import { FormSectionBaseProps } from '@/@types/unit'
 
-type OverviewSectionProps = FormSectionBaseProps
+type OverviewSectionProps = FormSectionBaseProps & {
+    hasDuplicate?: boolean
+}
 
 const OverviewSection = ({
     control,
     errors,
     readOnly,
+    hasDuplicate = false,
 }: OverviewSectionProps) => {
     return (
         <Card>
@@ -17,8 +20,12 @@ const OverviewSection = ({
             <div className="grid md:grid-cols-2 gap-4">
                 <FormItem
                     label="Name"
-                    invalid={Boolean(errors.name)}
-                    errorMessage={errors.name?.message}
+                    invalid={Boolean(errors.name) || hasDuplicate}
+                    errorMessage={
+                        hasDuplicate
+                            ? 'This unit name already exists with different case'
+                            : errors.name?.message
+                    }
                 >
                     <Controller
                         name="name"
@@ -28,8 +35,9 @@ const OverviewSection = ({
                                 type="text"
                                 autoComplete="off"
                                 readOnly={readOnly}
-                                placeholder="First Name"
+                                placeholder="Unit Name"
                                 {...field}
+                                className={hasDuplicate ? 'border-warning' : ''}
                             />
                         )}
                     />
