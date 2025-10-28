@@ -1,6 +1,25 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Button, Checkbox, FormItem, Select } from '@/components/ui'
+import { Button, Card, Checkbox, FormItem, Select } from '@/components/ui'
 import { HiTrash } from 'react-icons/hi'
+
+interface FieldItemProps {
+    clause: any
+    clauseIndex: number
+    categoryOptions: any[]
+    frequencyOptions: any[]
+    getFilteredDocumentOptions: (input: string) => any[]
+    readOnly: boolean
+    onChange: (
+        standardIndex: number,
+        fieldId: number,
+        key: string,
+        value: any,
+    ) => void
+    onDelete: () => void
+    multiple: boolean
+    standardIndex: number
+    baseName?: string
+}
 
 const FieldItem = ({
     clause,
@@ -13,13 +32,22 @@ const FieldItem = ({
     onDelete,
     multiple,
     standardIndex,
-}: any) => {
+    baseName = 'standards',
+}: FieldItemProps) => {
     const filteredDocumentOptions = getFilteredDocumentOptions(clause.category)
 
     return (
-        <div className="border rounded-lg p-4 mb-4 bg-gray-50">
+        <Card>
             <div className="flex justify-between items-center mb-4">
-                <h6 className="font-medium">Field {clauseIndex + 1}</h6>
+                <h6 className="font-medium">
+                    Field {clauseIndex + 1}
+                    {baseName && (
+                        <span className="text-xs text-gray-400 ml-2">
+                            ({baseName}.fields[{clauseIndex}])
+                        </span>
+                    )}
+                </h6>
+
                 {multiple && (
                     <Button
                         size="sm"
@@ -35,6 +63,7 @@ const FieldItem = ({
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+                {/* Category */}
                 <FormItem label="Category">
                     <Select
                         value={
@@ -58,6 +87,7 @@ const FieldItem = ({
                     />
                 </FormItem>
 
+                {/* Document Name */}
                 <FormItem label="Document Name">
                     <Select
                         value={
@@ -85,6 +115,7 @@ const FieldItem = ({
                     />
                 </FormItem>
 
+                {/* Frequency */}
                 <FormItem label="Frequency">
                     <Select
                         value={
@@ -108,6 +139,7 @@ const FieldItem = ({
                     />
                 </FormItem>
 
+                {/* Required */}
                 <FormItem label="Required" className="flex items-center gap-2">
                     <Checkbox
                         checked={clause.isRequired || false}
@@ -119,6 +151,7 @@ const FieldItem = ({
                     <span className="text-sm">Required</span>
                 </FormItem>
 
+                {/* Timezone */}
                 <FormItem label="Timezone" className="flex items-center gap-2">
                     <Checkbox
                         checked={clause.timezone || false}
@@ -130,7 +163,7 @@ const FieldItem = ({
                     <span className="text-sm">Timezone</span>
                 </FormItem>
             </div>
-        </div>
+        </Card>
     )
 }
 
