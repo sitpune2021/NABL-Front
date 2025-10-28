@@ -33,15 +33,17 @@ const StandardAddEdit = () => {
     // Default values for new standard
     const defaultStandardData: StandardFormSchema = {
         name: '',
-        id: '',
-        title: '',
-        message: '',
-        isNote: false,
-        isChild: false,
-        count: 0,
-        children: [],
-        notes: [],
-        fields: [],
+        uuid: '',
+        standred: {
+            title: '',
+            message: '',
+            isNote: false,
+            isChild: false,
+            count: 0,
+            children: [],
+            notes: [],
+            fields: [],
+        },
     }
 
     // Load existing standard data in edit or view mode
@@ -52,19 +54,19 @@ const StandardAddEdit = () => {
                 .then((data) => {
                     if (data) {
                         // Transform API data to form structure
-                        const formData: StandardFormSchema = {
-                            name: data.name || '',
-                            id: data.id || '',
-                            title: data.title || '',
-                            message: data.message || '',
-                            isNote: data.isNote || false,
-                            isChild: data.isChild || false,
-                            count: data.count || 0,
-                            children: data.children || [],
-                            notes: data.notes || [],
-                            fields: data.fields || [],
-                        }
-                        setStandardData(formData)
+                        // const formData: StandardFormSchema = {
+                        //     // name: data.name || '',
+                        //     // uuid: data.uuid || '',
+                        //     // standred.title: data.standred.title || '',
+                        //     // message: data.message || '',
+                        //     // isNote: data.isNote || false,
+                        //     // isChild: data.isChild || false,
+                        //     // count: data.count || 0,
+                        //     // children: data.children || [],
+                        //     // notes: data.notes || [],
+                        //     // fields: data.fields || [],
+                        // }
+                        setStandardData({ ...data })
                     }
                 })
                 .catch((error) => {

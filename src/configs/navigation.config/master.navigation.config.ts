@@ -251,40 +251,6 @@ const masterNavigationConfig: NavigationTree[] = [
                 ],
             },
             {
-                key: 'masters.location',
-                path: '',
-                title: 'Location',
-                translateKey: 'nav.mastersLocation.location',
-                icon: 'ai',
-                type: NAV_ITEM_TYPE_COLLAPSE,
-                authority: [],
-                meta: {
-                    description: {
-                        translateKey: 'nav.mastersLocation.locationDesc',
-                        label: 'AI tools and resources',
-                    },
-                },
-                subMenu: [
-                    {
-                        key: 'masters.location.list',
-                        path: `${endpointConfig.master.location.list}`,
-                        title: 'List',
-                        translateKey: 'nav.mastersLocation.list',
-                        icon: 'aiChat',
-                        type: NAV_ITEM_TYPE_ITEM,
-                        authority: [],
-                        meta: {
-                            description: {
-                                translateKey: 'nav.mastersLocation.listDesc',
-                                label: 'AI-powered chat systems',
-                            },
-                        },
-                        subMenu: [],
-                    },
-                ],
-            },
-
-            {
                 key: 'masters.zone',
                 path: '',
                 title: 'Zone',

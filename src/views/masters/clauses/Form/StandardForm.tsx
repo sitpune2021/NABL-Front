@@ -1,91 +1,90 @@
-import { useEffect } from 'react'
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { useCallback } from 'react'
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { z } from 'zod'
 import { Form } from '@/components/ui/Form'
 import Container from '@/components/shared/Container'
 import BottomStickyBar from '@/components/template/BottomStickyBar'
 import StandardSection from './StandardSection'
-import isEmpty from 'lodash/isEmpty'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { useForm } from 'react-hook-form'
-import { z } from 'zod'
-import type { CommonProps } from '@/@types/common'
-import { StandardFormSchema } from '@/@types/standard'
 import StandardSectionTwo from './StandardSectionTwo'
+import type { CommonProps } from '@/@types/common'
+import type { StandardFormSchema } from '@/@types/standard'
 
 type StandardFormProps = {
     onFormSubmit: (values: StandardFormSchema) => void
-    defaultValues?: StandardFormSchema
+    defaultValues?: Partial<StandardFormSchema>
     newStandard?: boolean
     readOnly?: boolean
 } & CommonProps
 
-// Updated validation schema for all fields
-const validationSchema = z.object({
-    name: z.string().min(1, { message: 'Name is required' }),
-    id: z.string().min(1, { message: 'Unique ID is required' }),
-    title: z.string().min(1, { message: 'Title is required' }),
-    message: z.string().optional(),
-    isNote: z.boolean(),
-    isChild: z.boolean(),
-    count: z.number().min(0),
-    children: z.array(z.any()), // Recursive validation
-    notes: z.array(
+const NoteSchema = z.object({
+    content: z.string().min(1, 'Note content is required'),
+})
+
+const FieldSchema = z.object({
+    category: z.string().min(1, 'Category is required'),
+    documentName: z.string().min(1, 'Document name is required'),
+    frequency: z.string().min(1, 'Frequency is required'),
+    isRequired: z.boolean(),
+    timezone: z.boolean(),
+})
+
+const ChildSchema: z.ZodTypeAny = z.lazy(
+    (): z.ZodTypeAny =>
         z.object({
-            content: z.string().min(1, { message: 'Note content is required' }),
+            title: z.string().min(1, 'Title is required'),
+            message: z.string().min(1, 'Message is required'),
+            isNote: z.boolean(),
+            isChild: z.boolean(),
+            count: z.number().min(0),
+            children: z.array(ChildSchema).optional(),
+            notes: z.array(NoteSchema).optional(),
+            fields: z.array(FieldSchema).optional(),
         }),
-    ),
-    fields: z.array(
+)
+
+export const validationSchema = z.object({
+    uuid: z.string().min(1, { message: 'Unique ID is required' }),
+    name: z.string().min(1, 'Name is required'),
+    standards: z.array(
         z.object({
-            category: z.string().min(1, { message: 'Category is required' }),
-            documentName: z
-                .string()
-                .min(1, { message: 'Document name is required' }),
-            frequency: z.string().min(1, { message: 'Frequency is required' }),
-            isRequired: z.boolean(),
-            timezone: z.boolean(),
+            title: z.string().min(1, 'Title is required'),
+            message: z.string().min(1, 'Message is required'),
+            isNote: z.boolean(),
+            isChild: z.boolean(),
+            count: z.number().min(0),
+            children: z.array(ChildSchema),
+            notes: z.array(NoteSchema),
+            fields: z.array(FieldSchema),
         }),
     ),
 })
 
-// In StandardForm.tsx - Replace the entire form setup
-const StandardForm = (props: StandardFormProps) => {
-    const {
-        onFormSubmit,
-        defaultValues = {},
-        readOnly = false,
-        children,
-    } = props
+type FormValues = z.infer<typeof validationSchema>
 
+const StandardForm = ({
+    onFormSubmit,
+    defaultValues = {},
+    readOnly = false,
+    children,
+}: StandardFormProps) => {
     const {
         handleSubmit,
-        reset,
         formState: { errors },
         control,
-    } = useForm<StandardFormSchema>({
-        defaultValues: {
-            name: '',
-            id: '',
-            title: '',
-            message: '',
-            isNote: false,
-            isChild: false,
-            count: 0,
-            children: [],
-            notes: [],
-            fields: [],
-            ...defaultValues,
-        },
+    } = useForm<FormValues>({
+        defaultValues: { ...defaultValues },
         resolver: zodResolver(validationSchema),
     })
 
-    useEffect(() => {
-        if (!isEmpty(defaultValues)) {
-            reset(defaultValues)
-        }
-    }, [defaultValues, reset])
-
-    const onSubmit = (values: StandardFormSchema) => {
-        onFormSubmit?.(values)
-    }
+    const onSubmit = useCallback(
+        (values: any) => {
+            console.log('Submitted Values:', values)
+            //   onFormSubmit?.(values)
+        },
+        [onFormSubmit],
+    )
 
     return (
         <Form
@@ -109,8 +108,10 @@ const StandardForm = (props: StandardFormProps) => {
                     </div>
                 </div>
             </Container>
+
             <BottomStickyBar>{children}</BottomStickyBar>
         </Form>
     )
 }
+
 export default StandardForm

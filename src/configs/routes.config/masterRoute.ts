@@ -366,7 +366,7 @@ const masterRoute: Routes = [
     },
     {
         key: 'masters.location.list',
-        path: `${endpointConfig.master.location.create}`,
+        path: endpointConfig.master.location.create,
         component: lazy(() => import('@/views/masters/location/AddEdit')),
         authority: [],
     },
@@ -385,13 +385,13 @@ const masterRoute: Routes = [
 
     {
         key: 'masters.zone.list',
-        path: `${endpointConfig.master.zone.list}`,
+        path: endpointConfig.master.zone.list,
         component: lazy(() => import('@/views/masters/zone/List')),
         authority: [],
     },
     {
         key: 'masters.zone.list',
-        path: `${endpointConfig.master.zone.create}`,
+        path: endpointConfig.master.zone.create,
         component: lazy(() => import('@/views/masters/zone/AddEdit')),
         authority: [],
     },
@@ -410,13 +410,13 @@ const masterRoute: Routes = [
 
     {
         key: 'masters.cluster.list',
-        path: `${endpointConfig.master.cluster.list}`,
+        path: endpointConfig.master.cluster.list,
         component: lazy(() => import('@/views/masters/cluster/List')),
         authority: [],
     },
     {
         key: 'masters.cluster.list',
-        path: `${endpointConfig.master.cluster.create}`,
+        path: endpointConfig.master.cluster.create,
         component: lazy(() => import('@/views/masters/cluster/AddEdit')),
         authority: [],
     },

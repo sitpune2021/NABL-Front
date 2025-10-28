@@ -67,16 +67,18 @@ export type StandardListAction = {
 }
 
 export type Fields = {
-    id?: string
+    uuid?: string
     name: string
-    title: string
-    message: string
-    isNote: boolean
-    isChild: boolean
-    count: number
-    children: Child[]
-    notes: Note[]
-    fields: Field[]
+    standred: {
+        title: string
+        message: string
+        isNote: boolean
+        isChild: boolean
+        count: number
+        children: Child[]
+        notes: Note[]
+        fields: Field[]
+    }
 }
 
 export type TagsFields = {

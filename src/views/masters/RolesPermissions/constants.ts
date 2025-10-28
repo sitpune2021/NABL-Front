@@ -57,6 +57,8 @@ export const accessModules = [
         accessor: [
             { label: 'Read', value: 'read' },
             { label: 'Write', value: 'write' },
+            { label: 'Data Entry', value: 'data-entry' },
+            { label: 'Data Review', value: 'data-review' },
             { label: 'Delete', value: 'delete' },
         ],
     },

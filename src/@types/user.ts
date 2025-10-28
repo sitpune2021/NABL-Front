@@ -52,8 +52,8 @@ export type Fields = {
     signUpload?: string
     preparedBy: boolean
     dialCode?: string
-    city?: string
-    postcode?: string
+    city: string
+    postcode: string
 }
 
 export type TagsFields = {

@@ -158,160 +158,7 @@ export function addCustomBlocks(editor: any) {
     ])
 }
 
-export function addDynamicFields(editor: any, docMeta?: any) {
-    const dynamicData = {
-        date: '2025-09-12',
-        username: [
-            'Amit Sharma',
-            'Nikita Nikam',
-            'Ravi Patil',
-            'Sneha Kulkarni',
-            'Vishal Jadhav',
-            'Priya Deshmukh',
-            'Rahul Joshi',
-            'Anjali Pawar',
-            'Akash Shinde',
-            'Meera Patankar',
-            'Sagar More',
-        ],
-        department: [
-            'Administration',
-            'Sales',
-            'Procurement',
-            'Accounts',
-            'HR',
-            'Sales',
-            'Maintenance',
-            'Production',
-            'IT',
-            'Logistics',
-            'Procurement',
-        ],
-        category: [
-            'Purchase',
-            'Sales',
-            'Purchase',
-            'Finance',
-            'HR',
-            'Sales',
-            'Maintenance',
-            'Production',
-            'IT',
-            'Logistics',
-            'Purchase',
-        ],
-        subcategory: [
-            'Office Supplies',
-            'Retail',
-            'Raw Material',
-            'Audit',
-            'Recruitment',
-            'Wholesale',
-            'Electrical',
-            'Assembly',
-            'Support',
-            'Transport',
-            'Spare Parts',
-        ],
-        invoiceNo: [
-            'INV-1001',
-            'INV-1002',
-            'INV-1003',
-            'INV-1004',
-            'INV-1005',
-            'INV-1006',
-            'INV-1007',
-            'INV-1008',
-            'INV-1009',
-            'INV-1010',
-            'INV-1011',
-        ],
-        userDetails: [
-            {
-                email: 'amit.sharma@example.com',
-                phone: '+91-9876543210',
-                address: 'Pune, Maharashtra',
-            },
-            {
-                email: 'nikita.nikam@example.com',
-                phone: '+91-9876500000',
-                address: 'Mumbai, Maharashtra',
-            },
-            {
-                email: 'ravi.patil@example.com',
-                phone: '+91-9123456789',
-                address: 'Nashik, Maharashtra',
-            },
-            {
-                email: 'sneha.kulkarni@example.com',
-                phone: '+91-9988776655',
-                address: 'Kolhapur, Maharashtra',
-            },
-            {
-                email: 'vishal.jadhav@example.com',
-                phone: '+91-9090909090',
-                address: 'Aurangabad, Maharashtra',
-            },
-            {
-                email: 'priya.deshmukh@example.com',
-                phone: '+91-9012345678',
-                address: 'Nagpur, Maharashtra',
-            },
-            {
-                email: 'rahul.joshi@example.com',
-                phone: '+91-9876123456',
-                address: 'Satara, Maharashtra',
-            },
-            {
-                email: 'anjali.pawar@example.com',
-                phone: '+91-9898989898',
-                address: 'Solapur, Maharashtra',
-            },
-            {
-                email: 'akash.shinde@example.com',
-                phone: '+91-9234567890',
-                address: 'Latur, Maharashtra',
-            },
-            {
-                email: 'meera.patankar@example.com',
-                phone: '+91-9765432100',
-                address: 'Beed, Maharashtra',
-            },
-            {
-                email: 'sagar.more@example.com',
-                phone: '+91-9345678901',
-                address: 'Sangli, Maharashtra',
-            },
-        ],
-        signatoryBy: {
-            'Prepared By': 'Amit Sharma',
-            'Approve By': 'Nikita Nikam',
-            'Verified By': 'Ravi Patil',
-            'Done By': 'Sneha Kulkarni',
-            'Validated By': 'Vishal Jadhav',
-            'Issued By': 'Priya Deshmukh',
-        },
-        signatoryOn: {
-            'Prepared On': '2025-09-12 10:30 AM',
-            'Approve On': '2025-09-12 11:15 AM',
-            'Verified On': '2025-09-12 01:00 PM',
-            'Done On': '2025-09-12 02:45 PM',
-            'Validated On': '2025-09-12 03:30 PM',
-            'Issued On': '2025-09-12 04:00 PM',
-            'Effective On': '2025-09-13 09:00 AM',
-        },
-        issuedNo: docMeta?.issuedNo || 'N/A',
-        copyNo: docMeta?.copyNo || 'N/A',
-        amendmentNo: docMeta?.amendmentNo || 'N/A',
-        preparedBy: docMeta?.preparedBy || 'N/A',
-        approvedBy: docMeta?.approvedBy || 'N/A',
-        issuedBy: docMeta?.issuedBy || 'N/A',
-        issueDate: docMeta?.issueDate || 'N/A',
-        amendmentDate: docMeta?.amendmentDate || 'N/A',
-        effectiveDate: docMeta?.effectiveDate || 'N/A',
-    }
-
-    // Simple span fields
+export function addDynamicFields(editor: any) {
     const simpleFields = [
         'date',
         'issuedNo',
@@ -323,20 +170,6 @@ export function addDynamicFields(editor: any, docMeta?: any) {
         'issueDate',
         'amendmentDate',
         'effectiveDate',
-    ]
-
-    simpleFields.forEach((key) => {
-        editor.BlockManager.add(`field-${key}`, {
-            label: key
-                .replace(/([A-Z])/g, ' $1')
-                .replace(/^./, (s) => s.toUpperCase()),
-            category: 'Dynamic Fields',
-            content: `<span class="dynamic-field" data-field="${key}">${(dynamicData as any)[key]}</span>`,
-        })
-    })
-
-    // Selection box fields
-    const fields = [
         'username',
         'department',
         'category',
@@ -345,46 +178,17 @@ export function addDynamicFields(editor: any, docMeta?: any) {
         'userDetails',
         'signatoryBy',
         'signatoryOn',
-    ] as const
-
-    fields.forEach((fieldKey) => {
-        let values: any[] = []
-
-        if (fieldKey === 'signatoryBy' || fieldKey === 'signatoryOn') {
-            values = Object.entries(dynamicData[fieldKey]).map(
-                ([key, val]) => ({ key, value: val }),
-            )
-        } else {
-            values = dynamicData[fieldKey] as any[]
-        }
-
-        editor.BlockManager.add(`field-${fieldKey}`, {
-            label: fieldKey.charAt(0).toUpperCase() + fieldKey.slice(1),
+    ]
+    simpleFields.forEach((key) => {
+        editor.BlockManager.add(`field-${key}`, {
+            label: key
+                .replace(/([A-Z])/g, ' $1')
+                .replace(/^./, (s) => s.toUpperCase()),
             category: 'Dynamic Fields',
-            content: `<div class="dynamic-field" data-field="${fieldKey}">
-        <select onchange="window.handleDynamicSelect(this)">
-          <option value="">Select ${fieldKey}</option>
-          ${values
-              .map((val: any) => {
-                  if (fieldKey === 'userDetails') {
-                      return `<option value='${JSON.stringify(val)}'>${val.email}</option>`
-                  }
-                  if (
-                      fieldKey === 'signatoryBy' ||
-                      fieldKey === 'signatoryOn'
-                  ) {
-                      return `<option value="${val.value}">${val.key} - ${val.value}</option>`
-                  }
-                  return `<option value="${val}">${val}</option>`
-              })
-              .join('')}
-        </select>
-        <div class="selected-value" style="margin-top:4px;"></div>
-      </div>`,
+            content: `{{${key}}}`,
         })
     })
 }
-
 ;(window as any).handleDynamicSelect = function (selectEl: HTMLSelectElement) {
     const container = selectEl.nextElementSibling as HTMLElement
     const rawValue = selectEl.value
