@@ -86,6 +86,10 @@ const LocationListTable = () => {
                 accessorKey: 'location_name',
             },
             {
+                header: 'Short Name',
+                accessorKey: 'short_name',
+            },
+            {
                 header: 'Action',
                 id: 'action',
                 cell: (props) => (

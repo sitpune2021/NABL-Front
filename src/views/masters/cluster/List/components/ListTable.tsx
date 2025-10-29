@@ -53,7 +53,7 @@ const ClusterListTable = () => {
         setSelectAllCluster,
         setSelectedCluster,
         selectedCluster,
-    } = useClusterList('')
+    } = useClusterList()
 
     const handleEdit = (cluster: Cluster) => {
         const path = endpointConfig.master.cluster.edit.replace(
