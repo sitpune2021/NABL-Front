@@ -16,7 +16,7 @@ const ClusterAddEdit = () => {
     const navigate = useNavigate()
     const location = useLocation()
     const { id: clusterId } = useParams()
-    const { saveClusterData, getClusterById } = useClusterList('')
+    const { saveClusterData, getClusterById } = useClusterList()
 
     const [discardConfirmationOpen, setDiscardConfirmationOpen] =
         useState(false)

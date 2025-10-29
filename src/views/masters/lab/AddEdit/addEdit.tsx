@@ -10,7 +10,7 @@ import { TbTrash } from 'react-icons/tb'
 import endpointConfig from '@/configs/endpoint.config'
 import useLabList from '../List/hooks/useList'
 import LabForm from '../Form'
-import { LabFormSchema } from '@/@types/lab'
+import type { LabFormSchema } from '@/@types/lab'
 
 const LabAddEdit = () => {
     const navigate = useNavigate()
@@ -20,7 +20,7 @@ const LabAddEdit = () => {
 
     const [discardConfirmationOpen, setDiscardConfirmationOpen] =
         useState(false)
-    const [isSubmiting, setIsSubmiting] = useState(false)
+    const [isSubmitting, setIsSubmitting] = useState(false)
     const [labData, setLabData] = useState<LabFormSchema | null>(null)
     const [loadingData, setLoadingData] = useState(false)
 
@@ -28,7 +28,6 @@ const LabAddEdit = () => {
     const isView = location.pathname.includes('/view')
     const isAdd = location.pathname.includes('/create')
 
-    // Load existing lab data in edit or view mode
     useEffect(() => {
         if (!isAdd && labId) {
             setLoadingData(true)
@@ -42,22 +41,38 @@ const LabAddEdit = () => {
 
     const handleFormSubmit = async (values: LabFormSchema) => {
         if (isView) return
-        setIsSubmiting(true)
-        const payload = isEdit ? { ...values, id: labId } : values
-        await saveLabData(payload)
-        await sleep(800)
-        setIsSubmiting(false)
-        toast.push(
-            <Notification type="success">
-                {isEdit ? 'Lab updated!' : 'Lab created!'}
-            </Notification>,
-            { placement: 'top-center' },
-        )
-        navigate(`${endpointConfig.master.lab.list}`)
+
+        setIsSubmitting(true)
+        try {
+            const payload = isEdit ? { ...values, id: labId } : values
+            await saveLabData(payload)
+            await sleep(800)
+
+            toast.push(
+                <Notification type="success">
+                    {isEdit ? 'Lab updated!' : 'Lab created!'}
+                </Notification>,
+                { placement: 'top-center' },
+            )
+
+            navigate(`${endpointConfig.master.lab.list}`)
+        } catch {
+            toast.push(
+                <Notification type="danger">
+                    Failed to {isEdit ? 'update' : 'create'} lab
+                </Notification>,
+                { placement: 'top-center' },
+            )
+        } finally {
+            setIsSubmitting(false)
+        }
     }
 
+    const handleDiscard = () => setDiscardConfirmationOpen(true)
+    const handleCancel = () => setDiscardConfirmationOpen(false)
+
     const handleConfirmDiscard = () => {
-        setDiscardConfirmationOpen(true)
+        setDiscardConfirmationOpen(false)
         toast.push(
             <Notification type="success">Changes discarded!</Notification>,
             { placement: 'top-center' },
@@ -65,31 +80,34 @@ const LabAddEdit = () => {
         navigate(`${endpointConfig.master.lab.list}`)
     }
 
-    const handleDiscard = () => setDiscardConfirmationOpen(true)
-    const handleCancel = () => setDiscardConfirmationOpen(false)
-
     if (loadingData && !isAdd) {
         return <p className="p-4">Loading lab data...</p>
     }
 
+    const defaultFormValues: LabFormSchema = labData ?? {
+        name: '',
+        labType: '',
+        department: [],
+        labCode: !isSubmitting ? `LAB-${labList.length + 1}` : '',
+        email: '',
+        phone: '',
+        address: '',
+        location: [
+            {
+                prefix: 'LOC-1',
+                shortName: '',
+                zone_name: null,
+                cluster_name: null,
+                location_name: null,
+                department: null,
+            },
+        ],
+    }
     return (
         <>
             <LabForm
                 newLab={isAdd}
-                defaultValues={
-                    labData ?? {
-                        name: '',
-                        labType: '',
-                        department: '',
-                        labCode: !isSubmiting
-                            ? `LAB-${labList.length + 1}`
-                            : '',
-                        email: '',
-                        phone: '',
-                        address: '',
-                        location: '',
-                    }
-                }
+                defaultValues={defaultFormValues}
                 readOnly={isView}
                 onFormSubmit={handleFormSubmit}
             >
@@ -112,7 +130,7 @@ const LabAddEdit = () => {
                                 <Button
                                     variant="solid"
                                     type="submit"
-                                    loading={isSubmiting}
+                                    loading={isSubmitting}
                                 >
                                     {isEdit ? 'Update' : 'Create'}
                                 </Button>
@@ -121,6 +139,7 @@ const LabAddEdit = () => {
                     </div>
                 </Container>
             </LabForm>
+
             <ConfirmDialog
                 isOpen={discardConfirmationOpen}
                 type="danger"
@@ -131,8 +150,8 @@ const LabAddEdit = () => {
                 onConfirm={handleConfirmDiscard}
             >
                 <p>
-                    Are you sure you want discard this? This action can&apos;t
-                    be undo.{' '}
+                    Are you sure you want to discard this? This action
+                    can&apos;t be undone.
                 </p>
             </ConfirmDialog>
         </>

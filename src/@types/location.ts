@@ -17,6 +17,7 @@ export type Location = {
     location_name: string
     zone_name: string
     cluster_name: string
+    short_name: string
 }
 
 export type LocationListState = {
@@ -37,6 +38,7 @@ export type Fields = {
     location_name: string
     zone_name: string
     cluster_name: string
+    short_name: string
 }
 
 export type TagsFields = {
