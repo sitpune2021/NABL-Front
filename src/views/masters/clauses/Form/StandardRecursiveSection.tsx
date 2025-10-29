@@ -1,20 +1,21 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useEffect, useRef } from 'react'
-import { useFieldArray, useWatch } from 'react-hook-form'
+import { useEffect, useRef, useCallback } from 'react'
+import { useFieldArray, useWatch, Control, FieldErrors } from 'react-hook-form'
 import { HiPlus } from 'react-icons/hi'
 import Button from '@/components/ui/Button'
 import StandardCard from './StandardCard'
+import type { FormValues } from './StandardForm'
 
 interface StandardRecursiveSectionProps {
-    control: any
-    name: string
-    errors: any
+    control: Control<FormValues>
+    name: string | any
+    errors: FieldErrors<FormValues>
     readOnly: boolean
     isRoot?: boolean
 }
 
 const createDefaultStandard = () => ({
-    id: Date.now() + Math.random(), // unique
+    id: crypto.randomUUID(), // safer unique id
     title: '',
     message: '',
     note: true,
@@ -30,11 +31,15 @@ const StandardRecursiveSection = ({
     readOnly,
     isRoot = false,
 }: StandardRecursiveSectionProps) => {
-    const { fields, append, update } = useFieldArray({ control, name })
+    const { fields, append, update } = useFieldArray({
+        control,
+        name,
+        keyName: 'reactId', // prevent id conflicts
+    })
+
     const watchedStandards = useWatch({ control, name, defaultValue: [] })
     const hasAppended = useRef(false)
 
-    // Append default standard at root if empty
     useEffect(() => {
         if (isRoot && !hasAppended.current && fields.length === 0) {
             append(createDefaultStandard())
@@ -42,34 +47,39 @@ const StandardRecursiveSection = ({
         }
     }, [isRoot])
 
-    // Watch isChild & count to sync children
     useEffect(() => {
-        watchedStandards?.forEach((standard: any, index: number) => {
-            if (!standard || !standard.isChild) return
+        watchedStandards?.forEach(
+            (
+                standard: { isChild: any; children: never[]; count: number },
+                index: number,
+            ) => {
+                if (!standard?.isChild) return
 
-            const currentChildren = standard.children || []
-            const targetCount = standard.count || 0
+                const currentChildren = standard.children || []
+                const targetCount = standard.count || 0
 
-            if (targetCount > currentChildren.length) {
-                const extra = Array.from(
-                    { length: targetCount - currentChildren.length },
-                    () => createDefaultStandard(),
-                )
-                update(index, {
-                    ...standard,
-                    children: [...currentChildren, ...extra],
-                })
-            } else if (targetCount < currentChildren.length) {
-                update(index, {
-                    ...standard,
-                    children: currentChildren.slice(0, targetCount),
-                })
-            }
-        })
+                if (targetCount > currentChildren.length) {
+                    const extra = Array.from(
+                        { length: targetCount - currentChildren.length },
+                        () => createDefaultStandard(),
+                    )
+                    update(index, {
+                        ...standard,
+                        children: [...currentChildren, ...extra],
+                    })
+                } else if (targetCount < currentChildren.length) {
+                    update(index, {
+                        ...standard,
+                        children: currentChildren.slice(0, targetCount),
+                    })
+                }
+            },
+        )
     }, [watchedStandards, update])
 
-    // Handlers
-    const handleAddSection = () => append(createDefaultStandard())
+    const handleAddSection = useCallback(() => {
+        append(createDefaultStandard())
+    }, [append])
 
     return (
         <div>
@@ -87,7 +97,7 @@ const StandardRecursiveSection = ({
 
             {fields.map((field, index) => (
                 <StandardCard
-                    key={field.id}
+                    key={field.reactId}
                     index={index}
                     standard={field}
                     errors={errors}

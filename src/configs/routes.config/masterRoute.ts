@@ -323,6 +323,12 @@ const masterRoute: Routes = [
     },
     {
         key: 'masters.clauses.list',
+        path: `${endpointConfig.master.clauses.create}/:id`,
+        component: lazy(() => import('@/views/masters/clauses/AddEdit')),
+        authority: [],
+    },
+    {
+        key: 'masters.clauses.list',
         path: endpointConfig.master.clauses.edit,
         component: lazy(() => import('@/views/masters/clauses/AddEdit')),
         authority: [],

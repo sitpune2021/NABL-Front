@@ -9,6 +9,7 @@ import { useForm } from 'react-hook-form'
 import type { CommonProps } from '@/@types/common'
 import { ClausesFormSchema, TitleSpecificData } from '@/@types/clauses'
 import { apiGetStandardById } from '@/services/StandardService'
+import { useParams } from 'react-router'
 
 type ClausesFormProps = {
     onFormSubmit: (values: ClausesFormSchema) => void
@@ -67,6 +68,7 @@ const ClausesForm = ({
             titleSpecificData: [],
         },
     })
+    const { id: standardId } = useParams()
 
     const [accordionData, setAccordionData] = useState<any[]>([])
 
@@ -80,8 +82,15 @@ const ClausesForm = ({
                 return
             }
 
+            if (!standardId) {
+                console.warn(
+                    'ClausesForm - standardId is undefined, skipping fetch',
+                )
+                return
+            }
+
             try {
-                const data: any = await apiGetStandardById('STD_1761717414427')
+                const data: any = await apiGetStandardById(standardId)
                 setAccordionData(data.standards)
                 const mappedTitleData = mapStandardsToTitleData(data.standards)
                 reset({ titleSpecificData: mappedTitleData })
@@ -92,7 +101,7 @@ const ClausesForm = ({
 
         fetchData()
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [JSON.stringify(defaultValues), reset])
+    }, [JSON.stringify(defaultValues), reset, standardId])
 
     const onSubmit = (values: ClausesFormSchema) => {
         const cleanedData: ClausesFormSchema = {

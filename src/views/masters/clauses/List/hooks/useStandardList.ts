@@ -28,12 +28,16 @@ export default function useStandardList() {
     )
 
     const saveStandardData = async (standard: Fields) => {
+        let savedStandard: Fields
         if (standard.id) {
-            await apiUpdateStandard(standard.id, standard)
+            const response = await apiUpdateStandard(standard.id, standard)
+            savedStandard = response
         } else {
-            await apiCreateStandard(standard)
+            const response = await apiCreateStandard(standard)
+            savedStandard = response
         }
         await mutate()
+        return savedStandard
     }
 
     const getStandardById = async (id: string) => {

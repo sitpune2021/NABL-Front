@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useCallback } from 'react'
+import { useCallback, useMemo } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
@@ -8,74 +8,46 @@ import Container from '@/components/shared/Container'
 import BottomStickyBar from '@/components/template/BottomStickyBar'
 import StandardSection from './StandardSection'
 import type { CommonProps } from '@/@types/common'
-import type { StandardFormSchema } from '@/@types/standard'
 import StandardRecursiveSection from './StandardRecursiveSection'
 
 type StandardFormProps = {
-    onFormSubmit: (values: StandardFormSchema) => void
-    defaultValues?: Partial<StandardFormSchema>
+    onFormSubmit: (values: any) => void
+    defaultValues?: Partial<FormValues>
     newStandard?: boolean
     readOnly?: boolean
 } & CommonProps
-
-const ChildSchema: z.ZodTypeAny = z.lazy(
-    (): z.ZodTypeAny =>
-        z
-            .object({
-                title: z.string().min(1, 'Title is required'),
-                message: z.string().min(1, 'Message is required'),
-                note: z.boolean(),
-                isChild: z.boolean(),
-                count: z
-                    .number()
-                    .min(0, { message: 'Count must be 0 or greater' }),
-                children: z.array(ChildSchema).optional(),
-            })
-            .superRefine((data, ctx) => {
-                if (
-                    data.isChild &&
-                    (!data.children || data.children.length === 0)
-                ) {
-                    ctx.addIssue({
-                        code: z.ZodIssueCode.custom,
-                        message: 'Children are required when isChild is true',
-                        path: ['children'],
-                    })
-                }
-            }),
-)
+const createStandardSchema = (): z.ZodType<any> =>
+    z
+        .object({
+            title: z.string().min(1, 'Title is required'),
+            message: z.string().min(1, 'Message is required'),
+            note: z.boolean(),
+            isChild: z.boolean(),
+            count: z.number().min(0, { message: 'Count must be 0 or greater' }),
+            children: z.array(z.lazy(createStandardSchema)).optional(),
+        })
+        .superRefine((data, ctx) => {
+            if (
+                data.isChild &&
+                (!data.children || data.children.length === 0)
+            ) {
+                ctx.addIssue({
+                    code: z.ZodIssueCode.custom,
+                    message: 'Children are required when isChild is true',
+                    path: ['children'],
+                })
+            }
+        })
 
 export const validationSchema = z.object({
     uuid: z.string().min(1, { message: 'Unique ID is required' }),
     name: z.string().min(1, { message: 'Name is required' }),
-    standards: z.array(
-        z
-            .object({
-                title: z.string().min(1, { message: 'Title is required' }),
-                message: z.string().min(1, { message: 'Message is required' }),
-                note: z.boolean(),
-                isChild: z.boolean(),
-                count: z
-                    .number()
-                    .min(0, { message: 'Count must be 0 or greater' }),
-                children: z.array(ChildSchema).optional(),
-            })
-            .superRefine((data, ctx) => {
-                if (
-                    data.isChild &&
-                    (!data.children || data.children.length === 0)
-                ) {
-                    ctx.addIssue({
-                        code: z.ZodIssueCode.custom,
-                        message: 'Children are required when isChild is true',
-                        path: ['children'],
-                    })
-                }
-            }),
-    ),
+    standards: z
+        .array(createStandardSchema())
+        .min(1, { message: 'At least one standard is required' }),
 })
 
-type FormValues = z.infer<typeof validationSchema>
+export type FormValues = z.infer<typeof validationSchema>
 
 const StandardForm = ({
     onFormSubmit,
@@ -83,19 +55,37 @@ const StandardForm = ({
     readOnly = false,
     children,
 }: StandardFormProps) => {
+    const mergedDefaults = useMemo<FormValues>(
+        () => ({
+            uuid: defaultValues.uuid ?? '',
+            name: defaultValues.name ?? '',
+            standards: defaultValues.standards ?? [
+                {
+                    title: '',
+                    message: '',
+                    note: true,
+                    isChild: false,
+                    count: 0,
+                    children: [],
+                },
+            ],
+        }),
+        [defaultValues],
+    )
+
     const {
         handleSubmit,
         formState: { errors },
         control,
     } = useForm<FormValues>({
-        defaultValues: { ...defaultValues },
+        defaultValues: mergedDefaults,
         resolver: zodResolver(validationSchema),
+        mode: 'onBlur',
     })
 
     const onSubmit = useCallback(
-        (values: any) => {
-            console.log('Submitted Values:', values)
-            onFormSubmit?.(values)
+        (values: FormValues) => {
+            onFormSubmit(values)
         },
         [onFormSubmit],
     )
@@ -115,11 +105,11 @@ const StandardForm = ({
                             readOnly={readOnly}
                         />
                         <StandardRecursiveSection
+                            isRoot
                             control={control}
                             name="standards"
                             errors={errors}
                             readOnly={readOnly}
-                            isRoot={true}
                         />
                     </div>
                 </div>

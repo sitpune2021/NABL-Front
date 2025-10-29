@@ -1,4 +1,5 @@
-import { useEffect, useState } from 'react'
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { useEffect, useState, useMemo, useCallback } from 'react'
 import { useParams, useNavigate, useLocation } from 'react-router'
 import Container from '@/components/shared/Container'
 import Button from '@/components/ui/Button'
@@ -30,77 +31,89 @@ const StandardAddEdit = () => {
     const isView = location.pathname.includes('/view')
     const isAdd = location.pathname.includes('/create')
 
-    // Default values for new standard
-    const defaultStandardData: StandardFormSchema = {
-        name: '',
-        uuid: '',
-        standred: {
-            title: '',
-            message: '',
-            note: true,
-            isChild: false,
-            count: 0,
-            children: [],
-        },
-    }
+    const defaultStandardData = useMemo<StandardFormSchema>(
+        () => ({
+            name: '',
+            data: {} as any,
+            uuid: '',
+            standred: {
+                title: '',
+                message: '',
+                note: true,
+                isChild: false,
+                count: 0,
+                children: [],
+            },
+        }),
+        [],
+    )
 
-    // Load existing standard data in edit or view mode
     useEffect(() => {
-        if (!isAdd && standardId) {
-            setLoadingData(true)
-            getStandardById(standardId)
-                .then((data) => {
-                    if (data) {
-                        setStandardData({ ...data })
-                    }
-                })
-                .catch((error) => {
-                    console.error('Error loading standard:', error)
-                    toast.push(
-                        <Notification type="danger">
-                            Failed to load standard data
-                        </Notification>,
-                        { placement: 'top-center' },
-                    )
-                })
-                .finally(() => setLoadingData(false))
+        if (isAdd || !standardId) return
+        let isMounted = true
+        const fetchData = async () => {
+            try {
+                setLoadingData(true)
+                const data = await getStandardById(standardId)
+                if (isMounted && data) setStandardData(data)
+            } catch (error) {
+                console.log(error, 'error')
+
+                toast.push(
+                    <Notification type="danger">
+                        Failed to load standard data
+                    </Notification>,
+                    { placement: 'top-center' },
+                )
+            } finally {
+                if (isMounted) setLoadingData(false)
+            }
+        }
+
+        fetchData()
+        return () => {
+            isMounted = false
         }
     }, [standardId, isAdd, getStandardById])
 
-    const handleFormSubmit = async (values: StandardFormSchema) => {
-        if (isView) return
-        console.log('handleFormSubmit called with:', values)
-        setIsSubmiting(true)
-        try {
-            const payload = isEdit ? { ...values, id: standardId } : values
-            console.log('Saving payload:', payload)
-            await saveStandardData(payload)
-            await sleep(800)
-            console.log('Save successful')
+    const handleFormSubmit = useCallback(
+        async (values: StandardFormSchema) => {
+            if (isView) return
+            setIsSubmiting(true)
+            try {
+                const payload = isEdit ? { ...values, id: standardId } : values
+                console.log('Saving payload:', payload)
+                const savedStandard = await saveStandardData(payload)
+                await sleep(800)
+                console.log('Save successful', savedStandard)
 
-            toast.push(
-                <Notification type="success">
-                    {isEdit
-                        ? 'Standard updated successfully!'
-                        : 'Standard created successfully!'}
-                </Notification>,
-                { placement: 'top-center' },
-            )
+                toast.push(
+                    <Notification type="success">
+                        {isEdit
+                            ? 'Standard updated successfully!'
+                            : 'Standard created successfully!'}
+                    </Notification>,
+                    { placement: 'top-center' },
+                )
 
-            // Navigate to standards list
-            navigate(`${endpointConfig.master.clauses.create}`)
-        } catch (error) {
-            console.error('Error saving standard:', error)
-            toast.push(
-                <Notification type="danger">
-                    Failed to save standard
-                </Notification>,
-                { placement: 'top-center' },
-            )
-        } finally {
-            setIsSubmiting(false)
-        }
-    }
+                const newStandardId = isEdit ? standardId : savedStandard.id
+                navigate(
+                    `${endpointConfig.master.clauses.create}/${newStandardId}`,
+                )
+            } catch (error) {
+                console.error('Error saving standard:', error)
+                toast.push(
+                    <Notification type="danger">
+                        Failed to save standard
+                    </Notification>,
+                    { placement: 'top-center' },
+                )
+            } finally {
+                setIsSubmiting(false)
+            }
+        },
+        [isEdit, isView, standardId, saveStandardData, navigate],
+    )
 
     const handleDiscard = () => setDiscardConfirmationOpen(true)
     const handleCancel = () => setDiscardConfirmationOpen(false)
@@ -134,7 +147,7 @@ const StandardAddEdit = () => {
             >
                 <Container>
                     <div className="flex items-center justify-between px-8">
-                        <span></span>
+                        <span />
                         {!isView && (
                             <div className="flex items-center gap-3">
                                 <Button
