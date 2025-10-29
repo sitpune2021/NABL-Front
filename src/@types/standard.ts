@@ -66,7 +66,7 @@ export type Fields = {
     id?: string
     uuid?: string
     name: string
-    standred: {
+    standards: {
         title: string
         message: string
         note: boolean

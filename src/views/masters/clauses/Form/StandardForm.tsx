@@ -9,10 +9,11 @@ import BottomStickyBar from '@/components/template/BottomStickyBar'
 import StandardSection from './StandardSection'
 import type { CommonProps } from '@/@types/common'
 import StandardRecursiveSection from './StandardRecursiveSection'
+import { StandardFormSchema } from '@/@types/standard'
 
 type StandardFormProps = {
     onFormSubmit: (values: any) => void
-    defaultValues?: Partial<FormValues>
+    defaultValues?: Partial<StandardFormSchema>
     newStandard?: boolean
     readOnly?: boolean
 } & CommonProps
@@ -55,23 +56,28 @@ const StandardForm = ({
     readOnly = false,
     children,
 }: StandardFormProps) => {
-    const mergedDefaults = useMemo<FormValues>(
-        () => ({
+    const mergedDefaults = useMemo<FormValues>(() => {
+        const normalizedStandards = Array.isArray(defaultValues.standards)
+            ? (defaultValues.standards as any[])
+            : defaultValues.standards
+              ? [defaultValues.standards as any]
+              : [
+                    {
+                        title: '',
+                        message: '',
+                        note: true,
+                        isChild: false,
+                        count: 0,
+                        children: [],
+                    },
+                ]
+
+        return {
             uuid: defaultValues.uuid ?? '',
             name: defaultValues.name ?? '',
-            standards: defaultValues.standards ?? [
-                {
-                    title: '',
-                    message: '',
-                    note: true,
-                    isChild: false,
-                    count: 0,
-                    children: [],
-                },
-            ],
-        }),
-        [defaultValues],
-    )
+            standards: normalizedStandards,
+        }
+    }, [defaultValues])
 
     const {
         handleSubmit,

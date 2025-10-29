@@ -13,6 +13,33 @@ import useStandardList from '../List/hooks/useStandardList'
 import StandardForm from '../Form/StandardForm'
 import { StandardFormSchema } from '@/@types/standard'
 
+export interface StandardNode {
+    title: string
+    message: string
+    note: boolean
+    isChild: boolean
+    count: number
+    children?: StandardNode[]
+    number?: string // generated hierarchical number
+}
+
+export const assignNumbering = (
+    nodes: StandardNode[],
+    prefix = '',
+): StandardNode[] => {
+    return nodes.map((node, index) => {
+        const currentNumber = prefix ? `${prefix}.${index + 1}` : `${index + 1}`
+        return {
+            ...node,
+            number: currentNumber,
+            children:
+                node.children && node.children.length > 0
+                    ? assignNumbering(node.children, currentNumber)
+                    : [],
+        }
+    })
+}
+
 const StandardAddEdit = () => {
     const navigate = useNavigate()
     const location = useLocation()
@@ -36,7 +63,7 @@ const StandardAddEdit = () => {
             name: '',
             data: {} as any,
             uuid: '',
-            standred: {
+            standards: {
                 title: '',
                 message: '',
                 note: true,
@@ -81,7 +108,16 @@ const StandardAddEdit = () => {
             if (isView) return
             setIsSubmiting(true)
             try {
-                const payload = isEdit ? { ...values, id: standardId } : values
+                const numberedStandards = values.standards?.length
+                    ? assignNumbering(values.standards)
+                    : []
+                const payload: StandardFormSchema & { id?: string } = isEdit
+                    ? {
+                          ...values,
+                          id: standardId,
+                          standards: numberedStandards,
+                      }
+                    : { ...values, standards: numberedStandards }
                 console.log('Saving payload:', payload)
                 const savedStandard = await saveStandardData(payload)
                 await sleep(800)
@@ -96,7 +132,9 @@ const StandardAddEdit = () => {
                     { placement: 'top-center' },
                 )
 
-                const newStandardId = isEdit ? standardId : savedStandard.id
+                const newStandardId = isEdit
+                    ? standardId
+                    : savedStandard.data.id
                 navigate(
                     `${endpointConfig.master.clauses.create}/${newStandardId}`,
                 )

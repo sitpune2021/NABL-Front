@@ -46,7 +46,6 @@ const OverviewSection = ({
     const { categoryList } = useCategoryList()
     const { documentList } = useDocumentList()
 
-    // Document options with category information
     const documentOptions = useMemo(
         () =>
             documentList.map((document: any) => ({
@@ -66,7 +65,6 @@ const OverviewSection = ({
 
     const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set())
 
-    // Get filtered document options based on selected category
     const getFilteredDocumentOptions = (selectedCategory: string) => {
         if (!selectedCategory) {
             return documentOptions
@@ -76,14 +74,12 @@ const OverviewSection = ({
         )
     }
 
-    // Single MenuCollapse by default open
     useEffect(() => {
         const getAllKeys = (items: any[], parentKey = ''): string[] => {
             let keys: string[] = []
             items.forEach((item, idx) => {
                 const key = `${parentKey}${idx}-${item.title}`
 
-                // Main accordion key add
                 keys.push(key)
 
                 if (item.note) {
@@ -114,7 +110,6 @@ const OverviewSection = ({
 
     const isExpanded = (key: string) => expandedItems.has(key)
 
-    // Helper to find title index
     const findTitleIndex = (titleKey: string): number => {
         const currentData = getValues('titleSpecificData') || []
         const index = currentData.findIndex(
@@ -123,7 +118,6 @@ const OverviewSection = ({
         return index
     }
 
-    // Title-specific note handlers
     const handleAddNote = (titleKey: string) => {
         const currentData = getValues('titleSpecificData') || []
         const titleIndex = findTitleIndex(titleKey)
@@ -162,7 +156,6 @@ const OverviewSection = ({
         setValue('titleSpecificData', newData)
     }
 
-    // Title-specific clause handlers
     const handleAddClause = (titleKey: string) => {
         const currentData = getValues('titleSpecificData') || []
         const titleIndex = findTitleIndex(titleKey)
@@ -220,7 +213,6 @@ const OverviewSection = ({
         setValue('titleSpecificData', newData)
     }
 
-    // UPDATED: renderRequiredSection now takes titleKey
     const renderRequiredSection = (titleKey: string) => {
         const titleIndex = findTitleIndex(titleKey)
         if (titleIndex === -1) return null
@@ -634,12 +626,12 @@ const OverviewSection = ({
                 <Menu.MenuCollapse
                     key={key}
                     eventKey={key}
-                    label={item.title}
+                    label={`${item.number}   ${item.title}`}
                     expanded={isExpanded(key)}
                     data-key={key}
                     onToggle={handleToggle}
                 >
-                    <div className="p-4 space-y-4">
+                    <Card className="ml-0">
                         <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
                             <p className="text-blue-800 text-sm leading-relaxed whitespace-pre-line">
                                 {item.message}
@@ -650,11 +642,11 @@ const OverviewSection = ({
                         {item.note && renderRequiredSection(key)}
 
                         {item.children && item.children.length > 0 && (
-                            <div className="pl-4">
+                            <div>
                                 {renderAccordion(item.children, key + '-')}
                             </div>
                         )}
-                    </div>
+                    </Card>
                 </Menu.MenuCollapse>
             )
         })
@@ -662,9 +654,7 @@ const OverviewSection = ({
 
     return (
         <Card className="p-6">
-            <div className="border border-gray-200 dark:border-gray-700 rounded-lg">
-                <Menu>{renderAccordion(accordionData)}</Menu>
-            </div>
+            <Menu>{renderAccordion(accordionData)}</Menu>
         </Card>
     )
 }
