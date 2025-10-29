@@ -31,12 +31,10 @@ export type Field = {
 export type Child = {
     title: string
     message: string
-    isNote: boolean
+    note: boolean
     isChild: boolean
     count: number
     children: Child[]
-    notes: Note[]
-    fields: Field[]
 }
 
 // Standard type
@@ -45,12 +43,10 @@ export type Standard = {
     name: string
     title: string
     message: string
-    isNote: boolean
+    note: boolean
     isChild: boolean
     count: number
     children: Child[]
-    notes: Note[]
-    fields: Field[]
 }
 
 export type StandardListState = {
@@ -67,17 +63,16 @@ export type StandardListAction = {
 }
 
 export type Fields = {
+    id?: string
     uuid?: string
     name: string
     standred: {
         title: string
         message: string
-        isNote: boolean
+        note: boolean
         isChild: boolean
         count: number
         children: Child[]
-        notes: Note[]
-        fields: Field[]
     }
 }
 

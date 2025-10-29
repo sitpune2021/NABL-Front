@@ -1,4 +1,5 @@
-import { useEffect } from 'react'
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { useEffect, useState } from 'react'
 import { Form } from '@/components/ui/Form'
 import Container from '@/components/shared/Container'
 import BottomStickyBar from '@/components/template/BottomStickyBar'
@@ -7,7 +8,7 @@ import isEmpty from 'lodash/isEmpty'
 import { useForm } from 'react-hook-form'
 import type { CommonProps } from '@/@types/common'
 import { ClausesFormSchema, TitleSpecificData } from '@/@types/clauses'
-import { accordionData, AccordionItem } from '@/mock/data/clausesData'
+import { apiGetStandardById } from '@/services/StandardService'
 
 type ClausesFormProps = {
     onFormSubmit: (values: ClausesFormSchema) => void
@@ -16,14 +17,44 @@ type ClausesFormProps = {
     readOnly?: boolean
 } & CommonProps
 
-const ClausesForm = (props: ClausesFormProps) => {
-    const {
-        onFormSubmit,
-        defaultValues = {},
-        readOnly = false,
-        children,
-    } = props
+const defaultClause = {
+    category: '',
+    documentName: '',
+    frequency: '',
+    required: false,
+    timezone: false,
+}
 
+const mapStandardsToTitleData = (
+    standards: any[],
+    parentKey = '',
+): TitleSpecificData[] => {
+    const result: TitleSpecificData[] = []
+    standards.forEach((item, idx) => {
+        const key = `${parentKey}${idx}-${item.title}`
+
+        if (item.note) {
+            result.push({
+                titleKey: key,
+                notes: [''],
+                clauses: [{ ...defaultClause }],
+                title: '',
+            })
+        }
+
+        if (item.children && item.children.length > 0) {
+            result.push(...mapStandardsToTitleData(item.children, key + '-'))
+        }
+    })
+    return result
+}
+
+const ClausesForm = ({
+    onFormSubmit,
+    defaultValues = {},
+    readOnly = false,
+    children,
+}: ClausesFormProps) => {
     const {
         handleSubmit,
         reset,
@@ -37,68 +68,39 @@ const ClausesForm = (props: ClausesFormProps) => {
         },
     })
 
+    const [accordionData, setAccordionData] = useState<any[]>([])
+
     useEffect(() => {
-        const initializeTitleData = (
-            items: AccordionItem[],
-            parentKey = '',
-        ): TitleSpecificData[] => {
-            let allData: TitleSpecificData[] = []
+        const fetchData = async () => {
+            console.log('ClausesForm - defaultValues:', defaultValues)
 
-            items.forEach((item, idx) => {
-                const key = `${parentKey}${idx}-${item.title}`
-                allData.push({
-                    titleKey: key,
-                    title: item.title,
-                    notes: [''],
-                    clauses: [
-                        {
-                            category: '',
-                            documentName: '',
-                            frequency: '',
-                            required: false,
-                            timezone: false,
-                        },
-                    ],
-                })
+            if (!isEmpty(defaultValues?.titleSpecificData)) {
+                console.log('ClausesForm - Using existing titleSpecificData')
+                reset(defaultValues)
+                return
+            }
 
-                // Add children recursively
-                if (item.children && item.children.length > 0) {
-                    allData = [
-                        ...allData,
-                        ...initializeTitleData(item.children, key + '-'),
-                    ]
-                }
-            })
-
-            return allData
+            try {
+                const data: any = await apiGetStandardById('STD_1761717414427')
+                setAccordionData(data.standards)
+                const mappedTitleData = mapStandardsToTitleData(data.standards)
+                reset({ titleSpecificData: mappedTitleData })
+            } catch (err) {
+                console.error('Failed to fetch standard:', err)
+            }
         }
 
-        console.log('ClausesForm - defaultValues:', defaultValues)
-
-        if (!isEmpty(defaultValues) && defaultValues.titleSpecificData) {
-            // If editing/viewing, use existing data (from URL or API)
-            console.log('ClausesForm - Using existing titleSpecificData')
-            reset(defaultValues)
-        } else {
-            // If new, initialize from accordion structure
-            console.log('ClausesForm - Initializing default titleSpecificData')
-            const initialTitleData = initializeTitleData(accordionData)
-            reset({ titleSpecificData: initialTitleData })
-        }
+        fetchData()
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [JSON.stringify(defaultValues), reset])
 
     const onSubmit = (values: ClausesFormSchema) => {
-        console.log('Form submitted:', values)
-
-        //  Filter out completely empty data before submitting
-        const cleanedData = {
+        const cleanedData: ClausesFormSchema = {
             ...values,
             titleSpecificData: values.titleSpecificData
                 .map((titleData) => ({
                     ...titleData,
-                    // Remove empty notes
                     notes: titleData.notes.filter((note) => note.trim() !== ''),
-                    // Remove completely empty clauses
                     clauses: titleData.clauses.filter(
                         (clause) =>
                             clause.category.trim() !== '' ||
@@ -108,13 +110,10 @@ const ClausesForm = (props: ClausesFormProps) => {
                 }))
                 .filter(
                     (titleData) =>
-                        // Keep only titles that have some data
                         titleData.notes.length > 0 ||
                         titleData.clauses.length > 0,
                 ),
         }
-
-        console.log('Cleaned data for submission:', cleanedData)
         onFormSubmit?.(cleanedData)
     }
 
@@ -133,6 +132,7 @@ const ClausesForm = (props: ClausesFormProps) => {
                             readOnly={readOnly}
                             setValue={setValue}
                             getValues={getValues}
+                            accordionData={accordionData} // ✅ correct reference
                         />
                     </div>
                 </div>

@@ -37,12 +37,10 @@ const StandardAddEdit = () => {
         standred: {
             title: '',
             message: '',
-            isNote: false,
+            note: true,
             isChild: false,
             count: 0,
             children: [],
-            notes: [],
-            fields: [],
         },
     }
 
@@ -53,19 +51,6 @@ const StandardAddEdit = () => {
             getStandardById(standardId)
                 .then((data) => {
                     if (data) {
-                        // Transform API data to form structure
-                        // const formData: StandardFormSchema = {
-                        //     // name: data.name || '',
-                        //     // uuid: data.uuid || '',
-                        //     // standred.title: data.standred.title || '',
-                        //     // message: data.message || '',
-                        //     // isNote: data.isNote || false,
-                        //     // isChild: data.isChild || false,
-                        //     // count: data.count || 0,
-                        //     // children: data.children || [],
-                        //     // notes: data.notes || [],
-                        //     // fields: data.fields || [],
-                        // }
                         setStandardData({ ...data })
                     }
                 })

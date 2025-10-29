@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-
 import { useState, useEffect, useMemo } from 'react'
 import Card from '@/components/ui/Card'
 import { FormItem } from '@/components/ui/Form'
@@ -13,13 +12,13 @@ import Menu from '@/components/ui/Menu'
 import { HiPlus } from 'react-icons/hi'
 import { TbTrash } from 'react-icons/tb'
 import type { MouseEvent } from 'react'
-import { accordionData, AccordionItem } from '../../../../mock/data/clausesData'
 import useCategoryList from '../../category/List/hooks/useList'
 import useDocumentList from '../../document/List/hooks/useList'
 
 type OverviewSectionProps = FormSectionBaseProps & {
     setValue: any
     getValues: any
+    accordionData: any[]
 }
 
 const frequencyOptions = [
@@ -42,6 +41,7 @@ const OverviewSection = ({
     readOnly,
     setValue,
     getValues,
+    accordionData,
 }: OverviewSectionProps) => {
     const { categoryList } = useCategoryList()
     const { documentList } = useDocumentList()
@@ -78,10 +78,7 @@ const OverviewSection = ({
 
     // Single MenuCollapse by default open
     useEffect(() => {
-        const getAllKeys = (
-            items: AccordionItem[],
-            parentKey = '',
-        ): string[] => {
+        const getAllKeys = (items: any[], parentKey = ''): string[] => {
             let keys: string[] = []
             items.forEach((item, idx) => {
                 const key = `${parentKey}${idx}-${item.title}`
@@ -630,7 +627,7 @@ const OverviewSection = ({
         )
     }
 
-    const renderAccordion = (items: AccordionItem[], parentKey = '') => {
+    const renderAccordion = (items: any[], parentKey = '') => {
         return items.map((item, idx) => {
             const key = `${parentKey}${idx}-${item.title}`
             return (
