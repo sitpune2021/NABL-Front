@@ -31,11 +31,11 @@ const StandardSection = ({ control, errors, readOnly }: any) => {
                 </FormItem>
                 <FormItem
                     label="Unique Id"
-                    invalid={Boolean(errors.id)}
-                    errorMessage={errors.id?.message}
+                    invalid={Boolean(errors.uuid)}
+                    errorMessage={errors.uuid?.message}
                 >
                     <Controller
-                        name="id"
+                        name="uuid"
                         control={control}
                         defaultValue=""
                         render={({ field }) => (

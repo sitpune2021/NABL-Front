@@ -10,9 +10,10 @@ import { TbTrash } from 'react-icons/tb'
 import endpointConfig from '@/configs/endpoint.config'
 import useDocumentList from '../List/hooks/useList'
 import DocumentForm from '../Form'
-import type { DocumentFormSchema } from '@/@types/document'
+import type { DocumentFormSchema, FrequencyConfig } from '@/@types/document'
 import { defaultDocumentValues } from '@/constants/intial-doc.constant'
 import { apiGetDocumentEditortById } from '@/services/DocumentService'
+import FrequencyPopup from '../Form/FrequencyPopup'
 
 function buildPath(path: string, params: Record<string, string | number>) {
     return Object.entries(params).reduce(
@@ -34,6 +35,11 @@ const DocumentAddEdit = () => {
         null,
     )
     const [loadingData, setLoadingData] = useState(false)
+    const [isFrequencyPopupOpen, setIsFrequencyPopupOpen] = useState(false)
+    const [pendingSubmission, setPendingSubmission] = useState<{
+        values: DocumentFormSchema
+        isEditor: boolean
+    } | null>(null)
 
     const pathParts = location.pathname.split('/')
     const isEdit = pathParts.includes('edit')
@@ -75,67 +81,90 @@ const DocumentAddEdit = () => {
         [documentData],
     )
 
+    const performSubmission = async (
+        values: DocumentFormSchema,
+        isEditorMode: boolean,
+    ) => {
+        try {
+            setIsSubmitting(true)
+            if (isEditorMode) {
+                const payload = isEdit ? { ...values, id: documentId } : values
+                await saveDocumentEditorData(payload)
+                await sleep(800)
+                toast.push(
+                    <Notification type="success">
+                        {isEdit ? 'Editor updated!' : 'Editor created!'}
+                    </Notification>,
+                    { placement: 'top-center' },
+                )
+                navigate(`${endpointConfig.master.document.list}`)
+            } else {
+                const payload = isEdit ? { ...values, id: documentId } : values
+                const response = await saveDocumentData(payload)
+                const savedDoc = response?.data
+                await sleep(800)
+                toast.push(
+                    <Notification type="success">
+                        {isEdit ? 'Document updated!' : 'Document created!'}
+                    </Notification>,
+                    { placement: 'top-center' },
+                )
+                const path = isEdit
+                    ? buildPath(endpointConfig.master.document.editorEdit, {
+                          docId: documentId ?? '',
+                          id: savedDoc.id ?? '',
+                      })
+                    : `${endpointConfig.master.document.editor}/${savedDoc.id}`
+                navigate(path)
+            }
+        } catch (error) {
+            console.error('Save failed:', error)
+            toast.push(
+                <Notification type="danger">
+                    Failed to save document. Please try again.
+                </Notification>,
+                { placement: 'top-center' },
+            )
+        } finally {
+            setIsSubmitting(false)
+        }
+    }
+
     const handleFormSubmit = useCallback(
         async (values: DocumentFormSchema) => {
             if (isView) return
 
-            try {
-                setIsSubmitting(true)
-                if (isEditor) {
-                    const payload = isEdit
-                        ? { ...values, id: documentId }
-                        : values
-                    await saveDocumentEditorData(payload)
-                    await sleep(800)
-                    setIsSubmitting(false)
-                    toast.push(
-                        <Notification type="success">
-                            {isEdit ? 'Editor updated!' : 'Editor created!'}
-                        </Notification>,
-                        { placement: 'top-center' },
-                    )
-                    navigate(`${endpointConfig.master.document.list}`)
-                } else {
-                    const payload = isEdit
-                        ? { ...values, id: documentId }
-                        : values
-                    const response = await saveDocumentData(payload)
-                    const savedDoc = response?.data
-
-                    await sleep(800)
-                    setIsSubmitting(false)
-                    toast.push(
-                        <Notification type="success">
-                            {isEdit ? 'Document updated!' : 'Document created!'}
-                        </Notification>,
-                        { placement: 'top-center' },
-                    )
-                    const path = isEdit
-                        ? buildPath(endpointConfig.master.document.editorEdit, {
-                              docId: documentId ?? '',
-                              id: savedDoc.id ?? '',
-                          })
-                        : `${endpointConfig.master.document.editor}/${savedDoc.id}`
-                    navigate(path)
-                }
-            } catch (error) {
-                console.error('Save failed:', error)
-                toast.push(
-                    <Notification type="danger">
-                        Failed to save document. Please try again.
-                    </Notification>,
-                    { placement: 'top-center' },
-                )
-            } finally {
-                setIsSubmitting(false)
+            // Show popup only if editor and no frequency set
+            if (isEditor && !values.dataEntrySchedule) {
+                setPendingSubmission({ values, isEditor: true })
+                setIsFrequencyPopupOpen(true)
+                return
             }
+
+            await performSubmission(values, isEditor)
         },
-        [isEdit, isView, documentId, navigate, saveDocumentData],
+        [isEdit, isView, isEditor, documentId],
     )
+
+    const handleFrequencyConfirm = async (frequencyConfig: FrequencyConfig) => {
+        if (pendingSubmission) {
+            const valuesWithFrequency = {
+                ...pendingSubmission.values,
+                dataEntrySchedule: {
+                    frequency: frequencyConfig,
+                    startDate: new Date().toISOString(),
+                },
+            }
+            await performSubmission(
+                valuesWithFrequency,
+                pendingSubmission.isEditor,
+            )
+            setPendingSubmission(null)
+        }
+    }
 
     const handleDiscard = useCallback(() => setIsDialogOpen(true), [])
     const handleCancel = useCallback(() => setIsDialogOpen(false), [])
-
     const handleConfirmDiscard = useCallback(() => {
         toast.push(
             <Notification type="success">Changes discarded!</Notification>,
@@ -156,7 +185,7 @@ const DocumentAddEdit = () => {
                 isEditor={isEditor}
                 defaultValues={defaultValues}
                 readOnly={isView}
-                documentData={documentData} // Pass the documentData prop here
+                documentData={documentData}
                 isEdit={isEdit}
                 onFormSubmit={handleFormSubmit}
             >
@@ -194,6 +223,17 @@ const DocumentAddEdit = () => {
                     </div>
                 </Container>
             </DocumentForm>
+
+            <FrequencyPopup
+                isOpen={isFrequencyPopupOpen}
+                initialData={documentData?.dataEntrySchedule?.frequency}
+                onClose={() => {
+                    setIsFrequencyPopupOpen(false)
+                    setPendingSubmission(null)
+                }}
+                onConfirm={handleFrequencyConfirm}
+            />
+
             <ConfirmDialog
                 isOpen={isDialogOpen}
                 type="danger"
