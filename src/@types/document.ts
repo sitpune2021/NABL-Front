@@ -12,19 +12,12 @@ export type FrequencyType =
     | 'Yearly'
     | 'Bi-Yearly'
 
-export type ScheduleType = 'FixedTimes' | 'SpecificDays' | 'SpecificDates'
-
 export interface FrequencyConfig {
     type: FrequencyType
     interval: number
     cutOffTime: string
     cutOffTimes: string[]
     count: number
-    scheduleType: ScheduleType
-    specificTime?: string
-    specificDays?: string[]
-    specificDates?: string[]
-    isLastDayOfMonth?: boolean
     selectedItems?: string[]
 }
 
