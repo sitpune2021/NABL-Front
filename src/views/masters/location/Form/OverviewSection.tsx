@@ -17,7 +17,7 @@ const OverviewSection = ({
 }: OverviewSectionProps) => {
     const { zoneList } = useZoneList()
     const [selectedZone, setSelectedZone] = useState<string>('')
-    const { clusterList } = useClusterList(selectedZone)
+    const { clusterList } = useClusterList()
 
     // zone list
     const zoneOptions = zoneList.map((zone) => ({
@@ -116,6 +116,26 @@ const OverviewSection = ({
                                 autoComplete="off"
                                 readOnly={readOnly}
                                 placeholder="First Name"
+                                {...field}
+                            />
+                        )}
+                    />
+                </FormItem>
+
+                <FormItem
+                    label="Short Name"
+                    invalid={Boolean(errors.short_name)}
+                    errorMessage={errors.short_name?.message}
+                >
+                    <Controller
+                        name="short_name"
+                        control={control}
+                        render={({ field }) => (
+                            <Input
+                                type="text"
+                                autoComplete="off"
+                                readOnly={readOnly}
+                                placeholder="Short Name"
                                 {...field}
                             />
                         )}

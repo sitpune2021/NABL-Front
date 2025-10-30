@@ -21,6 +21,7 @@ const validationSchema = z.object({
     location_name: z.string().min(1, { message: ' name required' }),
     zone_name: z.string().min(1, { message: ' zone required' }),
     cluster_name: z.string().min(1, { message: ' cluster required' }),
+    short_name: z.any(),
 })
 
 const LocationForm = (props: LocationFormProps) => {

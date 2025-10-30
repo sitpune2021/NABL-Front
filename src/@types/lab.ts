@@ -1,5 +1,4 @@
 import { TableQueries } from './common'
-
 import type { Control, FieldErrors } from 'react-hook-form'
 
 export type GetLabListResponse = {
@@ -9,7 +8,7 @@ export type GetLabListResponse = {
 
 export type Filter = {
     purchasedProducts: string
-    purchaseChannel: Array<string>
+    purchaseChannel: string[]
 }
 
 export type Lab = {
@@ -26,20 +25,32 @@ export type LabListState = {
 export type LabListAction = {
     setFilterData: (payload: Filter) => void
     setTableData: (payload: TableQueries) => void
-    setSelectedLab: (checked: boolean, customer: Lab) => void
-    setSelectAllLab: (customer: Lab[]) => void
+    setSelectedLab: (checked: boolean, lab: Lab) => void
+    setSelectAllLab: (labs: Lab[]) => void
+}
+
+export type LocationField = {
+    prefix: string
+    shortName: string
+    zone_name: string | null
+    cluster_name: string | null
+    location_name: string | null
+    department: string | null
 }
 
 export type Fields = {
     id?: string
     name: string
     labType: string
-    department: string
+    department: string[]
     labCode: string
     email?: string
     phone?: string
     address?: string
-    location: string
+    location: LocationField[]
+    zone_name?: string[]
+    cluster_name?: string[]
+    location_name?: string[]
 }
 
 export type TagsFields = {
