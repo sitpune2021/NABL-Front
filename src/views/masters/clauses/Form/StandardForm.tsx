@@ -1,91 +1,100 @@
-import { useEffect } from 'react'
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { useCallback, useMemo } from 'react'
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { z } from 'zod'
 import { Form } from '@/components/ui/Form'
 import Container from '@/components/shared/Container'
 import BottomStickyBar from '@/components/template/BottomStickyBar'
 import StandardSection from './StandardSection'
-import isEmpty from 'lodash/isEmpty'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { useForm } from 'react-hook-form'
-import { z } from 'zod'
 import type { CommonProps } from '@/@types/common'
+import StandardRecursiveSection from './StandardRecursiveSection'
 import { StandardFormSchema } from '@/@types/standard'
-import StandardSectionTwo from './StandardSectionTwo'
 
 type StandardFormProps = {
-    onFormSubmit: (values: StandardFormSchema) => void
-    defaultValues?: StandardFormSchema
+    onFormSubmit: (values: any) => void
+    defaultValues?: Partial<StandardFormSchema>
     newStandard?: boolean
     readOnly?: boolean
 } & CommonProps
+const createStandardSchema = (): z.ZodType<any> =>
+    z
+        .object({
+            title: z.string().min(1, 'Title is required'),
+            message: z.string().min(1, 'Message is required'),
+            note: z.boolean(),
+            isChild: z.boolean(),
+            count: z.number().min(0, { message: 'Count must be 0 or greater' }),
+            children: z.array(z.lazy(createStandardSchema)).optional(),
+        })
+        .superRefine((data, ctx) => {
+            if (
+                data.isChild &&
+                (!data.children || data.children.length === 0)
+            ) {
+                ctx.addIssue({
+                    code: z.ZodIssueCode.custom,
+                    message: 'Children are required when isChild is true',
+                    path: ['children'],
+                })
+            }
+        })
 
-// Updated validation schema for all fields
-const validationSchema = z.object({
+export const validationSchema = z.object({
+    uuid: z.string().min(1, { message: 'Unique ID is required' }),
     name: z.string().min(1, { message: 'Name is required' }),
-    id: z.string().min(1, { message: 'Unique ID is required' }),
-    title: z.string().min(1, { message: 'Title is required' }),
-    message: z.string().optional(),
-    isNote: z.boolean(),
-    isChild: z.boolean(),
-    count: z.number().min(0),
-    children: z.array(z.any()), // Recursive validation
-    notes: z.array(
-        z.object({
-            content: z.string().min(1, { message: 'Note content is required' }),
-        }),
-    ),
-    fields: z.array(
-        z.object({
-            category: z.string().min(1, { message: 'Category is required' }),
-            documentName: z
-                .string()
-                .min(1, { message: 'Document name is required' }),
-            frequency: z.string().min(1, { message: 'Frequency is required' }),
-            isRequired: z.boolean(),
-            timezone: z.boolean(),
-        }),
-    ),
+    standards: z
+        .array(createStandardSchema())
+        .min(1, { message: 'At least one standard is required' }),
 })
 
-// In StandardForm.tsx - Replace the entire form setup
-const StandardForm = (props: StandardFormProps) => {
-    const {
-        onFormSubmit,
-        defaultValues = {},
-        readOnly = false,
-        children,
-    } = props
+export type FormValues = z.infer<typeof validationSchema>
+
+const StandardForm = ({
+    onFormSubmit,
+    defaultValues = {},
+    readOnly = false,
+    children,
+}: StandardFormProps) => {
+    const mergedDefaults = useMemo<FormValues>(() => {
+        const normalizedStandards = Array.isArray(defaultValues.standards)
+            ? (defaultValues.standards as any[])
+            : defaultValues.standards
+              ? [defaultValues.standards as any]
+              : [
+                    {
+                        title: '',
+                        message: '',
+                        note: true,
+                        isChild: false,
+                        count: 0,
+                        children: [],
+                    },
+                ]
+
+        return {
+            uuid: defaultValues.uuid ?? '',
+            name: defaultValues.name ?? '',
+            standards: normalizedStandards,
+        }
+    }, [defaultValues])
 
     const {
         handleSubmit,
-        reset,
         formState: { errors },
         control,
-    } = useForm<StandardFormSchema>({
-        defaultValues: {
-            name: '',
-            id: '',
-            title: '',
-            message: '',
-            isNote: false,
-            isChild: false,
-            count: 0,
-            children: [],
-            notes: [],
-            fields: [],
-            ...defaultValues,
-        },
+    } = useForm<FormValues>({
+        defaultValues: mergedDefaults,
         resolver: zodResolver(validationSchema),
+        mode: 'onBlur',
     })
 
-    useEffect(() => {
-        if (!isEmpty(defaultValues)) {
-            reset(defaultValues)
-        }
-    }, [defaultValues, reset])
-
-    const onSubmit = (values: StandardFormSchema) => {
-        onFormSubmit?.(values)
-    }
+    const onSubmit = useCallback(
+        (values: FormValues) => {
+            onFormSubmit(values)
+        },
+        [onFormSubmit],
+    )
 
     return (
         <Form
@@ -101,16 +110,20 @@ const StandardForm = (props: StandardFormProps) => {
                             errors={errors}
                             readOnly={readOnly}
                         />
-                        <StandardSectionTwo
+                        <StandardRecursiveSection
+                            isRoot
                             control={control}
+                            name="standards"
                             errors={errors}
                             readOnly={readOnly}
                         />
                     </div>
                 </div>
             </Container>
+
             <BottomStickyBar>{children}</BottomStickyBar>
         </Form>
     )
 }
+
 export default StandardForm

@@ -9,7 +9,7 @@ import { useClausesListStore } from '../store/listStore'
 import type { TableQueries } from '@/@types/common'
 import { Fields, GetClausesListResponse } from '@/@types/clauses'
 
-export default function useStandardList() {
+export default function useClausesList() {
     const {
         tableData,
         filterData,
@@ -27,7 +27,7 @@ export default function useStandardList() {
         { revalidateOnFocus: false },
     )
 
-    const saveStandardData = async (clauses: Fields) => {
+    const saveClausesData = async (clauses: Fields) => {
         if (clauses.id) {
             await apiUpdateClauses(clauses.id, clauses)
         } else {
@@ -36,7 +36,7 @@ export default function useStandardList() {
         await mutate()
     }
 
-    const getStandardById = async (id: string) => {
+    const getClausesById = async (id: string) => {
         const clauses = await apiGetClausesById(id)
         return clauses
     }
@@ -57,7 +57,7 @@ export default function useStandardList() {
         setSelectedClauses,
         setSelectAllClauses,
         setFilterData,
-        saveStandardData,
-        getStandardById,
+        saveClausesData,
+        getClausesById,
     }
 }
