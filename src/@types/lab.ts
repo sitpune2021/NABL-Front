@@ -44,8 +44,8 @@ export type Fields = {
     labType: string
     department: string[]
     labCode: string
-    email?: string
-    phone?: string
+    emails?: { value: string | undefined }[] // or string[] if you prefer plain strings
+    phones?: { value: string | undefined }[]
     address?: string
     location: LocationField[]
     zone_name?: string[]

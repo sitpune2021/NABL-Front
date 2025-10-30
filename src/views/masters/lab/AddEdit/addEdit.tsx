@@ -85,24 +85,29 @@ const LabAddEdit = () => {
     }
 
     const defaultFormValues: LabFormSchema = labData ?? {
+        id: undefined,
         name: '',
         labType: '',
         department: [],
         labCode: !isSubmitting ? `LAB-${labList.length + 1}` : '',
-        email: '',
-        phone: '',
+        emails: [{ value: '' }],
+        phones: [{ value: '' }],
         address: '',
         location: [
             {
                 prefix: 'LOC-1',
                 shortName: '',
-                zone_name: null,
-                cluster_name: null,
-                location_name: null,
-                department: null,
+                zone_name: '',
+                cluster_name: '',
+                location_name: '',
+                department: [{ value: '' }],
             },
         ],
+        zone_name: [],
+        cluster_name: [],
+        location_name: [],
     }
+
     return (
         <>
             <LabForm
