@@ -161,6 +161,22 @@ const masterNavigationConfig: NavigationTree[] = [
                 },
                 subMenu: [],
             },
+            {
+                key: 'masters.instrument.list',
+                path: `${endpointConfig.master.instrument.list}`,
+                title: 'Instrument',
+                translateKey: 'nav.mastersInstrument.list',
+                icon: 'documentation',
+                type: NAV_ITEM_TYPE_ITEM,
+                authority: [],
+                meta: {
+                    description: {
+                        translateKey: 'nav.mastersInstrument.listDesc',
+                        label: 'AI-powered chat systems',
+                    },
+                },
+                subMenu: [],
+            },
         ],
     },
     {

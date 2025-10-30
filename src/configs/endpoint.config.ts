@@ -109,6 +109,12 @@ const endpointConfig = {
         rolesPermission: {
             list: `${MASTER_PREFIX_PATH}/roles-permission/list`,
         },
+        instrument: {
+            list: `${MASTER_PREFIX_PATH}/instrument/list`,
+            create: `${MASTER_PREFIX_PATH}/instrument/create`,
+            edit: `${MASTER_PREFIX_PATH}/instrument/edit/:id`,
+            view: `${MASTER_PREFIX_PATH}/instrument/view/:id`,
+        },
     },
 }
 
