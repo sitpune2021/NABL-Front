@@ -2,6 +2,38 @@ import { TableQueries } from './common'
 
 import type { Control, FieldErrors, UseFormSetValue } from 'react-hook-form'
 
+export type FrequencyType =
+    | 'Daily'
+    | 'Weekly'
+    | 'Fortnightly'
+    | 'Monthly'
+    | 'Quarterly'
+    | 'Half-Yearly'
+    | 'Yearly'
+    | 'Bi-Yearly'
+
+export type ScheduleType = 'FixedTimes' | 'SpecificDays' | 'SpecificDates'
+
+export interface FrequencyConfig {
+    type: FrequencyType
+    interval: number
+    cutOffTime: string
+    cutOffTimes: string[]
+    count: number
+    scheduleType: ScheduleType
+    specificTime?: string
+    specificDays?: string[]
+    specificDates?: string[]
+    isLastDayOfMonth?: boolean
+    selectedItems?: string[]
+}
+
+export interface DataEntrySchedule {
+    frequency: FrequencyConfig
+    startDate: string
+    endDate?: string
+}
+
 export type GetDocumentListResponse = {
     data: Document[]
     total: number
@@ -43,6 +75,7 @@ export type Document = {
     frequency?: string
     duration?: string
     status?: 'Controlled' | 'Uncontrolled'
+    dataEntrySchedule?: DataEntrySchedule
     editor?: {
         id?: string
         documentId?: string | number
@@ -93,6 +126,7 @@ export type Fields = {
     frequency?: string
     duration?: string
     status?: 'Controlled' | 'Uncontrolled'
+    dataEntrySchedule?: DataEntrySchedule
     document?: {
         html: string
         css: string

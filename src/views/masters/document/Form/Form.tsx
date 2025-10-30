@@ -20,8 +20,6 @@ type DocumentFormProps = {
     documentData?: DocumentFormSchema | null
     isEdit?: boolean
 } & CommonProps
-
-// ✅ Validation schema using Zod
 const validationSchema = z.object({
     labName: z.string().min(1, 'Lab Name is required'),
     location: z.string().optional(),
