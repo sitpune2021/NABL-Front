@@ -29,7 +29,6 @@ const FrequencyPopup = ({
         cutOffTime: '08:30',
         cutOffTimes: ['08:30'],
         selectedItems: [],
-        scheduleType: 'FixedTimes',
     })
 
     useEffect(() => {
@@ -79,19 +78,33 @@ const FrequencyPopup = ({
                 ].map((d) => ({ value: d, label: d }))
                 break
 
+            case 'Fortnightly':
+                options = [
+                    { value: '1st Half', label: '1st Half (Day 1–15)' },
+                    { value: '2nd Half', label: '2nd Half (Day 16–30)' },
+                ]
+                break
+
+            case 'Monthly':
+                options = Array.from({ length: 31 }, (_, i) => ({
+                    value: `${i + 1}`,
+                    label: `Day ${i + 1}`,
+                }))
+                break
+
             case 'Quarterly':
                 options = [
-                    { value: 'Q1', label: 'Q1 (Jan–Mar)' },
-                    { value: 'Q2', label: 'Q2 (Apr–Jun)' },
-                    { value: 'Q3', label: 'Q3 (Jul–Sep)' },
-                    { value: 'Q4', label: 'Q4 (Oct–Dec)' },
+                    { value: 'Q1', label: 'Jan–Mar' },
+                    { value: 'Q2', label: 'Apr–Jun' },
+                    { value: 'Q3', label: 'Jul–Sep' },
+                    { value: 'Q4', label: 'Oct–Dec' },
                 ]
                 break
 
             case 'Half-Yearly':
                 options = [
-                    { value: 'H1', label: 'H1 (Jan–Jun)' },
-                    { value: 'H2', label: 'H2 (Jul–Dec)' },
+                    { value: 'H1', label: 'Jan–Jun' },
+                    { value: 'H2', label: 'Jul–Dec' },
                 ]
                 break
 
@@ -110,6 +123,13 @@ const FrequencyPopup = ({
                     'November',
                     'December',
                 ].map((m) => ({ value: m, label: m }))
+                break
+
+            case 'Bi-Yearly':
+                options = [
+                    { value: 'B1', label: 'Year 1' },
+                    { value: 'B2', label: 'Year 2' },
+                ]
                 break
 
             default:
@@ -157,38 +177,41 @@ const FrequencyPopup = ({
                         />
                     </FormItem>
 
-                    <FormItem label="Count">
-                        <Input
-                            type="number"
-                            min="1"
-                            max={config.type === 'Weekly' ? 7 : undefined}
-                            value={config.count}
-                            onChange={(e) => {
-                                const value = parseInt(e.target.value) || 1
-                                if (config.type === 'Weekly' && value > 7) {
-                                    toast.push(
-                                        <Notification
-                                            title="Limit exceeded"
-                                            type="danger"
-                                        >
-                                            You can only select up to 7 days in
-                                            a week.
-                                        </Notification>,
-                                    )
-                                    return
-                                }
-                                setConfig((prev) => ({
-                                    ...prev,
-                                    count: value,
-                                    selectedItems: [],
-                                }))
-                            }}
-                        />
-                    </FormItem>
-
-                    {options.length > 0 && (
+                    {config.type !== 'Daily' && (
+                        <FormItem label="Count">
+                            <Input
+                                type="number"
+                                min="1"
+                                max={config.type === 'Weekly' ? 7 : undefined}
+                                value={config.count}
+                                onChange={(e) => {
+                                    const value = parseInt(e.target.value) || 1
+                                    if (config.type === 'Weekly' && value > 7) {
+                                        toast.push(
+                                            <Notification
+                                                title="Limit exceeded"
+                                                type="danger"
+                                            >
+                                                You can only select up to 7 days
+                                                in a week.
+                                            </Notification>,
+                                        )
+                                        return
+                                    }
+                                    setConfig((prev) => ({
+                                        ...prev,
+                                        count: value,
+                                        selectedItems: [],
+                                    }))
+                                }}
+                            />
+                        </FormItem>
+                    )}
+                    {config.type !== 'Daily' && options.length > 0 && (
                         <FormItem
-                            label={`Select ${config.type === 'Weekly' ? 'Days' : 'Items'}`}
+                            label={`Select ${
+                                config.type === 'Weekly' ? 'Days' : 'Items'
+                            }`}
                         >
                             <Select
                                 isMulti

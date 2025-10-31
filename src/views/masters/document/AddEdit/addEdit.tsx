@@ -103,7 +103,6 @@ const DocumentAddEdit = () => {
                 const payload = isEdit ? { ...values, id: documentId } : values
                 const response = await saveDocumentData(payload)
                 const savedDoc = response?.data
-
                 await sleep(800)
                 setIsSubmitting(false)
                 toast.push(
@@ -144,18 +143,9 @@ const DocumentAddEdit = () => {
                 return
             }
 
-            // Proceed with actual submission
             await performSubmission(values, isEditor)
         },
-        [
-            isEdit,
-            isView,
-            isEditor,
-            documentId,
-            navigate,
-            saveDocumentData,
-            saveDocumentEditorData,
-        ],
+        [isEdit, isView, isEditor, documentId],
     )
 
     const handleFrequencyConfirm = async (frequencyConfig: FrequencyConfig) => {
@@ -167,7 +157,6 @@ const DocumentAddEdit = () => {
                     startDate: new Date().toISOString(),
                 },
             }
-
             await performSubmission(
                 valuesWithFrequency,
                 pendingSubmission.isEditor,
@@ -178,7 +167,6 @@ const DocumentAddEdit = () => {
 
     const handleDiscard = useCallback(() => setIsDialogOpen(true), [])
     const handleCancel = useCallback(() => setIsDialogOpen(false), [])
-
     const handleConfirmDiscard = useCallback(() => {
         toast.push(
             <Notification type="success">Changes discarded!</Notification>,
@@ -238,10 +226,9 @@ const DocumentAddEdit = () => {
                 </Container>
             </DocumentForm>
 
-            {/* Frequency Popup */}
-
             <FrequencyPopup
                 isOpen={isFrequencyPopupOpen}
+                initialData={documentData?.dataEntrySchedule?.frequency}
                 onClose={() => {
                     setIsFrequencyPopupOpen(false)
                     setPendingSubmission(null)
@@ -258,7 +245,7 @@ const DocumentAddEdit = () => {
                 onConfirm={handleConfirmDiscard}
             >
                 <p>
-                    Are you sure you want to discard this? This action cant be
+                    Are you sure you want to discard this? This action can’t be
                     undone.
                 </p>
             </ConfirmDialog>
