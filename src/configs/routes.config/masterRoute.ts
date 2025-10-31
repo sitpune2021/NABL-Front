@@ -438,6 +438,31 @@ const masterRoute: Routes = [
         component: lazy(() => import('@/views/masters/cluster/AddEdit')),
         authority: [],
     },
+
+    {
+        key: 'masters.instrument.list',
+        path: `${endpointConfig.master.instrument.list}`,
+        component: lazy(() => import('@/views/masters/instrument/List')),
+        authority: [],
+    },
+    {
+        key: 'masters.instrument.list',
+        path: `${endpointConfig.master.instrument.create}`,
+        component: lazy(() => import('@/views/masters/instrument/AddEdit')),
+        authority: [],
+    },
+    {
+        key: 'masters.instrument.list',
+        path: endpointConfig.master.instrument.edit,
+        component: lazy(() => import('@/views/masters/instrument/AddEdit')),
+        authority: [],
+    },
+    {
+        key: 'masters.instrument.list',
+        path: endpointConfig.master.instrument.view,
+        component: lazy(() => import('@/views/masters/instrument/AddEdit')),
+        authority: [],
+    },
 ]
 
 export default masterRoute

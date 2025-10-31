@@ -8,52 +8,51 @@ import ConfirmDialog from '@/components/shared/ConfirmDialog'
 import sleep from '@/utils/sleep'
 import { TbTrash } from 'react-icons/tb'
 import endpointConfig from '@/configs/endpoint.config'
-import useUserList from '../List/hooks/useList'
-import UserForm from '../Form'
-import { UserFormSchema } from '@/@types/user'
+import useInstrumentList from '../List/hooks/useList'
+import InstrumentForm, { InstrumentFormSchema } from '../Form'
 
-const UserAddEdit = () => {
+const InstrumentAddEdit = () => {
     const navigate = useNavigate()
     const location = useLocation()
-    const { id: userId } = useParams()
-    const { saveUserData, getUserById } = useUserList()
+    const { id: instrumentId } = useParams()
+    const { saveInstrumentData, getInstrumentById } = useInstrumentList()
 
     const [discardConfirmationOpen, setDiscardConfirmationOpen] =
         useState(false)
     const [isSubmiting, setIsSubmiting] = useState(false)
-    const [userData, setUserData] = useState<UserFormSchema | null>(null)
+    const [instrumentData, setInstrumentData] =
+        useState<InstrumentFormSchema | null>(null)
     const [loadingData, setLoadingData] = useState(false)
 
     const isEdit = location.pathname.includes('/edit')
     const isView = location.pathname.includes('/view')
     const isAdd = location.pathname.includes('/create')
 
-    // Load existing user data in edit or view mode
     useEffect(() => {
-        if (!isAdd && userId) {
+        if (!isAdd && instrumentId) {
             setLoadingData(true)
-            getUserById(userId)
+            getInstrumentById(instrumentId)
                 .then((data) => {
-                    setUserData(data)
+                    setInstrumentData(data)
                 })
                 .finally(() => setLoadingData(false))
         }
-    }, [userId, isAdd])
+    }, [instrumentId, isAdd])
 
-    const handleFormSubmit = async (values: UserFormSchema) => {
+    const handleFormSubmit = async (values: InstrumentFormSchema) => {
         if (isView) return
         setIsSubmiting(true)
-        const payload = isEdit ? { ...values, id: userId } : values
-        await saveUserData(payload)
+        const payload = isEdit ? { ...values, id: instrumentId } : values
+        await saveInstrumentData(payload)
         await sleep(800)
         setIsSubmiting(false)
         toast.push(
             <Notification type="success">
-                {isEdit ? 'User updated!' : 'User created!'}
+                {isEdit ? 'Instrument updated!' : 'Instrument created!'}
             </Notification>,
             { placement: 'top-center' },
         )
-        navigate(`${endpointConfig.master.user.list}`)
+        navigate(`${endpointConfig.master.instrument.list}`)
     }
 
     const handleConfirmDiscard = () => {
@@ -62,36 +61,29 @@ const UserAddEdit = () => {
             <Notification type="success">Changes discarded!</Notification>,
             { placement: 'top-center' },
         )
-        navigate(`${endpointConfig.master.user.list}`)
+        navigate(`${endpointConfig.master.instrument.list}`)
     }
 
     const handleDiscard = () => setDiscardConfirmationOpen(true)
     const handleCancel = () => setDiscardConfirmationOpen(false)
 
     if (loadingData && !isAdd) {
-        return <p className="p-4">Loading user data...</p>
+        return <p className="p-4">Loading instrument data...</p>
     }
 
     return (
         <>
-            <UserForm
-                newUser={isAdd}
+            <InstrumentForm
+                newInstrument={isAdd}
                 defaultValues={
-                    userData ?? {
+                    instrumentData ?? {
                         name: '',
-                        username: '',
-                        email: '',
-                        role: [],
-                        phone: '',
-                        dialCode: '',
-                        address: '',
-                        preparedBy: false,
-                        issuedBy: false,
-                        approvedBy: false,
-                        signUpload: '',
-                        zone_name: '',
-                        cluster_name: '',
-                        location_name: '',
+                        prefix: '',
+                        full_name: '',
+                        short_name: '',
+                        manufacture: '',
+                        serial_number: '',
+                        instrument_id: '',
                     }
                 }
                 readOnly={isView}
@@ -124,7 +116,7 @@ const UserAddEdit = () => {
                         )}
                     </div>
                 </Container>
-            </UserForm>
+            </InstrumentForm>
             <ConfirmDialog
                 isOpen={discardConfirmationOpen}
                 type="danger"
@@ -143,4 +135,4 @@ const UserAddEdit = () => {
     )
 }
 
-export default UserAddEdit
+export default InstrumentAddEdit
