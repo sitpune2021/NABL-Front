@@ -19,6 +19,16 @@ type ZoneFormProps = {
 
 const validationSchema = z.object({
     zone_name: z.string().min(1, { message: ' name required' }),
+    prefix: z
+        .string()
+        .min(1, { message: 'Prefix is required' })
+        .max(4, { message: 'Prefix must be at most 4 characters' })
+        .regex(/^[A-Z]+$/, {
+            message: 'Prefix must contain only uppercase letters',
+        })
+        .refine((val) => !/\s{2,}/.test(val), {
+            message: 'Prefix must not contain double spaces',
+        }),
 })
 
 const ZoneForm = (props: ZoneFormProps) => {

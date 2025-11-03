@@ -1,4 +1,4 @@
-import { TableQueries } from './common'
+import { PrefixFEntity, TableQueries } from './common'
 
 import type { Control, FieldErrors } from 'react-hook-form'
 
@@ -33,7 +33,7 @@ export type ZoneListAction = {
 export type Fields = {
     id?: string
     zone_name: string
-}
+} & PrefixFEntity
 
 export type TagsFields = {
     tags: Array<{ value: string; label: string }>

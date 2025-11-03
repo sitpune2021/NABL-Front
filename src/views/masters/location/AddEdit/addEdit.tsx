@@ -86,6 +86,7 @@ const LocationAddEdit = () => {
                         zone_name: '',
                         cluster_name: '',
                         short_name: '',
+                        prefix: '',
                     }
                 }
                 readOnly={isView}
