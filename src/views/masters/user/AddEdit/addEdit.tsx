@@ -89,6 +89,9 @@ const UserAddEdit = () => {
                         issuedBy: false,
                         approvedBy: false,
                         signUpload: '',
+                        zone_name: '',
+                        cluster_name: '',
+                        location_name: '',
                     }
                 }
                 readOnly={isView}

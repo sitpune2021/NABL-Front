@@ -44,6 +44,9 @@ const validationSchema = z.object({
     issuedBy: z.boolean(),
     approvedBy: z.boolean(),
     signUpload: z.string().optional().or(z.literal('')),
+    zone_name: z.string().optional().or(z.literal('')),
+    cluster_name: z.string().optional().or(z.literal('')),
+    location_name: z.string().optional().or(z.literal('')),
 })
 
 const UserForm = (props: UserFormProps) => {
