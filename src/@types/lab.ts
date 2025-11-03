@@ -35,22 +35,25 @@ export type LocationField = {
     zone_name: string | null
     cluster_name: string | null
     location_name: string | null
-    department: string | null
+    departments: {
+        name: string
+        instruments: (string | number)[]
+    }[]
+    emails: { value: string }[]
+    phones: { value: string }[]
+    address?: string
 }
 
 export type Fields = {
     id?: string
     name: string
     labType: string
-    department: string[]
+    department: string[] // Kept as string[] based on your provided type, though schema suggests it might be a single string; adjust if needed
     labCode: string
-    emails?: { value: string | undefined }[] // or string[] if you prefer plain strings
-    phones?: { value: string | undefined }[]
+    emails: { value: string }[]
+    phones: { value: string }[]
     address?: string
     location: LocationField[]
-    zone_name?: string[]
-    cluster_name?: string[]
-    location_name?: string[]
 }
 
 export type TagsFields = {

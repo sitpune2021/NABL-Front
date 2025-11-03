@@ -10,13 +10,12 @@ import { useForm, FormProvider } from 'react-hook-form'
 import { z } from 'zod'
 import type { CommonProps } from '@/@types/common'
 import type { LabFormSchema } from '@/@types/lab'
-import ContactPersonalSection from './ContactPersonalSection'
 import LocationsSection from './LocationsSection'
 
 const validationSchema = z.object({
     name: z.string().min(1, { message: 'Name is required' }),
     labType: z.string().min(1, { message: 'Lab Type is required' }),
-    department: z.any().refine((val) => val !== undefined && val !== null, {
+    department: z.any().refine((val) => val !== '' && val !== null, {
         message: 'Department is required',
     }),
     labCode: z.string().min(1, { message: 'Lab Code is required' }),
@@ -48,11 +47,45 @@ const validationSchema = z.object({
                 location_name: z
                     .string()
                     .nonempty({ message: 'Location is required' }),
-                department: z
-                    .array(z.string())
-                    .min(1, { message: 'Department is required' }),
+                departments: z
+                    .array(
+                        z.object({
+                            name: z
+                                .string()
+                                .nonempty({
+                                    message: 'Department name is required',
+                                }),
+                            instruments: z
+                                .array(z.union([z.string(), z.number()]))
+                                .min(1, {
+                                    message:
+                                        'At least one instrument is required per department',
+                                }),
+                        }),
+                    )
+                    .min(1, { message: 'At least one department is required' }),
                 prefix: z.string().nonempty(),
-                shortName: z.string().optional(),
+                shortName: z.string(),
+                emails: z
+                    .array(
+                        z.object({
+                            value: z
+                                .string()
+                                .nonempty({ message: 'Email is required' })
+                                .email({ message: 'Invalid email address' }),
+                        }),
+                    )
+                    .min(1, { message: 'At least one email is required' }),
+                phones: z
+                    .array(
+                        z.object({
+                            value: z
+                                .string()
+                                .nonempty({ message: 'Phone is required' }),
+                        }),
+                    )
+                    .min(1, { message: 'At least one phone is required' }),
+                address: z.string().optional(),
             }),
         )
         .min(1, { message: 'At least one location is required' }),
@@ -109,13 +142,6 @@ const LabForm = ({
                                 readOnly={readOnly}
                             />
                             <LocationsSection
-                                control={control}
-                                errors={errors}
-                                readOnly={readOnly}
-                            />
-                        </div>
-                        <div className="md:w-[370px] gap-4 flex flex-col">
-                            <ContactPersonalSection
                                 control={control}
                                 errors={errors}
                                 readOnly={readOnly}

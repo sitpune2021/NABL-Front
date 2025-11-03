@@ -2,13 +2,15 @@ import Card from '@/components/ui/Card'
 import Input from '@/components/ui/Input'
 import { FormItem } from '@/components/ui/Form'
 import { Controller, useFieldArray, useFormContext } from 'react-hook-form'
+import { useEffect } from 'react' // Added useEffect import
 import { FormSectionBaseProps } from '@/@types/lab'
 import { Button, Select } from '@/components/ui'
+import { HiPlus, HiMinus } from 'react-icons/hi'
 import useZoneList from '../../zone/List/hooks/useList'
 import useClusterList from '../../cluster/List/hooks/useList'
 import useLocationList from '../../location/List/hooks/useList'
 import useDepartmentList from '../../department/List/hooks/useList'
-import { useEffect } from 'react'
+import useInstrumentList from '../../instrument/List/hooks/useList'
 
 const LocationsSection = ({
     control,
@@ -20,18 +22,14 @@ const LocationsSection = ({
     const { clusterList } = useClusterList()
     const { locationList } = useLocationList()
     const { departmentList } = useDepartmentList()
+    const { instrumentList } = useInstrumentList()
 
     const { fields, append } = useFieldArray({
         control,
         name: 'location',
     })
-    const labCode = watch('labCode')
 
-    useEffect(() => {
-        fields.forEach((_, index) => {
-            setValue(`location.${index}.prefix`, `LOC-${index + 1}-${labCode}`)
-        })
-    }, [labCode, fields, setValue])
+    console.log(errors)
 
     return (
         <>
@@ -47,9 +45,14 @@ const LocationsSection = ({
                                     zone_name: '',
                                     cluster_name: '',
                                     location_name: '',
-                                    department: '',
-                                    prefix: `LOC-${fields.length + 1}-${labCode}`,
+                                    departments: [
+                                        { name: '', instruments: [] },
+                                    ], // Default one department
+                                    prefix: '',
                                     shortName: '',
+                                    emails: [{ value: '' }], // Default one email
+                                    phones: [{ value: '' }], // Default one phone
+                                    address: '',
                                 })
                             }
                         >
@@ -67,10 +70,6 @@ const LocationsSection = ({
             {fields.map((item, index) => {
                 const selectedZone = watch(`location.${index}.zone_name`)
                 const selectedCluster = watch(`location.${index}.cluster_name`)
-                const selectedLocation = watch(
-                    `location.${index}.location_name`,
-                )
-
                 const filteredClusters = clusterList.filter(
                     (c) => c.zone_name === selectedZone,
                 )
@@ -79,9 +78,59 @@ const LocationsSection = ({
                     (l) => l.cluster_name === selectedCluster,
                 )
 
+                // useFieldArray for departments within each location
+                const {
+                    fields: departmentFields,
+                    append: appendDepartment,
+                    remove: removeDepartment,
+                } = useFieldArray({
+                    control,
+                    name: `location.${index}.departments`,
+                })
+
+                // Ensure at least one department
+                useEffect(() => {
+                    if (departmentFields.length === 0) {
+                        appendDepartment({ name: '', instruments: [] })
+                    }
+                }, [departmentFields.length, appendDepartment])
+
+                // Added useFieldArray for emails and phones within each location
+                const {
+                    fields: emailFields,
+                    append: appendEmail,
+                    remove: removeEmail,
+                } = useFieldArray({
+                    control,
+                    name: `location.${index}.emails`,
+                })
+
+                const {
+                    fields: phoneFields,
+                    append: appendPhone,
+                    remove: removePhone,
+                } = useFieldArray({
+                    control,
+                    name: `location.${index}.phones`,
+                })
+
+                // Ensure at least one email
+                useEffect(() => {
+                    if (emailFields.length === 0) {
+                        appendEmail({ value: '' })
+                    }
+                }, [emailFields.length, appendEmail])
+
+                // Ensure at least one phone
+                useEffect(() => {
+                    if (phoneFields.length === 0) {
+                        appendPhone({ value: '' })
+                    }
+                }, [phoneFields.length, appendPhone])
+
                 return (
-                    <Card key={item.id || index}>
-                        <div className="grid md:grid-cols-3 gap-4 p-3 mb-3">
+                    <Card key={item.id}>
+                        <div className="grid md:grid-cols-4 gap-4 p-3 mb-3">
                             <FormItem
                                 label="Zone"
                                 invalid={Boolean(
@@ -128,6 +177,32 @@ const LocationsSection = ({
                                                 )
                                                 setValue(
                                                     `location.${index}.shortName`,
+                                                    '',
+                                                )
+                                                setValue(
+                                                    `location.${index}.prefix`,
+                                                    '',
+                                                )
+                                                setValue(
+                                                    `location.${index}.departments`,
+                                                    [
+                                                        {
+                                                            name: '',
+                                                            instruments: [],
+                                                        },
+                                                    ], // Reset to default one department
+                                                )
+                                                // Added clearing for contact person
+                                                setValue(
+                                                    `location.${index}.emails`,
+                                                    [{ value: '' }], // Reset to default one email
+                                                )
+                                                setValue(
+                                                    `location.${index}.phones`,
+                                                    [{ value: '' }], // Reset to default one phone
+                                                )
+                                                setValue(
+                                                    `location.${index}.address`,
                                                     '',
                                                 )
                                             }}
@@ -189,6 +264,32 @@ const LocationsSection = ({
                                                     `location.${index}.shortName`,
                                                     '',
                                                 )
+                                                setValue(
+                                                    `location.${index}.prefix`,
+                                                    '',
+                                                )
+                                                setValue(
+                                                    `location.${index}.departments`,
+                                                    [
+                                                        {
+                                                            name: '',
+                                                            instruments: [],
+                                                        },
+                                                    ], // Reset to default one department
+                                                )
+                                                // Added clearing for contact person
+                                                setValue(
+                                                    `location.${index}.emails`,
+                                                    [{ value: '' }], // Reset to default one email
+                                                )
+                                                setValue(
+                                                    `location.${index}.phones`,
+                                                    [{ value: '' }], // Reset to default one phone
+                                                )
+                                                setValue(
+                                                    `location.${index}.address`,
+                                                    '',
+                                                )
                                             }}
                                         />
                                     )}
@@ -240,8 +341,51 @@ const LocationsSection = ({
                                                 field.onChange(
                                                     selected?.value || '',
                                                 )
+                                                const locationMatch =
+                                                    filteredLocations.find(
+                                                        (l) =>
+                                                            l.location_name ===
+                                                            selected?.value,
+                                                    )
+                                                if (locationMatch) {
+                                                    setValue(
+                                                        `location.${index}.shortName`,
+                                                        locationMatch.short_name,
+                                                    )
+                                                    setValue(
+                                                        `location.${index}.prefix`,
+                                                        `LOC-${locationMatch.prefix}`,
+                                                    )
+                                                } else {
+                                                    setValue(
+                                                        `location.${index}.shortName`,
+                                                        '',
+                                                    )
+                                                    setValue(
+                                                        `location.${index}.prefix`,
+                                                        '',
+                                                    )
+                                                }
                                                 setValue(
-                                                    `location.${index}.shortName`,
+                                                    `location.${index}.departments`,
+                                                    [
+                                                        {
+                                                            name: '',
+                                                            instruments: [],
+                                                        },
+                                                    ], // Reset to default one department
+                                                )
+                                                // Added clearing for contact person
+                                                setValue(
+                                                    `location.${index}.emails`,
+                                                    [{ value: '' }], // Reset to default one email
+                                                )
+                                                setValue(
+                                                    `location.${index}.phones`,
+                                                    [{ value: '' }], // Reset to default one phone
+                                                )
+                                                setValue(
+                                                    `location.${index}.address`,
                                                     '',
                                                 )
                                             }}
@@ -262,93 +406,11 @@ const LocationsSection = ({
                                 <Controller
                                     name={`location.${index}.shortName`}
                                     control={control}
-                                    render={({ field }) => {
-                                        const locationMatch =
-                                            filteredLocations.find(
-                                                (l) =>
-                                                    l.location_name ===
-                                                    selectedLocation,
-                                            )
-                                        const shortOptions = locationMatch
-                                            ? [
-                                                  {
-                                                      label: locationMatch.short_name,
-                                                      value: locationMatch.short_name,
-                                                  },
-                                              ]
-                                            : []
-
-                                        return (
-                                            <Select
-                                                placeholder={
-                                                    selectedLocation
-                                                        ? 'Select Short Name'
-                                                        : 'Select Location first'
-                                                }
-                                                options={shortOptions}
-                                                value={
-                                                    shortOptions.find(
-                                                        (o) =>
-                                                            o.value ===
-                                                            field.value,
-                                                    ) || null
-                                                }
-                                                isDisabled={
-                                                    readOnly ||
-                                                    !selectedLocation
-                                                }
-                                                onChange={(selected) =>
-                                                    field.onChange(
-                                                        selected?.value || '',
-                                                    )
-                                                }
-                                            />
-                                        )
-                                    }}
-                                />
-                            </FormItem>
-
-                            <FormItem
-                                label="Department"
-                                invalid={Boolean(
-                                    errors.location?.[index]?.department,
-                                )}
-                                errorMessage={
-                                    errors.location?.[index]?.department
-                                        ?.message
-                                }
-                            >
-                                <Controller
-                                    name={`location.${index}.department`}
-                                    control={control}
                                     render={({ field }) => (
-                                        <Select
-                                            isMulti
-                                            placeholder="Select Department"
-                                            options={departmentList.map(
-                                                (d) => ({
-                                                    label: d.name,
-                                                    value: d.name,
-                                                }),
-                                            )}
-                                            value={departmentList
-                                                .map((d) => ({
-                                                    label: d.name,
-                                                    value: d.name,
-                                                }))
-                                                .filter((opt) =>
-                                                    field.value?.includes(
-                                                        opt.value,
-                                                    ),
-                                                )}
-                                            isDisabled={readOnly}
-                                            onChange={(selected) =>
-                                                field.onChange(
-                                                    selected?.map(
-                                                        (s) => s.value,
-                                                    ) || [],
-                                                )
-                                            }
+                                        <Input
+                                            {...field}
+                                            placeholder="Enter Short Name"
+                                            readOnly={readOnly}
                                         />
                                     )}
                                 />
@@ -369,12 +431,338 @@ const LocationsSection = ({
                                     render={({ field }) => (
                                         <Input
                                             {...field}
-                                            readOnly
-                                            placeholder={`LOC-${index + 1}`}
+                                            placeholder="LOC-"
+                                            readOnly={readOnly}
                                         />
                                     )}
                                 />
                             </FormItem>
+                        </div>
+
+                        {/* Departments Section */}
+                        <div className="mt-4">
+                            <div className="flex items-center justify-between gap-2 mb-2">
+                                <h5>Departments</h5>
+                                {!readOnly && (
+                                    <Button
+                                        type="button"
+                                        size="xs"
+                                        onClick={() =>
+                                            appendDepartment({
+                                                name: '',
+                                                instruments: [],
+                                            })
+                                        }
+                                    >
+                                        + Add Department
+                                    </Button>
+                                )}
+                            </div>
+                            {departmentFields.map((deptItem, deptIndex) => (
+                                <div
+                                    key={deptItem.id}
+                                    className="border p-3 mb-2 rounded"
+                                >
+                                    <div className="grid md:grid-cols-2 gap-4">
+                                        <FormItem
+                                            label="Department"
+                                            invalid={Boolean(
+                                                errors.location?.[index]
+                                                    ?.departments?.[deptIndex]
+                                                    ?.name,
+                                            )}
+                                            errorMessage={
+                                                errors.location?.[index]
+                                                    ?.departments?.[deptIndex]
+                                                    ?.name?.message
+                                            }
+                                        >
+                                            <Controller
+                                                name={`location.${index}.departments.${deptIndex}.name`}
+                                                control={control}
+                                                render={({ field }) => (
+                                                    <Select
+                                                        placeholder="Select Department"
+                                                        options={departmentList.map(
+                                                            (d) => ({
+                                                                label: d.name,
+                                                                value: d.name,
+                                                            }),
+                                                        )}
+                                                        value={
+                                                            departmentList
+                                                                .map((d) => ({
+                                                                    label: d.name,
+                                                                    value: d.name,
+                                                                }))
+                                                                .find(
+                                                                    (o) =>
+                                                                        o.value ===
+                                                                        field.value,
+                                                                ) || null
+                                                        }
+                                                        isDisabled={readOnly}
+                                                        onChange={(
+                                                            selected,
+                                                        ) => {
+                                                            field.onChange(
+                                                                selected?.value ||
+                                                                    '',
+                                                            )
+                                                            setValue(
+                                                                `location.${index}.departments.${deptIndex}.instruments`,
+                                                                [],
+                                                            )
+                                                        }}
+                                                    />
+                                                )}
+                                            />
+                                        </FormItem>
+
+                                        <FormItem
+                                            label="Instruments"
+                                            invalid={Boolean(
+                                                errors.location?.[index]
+                                                    ?.departments?.[deptIndex]
+                                                    ?.instruments,
+                                            )}
+                                            errorMessage={
+                                                errors.location?.[index]
+                                                    ?.departments?.[deptIndex]
+                                                    ?.instruments?.message
+                                            }
+                                        >
+                                            <Controller
+                                                name={`location.${index}.departments.${deptIndex}.instruments`}
+                                                control={control}
+                                                render={({ field }) => (
+                                                    <Select
+                                                        isMulti
+                                                        placeholder="Select Instruments"
+                                                        options={instrumentList.map(
+                                                            (i) => ({
+                                                                label: i.full_name,
+                                                                value: i.id,
+                                                            }),
+                                                        )}
+                                                        value={instrumentList
+                                                            .map((i) => ({
+                                                                label: i.full_name,
+                                                                value: i.id,
+                                                            }))
+                                                            .filter((opt) =>
+                                                                field.value?.includes(
+                                                                    opt.value,
+                                                                ),
+                                                            )}
+                                                        isDisabled={readOnly}
+                                                        onChange={(selected) =>
+                                                            field.onChange(
+                                                                selected?.map(
+                                                                    (s) =>
+                                                                        s.value,
+                                                                ) || [],
+                                                            )
+                                                        }
+                                                    />
+                                                )}
+                                            />
+                                        </FormItem>
+                                    </div>
+                                    {!readOnly && (
+                                        <Button
+                                            type="button"
+                                            size="xs"
+                                            className="mt-2"
+                                            onClick={() =>
+                                                removeDepartment(deptIndex)
+                                            }
+                                        >
+                                            Remove Department
+                                        </Button>
+                                    )}
+                                </div>
+                            ))}
+                        </div>
+
+                        {/* Contact Person Section */}
+                        <div className="mt-6">
+                            <h4 className="mb-6">Contact Person</h4>
+                            <div className="grid md:grid-cols-2 gap-6">
+                                <div>
+                                    <div className="flex items-center justify-between gap-2 mb-4">
+                                        <label className="form-label">
+                                            Emails
+                                        </label>
+                                        {!readOnly && (
+                                            <Button
+                                                type="button"
+                                                size="xs"
+                                                icon={<HiPlus />}
+                                                onClick={() =>
+                                                    appendEmail({ value: '' })
+                                                }
+                                            />
+                                        )}
+                                    </div>
+                                    <div className="space-y-4">
+                                        {emailFields.map(
+                                            (field, emailIndex) => (
+                                                <FormItem
+                                                    key={field.id}
+                                                    invalid={Boolean(
+                                                        errors.location?.[index]
+                                                            ?.emails?.[
+                                                            emailIndex
+                                                        ]?.value,
+                                                    )}
+                                                    errorMessage={
+                                                        errors.location?.[index]
+                                                            ?.emails?.[
+                                                            emailIndex
+                                                        ]?.value?.message
+                                                    }
+                                                >
+                                                    <div className="flex items-center gap-2">
+                                                        <Controller
+                                                            name={`location.${index}.emails.${emailIndex}.value`}
+                                                            control={control}
+                                                            render={({
+                                                                field,
+                                                            }) => (
+                                                                <Input
+                                                                    {...field}
+                                                                    placeholder={`Email ${emailIndex + 1}`}
+                                                                    readOnly={
+                                                                        readOnly
+                                                                    }
+                                                                    className="flex-1"
+                                                                />
+                                                            )}
+                                                        />
+                                                        {!readOnly &&
+                                                            emailFields.length >
+                                                                1 && (
+                                                                <Button
+                                                                    size="xs"
+                                                                    type="button"
+                                                                    icon={
+                                                                        <HiMinus />
+                                                                    }
+                                                                    onClick={() =>
+                                                                        removeEmail(
+                                                                            emailIndex,
+                                                                        )
+                                                                    }
+                                                                />
+                                                            )}
+                                                    </div>
+                                                </FormItem>
+                                            ),
+                                        )}
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <div className="flex items-center justify-between gap-2 mb-4">
+                                        <label className="form-label">
+                                            Phones
+                                        </label>
+                                        {!readOnly && (
+                                            <Button
+                                                type="button"
+                                                size="xs"
+                                                icon={<HiPlus />}
+                                                onClick={() =>
+                                                    appendPhone({ value: '' })
+                                                }
+                                            />
+                                        )}
+                                    </div>
+                                    <div className="space-y-4">
+                                        {phoneFields.map(
+                                            (field, phoneIndex) => (
+                                                <FormItem
+                                                    key={field.id}
+                                                    invalid={Boolean(
+                                                        errors.location?.[index]
+                                                            ?.phones?.[
+                                                            phoneIndex
+                                                        ]?.value,
+                                                    )}
+                                                    errorMessage={
+                                                        errors.location?.[index]
+                                                            ?.phones?.[
+                                                            phoneIndex
+                                                        ]?.value?.message
+                                                    }
+                                                >
+                                                    <div className="flex items-center gap-2">
+                                                        <Controller
+                                                            name={`location.${index}.phones.${phoneIndex}.value`}
+                                                            control={control}
+                                                            render={({
+                                                                field,
+                                                            }) => (
+                                                                <Input
+                                                                    {...field}
+                                                                    placeholder={`Phone ${phoneIndex + 1}`}
+                                                                    readOnly={
+                                                                        readOnly
+                                                                    }
+                                                                    className="flex-1"
+                                                                />
+                                                            )}
+                                                        />
+                                                        {!readOnly &&
+                                                            phoneFields.length >
+                                                                1 && (
+                                                                <Button
+                                                                    size="xs"
+                                                                    type="button"
+                                                                    icon={
+                                                                        <HiMinus />
+                                                                    }
+                                                                    onClick={() =>
+                                                                        removePhone(
+                                                                            phoneIndex,
+                                                                        )
+                                                                    }
+                                                                />
+                                                            )}
+                                                    </div>
+                                                </FormItem>
+                                            ),
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="mt-6">
+                                <FormItem
+                                    label="Address"
+                                    invalid={Boolean(
+                                        errors.location?.[index]?.address,
+                                    )}
+                                    errorMessage={
+                                        errors.location?.[index]?.address
+                                            ?.message
+                                    }
+                                >
+                                    <Controller
+                                        name={`location.${index}.address`}
+                                        control={control}
+                                        render={({ field }) => (
+                                            <Input
+                                                {...field}
+                                                textArea
+                                                placeholder="Address"
+                                                readOnly={readOnly}
+                                            />
+                                        )}
+                                    />
+                                </FormItem>
+                            </div>
                         </div>
                     </Card>
                 )
