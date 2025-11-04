@@ -11,7 +11,8 @@ import type { CommonProps } from '@/@types/common'
 import { UserFormSchema } from '@/@types/user'
 import AddressSection from './AddressSection'
 import ProfileImageSection from './ProfileImageSection'
-import TagsSection from './TagsSection'
+// import TagsSection from './TagsSection'
+import AssignPermissionSection from './AssignPermissionSection'
 
 type UserFormProps = {
     onFormSubmit: (values: UserFormSchema) => void
@@ -29,11 +30,11 @@ const validationSchema = z.object({
     role: z
         .array(
             z.object({
-                value: z.string().min(1, { message: 'role required' }),
-                label: z.string().min(1, { message: 'role required' }),
+                value: z.string().optional(),
+                label: z.string().optional(),
             }),
         )
-        .min(1, { message: 'At least one role is required' }),
+        .optional(),
     dialCode: z.string().min(1, { message: 'Please select your country code' }),
     phone: z
         .string()
@@ -93,7 +94,12 @@ const UserForm = (props: UserFormProps) => {
                             errors={errors}
                             readOnly={readOnly}
                         />
-                        <AddressSection
+                        {/* <AddressSection
+                            control={control}
+                            errors={errors}
+                            readOnly={readOnly}
+                        /> */}
+                        <AssignPermissionSection
                             control={control}
                             errors={errors}
                             readOnly={readOnly}
@@ -105,7 +111,12 @@ const UserForm = (props: UserFormProps) => {
                             errors={errors}
                             readOnly={readOnly}
                         />
-                        <TagsSection
+                        {/* <TagsSection
+                            control={control}
+                            errors={errors}
+                            readOnly={readOnly}
+                        /> */}
+                        <AddressSection
                             control={control}
                             errors={errors}
                             readOnly={readOnly}

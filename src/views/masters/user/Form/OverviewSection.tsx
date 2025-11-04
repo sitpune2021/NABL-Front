@@ -137,29 +137,38 @@ const OverviewSection = ({
             <div className="flex items-end gap-4 w-full">
                 <FormItem
                     invalid={Boolean(errors.phone) || Boolean(errors.dialCode)}
+                    errorMessage={errors.dialCode?.message}
                 >
                     <label className="form-label mb-2">Phone number</label>
                     <Controller
                         name="dialCode"
                         control={control}
-                        render={({ field }) => (
-                            <Select<CountryOption>
-                                options={dialCodeList}
-                                {...field}
-                                className="w-[150px]"
-                                components={{
-                                    Option: CustomSelectOption,
-                                    Control: CustomControl,
-                                }}
-                                placeholder=""
-                                value={dialCodeList.filter(
-                                    (option) => option.dialCode === field.value,
-                                )}
-                                onChange={(option) =>
-                                    field.onChange(option?.dialCode)
-                                }
-                            />
-                        )}
+                        render={({ field }) => {
+                            const currentValue = field.value || '+91'
+                            const selectedOption = dialCodeList.find(
+                                (option) => option.dialCode === currentValue,
+                            )
+
+                            return (
+                                <Select<CountryOption>
+                                    options={dialCodeList}
+                                    {...field}
+                                    className="w-[150px]"
+                                    components={{
+                                        Option: CustomSelectOption,
+                                        Control: CustomControl,
+                                    }}
+                                    placeholder=""
+                                    value={selectedOption}
+                                    isDisabled={readOnly}
+                                    onChange={(option) =>
+                                        field.onChange(
+                                            option?.dialCode || '+91',
+                                        )
+                                    }
+                                />
+                            )
+                        }}
                     />
                 </FormItem>
                 <FormItem
