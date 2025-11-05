@@ -20,9 +20,7 @@ const CategoryAddEdit = () => {
     const [discardConfirmationOpen, setDiscardConfirmationOpen] =
         useState(false)
     const [isSubmiting, setIsSubmiting] = useState(false)
-    const [categoryData, setCategoryData] = useState<CategoryFormSchema | null>(
-        null,
-    )
+    const [categoryData, setCategoryData] = useState<CategoryFormSchema>()
     const [loadingData, setLoadingData] = useState(false)
 
     const isEdit = location.pathname.includes('/edit')
@@ -124,7 +122,7 @@ const CategoryAddEdit = () => {
             >
                 <p>
                     Are you sure you want discard this? This action can&apos;t
-                    be undo.{' '}
+                    be undo.
                 </p>
             </ConfirmDialog>
         </>

@@ -3,6 +3,7 @@ import {
     apiGetRolesList,
     apiGetRolesById,
     apiUpdateRoles,
+    apiGetAccesModulesList,
 } from '@/services/RolesService'
 import useSWR from 'swr'
 import { useRolesListStore } from '../store/listStore'
@@ -28,6 +29,19 @@ export default function useRolesList() {
             revalidateOnFocus: false,
         },
     )
+
+    const {
+        data: modulesData,
+        error: modulesError,
+        isLoading: modulesLoading,
+        mutate: mutateModules,
+    } = useSWR(
+        '/api/access-modules', // key for SWR caching
+        () => apiGetAccesModulesList(),
+        {
+            revalidateOnFocus: false,
+        },
+    )
     const saveRolesData = async (roles: Fields) => {
         if (roles.id) {
             await apiUpdateRoles(roles.id, roles)
@@ -44,8 +58,7 @@ export default function useRolesList() {
     }
 
     const rolesList = data || []
-
-    // const rolesListTotal = data?.total || 0
+    const accessModules = modulesData || []
 
     return {
         rolesList,
@@ -62,5 +75,9 @@ export default function useRolesList() {
         setFilterData,
         saveRolesData,
         getRolesById, // ✅ Now defined properly
+        accessModules,
+        modulesError,
+        modulesLoading,
+        mutateModules,
     }
 }

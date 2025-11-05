@@ -18,20 +18,15 @@ type SubCategoryFormProps = {
 } & CommonProps
 
 const validationSchema = z.object({
+    cat_id: z.union([
+        z.number(),
+        z.string().min(1, { message: 'category required' }),
+    ]),
     name: z.string().min(1, { message: ' name required' }),
-    subcategory: z.string().min(1, { message: 'sub category required' }),
-    required: z.boolean(),
-    initialtimezone: z.boolean(),
-    prefix: z
-        .string()
-        .min(1, { message: 'Prefix is required' })
-        .max(4, { message: 'Prefix must be at most 4 characters' })
-        .regex(/^[A-Z]+$/, {
-            message: 'Prefix must contain only uppercase letters',
-        })
-        .refine((val) => !/\s{2,}/.test(val), {
-            message: 'Prefix must not contain double spaces',
-        }),
+    prefix: z.string().regex(/^[A-Z]{1,4}-[A-Z]{1,4}$/, {
+        message:
+            'Prefix must be in format ZZZ-XXXX (zone prefix + 1–4 uppercase letters only)',
+    }),
 })
 
 const SubCategoryForm = (props: SubCategoryFormProps) => {

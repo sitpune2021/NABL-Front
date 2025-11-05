@@ -11,6 +11,13 @@ export async function apiGetRolesList<T, U extends Record<string, unknown>>(
     })
 }
 
+export async function apiGetAccesModulesList<T>() {
+    return ApiService.fetchDataWithAxios<T>({
+        url: '/access-modules',
+        method: 'get',
+    })
+}
+
 export async function apiRoles(data: Fields) {
     return ApiService.fetchDataWithAxios<Fields>({
         url: '/roles',

@@ -7,11 +7,6 @@ export type GetCategoryListResponse = {
     total?: number
 }
 
-export type Filter = {
-    purchasedProducts: string
-    purchaseChannel: Array<string>
-}
-
 export type Category = {
     id: string
     name: string
@@ -19,12 +14,10 @@ export type Category = {
 
 export type CategoryListState = {
     tableData: TableQueries
-    filterData: Filter
     selectedCategory: Partial<Category>[]
 }
 
 export type CategoryListAction = {
-    setFilterData: (payload: Filter) => void
     setTableData: (payload: TableQueries) => void
     setSelectedCategory: (checked: boolean, customer: Category) => void
     setSelectAllCategory: (customer: Category[]) => void

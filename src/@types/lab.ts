@@ -30,6 +30,7 @@ export type LabListAction = {
 }
 
 export type LocationField = {
+    id?: string
     prefix: string
     shortName: string
     zone_name: string | null

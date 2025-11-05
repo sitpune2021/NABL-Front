@@ -85,7 +85,6 @@ const LabAddEdit = () => {
     }
 
     const defaultFormValues: LabFormSchema = labData ?? {
-        id: undefined,
         name: '',
         labType: '',
         department: [],
@@ -95,17 +94,17 @@ const LabAddEdit = () => {
         address: '',
         location: [
             {
-                prefix: 'LOC-1',
-                shortName: '',
                 zone_name: '',
                 cluster_name: '',
                 location_name: '',
-                department: [{ value: '' }],
+                departments: [{ name: '', instruments: [] }],
+                prefix: '',
+                shortName: '',
+                emails: [{ value: '' }],
+                phones: [{ value: '' }],
+                address: '',
             },
         ],
-        zone_name: [],
-        cluster_name: [],
-        location_name: [],
     }
 
     return (

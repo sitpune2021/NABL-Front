@@ -15,7 +15,7 @@ export type Filter = {
 export type Zone = {
     id: string
     zone_name: string
-}
+} & PrefixFEntity
 
 export type ZoneListState = {
     tableData: TableQueries
