@@ -12,6 +12,11 @@ export type FrequencyType =
     | 'Yearly'
     | 'Bi-Yearly'
 
+export interface ItemConfig {
+    interval: number
+    cutOffTimes: string[]
+}
+
 export interface FrequencyConfig {
     type: FrequencyType
     interval: number
@@ -19,6 +24,7 @@ export interface FrequencyConfig {
     cutOffTimes: string[]
     count: number
     selectedItems?: string[]
+    itemConfigs?: Record<string, ItemConfig>
 }
 
 export interface DataEntrySchedule {
