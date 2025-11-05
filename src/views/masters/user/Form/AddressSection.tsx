@@ -20,16 +20,18 @@ const AddressSection = ({ control, errors, readOnly }: AddressSectionProps) => {
                     name="address"
                     control={control}
                     render={({ field }) => (
-                        <Input
-                            type="text"
-                            autoComplete="off"
-                            placeholder="Address"
+                        <textarea
                             {...field}
+                            autoComplete="off"
+                            placeholder="Enter full address"
                             readOnly={readOnly}
+                            rows={2}
+                            className="w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100"
                         />
                     )}
                 />
             </FormItem>
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <FormItem
                     label="City"
@@ -70,7 +72,7 @@ const AddressSection = ({ control, errors, readOnly }: AddressSectionProps) => {
                     />
                 </FormItem>
             </div>
-            <div className="grid md:grid-cols-6 gap-4">
+            <div className="grid md:grid-cols-3 gap-4">
                 <FormItem
                     label="Prepared By"
                     invalid={Boolean(errors.preparedBy)}
@@ -79,6 +81,7 @@ const AddressSection = ({ control, errors, readOnly }: AddressSectionProps) => {
                     <Controller
                         name="preparedBy"
                         control={control}
+                        defaultValue={true}
                         render={({ field }) => (
                             <Checkbox
                                 checked={!!field.value}

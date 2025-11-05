@@ -11,7 +11,7 @@ import type { CommonProps } from '@/@types/common'
 import { UserFormSchema } from '@/@types/user'
 import AddressSection from './AddressSection'
 import ProfileImageSection from './ProfileImageSection'
-import TagsSection from './TagsSection'
+import AssignPermissionSection from './AssignPermissionSection'
 
 type UserFormProps = {
     onFormSubmit: (values: UserFormSchema) => void
@@ -29,17 +29,19 @@ const validationSchema = z.object({
     role: z
         .array(
             z.object({
-                value: z.string().min(1, { message: 'role required' }),
-                label: z.string().min(1, { message: 'role required' }),
+                value: z.string().optional(),
+                label: z.string().optional(),
             }),
         )
-        .min(1, { message: 'At least one role is required' }),
+        .optional(),
     dialCode: z.string().min(1, { message: 'Please select your country code' }),
     phone: z
         .string()
         .min(1, { message: 'Please input your mobile number' })
         .max(10, { message: 'Please your mobile number should be 10 digit' }),
     address: z.string().optional().or(z.literal('')),
+    city: z.string().optional().or(z.literal('')),
+    postcode: z.string().optional().or(z.literal('')),
     preparedBy: z.boolean(),
     issuedBy: z.boolean(),
     approvedBy: z.boolean(),
@@ -47,6 +49,7 @@ const validationSchema = z.object({
     zone_name: z.string().optional().or(z.literal('')),
     cluster_name: z.string().optional().or(z.literal('')),
     location_name: z.string().optional().or(z.literal('')),
+    department_name: z.string().optional().or(z.literal('')),
 })
 
 const UserForm = (props: UserFormProps) => {
@@ -93,7 +96,7 @@ const UserForm = (props: UserFormProps) => {
                             errors={errors}
                             readOnly={readOnly}
                         />
-                        <AddressSection
+                        <AssignPermissionSection
                             control={control}
                             errors={errors}
                             readOnly={readOnly}
@@ -105,14 +108,11 @@ const UserForm = (props: UserFormProps) => {
                             errors={errors}
                             readOnly={readOnly}
                         />
-                        <TagsSection
+                        <AddressSection
                             control={control}
                             errors={errors}
                             readOnly={readOnly}
                         />
-                        {/* {!newCustomer && (
-                            <AccountSection control={control} errors={errors} />
-                        )} */}
                     </div>
                 </div>
             </Container>

@@ -50,11 +50,9 @@ const validationSchema = z.object({
                 departments: z
                     .array(
                         z.object({
-                            name: z
-                                .string()
-                                .nonempty({
-                                    message: 'Department name is required',
-                                }),
+                            name: z.string().nonempty({
+                                message: 'Department name is required',
+                            }),
                             instruments: z
                                 .array(z.union([z.string(), z.number()]))
                                 .min(1, {
