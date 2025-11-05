@@ -134,8 +134,7 @@ const DocumentAddEdit = () => {
         async (values: DocumentFormSchema) => {
             if (isView) return
 
-            // Show popup only if editor and no frequency set
-            if (isEditor && !values.dataEntrySchedule) {
+            if (isEditor && !isEdit && !values.dataEntrySchedule) {
                 setPendingSubmission({ values, isEditor: true })
                 setIsFrequencyPopupOpen(true)
                 return
@@ -226,7 +225,7 @@ const DocumentAddEdit = () => {
 
             <FrequencyPopup
                 isOpen={isFrequencyPopupOpen}
-                initialData={documentData?.dataEntrySchedule?.frequency}
+                // initialData={documentData?.dataEntrySchedule?.frequency}
                 onClose={() => {
                     setIsFrequencyPopupOpen(false)
                     setPendingSubmission(null)
