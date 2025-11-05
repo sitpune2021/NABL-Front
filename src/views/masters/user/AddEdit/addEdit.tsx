@@ -95,6 +95,8 @@ const UserAddEdit = () => {
                         phone: '',
                         dialCode: '+91',
                         address: '',
+                        city: '',
+                        postcode: '',
                         preparedBy: true,
                         issuedBy: true,
                         approvedBy: true,
@@ -102,6 +104,7 @@ const UserAddEdit = () => {
                         zone_name: '',
                         cluster_name: '',
                         location_name: '',
+                        department_name: '',
                     }
                 }
                 readOnly={isView}

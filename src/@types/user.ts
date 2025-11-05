@@ -60,6 +60,7 @@ export type Fields = {
     zone_name?: string
     cluster_name?: string
     location_name?: string
+    department_name?: string
 }
 
 export type TagsFields = {

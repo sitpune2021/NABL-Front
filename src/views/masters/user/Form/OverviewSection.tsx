@@ -74,7 +74,6 @@ const OverviewSection = ({
 
     return (
         <Card>
-            <h4 className="mb-6">User Overview</h4>
             <div className="grid md:grid-cols-2 gap-4">
                 <FormItem
                     label="Name"
