@@ -20,6 +20,10 @@ type ClusterFormProps = {
 const validationSchema = z.object({
     cluster_name: z.string().min(1, { message: ' name required' }),
     zone_name: z.string().min(1, { message: 'Zone required' }),
+    prefix: z.string().regex(/^[A-Z]{1,4}-[A-Z]{1,4}$/, {
+        message:
+            'Prefix must be in format ZZZ-XXXX (zone prefix + 1–4 uppercase letters only)',
+    }),
 })
 
 const ClusterForm = (props: ClusterFormProps) => {

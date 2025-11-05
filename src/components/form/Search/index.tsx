@@ -2,12 +2,12 @@ import DebouceInput from '@/components/shared/DebouceInput'
 import { TbSearch } from 'react-icons/tb'
 import { Ref } from 'react'
 
-type SubCategoryListSearchProps = {
+type SearchProps = {
     onInputChange: (value: string) => void
     ref?: Ref<HTMLInputElement>
 }
 
-const SubCategoryListSearch = (props: SubCategoryListSearchProps) => {
+const Search = (props: SearchProps) => {
     const { onInputChange, ref } = props
 
     return (
@@ -20,4 +20,4 @@ const SubCategoryListSearch = (props: SubCategoryListSearchProps) => {
     )
 }
 
-export default SubCategoryListSearch
+export default Search

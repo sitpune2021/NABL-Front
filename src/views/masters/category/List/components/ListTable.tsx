@@ -73,15 +73,10 @@ const CategoryListTable = () => {
 
     const columns: ColumnDef<Category>[] = useMemo(
         () => [
-            // {
-            //     header: 'Id',
-            //     accessorKey: 'id',
-            //     cell: (props) => (
-            //         <>
-            //             {props.row.original.prefix} - {props.row.original.id}
-            //         </>
-            //     ),
-            // },
+            {
+                header: 'Id',
+                accessorKey: 'id',
+            },
             {
                 header: 'Prefix',
                 accessorKey: 'prefix',

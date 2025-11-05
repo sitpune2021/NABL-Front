@@ -30,27 +30,31 @@ export type LabListAction = {
 }
 
 export type LocationField = {
+    id?: string
     prefix: string
     shortName: string
     zone_name: string | null
     cluster_name: string | null
     location_name: string | null
-    department: string | null
+    departments: {
+        name: string
+        instruments: (string | number)[]
+    }[]
+    emails: { value: string }[]
+    phones: { value: string }[]
+    address?: string
 }
 
 export type Fields = {
     id?: string
     name: string
     labType: string
-    department: string[]
+    department: string[] // Kept as string[] based on your provided type, though schema suggests it might be a single string; adjust if needed
     labCode: string
-    email?: string
-    phone?: string
+    emails: { value: string }[]
+    phones: { value: string }[]
     address?: string
     location: LocationField[]
-    zone_name?: string[]
-    cluster_name?: string[]
-    location_name?: string[]
 }
 
 export type TagsFields = {

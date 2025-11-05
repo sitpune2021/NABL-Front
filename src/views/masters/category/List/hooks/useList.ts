@@ -12,16 +12,14 @@ import type { Fields, GetCategoryListResponse } from '@/@types/category'
 export default function useCategoryList() {
     const {
         tableData,
-        filterData,
         setTableData,
         selectedCategory,
         setSelectedCategory,
         setSelectAllCategory,
-        setFilterData,
     } = useCategoryListStore((state) => state)
 
     const { data, error, isLoading, mutate } = useSWR(
-        ['/api/category', { ...tableData, ...filterData }],
+        ['/api/category', { ...tableData }],
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         ([_, params]) =>
             apiGetCategoryList<GetCategoryListResponse, TableQueries>(params),
@@ -38,10 +36,9 @@ export default function useCategoryList() {
         await mutate() // refresh list
     }
 
-    // ✅ Get single category by ID (for edit or view)
-    const getCategoryById = async (id: string) => {
-        const category = await apiGetCategoryById(id)
-        return category
+    const getCategoryById = async (id: string): Promise<Fields> => {
+        const response = await apiGetCategoryById(id)
+        return response
     }
 
     const categoryList = data?.data || []
@@ -54,13 +51,11 @@ export default function useCategoryList() {
         error,
         isLoading,
         tableData,
-        filterData,
         mutate,
         setTableData,
         selectedCategory,
         setSelectedCategory,
         setSelectAllCategory,
-        setFilterData,
         saveCategoryData,
         getCategoryById, // ✅ Now defined properly
     }

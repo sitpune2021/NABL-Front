@@ -39,7 +39,7 @@ const CategoryListSelected = () => {
         setSelectAllCategory([])
         mutate(
             {
-                list: newCategoryList,
+                data: newCategoryList,
                 total: categoryListTotal - selectedCategory.length,
             },
             false,

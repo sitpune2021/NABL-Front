@@ -1,6 +1,5 @@
+import { Search } from '@/components/form'
 import useCategoryList from '../hooks/useList'
-import CategoryListSearch from './ListSearch'
-import CategoryListTableFilter from './ListTableFilter'
 import cloneDeep from 'lodash/cloneDeep'
 
 const CategoryListTableTools = () => {
@@ -21,8 +20,7 @@ const CategoryListTableTools = () => {
 
     return (
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2">
-            <CategoryListSearch onInputChange={handleInputChange} />
-            <CategoryListTableFilter />
+            <Search onInputChange={handleInputChange} />
         </div>
     )
 }

@@ -1,7 +1,7 @@
 import Card from '@/components/ui/Card'
 import Input from '@/components/ui/Input'
 import { FormItem } from '@/components/ui/Form'
-import { Controller } from 'react-hook-form'
+import { Controller, useWatch } from 'react-hook-form'
 import { FormSectionBaseProps } from '@/@types/location'
 import { Select } from '@/components/ui'
 import { useState, useMemo } from 'react'
@@ -19,7 +19,6 @@ const OverviewSection = ({
     const [selectedZone, setSelectedZone] = useState<string>('')
     const { clusterList } = useClusterList()
 
-    // zone list
     const zoneOptions = zoneList.map((zone) => ({
         label: zone.zone_name,
         value: zone.zone_name,
@@ -32,17 +31,22 @@ const OverviewSection = ({
         )
     }, [selectedZone, clusterList])
 
-    // cluster options based on selected zone
     const clusterOptions = filteredClusters.map((cluster) => ({
         label: cluster.cluster_name,
         value: cluster.cluster_name,
+        prefix: cluster.prefix,
     }))
+
+    const selectedClustersName = useWatch({ control, name: 'cluster_name' })
+
+    const selectedClusters = clusterOptions.find(
+        (z) => z.value === selectedClustersName,
+    )
 
     return (
         <Card>
             <h4 className="mb-6">Overview</h4>
             <div className="grid md:grid-cols-2 gap-4">
-                {/* Zone Select */}
                 <FormItem
                     label="Zone"
                     invalid={Boolean(errors.zone_name)}
@@ -137,6 +141,46 @@ const OverviewSection = ({
                                 readOnly={readOnly}
                                 placeholder="Short Name"
                                 {...field}
+                            />
+                        )}
+                    />
+                </FormItem>
+
+                <FormItem
+                    label="Prefix"
+                    invalid={Boolean(errors.prefix)}
+                    errorMessage={errors.prefix?.message}
+                >
+                    <Controller
+                        name="prefix"
+                        control={control}
+                        render={({ field: { onChange, value, ...rest } }) => (
+                            <Input
+                                type="text"
+                                autoComplete="off"
+                                readOnly={readOnly}
+                                placeholder="Prefix"
+                                value={
+                                    selectedClusters?.prefix
+                                        ? `${selectedClusters.prefix}-${(value || '').replace(`${selectedClusters.prefix}-`, '')}`
+                                        : value || ''
+                                }
+                                onChange={(e) => {
+                                    const inputValue = e.target.value
+                                    const cleanedValue =
+                                        selectedClusters?.prefix
+                                            ? inputValue.replace(
+                                                  `${selectedClusters.prefix}-`,
+                                                  '',
+                                              )
+                                            : inputValue
+                                    onChange(
+                                        selectedClusters?.prefix
+                                            ? `${selectedClusters.prefix}-${cleanedValue}`
+                                            : cleanedValue,
+                                    )
+                                }}
+                                {...rest}
                             />
                         )}
                     />

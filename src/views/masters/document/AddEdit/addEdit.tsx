@@ -91,6 +91,7 @@ const DocumentAddEdit = () => {
                 const payload = isEdit ? { ...values, id: documentId } : values
                 await saveDocumentEditorData(payload)
                 await sleep(800)
+                setIsSubmitting(false)
                 toast.push(
                     <Notification type="success">
                         {isEdit ? 'Editor updated!' : 'Editor created!'}
@@ -103,6 +104,7 @@ const DocumentAddEdit = () => {
                 const response = await saveDocumentData(payload)
                 const savedDoc = response?.data
                 await sleep(800)
+                setIsSubmitting(false)
                 toast.push(
                     <Notification type="success">
                         {isEdit ? 'Document updated!' : 'Document created!'}
@@ -134,8 +136,8 @@ const DocumentAddEdit = () => {
         async (values: DocumentFormSchema) => {
             if (isView) return
 
-            // Show popup only if editor and no frequency set
-            if (isEditor && !values.dataEntrySchedule) {
+            // If it's editor create and no frequency set, show popup
+            if (isEditor && !isEdit && !values.dataEntrySchedule) {
                 setPendingSubmission({ values, isEditor: true })
                 setIsFrequencyPopupOpen(true)
                 return

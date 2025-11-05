@@ -1,4 +1,4 @@
-import { Fields, GetCategoryListResponse } from '@/@types/category'
+import { Fields } from '@/@types/category'
 import ApiService from './ApiService'
 import { PrefixFormSchema } from '@/@types/common'
 
@@ -21,7 +21,7 @@ export async function apiCategory(data: Fields) {
 }
 
 export async function apiGetCategoryById(id: string) {
-    return ApiService.fetchDataWithAxios<GetCategoryListResponse>({
+    return ApiService.fetchDataWithAxios<Fields>({
         url: `/category/${id}`,
         method: 'get',
     })

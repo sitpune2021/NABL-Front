@@ -74,6 +74,14 @@ const ClusterListTable = () => {
     const columns: ColumnDef<Cluster>[] = useMemo(
         () => [
             {
+                header: 'Id',
+                accessorKey: 'id',
+            },
+            {
+                header: 'Prefix',
+                accessorKey: 'prefix',
+            },
+            {
                 header: 'Zone',
                 accessorKey: 'zone_name',
             },
