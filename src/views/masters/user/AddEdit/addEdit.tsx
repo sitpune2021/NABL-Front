@@ -28,13 +28,15 @@ const UserAddEdit = () => {
     const isView = location.pathname.includes('/view')
     const isAdd = location.pathname.includes('/create')
 
-    // Load existing user data in edit or view mode
     useEffect(() => {
         if (!isAdd && userId) {
             setLoadingData(true)
             getUserById(userId)
                 .then((data) => {
-                    setUserData(data)
+                    setUserData({
+                        ...data,
+                        dialCode: data.dialCode || '+91',
+                    })
                 })
                 .finally(() => setLoadingData(false))
         }
@@ -43,21 +45,29 @@ const UserAddEdit = () => {
     const handleFormSubmit = async (values: UserFormSchema) => {
         if (isView) return
         setIsSubmiting(true)
-        const payload = isEdit ? { ...values, id: userId } : values
+
+        const payload = {
+            ...values,
+            dialCode: values.dialCode || '+91',
+            id: isEdit ? userId : undefined,
+        }
+
         await saveUserData(payload)
         await sleep(800)
         setIsSubmiting(false)
+
         toast.push(
             <Notification type="success">
                 {isEdit ? 'User updated!' : 'User created!'}
             </Notification>,
             { placement: 'top-center' },
         )
+
         navigate(`${endpointConfig.master.user.list}`)
     }
 
     const handleConfirmDiscard = () => {
-        setDiscardConfirmationOpen(true)
+        setDiscardConfirmationOpen(false)
         toast.push(
             <Notification type="success">Changes discarded!</Notification>,
             { placement: 'top-center' },
@@ -83,15 +93,18 @@ const UserAddEdit = () => {
                         email: '',
                         role: [],
                         phone: '',
-                        dialCode: '',
+                        dialCode: '+91',
                         address: '',
-                        preparedBy: false,
-                        issuedBy: false,
-                        approvedBy: false,
+                        city: '',
+                        postcode: '',
+                        preparedBy: true,
+                        issuedBy: true,
+                        approvedBy: true,
                         signUpload: '',
                         zone_name: '',
                         cluster_name: '',
                         location_name: '',
+                        department_name: '',
                     }
                 }
                 readOnly={isView}
@@ -125,6 +138,7 @@ const UserAddEdit = () => {
                     </div>
                 </Container>
             </UserForm>
+
             <ConfirmDialog
                 isOpen={discardConfirmationOpen}
                 type="danger"
@@ -135,8 +149,8 @@ const UserAddEdit = () => {
                 onConfirm={handleConfirmDiscard}
             >
                 <p>
-                    Are you sure you want discard this? This action can&apos;t
-                    be undo.{' '}
+                    Are you sure you want to discard this? This action can’t be
+                    undone.
                 </p>
             </ConfirmDialog>
         </>

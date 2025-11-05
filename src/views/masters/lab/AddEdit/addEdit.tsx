@@ -89,20 +89,24 @@ const LabAddEdit = () => {
         labType: '',
         department: [],
         labCode: !isSubmitting ? `LAB-${labList.length + 1}` : '',
-        email: '',
-        phone: '',
+        emails: [{ value: '' }],
+        phones: [{ value: '' }],
         address: '',
         location: [
             {
-                prefix: 'LOC-1',
+                zone_name: '',
+                cluster_name: '',
+                location_name: '',
+                departments: [{ name: '', instruments: [] }],
+                prefix: '',
                 shortName: '',
-                zone_name: null,
-                cluster_name: null,
-                location_name: null,
-                department: null,
+                emails: [{ value: '' }],
+                phones: [{ value: '' }],
+                address: '',
             },
         ],
     }
+
     return (
         <>
             <LabForm

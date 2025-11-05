@@ -16,7 +16,7 @@ export type User = {
     name: string
     email: string
     phone: string
-    role: string
+    role?: string
     username: string
     address?: string
     issuedBy: boolean
@@ -47,7 +47,7 @@ export type Fields = {
     name: string
     email: string
     phone: string
-    role: { value: string; label: string }[]
+    role?: { value?: string; label?: string }[]
     username: string
     address?: string
     issuedBy: boolean
@@ -60,6 +60,7 @@ export type Fields = {
     zone_name?: string
     cluster_name?: string
     location_name?: string
+    department_name?: string
 }
 
 export type TagsFields = {

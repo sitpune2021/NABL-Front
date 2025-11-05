@@ -91,6 +91,7 @@ const DocumentAddEdit = () => {
                 const payload = isEdit ? { ...values, id: documentId } : values
                 await saveDocumentEditorData(payload)
                 await sleep(800)
+                setIsSubmitting(false)
                 toast.push(
                     <Notification type="success">
                         {isEdit ? 'Editor updated!' : 'Editor created!'}
@@ -103,6 +104,7 @@ const DocumentAddEdit = () => {
                 const response = await saveDocumentData(payload)
                 const savedDoc = response?.data
                 await sleep(800)
+                setIsSubmitting(false)
                 toast.push(
                     <Notification type="success">
                         {isEdit ? 'Document updated!' : 'Document created!'}

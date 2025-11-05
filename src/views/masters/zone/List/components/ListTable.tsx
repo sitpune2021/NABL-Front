@@ -74,6 +74,14 @@ const ZoneListTable = () => {
     const columns: ColumnDef<Zone>[] = useMemo(
         () => [
             {
+                header: 'Id',
+                accessorKey: 'id',
+            },
+            {
+                header: 'Prefix',
+                accessorKey: 'prefix',
+            },
+            {
                 header: 'Name',
                 accessorKey: 'zone_name',
             },

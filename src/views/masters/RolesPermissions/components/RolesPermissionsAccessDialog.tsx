@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import Button from '@/components/ui/Button'
 import Avatar from '@/components/ui/Avatar'
 import Segment from '@/components/ui/Segment'
@@ -7,7 +7,6 @@ import Input from '@/components/ui/Input'
 import ScrollBar from '@/components/ui/ScrollBar'
 import { Form, FormItem } from '@/components/ui/Form'
 import { useRolePermissionsStore } from '../store/rolePermissionsStore'
-import { accessModules } from '../constants'
 import classNames from '@/utils/classNames'
 import isLastChild from '@/utils/isLastChild'
 // import sleep from '@/utils/sleep'
@@ -53,7 +52,7 @@ const RolesPermissionsAccessDialog = ({
     roleList,
     mutate,
 }: RolesPermissionsAccessDialog) => {
-    const { saveRolesData } = useRolesList()
+    const { saveRolesData, accessModules } = useRolesList()
 
     const { selectedRole, setRoleDialog, roleDialog } =
         useRolePermissionsStore()
@@ -70,34 +69,22 @@ const RolesPermissionsAccessDialog = ({
         resolver: zodResolver(validationSchema),
     })
 
-    // Track access rights per module
-    // const [accessRight, setAccessRight] = useState<Record<string, string[]>>(() => {
-    //     if (roleDialog.type === 'edit') {
-    //         // Initialize from existing role if editing
-    //         const role = roleList.find(role => role.id === selectedRole)
-    //         return role?.accessRight || {}
-    //     }
-    //     // New role: start empty
-    //     return {}
-    // })
+    const [accessRight, setAccessRight] = useState<Record<string, string[]>>({})
 
-    const [accessRight, setAccessRight] = useState<Record<string, string[]>>(
-        () => {
-            if (roleDialog.type === 'edit') {
-                const role = roleList.find((role) => role.id === selectedRole)
-                return role?.accessRight || {}
-            }
-
-            // Default all modules to have all access rights selected
+    useEffect(() => {
+        if (roleDialog.type === 'edit') {
+            const role = roleList.find((role) => role.id === selectedRole)
+            setAccessRight(role?.accessRight || {})
+        } else if (roleDialog.type === 'new') {
             const defaultAccess: Record<string, string[]> = {}
             accessModules.forEach((module) => {
                 defaultAccess[module.id] = module.accessor.map(
                     (item) => item.value,
                 )
             })
-            return defaultAccess
-        },
-    )
+            setAccessRight(defaultAccess)
+        }
+    }, [accessModules, roleDialog.type, roleList, selectedRole])
 
     const [isSubmiting, setIsSubmiting] = useState(false)
 
@@ -109,7 +96,6 @@ const RolesPermissionsAccessDialog = ({
     }
 
     const onSubmit = async (values: RolesFormSchema) => {
-        // Combine form data with selected access rights
         const payload = {
             ...values,
             accessRight,

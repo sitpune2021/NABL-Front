@@ -81,7 +81,11 @@ const ClusterAddEdit = () => {
             <ClusterForm
                 newCluster={isAdd}
                 defaultValues={
-                    clusterData ?? { cluster_name: '', zone_name: '' }
+                    clusterData ?? {
+                        cluster_name: '',
+                        zone_name: '',
+                        prefix: '',
+                    }
                 }
                 readOnly={isView}
                 onFormSubmit={handleFormSubmit}
