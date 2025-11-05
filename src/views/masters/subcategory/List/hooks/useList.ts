@@ -40,13 +40,12 @@ export default function useSubCategoryList() {
         await mutate() // refresh list
     }
 
-    // ✅ Get single subcategory by ID (for edit or view)
     const getSubCategoryById = async (id: string) => {
         const subcategory = await apiGetSubCategoryById(id)
         return subcategory
     }
 
-    const subcategoryList = data?.list || []
+    const subcategoryList = data?.data || []
 
     const subcategoryListTotal = data?.total || 0
 

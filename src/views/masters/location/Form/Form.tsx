@@ -22,6 +22,10 @@ const validationSchema = z.object({
     zone_name: z.string().min(1, { message: ' zone required' }),
     cluster_name: z.string().min(1, { message: ' cluster required' }),
     short_name: z.any(),
+    prefix: z.string().regex(/^[A-Z]{1,4}-[A-Z]{1,4}-[A-Z]{1,4}$/, {
+        message:
+            'Prefix must be in format ZZZ-YYY-XXXX (zone prefix + cluster prefix + 1–4 uppercase letters only)',
+    }),
 })
 
 const LocationForm = (props: LocationFormProps) => {

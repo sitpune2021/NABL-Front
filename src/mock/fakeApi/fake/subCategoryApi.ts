@@ -6,7 +6,7 @@ mock.onGet(`/api/subcategory`).reply(() => {
     const raw = localStorage.getItem(SUBCATEGORIES_KEY)
     const Data = raw ? (JSON.parse(raw) as SubCategory[]) : []
     const response = {
-        list: Data,
+        data: Data,
         total: Data.length,
     }
 

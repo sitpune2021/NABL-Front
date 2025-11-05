@@ -1,4 +1,4 @@
-import { TableQueries } from './common'
+import { PrefixFEntity, TableQueries } from './common'
 
 import type { Control, FieldErrors } from 'react-hook-form'
 
@@ -18,7 +18,7 @@ export type Location = {
     zone_name: string
     cluster_name: string
     short_name: string
-}
+} & PrefixFEntity
 
 export type LocationListState = {
     tableData: TableQueries
@@ -39,7 +39,7 @@ export type Fields = {
     zone_name: string
     cluster_name: string
     short_name: string
-}
+} & PrefixFEntity
 
 export type TagsFields = {
     tags: Array<{ value: string; label: string }>

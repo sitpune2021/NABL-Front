@@ -4,7 +4,7 @@ import type { PrefixFEntity } from './common'
 import type { Control, FieldErrors } from 'react-hook-form'
 
 export type GetSubCategoryListResponse = {
-    list: SubCategory[]
+    data: SubCategory[]
     total: number
 }
 
@@ -16,6 +16,7 @@ export type Filter = {
 export type SubCategory = {
     id: string
     name: string
+    cat_id: string | number
 } & PrefixFEntity
 
 export type SubCategoryListState = {
@@ -27,16 +28,14 @@ export type SubCategoryListState = {
 export type SubCategoryListAction = {
     setFilterData: (payload: Filter) => void
     setTableData: (payload: TableQueries) => void
-    setSelectedSubCategory: (checked: boolean, customer: SubCategory) => void
-    setSelectAllSubCategory: (customer: SubCategory[]) => void
+    setSelectedSubCategory: (checked: boolean, subCategory: SubCategory) => void
+    setSelectAllSubCategory: (subCategory: SubCategory[]) => void
 }
 
 export type Fields = {
     id?: string
     name: string
-    subcategory: string
-    required: boolean
-    initialtimezone: boolean
+    cat_id: string | number
 } & PrefixFEntity
 
 export type TagsFields = {

@@ -22,7 +22,7 @@ const SubCategoryAddEdit = () => {
         useState(false)
     const [isSubmiting, setIsSubmiting] = useState(false)
     const [subcategoryData, setSubCategoryData] =
-        useState<SubCategoryFormSchema | null>(null)
+        useState<SubCategoryFormSchema>()
     const [loadingData, setLoadingData] = useState(false)
 
     const isEdit = location.pathname.includes('/edit')
@@ -63,7 +63,7 @@ const SubCategoryAddEdit = () => {
             <Notification type="success">Changes discarded!</Notification>,
             { placement: 'top-center' },
         )
-        navigate(`${endpointConfig.master.subcategory.list}`)
+        navigate(endpointConfig.master.subcategory.list)
     }
 
     const handleDiscard = () => setDiscardConfirmationOpen(true)
@@ -80,10 +80,8 @@ const SubCategoryAddEdit = () => {
                 defaultValues={
                     subcategoryData ?? {
                         name: '',
-                        subcategory: '',
+                        cat_id: '',
                         prefix: '',
-                        required: false,
-                        initialtimezone: false,
                     }
                 }
                 readOnly={isView}

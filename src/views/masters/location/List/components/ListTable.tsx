@@ -74,6 +74,14 @@ const LocationListTable = () => {
     const columns: ColumnDef<Location>[] = useMemo(
         () => [
             {
+                header: 'Id',
+                accessorKey: 'id',
+            },
+            {
+                header: 'Prefix',
+                accessorKey: 'prefix',
+            },
+            {
                 header: 'Zone',
                 accessorKey: 'zone_name',
             },

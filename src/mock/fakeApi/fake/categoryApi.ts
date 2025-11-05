@@ -2,12 +2,20 @@ import { Category } from '@/@types/category'
 import { CATEGORIES_KEY } from '@/constants/api.constant'
 import { mock } from '@/mock/MockAdapter'
 
-mock.onGet(`/api/category`).reply(() => {
+mock.onGet('/api/category').reply((config) => {
     const raw = localStorage.getItem(CATEGORIES_KEY)
     const Data = raw ? (JSON.parse(raw) as Category[]) : []
+    const { query } = config.params || {}
+    let filteredData = Data
+    if (query && query.trim() !== '') {
+        const searchTerm = query.toLowerCase()
+        filteredData = Data.filter((item) =>
+            item.name.toLowerCase().includes(searchTerm),
+        )
+    }
     const response = {
-        data: Data,
-        total: Data.length,
+        data: filteredData,
+        total: filteredData.length,
     }
 
     return [200, response]

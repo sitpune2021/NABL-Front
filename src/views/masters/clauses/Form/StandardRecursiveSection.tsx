@@ -15,7 +15,7 @@ interface StandardRecursiveSectionProps {
 }
 
 const createDefaultStandard = () => ({
-    id: crypto.randomUUID(), // safer unique id
+    id: Math.random(), // safer unique id
     title: '',
     message: '',
     note: true,
