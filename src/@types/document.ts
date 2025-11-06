@@ -15,6 +15,7 @@ export type FrequencyType =
 export interface ItemConfig {
     interval: number
     cutOffTimes: string[]
+    considerLastDay?: boolean
 }
 
 export interface FrequencyConfig {
