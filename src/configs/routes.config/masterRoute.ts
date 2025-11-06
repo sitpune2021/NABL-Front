@@ -144,6 +144,12 @@ const masterRoute: Routes = [
     },
     {
         key: 'masters.lab.list',
+        path: endpointConfig.master.lab.location,
+        component: lazy(() => import('@/views/masters/lab/List')),
+        authority: [],
+    },
+    {
+        key: 'masters.lab.list',
         path: endpointConfig.master.lab.view,
         component: lazy(() => import('@/views/masters/lab/AddEdit')),
         authority: [],

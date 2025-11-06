@@ -16,7 +16,7 @@ export default function HeaderBlock() {
             {/* Logo on left */}
             <div style={{ flex: '0 0 auto' }}>
                 <img
-                    src="https://via.placeholder.com/120x60?text=Logo"
+                    src="https://iconape.com/wp-content/files/ge/264650/png/NABL_India-logo.png"
                     alt="Logo"
                     style={{
                         width: '120px',
@@ -26,18 +26,13 @@ export default function HeaderBlock() {
                 />
             </div>
 
-            {/* Company details on right */}
             <div style={{ flex: '1 1 auto', textAlign: 'right' }}>
                 <h2 style={{ margin: 0, fontSize: '18px' }}>
-                    {'{{companyName}}'}
+                    {'{{lab_name}}'}
                 </h2>
                 <p style={{ margin: '2px 0', fontSize: '14px' }}>
                     {'{{address}}'}
                 </p>
-                <p style={{ margin: '2px 0', fontSize: '14px' }}>
-                    {'{{email}}'}
-                </p>
-                <p style={{ margin: 0, fontSize: '14px' }}>{'{{phone}}'}</p>
             </div>
         </header>
     )

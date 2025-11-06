@@ -73,15 +73,10 @@ const InstrumentListTable = () => {
 
     const columns: ColumnDef<Instrument>[] = useMemo(
         () => [
-            // {
-            //     header: 'Id',
-            //     accessorKey: 'id',
-            //     cell: (props) => (
-            //         <>
-            //             {props.row.original.prefix} - {props.row.original.id}
-            //         </>
-            //     ),
-            // },
+            {
+                header: 'Id',
+                accessorKey: 'id',
+            },
             {
                 header: 'Prefix',
                 accessorKey: 'prefix',
@@ -89,10 +84,6 @@ const InstrumentListTable = () => {
             {
                 header: 'Name',
                 accessorKey: 'full_name',
-            },
-            {
-                header: 'Short Name',
-                accessorKey: 'short_name',
             },
             {
                 header: '',

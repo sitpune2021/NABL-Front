@@ -280,8 +280,7 @@ export default function FooterBlock() {
 
             {/* Footer Text */}
             <p style={{ marginTop: '20px', fontSize: '13px', color: '#333' }}>
-                © {'{{year}}'} {'{{companyName}}'} Pvt Ltd. All rights
-                reserved.
+                © {'{{year}}'} {'{{lab_name}}'} Pvt Ltd. All rights reserved.
             </p>
         </footer>
     )

@@ -26,21 +26,12 @@ const TemplateAddEdit = () => {
     )
     const [loadingData, setLoadingData] = useState(false)
 
-    const [dialogIsOpen, setIsOpen] = useState(false)
-
-    const openDialog = () => {
-        setIsOpen(true)
-    }
-
-    const onDialogClose = () => {
-        setIsOpen(false)
-    }
+    const [dialogIsOpen, setDialogIsOpen] = useState(false)
 
     const isEdit = location.pathname.includes('/edit')
     const isView = location.pathname.includes('/view')
     const isAdd = location.pathname.includes('/create')
 
-    // Load existing template data in edit or view mode
     useEffect(() => {
         if (!isAdd && templateId) {
             setLoadingData(true)
@@ -59,6 +50,7 @@ const TemplateAddEdit = () => {
         await saveTemplateData(payload)
         await sleep(800)
         setIsSubmiting(false)
+        setDialogIsOpen(false) // Close dialog after submit
         toast.push(
             <Notification type="success">
                 {isEdit ? 'Template updated!' : 'Template created!'}
@@ -79,6 +71,7 @@ const TemplateAddEdit = () => {
 
     const handleDiscard = () => setDiscardConfirmationOpen(true)
     const handleCancel = () => setDiscardConfirmationOpen(false)
+    const onDialogClose = () => setDialogIsOpen(false)
 
     if (loadingData && !isAdd) {
         return <p className="p-4">Loading template data...</p>
@@ -121,7 +114,8 @@ const TemplateAddEdit = () => {
 
                                 <Button
                                     variant="solid"
-                                    onClick={() => openDialog()}
+                                    type="button"
+                                    onClick={() => setDialogIsOpen(true)} // Open the name dialog
                                 >
                                     {isEdit ? 'Update' : 'Create'}
                                 </Button>

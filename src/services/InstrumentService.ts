@@ -1,4 +1,4 @@
-import { Fields, GetInstrumentListResponse } from '@/@types/instrument'
+import { Fields } from '@/@types/instrument'
 import ApiService from './ApiService'
 import { PrefixFormSchema } from '@/@types/common'
 
@@ -22,7 +22,7 @@ export async function apiInstrument(data: Fields) {
 }
 
 export async function apiGetInstrumentById(id: string) {
-    return ApiService.fetchDataWithAxios<GetInstrumentListResponse>({
+    return ApiService.fetchDataWithAxios<Fields>({
         url: `/instrument/${id}`,
         method: 'get',
     })

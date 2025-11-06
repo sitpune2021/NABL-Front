@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useRef } from 'react'
 import grapesjs from 'grapesjs'
 import 'grapesjs/dist/css/grapes.min.css'
@@ -6,113 +7,95 @@ import ReactDOMServer from 'react-dom/server'
 import HeaderBlock from './HeaderBlock'
 import FooterBlock from './FooterBlock'
 import { useParams } from 'react-router'
-import { Button, Dialog, FormItem, Input } from '@/components/ui'
-import {
-    Controller,
-    Control,
-    FieldErrors,
-    SubmitHandler,
-    UseFormSetValue,
-} from 'react-hook-form'
+import { Control, useWatch } from 'react-hook-form'
 import { TemplateFormSchema } from '@/@types/template'
 
 interface GrapesEditorProps {
     control: Control<TemplateFormSchema>
-    errors: FieldErrors<TemplateFormSchema>
     readOnly: boolean
-    dialogIsOpen: boolean
-    onDialogClose: () => void
-    isSubmiting: boolean
-    docData?: {
-        template?: {
-            html?: string
-            css?: string
-        }
-    }
-    isEdit?: boolean
-    setValue: UseFormSetValue<TemplateFormSchema>
-    onSubmit: SubmitHandler<TemplateFormSchema>
+    setValue: (name: keyof TemplateFormSchema, value: any) => void
 }
 
 export default function GrapesEditor({
     control,
-    errors,
     readOnly,
-    dialogIsOpen,
-    onDialogClose,
-    isSubmiting,
-    isEdit,
     setValue,
-    docData,
 }: GrapesEditorProps) {
-    const editorRef = useRef<grapesjs.Editor | null>(null)
+    const editorRef = useRef<any | null>(null)
     const containerRef = useRef<HTMLDivElement>(null)
     const { type } = useParams<{ type: string }>()
+    const template = useWatch({ control, name: 'template' })
 
     useEffect(() => {
-        if (!editorRef.current && containerRef.current) {
-            const editor = grapesjs.init({
-                container: containerRef.current,
-                height: '100%',
-                width: '100%',
-                storageManager: false,
-                plugins: ['gjs-blocks-basic'],
-                blockManager: { appendTo: '#blocks' },
-                canvas: { styles: [], scripts: [] },
-                deviceManager: {
-                    devices: [
-                        {
-                            name: 'A4',
-                            width: '210mm',
-                            height: '297mm',
-                        },
-                    ],
-                },
-            })
+        if (!containerRef.current) return
 
-            addCustomBlocks(editor)
-            addDynamicFields(editor)
-
-            editor.Commands.add('insert-header', {
-                run(ed) {
-                    const html = ReactDOMServer.renderToStaticMarkup(
-                        <HeaderBlock />,
-                    )
-                    ed.addComponents(html)
-                },
-            })
-
-            editor.Commands.add('insert-footer', {
-                run(ed) {
-                    const html = ReactDOMServer.renderToStaticMarkup(
-                        <FooterBlock />,
-                    )
-                    ed.addComponents(html)
-                },
-            })
-
-            if (docData?.template?.html && docData?.template?.css) {
-                const { html, css } = docData.template
-                editor.setComponents(html)
-                editor.setStyle(css)
-            } else if (type) {
-                if (type === 'header') editor.runCommand('insert-header')
-                else if (type === 'footer') editor.runCommand('insert-footer')
-                else if (type === 'template') {
-                    editor.runCommand('insert-header')
-                    editor.runCommand('insert-footer')
-                }
+        if (editorRef.current) {
+            if (template?.html && template?.css) {
+                editorRef.current.setComponents(template.html)
+                editorRef.current.setStyle(template.css)
             }
-
-            editor.on('change', () => {
-                const html = editor.getHtml()
-                const css = editor.getCss()
-                const json = editor.getComponents()
-                setValue('template', { html, css, json })
-            })
-
-            editorRef.current = editor
+            return
         }
+
+        const editor = grapesjs.init({
+            container: containerRef.current,
+            height: '100%',
+            width: '100%',
+            storageManager: false,
+            plugins: ['gjs-blocks-basic'],
+            blockManager: { appendTo: '#blocks' },
+            canvas: { styles: [], scripts: [] },
+            deviceManager: {
+                devices: [{ name: 'A4', width: '210mm', height: '297mm' }],
+            },
+        })
+
+        addCustomBlocks(editor)
+        addDynamicFields(editor)
+
+        editor.Commands.add('insert-header', {
+            run(ed) {
+                const html = ReactDOMServer.renderToStaticMarkup(
+                    <HeaderBlock />,
+                )
+                ed.addComponents(html)
+            },
+        })
+
+        editor.Commands.add('insert-footer', {
+            run(ed) {
+                const html = ReactDOMServer.renderToStaticMarkup(
+                    <FooterBlock />,
+                )
+                ed.addComponents(html)
+            },
+        })
+
+        if (template?.html && template?.css) {
+            editor.setComponents(template.html)
+            editor.setStyle(template.css)
+        } else if (type) {
+            if (type === 'header') editor.runCommand('insert-header')
+            else if (type === 'footer') editor.runCommand('insert-footer')
+            else if (type === 'template') {
+                editor.runCommand('insert-header')
+                editor.runCommand('insert-footer')
+            }
+        }
+
+        editor.on('change', () => {
+            const html = editor.getHtml()
+            const css = editor.getCss()
+            const json = editor.getComponents()
+            setValue('template', { html, css, json })
+        })
+
+        if (readOnly) {
+            editor.getWrapper().set('editable', false)
+            editor.Panels.getPanels().reset()
+        }
+
+        editorRef.current = editor
 
         return () => {
             if (editorRef.current) {
@@ -120,68 +103,15 @@ export default function GrapesEditor({
                 editorRef.current = null
             }
         }
-    }, [type, control, setValue, docData])
+    }, [type, readOnly])
 
     return (
-        <>
-            <div className="flex h-full w-full">
-                <div
-                    id="blocks"
-                    className="flex-none w-[15%] h-full overflow-auto bg-gray-100 border-r"
-                />
-                <div ref={containerRef} id="gjs" className="flex-1 h-full" />
-            </div>
-
-            <Controller
-                name="type"
-                control={control}
-                render={({ field }) => (
-                    <input type="hidden" {...field} value={type || ''} />
-                )}
+        <div className="flex h-full w-full">
+            <div
+                id="blocks"
+                className="flex-none w-[15%] h-full overflow-auto bg-gray-100 border-r"
             />
-
-            <Dialog isOpen={dialogIsOpen} closable={false}>
-                <h5 className="mb-4">Template Name</h5>
-                <FormItem
-                    label="Name"
-                    invalid={Boolean(errors.name)}
-                    errorMessage={errors.name?.message}
-                >
-                    <Controller
-                        name="name"
-                        control={control}
-                        render={({ field }) => (
-                            <Input
-                                type="text"
-                                autoComplete="off"
-                                readOnly={readOnly}
-                                placeholder="Template Name"
-                                {...field}
-                            />
-                        )}
-                    />
-                </FormItem>
-                <div className="text-right mt-6">
-                    <Button
-                        className="ltr:mr-2 rtl:ml-2"
-                        variant="plain"
-                        onClick={onDialogClose}
-                    >
-                        Cancel
-                    </Button>
-                    <Button
-                        variant="solid"
-                        type="button"
-                        loading={isSubmiting}
-                        onClick={() => {
-                            const form = document.querySelector('form')
-                            if (form) form.requestSubmit()
-                        }}
-                    >
-                        {isEdit ? 'Update' : 'Create'}
-                    </Button>
-                </div>
-            </Dialog>
-        </>
+            <div ref={containerRef} id="gjs" className="flex-1 h-full" />
+        </div>
     )
 }
