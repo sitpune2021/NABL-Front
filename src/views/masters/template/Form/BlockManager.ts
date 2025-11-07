@@ -250,7 +250,7 @@ export function addCustomBlocks(editor: any) {
 }
 
 export function addDynamicFields(editor: any, documentData?: any) {
-    console.log(documentData)
+    console.log('Document Data:', documentData)
 
     const personOptions = [
         { value: 'user', name: 'User' },
@@ -271,7 +271,6 @@ export function addDynamicFields(editor: any, documentData?: any) {
         'name',
     ]
 
-    // Define traits for each field in a structured way for better readability and extensibility
     const fieldTraits: { [key: string]: any[] } = {
         date: [
             {
@@ -295,7 +294,7 @@ export function addDynamicFields(editor: any, documentData?: any) {
                     { value: 'amendmentDate', name: 'Amendment Date' },
                     { value: 'effectiveDate', name: 'Effective Date' },
                 ],
-                default: 'genericDate',
+                default: 'issueDate',
             },
         ],
         number: [
@@ -308,7 +307,6 @@ export function addDynamicFields(editor: any, documentData?: any) {
                     { value: 'issuedNo', name: 'Issued Number' },
                     { value: 'copyNo', name: 'Copy Number' },
                     { value: 'amendmentNo', name: 'Amendment Number' },
-                    { value: 'invoiceNo', name: 'Invoice Number' },
                 ],
                 default: 'documentNo',
             },
@@ -319,7 +317,7 @@ export function addDynamicFields(editor: any, documentData?: any) {
                 name: 'personRole',
                 label: 'Person Role',
                 options: personOptions,
-                default: 'user',
+                default: 'preparedBy',
             },
         ],
         designation: [
@@ -328,7 +326,7 @@ export function addDynamicFields(editor: any, documentData?: any) {
                 name: 'personDesignation',
                 label: 'Person Designation',
                 options: personOptions,
-                default: 'user',
+                default: 'preparedBy',
             },
         ],
         signatory: [
@@ -337,7 +335,7 @@ export function addDynamicFields(editor: any, documentData?: any) {
                 name: 'personSignatory',
                 label: 'Person Signatory',
                 options: personOptions,
-                default: 'user',
+                default: 'preparedBy',
             },
             {
                 type: 'select',
@@ -372,7 +370,7 @@ export function addDynamicFields(editor: any, documentData?: any) {
                     { value: 'role', name: 'Role' },
                     { value: 'type', name: 'Type' },
                     { value: 'location', name: 'Location' },
-                    { value: 'email', name: 'Email' }, // Added common ones; customize as needed
+                    { value: 'email', name: 'Email' },
                     { value: 'phone', name: 'Phone' },
                 ],
                 default: 'name',
@@ -381,26 +379,76 @@ export function addDynamicFields(editor: any, documentData?: any) {
         name: [
             {
                 type: 'select',
-                name: 'name-type',
+                name: 'nameType',
                 label: 'Name Type',
                 options: [
-                    { value: 'user', name: 'User Name' },
-                    { value: 'document', name: 'document Name' },
                     { value: 'lab', name: 'Lab Name' },
+                    { value: 'document', name: 'Document Name' },
+                    { value: 'user', name: 'User Name' },
                 ],
                 default: 'lab',
             },
         ],
-        // Other fields (department, lab_name) have no extra traits, so they default to an empty array
+    }
+
+    // Utility to pick correct value based on type and documentData
+    function resolveFieldValue(key: string, data: any): string {
+        if (!data) return ''
+
+        switch (key) {
+            case 'date':
+                // Prioritize issueDate → amendmentDate → effectiveDate
+                return (
+                    data.issueDate ||
+                    data.amendmentDate ||
+                    data.effectiveDate ||
+                    ''
+                )
+
+            case 'number':
+                return (
+                    data.documentNo ||
+                    data.issuedNo ||
+                    data.copyNo ||
+                    data.amendmentNo ||
+                    ''
+                )
+
+            case 'person':
+            case 'designation':
+            case 'signatory':
+                // If approvedBy, preparedBy, issuedBy exist, combine or pick one
+                return data.preparedBy || data.approvedBy || data.issuedBy || ''
+
+            case 'category':
+                return data.category || ''
+
+            case 'department':
+                return Array.isArray(data.department)
+                    ? data.department.join(', ')
+                    : data.department || ''
+
+            case 'name':
+                return (
+                    data.labName || data.documentName || data.preparedBy || ''
+                )
+
+            case 'userDetails':
+                return data.location || data.email || data.phone || ''
+
+            default:
+                return data[key] || ''
+        }
     }
 
     simpleFields.forEach((key) => {
-        const traits = fieldTraits[key] || [] // Use defined traits or empty array for fields without extras
-
-        // Generate a human-readable label from the key
+        const traits = fieldTraits[key] || []
         const label = key
-            .replace(/([A-Z])/g, ' $1') // Add space before uppercase letters
-            .replace(/^./, (str) => str.toUpperCase()) // Capitalize first letter
+            .replace(/([A-Z])/g, ' $1')
+            .replace(/^./, (str) => str.toUpperCase())
+
+        const fieldValue = resolveFieldValue(key, documentData)
+        console.log(fieldValue, 'fieldValue')
 
         editor.BlockManager.add(`field-${key}`, {
             label,
@@ -408,8 +456,11 @@ export function addDynamicFields(editor: any, documentData?: any) {
             content: {
                 type: `field-${key}`,
                 tagName: 'span',
-                attributes: { 'data-field': key },
-                content: `{{${key}}}`,
+                attributes: {
+                    'data-field': key,
+                    ...(fieldValue && { 'data-value': fieldValue }),
+                },
+                content: fieldValue ? `{{${fieldValue}}}` : `{{${key}}}`,
             },
         })
 
@@ -417,8 +468,12 @@ export function addDynamicFields(editor: any, documentData?: any) {
             model: {
                 defaults: {
                     tagName: 'span',
-                    attributes: { 'data-field': key },
+                    attributes: {
+                        'data-field': key,
+                        ...(fieldValue && { 'data-value': fieldValue }),
+                    },
                     traits,
+                    content: fieldValue ? `{{${fieldValue}}}` : `{{${key}}}`,
                 },
             },
             view: {},
