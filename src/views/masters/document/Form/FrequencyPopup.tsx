@@ -3,12 +3,13 @@ import { useState, useEffect } from 'react'
 import { Dialog } from '@/components/ui/Dialog'
 import Button from '@/components/ui/Button'
 import { FormItem } from '@/components/ui/Form'
+import { Drawer } from '@/components/ui/Drawer'
 import { Select } from '@/components/ui/Select'
 import Input from '@/components/ui/Input'
 import TimeInput from '@/components/ui/TimeInput'
 import Notification from '@/components/ui/Notification'
 import toast from '@/components/ui/toast'
-import { FrequencyConfig, FrequencyType, ItemConfig } from '@/@types/document'
+import { FrequencyConfig, FrequencyType } from '@/@types/document'
 
 interface FrequencyPopupProps {
     isOpen: boolean
@@ -16,15 +17,14 @@ interface FrequencyPopupProps {
     onConfirm: (config: FrequencyConfig) => void
     initialData?: FrequencyConfig
 }
+
 const FrequencyPopup = ({
     isOpen,
     onClose,
     onConfirm,
     initialData,
 }: FrequencyPopupProps) => {
-    const [config, setConfig] = useState<
-        FrequencyConfig & { itemConfigs?: Record<string, ItemConfig> }
-    >({
+    const [config, setConfig] = useState<FrequencyConfig>({
         type: 'Daily',
         interval: 1,
         count: 1,
@@ -32,22 +32,24 @@ const FrequencyPopup = ({
         cutOffTimes: ['00:00'],
         selectedItems: [],
         itemConfigs: {},
+        selectedMonth: '',
+        selectedDay: '',
     })
 
     const [availableDays, setAvailableDays] = useState<
         { value: string; label: string }[]
     >([])
-    const [selectedMonth, setSelectedMonth] = useState<string>('')
-    const [selectedDay, setSelectedDay] = useState<string>('')
     const [showLastDayConfirm, setShowLastDayConfirm] = useState(false)
     const [pendingDay, setPendingDay] = useState<string>('')
     const [pendingMonth, setPendingMonth] = useState<string>('')
     const [pendingConfigType, setPendingConfigType] =
         useState<FrequencyType>('Monthly')
+    const selectedMonth = config.selectedMonth || ''
+    const selectedDay = config.selectedDay || ''
 
     useEffect(() => {
         if (initialData) {
-            setConfig(initialData as any)
+            setConfig(initialData)
         }
     }, [initialData])
 
@@ -219,14 +221,16 @@ const FrequencyPopup = ({
         let itemKey = ''
 
         if (configType === 'Monthly') {
-            itemKey = day // For Monthly, just use the day as key
+            itemKey = day
         } else {
-            itemKey = `${month}-${day}` // For others, use month-day combination
+            itemKey = `${month}-${day}`
         }
 
         setConfig((prev) => ({
             ...prev,
             selectedItems: [day],
+            selectedMonth: configType === 'Monthly' ? '' : month,
+            selectedDay: day,
             itemConfigs: {
                 [itemKey]: {
                     interval: 1,
@@ -235,7 +239,7 @@ const FrequencyPopup = ({
                 },
             },
         }))
-        setSelectedDay(day)
+
         setShowLastDayConfirm(false)
 
         if (considerLastDay) {
@@ -263,7 +267,10 @@ const FrequencyPopup = ({
         ) {
             const days = generateDaysForMonth()
             setAvailableDays(days)
-            setSelectedDay('')
+            setConfig((prev) => ({
+                ...prev,
+                selectedDay: '',
+            }))
         }
     }, [selectedMonth, config.type])
 
@@ -294,6 +301,8 @@ const FrequencyPopup = ({
             )
             return
         }
+
+        console.log('Saving Frequency Config:', config)
         onConfirm(config)
         onClose()
     }
@@ -319,412 +328,544 @@ const FrequencyPopup = ({
 
     return (
         <>
-            <Dialog
+            <Drawer
+                title="Set Data Entry Frequency"
                 isOpen={isOpen}
-                width={700}
                 onClose={onClose}
                 onRequestClose={onClose}
             >
-                <div className="p-6 max-h-[75vh] overflow-y-auto">
-                    <h3 className="text-lg font-semibold mb-4">
-                        Set Data Entry Frequency
-                    </h3>
-
-                    <div className="grid grid-cols-2 gap-4">
-                        <FormItem label="Type">
-                            <Select
-                                value={frequencyTypes.find(
-                                    (t) => t.value === config.type,
-                                )}
-                                options={frequencyTypes}
-                                onChange={(option) => {
-                                    const newType =
-                                        option?.value as FrequencyType
-
-                                    setConfig((prev) => ({
-                                        ...prev,
-                                        type: newType,
-                                        selectedItems: [],
-                                        count: 1,
-                                        itemConfigs: {},
-                                    }))
-                                    setSelectedMonth('')
-                                    setSelectedDay('')
-                                    setAvailableDays([])
-                                }}
-                            />
-                        </FormItem>
-
-                        {showCountField && (
-                            <FormItem label="Count">
-                                <Input
-                                    type="number"
-                                    min="1"
-                                    max={config.type === 'Weekly' ? 7 : 1}
-                                    value={config.count}
-                                    disabled={!isCountEditable(config.type)}
-                                    onChange={(e) => {
-                                        const value =
-                                            parseInt(e.target.value) || 1
-                                        if (
-                                            config.type !== 'Weekly' &&
-                                            value > 1
-                                        ) {
-                                            toast.push(
-                                                <Notification
-                                                    title="Limit exceeded"
-                                                    type="danger"
-                                                >
-                                                    You can only select 1 day
-                                                    for{' '}
-                                                    {config.type.toLowerCase()}{' '}
-                                                    frequency.
-                                                </Notification>,
-                                            )
-                                            return
-                                        }
-
-                                        if (
-                                            config.type === 'Weekly' &&
-                                            value > 7
-                                        ) {
-                                            toast.push(
-                                                <Notification
-                                                    title="Limit exceeded"
-                                                    type="danger"
-                                                >
-                                                    You can only select up to 7
-                                                    days in a week.
-                                                </Notification>,
-                                            )
-                                            return
-                                        }
-
+                <div className="flex flex-col h-full">
+                    <div className="flex-1 p-6">
+                        <div className="grid grid-cols-1 gap-4">
+                            <FormItem label="Type">
+                                <Select
+                                    value={frequencyTypes.find(
+                                        (t) => t.value === config.type,
+                                    )}
+                                    options={frequencyTypes}
+                                    onChange={(option) => {
+                                        const newType =
+                                            option?.value as FrequencyType
                                         setConfig((prev) => ({
                                             ...prev,
-                                            count: value,
+                                            type: newType,
                                             selectedItems: [],
+                                            selectedMonth: '',
+                                            selectedDay: '',
+                                            count: 1,
                                             itemConfigs: {},
                                         }))
+                                        setAvailableDays([])
                                     }}
                                 />
                             </FormItem>
-                        )}
 
-                        {showMonthDaySelection && (
-                            <>
+                            {showCountField && (
+                                <FormItem label="Count">
+                                    <Input
+                                        type="number"
+                                        min="1"
+                                        max={config.type === 'Weekly' ? 7 : 1}
+                                        value={config.count}
+                                        disabled={!isCountEditable(config.type)}
+                                        onChange={(e) => {
+                                            const value =
+                                                parseInt(e.target.value) || 1
+                                            if (config.type === 'Weekly') {
+                                                if (value > 7) {
+                                                    toast.push(
+                                                        <Notification
+                                                            title="Limit exceeded"
+                                                            type="danger"
+                                                        >
+                                                            You can only select
+                                                            up to 7 days in a
+                                                            week.
+                                                        </Notification>,
+                                                    )
+                                                    return
+                                                }
+
+                                                setConfig((prev) => {
+                                                    const currentSelectedItems =
+                                                        prev.selectedItems || []
+                                                    const newSelectedItems =
+                                                        currentSelectedItems.slice(
+                                                            0,
+                                                            value,
+                                                        )
+
+                                                    const newItemConfigs = {
+                                                        ...prev.itemConfigs,
+                                                    }
+                                                    Object.keys(
+                                                        newItemConfigs,
+                                                    ).forEach((key) => {
+                                                        if (
+                                                            !newSelectedItems.includes(
+                                                                key,
+                                                            )
+                                                        ) {
+                                                            delete newItemConfigs[
+                                                                key
+                                                            ]
+                                                        }
+                                                    })
+
+                                                    return {
+                                                        ...prev,
+                                                        count: value,
+                                                        selectedItems:
+                                                            newSelectedItems,
+                                                        itemConfigs:
+                                                            newItemConfigs,
+                                                    }
+                                                })
+                                            } else {
+                                                if (value > 1) {
+                                                    toast.push(
+                                                        <Notification
+                                                            title="Limit exceeded"
+                                                            type="danger"
+                                                        >
+                                                            You can only select
+                                                            1 day for{' '}
+                                                            {config.type.toLowerCase()}{' '}
+                                                            frequency.
+                                                        </Notification>,
+                                                    )
+                                                    return
+                                                }
+                                                setConfig((prev) => ({
+                                                    ...prev,
+                                                    count: value,
+                                                    selectedItems: [],
+                                                    itemConfigs: {},
+                                                }))
+                                            }
+                                        }}
+                                    />
+                                </FormItem>
+                            )}
+
+                            {showMonthDaySelection && (
+                                <>
+                                    <FormItem
+                                        label={
+                                            config.type === 'Quarterly'
+                                                ? 'Select Month (1-3)'
+                                                : config.type === 'Half-Yearly'
+                                                  ? 'Select Month (1-6)'
+                                                  : 'Select Month'
+                                        }
+                                    >
+                                        <Select
+                                            value={monthOptions.find(
+                                                (m) =>
+                                                    m.value === selectedMonth,
+                                            )}
+                                            options={monthOptions}
+                                            onChange={(option) => {
+                                                if (option) {
+                                                    setConfig((prev) => ({
+                                                        ...prev,
+                                                        selectedMonth:
+                                                            option.value,
+                                                        selectedDay: '',
+                                                    }))
+                                                }
+                                            }}
+                                        />
+                                    </FormItem>
+
+                                    <FormItem label="Select Day">
+                                        <Select
+                                            value={availableDays.find(
+                                                (d) => d.value === selectedDay,
+                                            )}
+                                            options={availableDays}
+                                            isDisabled={!selectedMonth}
+                                            onChange={(option) => {
+                                                if (option) {
+                                                    handleDaySelection(
+                                                        option.value,
+                                                        selectedMonth,
+                                                        config.type,
+                                                    )
+                                                }
+                                            }}
+                                        />
+                                    </FormItem>
+                                </>
+                            )}
+
+                            {showSingleDaySelection && (
                                 <FormItem
                                     label={
-                                        config.type === 'Quarterly'
-                                            ? 'Select Month (1-3)'
-                                            : config.type === 'Half-Yearly'
-                                              ? 'Select Month (1-6)'
-                                              : 'Select Month'
+                                        config.type === 'Weekly'
+                                            ? 'Select Days'
+                                            : config.type === 'Monthly'
+                                              ? 'Select Day'
+                                              : 'Select Day (1-15)'
                                     }
                                 >
                                     <Select
-                                        value={monthOptions.find(
-                                            (m) => m.value === selectedMonth,
-                                        )}
-                                        options={monthOptions}
-                                        onChange={(option) => {
-                                            if (option) {
-                                                setSelectedMonth(option.value)
-                                                setSelectedDay('')
-                                            }
-                                        }}
-                                    />
-                                </FormItem>
-
-                                <FormItem label="Select Day">
-                                    <Select
-                                        value={availableDays.find(
-                                            (d) => d.value === selectedDay,
-                                        )}
-                                        options={availableDays}
-                                        isDisabled={!selectedMonth}
-                                        onChange={(option) => {
-                                            if (option) {
-                                                handleDaySelection(
-                                                    option.value,
-                                                    selectedMonth,
-                                                    config.type,
-                                                )
-                                            }
-                                        }}
-                                    />
-                                </FormItem>
-                            </>
-                        )}
-
-                        {showSingleDaySelection && (
-                            <FormItem
-                                label={
-                                    config.type === 'Weekly'
-                                        ? 'Select Days'
-                                        : config.type === 'Monthly'
-                                          ? 'Select Day'
-                                          : 'Select Day (1-15)'
-                                }
-                            >
-                                <Select
-                                    isMulti={
-                                        config.type === 'Weekly' &&
-                                        config.count > 1
-                                    }
-                                    value={
-                                        config.type === 'Weekly' &&
-                                        config.count > 1
-                                            ? dayOptions.filter((opt) =>
-                                                  config.selectedItems?.includes(
-                                                      opt.value,
-                                                  ),
-                                              )
-                                            : dayOptions.find(
-                                                  (opt) =>
-                                                      config
-                                                          .selectedItems?.[0] ===
-                                                      opt.value,
-                                              )
-                                    }
-                                    options={dayOptions}
-                                    onChange={(selectedOptions) => {
-                                        if (
+                                        isMulti={
                                             config.type === 'Weekly' &&
                                             config.count > 1
-                                        ) {
-                                            const selected = Array.isArray(
-                                                selectedOptions,
-                                            )
-                                                ? selectedOptions.map(
-                                                      (opt: any) => opt.value,
+                                        }
+                                        value={
+                                            config.type === 'Weekly' &&
+                                            config.count > 1
+                                                ? dayOptions.filter((opt) =>
+                                                      config.selectedItems?.includes(
+                                                          opt.value,
+                                                      ),
                                                   )
-                                                : []
-
+                                                : dayOptions.find(
+                                                      (opt) =>
+                                                          config
+                                                              .selectedItems?.[0] ===
+                                                          opt.value,
+                                                  )
+                                        }
+                                        options={dayOptions}
+                                        onChange={(selectedOptions) => {
                                             if (
-                                                selected.length > config.count
+                                                config.type === 'Weekly' &&
+                                                config.count > 1
                                             ) {
-                                                toast.push(
-                                                    <Notification
-                                                        title="Selection limit"
-                                                        type="danger"
-                                                    >
-                                                        You can only select up
-                                                        to {config.count} days.
-                                                    </Notification>,
+                                                const selected = Array.isArray(
+                                                    selectedOptions,
                                                 )
-                                                return
-                                            }
+                                                    ? selectedOptions.map(
+                                                          (opt: any) =>
+                                                              opt.value,
+                                                      )
+                                                    : []
 
-                                            setConfig((prev) => {
-                                                const newItemConfigs = {
-                                                    ...prev.itemConfigs,
-                                                }
-                                                selected.forEach((item) => {
-                                                    if (!newItemConfigs[item]) {
-                                                        newItemConfigs[item] = {
-                                                            interval: 1,
-                                                            cutOffTimes: [
-                                                                '00:00',
-                                                            ],
-                                                            considerLastDay: false,
-                                                        }
-                                                    }
-                                                })
-                                                Object.keys(
-                                                    newItemConfigs,
-                                                ).forEach((key) => {
-                                                    if (
-                                                        !selected.includes(key)
-                                                    ) {
-                                                        delete newItemConfigs[
-                                                            key
-                                                        ]
-                                                    }
-                                                })
-                                                return {
-                                                    ...prev,
-                                                    selectedItems: selected,
-                                                    itemConfigs: newItemConfigs,
-                                                }
-                                            })
-                                        } else {
-                                            const option =
-                                                selectedOptions as any
-                                            if (option) {
-                                                const selectedDay = option.value
-                                                // For Monthly type, trigger last day confirmation
-                                                if (config.type === 'Monthly') {
-                                                    handleDaySelection(
-                                                        selectedDay,
-                                                        '',
-                                                        config.type,
+                                                const limitedSelection =
+                                                    selected.slice(
+                                                        0,
+                                                        config.count,
                                                     )
-                                                } else {
+
+                                                if (
+                                                    selected.length >
+                                                    config.count
+                                                ) {
+                                                    toast.push(
+                                                        <Notification
+                                                            title="Selection limit"
+                                                            type="danger"
+                                                        >
+                                                            You can only select
+                                                            up to {config.count}{' '}
+                                                            days.
+                                                        </Notification>,
+                                                    )
+                                                }
+
+                                                setConfig((prev) => {
+                                                    const newItemConfigs = {
+                                                        ...prev.itemConfigs,
+                                                    }
+                                                    limitedSelection.forEach(
+                                                        (item) => {
+                                                            if (
+                                                                !newItemConfigs[
+                                                                    item
+                                                                ]
+                                                            ) {
+                                                                newItemConfigs[
+                                                                    item
+                                                                ] = {
+                                                                    interval: 1,
+                                                                    cutOffTimes:
+                                                                        [
+                                                                            '00:00',
+                                                                        ],
+                                                                    considerLastDay: false,
+                                                                }
+                                                            }
+                                                        },
+                                                    )
+                                                    Object.keys(
+                                                        newItemConfigs,
+                                                    ).forEach((key) => {
+                                                        if (
+                                                            !limitedSelection.includes(
+                                                                key,
+                                                            )
+                                                        ) {
+                                                            delete newItemConfigs[
+                                                                key
+                                                            ]
+                                                        }
+                                                    })
+                                                    return {
+                                                        ...prev,
+                                                        selectedItems:
+                                                            limitedSelection,
+                                                        itemConfigs:
+                                                            newItemConfigs,
+                                                    }
+                                                })
+                                            } else {
+                                                const option =
+                                                    selectedOptions as any
+                                                if (option) {
+                                                    const selectedDay =
+                                                        option.value
+                                                    if (
+                                                        config.type ===
+                                                        'Monthly'
+                                                    ) {
+                                                        handleDaySelection(
+                                                            selectedDay,
+                                                            '',
+                                                            config.type,
+                                                        )
+                                                    } else {
+                                                        setConfig((prev) => {
+                                                            const newItemConfigs =
+                                                                {
+                                                                    ...prev.itemConfigs,
+                                                                }
+
+                                                            if (
+                                                                !newItemConfigs[
+                                                                    selectedDay
+                                                                ]
+                                                            ) {
+                                                                newItemConfigs[
+                                                                    selectedDay
+                                                                ] = {
+                                                                    interval: 1,
+                                                                    cutOffTimes:
+                                                                        [
+                                                                            '00:00',
+                                                                        ],
+                                                                    considerLastDay: false,
+                                                                }
+                                                            }
+
+                                                            Object.keys(
+                                                                newItemConfigs,
+                                                            ).forEach((key) => {
+                                                                if (
+                                                                    key !==
+                                                                    selectedDay
+                                                                ) {
+                                                                    delete newItemConfigs[
+                                                                        key
+                                                                    ]
+                                                                }
+                                                            })
+
+                                                            return {
+                                                                ...prev,
+                                                                selectedItems: [
+                                                                    selectedDay,
+                                                                ],
+                                                                selectedDay:
+                                                                    selectedDay,
+                                                                itemConfigs:
+                                                                    newItemConfigs,
+                                                            }
+                                                        })
+                                                    }
+                                                }
+                                            }
+                                        }}
+                                    />
+                                </FormItem>
+                            )}
+
+                            {config.type !== 'Weekly' &&
+                                config.type !== 'Monthly' &&
+                                config.type !== 'Fortnightly' &&
+                                config.type !== 'Quarterly' &&
+                                config.type !== 'Half-Yearly' &&
+                                config.type !== 'Yearly' && (
+                                    <FormItem label="Interval">
+                                        <Input
+                                            type="number"
+                                            min="1"
+                                            value={config.interval}
+                                            onChange={(e) =>
+                                                setConfig((prev) => ({
+                                                    ...prev,
+                                                    interval:
+                                                        parseInt(
+                                                            e.target.value,
+                                                        ) || 1,
+                                                }))
+                                            }
+                                        />
+                                    </FormItem>
+                                )}
+                        </div>
+
+                        {showMonthDaySelection &&
+                            selectedMonth &&
+                            selectedDay && (
+                                <div className="mt-5">
+                                    <h4 className="font-semibold mb-3">
+                                        {`Per-Day Settings (${config.type} - ${selectedMonth} - Day ${selectedDay})`}
+                                        {config.itemConfigs?.[
+                                            `${selectedMonth}-${selectedDay}`
+                                        ]?.considerLastDay && (
+                                            <span className="ml-2 text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">
+                                                Last Day Mode
+                                            </span>
+                                        )}
+                                    </h4>
+
+                                    <div className="border rounded p-3 mb-3 bg-gray-50">
+                                        <h5 className="font-medium mb-2">
+                                            {`${selectedMonth} - Day ${selectedDay}`}
+                                            {config.itemConfigs?.[
+                                                `${selectedMonth}-${selectedDay}`
+                                            ]?.considerLastDay && (
+                                                <span className="ml-2 text-sm text-blue-600">
+                                                    (Notifications will be sent
+                                                    on last day of month)
+                                                </span>
+                                            )}
+                                        </h5>
+                                        <FormItem
+                                            label={`Interval for Day ${selectedDay}`}
+                                        >
+                                            <Input
+                                                type="number"
+                                                min="1"
+                                                value={
+                                                    config.itemConfigs?.[
+                                                        `${selectedMonth}-${selectedDay}`
+                                                    ]?.interval || 1
+                                                }
+                                                onChange={(e) => {
+                                                    const val =
+                                                        parseInt(
+                                                            e.target.value,
+                                                        ) || 1
                                                     setConfig((prev) => {
-                                                        const newItemConfigs = {
+                                                        const newConfigs = {
                                                             ...prev.itemConfigs,
                                                         }
-
-                                                        if (
-                                                            !newItemConfigs[
-                                                                selectedDay
-                                                            ]
-                                                        ) {
-                                                            newItemConfigs[
-                                                                selectedDay
-                                                            ] = {
+                                                        const itemKey = `${selectedMonth}-${selectedDay}`
+                                                        const currentConfig =
+                                                            newConfigs[
+                                                                itemKey
+                                                            ] || {
                                                                 interval: 1,
                                                                 cutOffTimes: [
                                                                     '00:00',
                                                                 ],
                                                                 considerLastDay: false,
                                                             }
+                                                        const cutoffs = [
+                                                            ...currentConfig.cutOffTimes,
+                                                        ]
+
+                                                        if (
+                                                            val > cutoffs.length
+                                                        ) {
+                                                            for (
+                                                                let i =
+                                                                    cutoffs.length;
+                                                                i < val;
+                                                                i++
+                                                            ) {
+                                                                cutoffs.push(
+                                                                    '00:00',
+                                                                )
+                                                            }
+                                                        } else if (
+                                                            val < cutoffs.length
+                                                        ) {
+                                                            cutoffs.splice(val)
                                                         }
 
-                                                        Object.keys(
-                                                            newItemConfigs,
-                                                        ).forEach((key) => {
-                                                            if (
-                                                                key !==
-                                                                selectedDay
-                                                            ) {
-                                                                delete newItemConfigs[
-                                                                    key
-                                                                ]
-                                                            }
-                                                        })
-
+                                                        newConfigs[itemKey] = {
+                                                            ...currentConfig,
+                                                            interval: val,
+                                                            cutOffTimes:
+                                                                cutoffs,
+                                                        }
                                                         return {
                                                             ...prev,
-                                                            selectedItems: [
-                                                                selectedDay,
-                                                            ],
                                                             itemConfigs:
-                                                                newItemConfigs,
+                                                                newConfigs,
                                                         }
                                                     })
-                                                }
-                                            }
-                                        }
-                                    }}
-                                />
-                            </FormItem>
-                        )}
+                                                }}
+                                            />
+                                        </FormItem>
 
-                        {config.type !== 'Weekly' &&
-                            config.type !== 'Monthly' &&
-                            config.type !== 'Fortnightly' &&
-                            config.type !== 'Quarterly' &&
-                            config.type !== 'Half-Yearly' &&
-                            config.type !== 'Yearly' && (
-                                <FormItem label="Interval">
-                                    <Input
-                                        type="number"
-                                        min="1"
-                                        value={config.interval}
-                                        onChange={(e) =>
-                                            setConfig((prev) => ({
-                                                ...prev,
-                                                interval:
-                                                    parseInt(e.target.value) ||
-                                                    1,
-                                            }))
-                                        }
-                                    />
-                                </FormItem>
-                            )}
-                    </div>
-
-                    {showSingleDaySelection &&
-                        config.selectedItems &&
-                        config.selectedItems.length > 0 && (
-                            <div className="mt-5">
-                                <h4 className="font-semibold mb-3">
-                                    {config.type === 'Weekly'
-                                        ? 'Per-Day Settings'
-                                        : config.type === 'Monthly'
-                                          ? 'Per-Day Settings (Monthly)'
-                                          : 'Per-Day Settings (Fortnightly)'}
-                                </h4>
-
-                                {config.selectedItems.map((item) => {
-                                    const dayConfig = config.itemConfigs?.[
-                                        item
-                                    ] || {
-                                        interval: 1,
-                                        cutOffTimes: ['00:00'],
-                                        considerLastDay: false,
-                                    }
-
-                                    return (
-                                        <div
-                                            key={item}
-                                            className="border rounded p-3 mb-3 bg-gray-50"
-                                        >
-                                            <h5 className="font-medium mb-2">
-                                                {config.type === 'Weekly'
-                                                    ? item
-                                                    : config.type === 'Monthly'
-                                                      ? `Day ${item}`
-                                                      : item}
-                                                {dayConfig.considerLastDay && (
-                                                    <span className="ml-2 text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">
-                                                        Last Day Mode
-                                                    </span>
-                                                )}
-                                            </h5>
-                                            <FormItem
-                                                label={`Interval for ${config.type === 'Weekly' ? item : `Day ${item}`}`}
+                                        {(
+                                            config.itemConfigs?.[
+                                                `${selectedMonth}-${selectedDay}`
+                                            ]?.cutOffTimes || ['00:00']
+                                        ).map((time, i) => (
+                                            <div
+                                                key={i}
+                                                className="flex items-center gap-2 mb-2"
                                             >
-                                                <Input
-                                                    type="number"
-                                                    min="1"
-                                                    value={dayConfig.interval}
-                                                    onChange={(e) => {
-                                                        const val =
-                                                            parseInt(
-                                                                e.target.value,
-                                                            ) || 1
+                                                <TimeInput
+                                                    format="12"
+                                                    value={
+                                                        new Date(
+                                                            `2000-01-01T${time}`,
+                                                        )
+                                                    }
+                                                    onChange={(date) => {
                                                         setConfig((prev) => {
                                                             const newConfigs = {
                                                                 ...prev.itemConfigs,
                                                             }
-                                                            const updated =
+                                                            const itemKey = `${selectedMonth}-${selectedDay}`
+                                                            const currentConfig =
                                                                 newConfigs[
-                                                                    item
-                                                                ] || dayConfig
-                                                            const cutoffs = [
-                                                                ...updated.cutOffTimes,
-                                                            ]
-                                                            if (
-                                                                val >
-                                                                cutoffs.length
-                                                            ) {
-                                                                for (
-                                                                    let i =
-                                                                        cutoffs.length;
-                                                                    i < val;
-                                                                    i++
-                                                                ) {
-                                                                    cutoffs.push(
-                                                                        '00:00',
-                                                                    )
+                                                                    itemKey
+                                                                ] || {
+                                                                    interval: 1,
+                                                                    cutOffTimes:
+                                                                        [
+                                                                            '00:00',
+                                                                        ],
+                                                                    considerLastDay: false,
                                                                 }
-                                                            } else if (
-                                                                val <
-                                                                cutoffs.length
-                                                            ) {
-                                                                cutoffs.splice(
-                                                                    val,
+                                                            const newTimes = [
+                                                                ...currentConfig.cutOffTimes,
+                                                            ]
+
+                                                            if (!date) {
+                                                                newTimes.splice(
+                                                                    i,
+                                                                    1,
                                                                 )
+                                                            } else {
+                                                                const timeStr =
+                                                                    date
+                                                                        .toTimeString()
+                                                                        .slice(
+                                                                            0,
+                                                                            5,
+                                                                        )
+                                                                newTimes[i] =
+                                                                    timeStr
                                                             }
-                                                            newConfigs[item] = {
-                                                                ...updated,
-                                                                interval: val,
+
+                                                            newConfigs[
+                                                                itemKey
+                                                            ] = {
+                                                                ...currentConfig,
                                                                 cutOffTimes:
-                                                                    cutoffs,
+                                                                    newTimes,
                                                             }
+
                                                             return {
                                                                 ...prev,
                                                                 itemConfigs:
@@ -733,290 +874,270 @@ const FrequencyPopup = ({
                                                         })
                                                     }}
                                                 />
-                                            </FormItem>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
 
-                                            {dayConfig.cutOffTimes.map(
-                                                (time, i) => (
-                                                    <div
-                                                        key={i}
-                                                        className="flex items-center gap-2 mb-2"
-                                                    >
-                                                        <TimeInput
-                                                            format="12"
-                                                            value={
-                                                                new Date(
-                                                                    `2000-01-01T${time}`,
-                                                                )
-                                                            }
-                                                            onChange={(
-                                                                date,
-                                                            ) => {
-                                                                setConfig(
-                                                                    (prev) => {
-                                                                        const newConfigs =
-                                                                            {
-                                                                                ...prev.itemConfigs,
-                                                                            }
-                                                                        const updated =
-                                                                            newConfigs[
-                                                                                item
-                                                                            ]
-                                                                        const newTimes =
-                                                                            [
-                                                                                ...updated.cutOffTimes,
-                                                                            ]
+                        {showSingleDaySelection &&
+                            config.selectedItems &&
+                            config.selectedItems.length > 0 && (
+                                <div className="mt-5">
+                                    <h4 className="font-semibold mb-3">
+                                        {config.type === 'Weekly'
+                                            ? 'Per-Day Settings'
+                                            : config.type === 'Monthly'
+                                              ? 'Per-Day Settings (Monthly)'
+                                              : 'Per-Day Settings (Fortnightly)'}
+                                    </h4>
 
-                                                                        if (
-                                                                            !date
-                                                                        ) {
-                                                                            newTimes.splice(
-                                                                                i,
-                                                                                1,
-                                                                            )
-                                                                        } else {
-                                                                            const timeStr =
-                                                                                date
-                                                                                    .toTimeString()
-                                                                                    .slice(
-                                                                                        0,
-                                                                                        5,
-                                                                                    )
-                                                                            newTimes[
-                                                                                i
-                                                                            ] =
-                                                                                timeStr
+                                    {config.selectedItems.map((item) => {
+                                        const dayConfig = config.itemConfigs?.[
+                                            item
+                                        ] || {
+                                            interval: 1,
+                                            cutOffTimes: ['00:00'],
+                                            considerLastDay: false,
+                                        }
+
+                                        return (
+                                            <div
+                                                key={item}
+                                                className="border rounded p-3 mb-3 bg-gray-50"
+                                            >
+                                                <h5 className="font-medium mb-2">
+                                                    {config.type === 'Weekly'
+                                                        ? item
+                                                        : config.type ===
+                                                            'Monthly'
+                                                          ? `Day ${item}`
+                                                          : item}
+                                                    {dayConfig.considerLastDay && (
+                                                        <span className="ml-2 text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">
+                                                            Last Day Mode
+                                                        </span>
+                                                    )}
+                                                </h5>
+                                                <FormItem
+                                                    label={`Interval for ${config.type === 'Weekly' ? item : `Day ${item}`}`}
+                                                >
+                                                    <Input
+                                                        type="number"
+                                                        min="1"
+                                                        value={
+                                                            dayConfig.interval
+                                                        }
+                                                        onChange={(e) => {
+                                                            const val =
+                                                                parseInt(
+                                                                    e.target
+                                                                        .value,
+                                                                ) || 1
+                                                            setConfig(
+                                                                (prev) => {
+                                                                    const newConfigs =
+                                                                        {
+                                                                            ...prev.itemConfigs,
                                                                         }
-
+                                                                    const updated =
                                                                         newConfigs[
                                                                             item
-                                                                        ] = {
-                                                                            ...updated,
-                                                                            cutOffTimes:
-                                                                                newTimes,
+                                                                        ] ||
+                                                                        dayConfig
+                                                                    const cutoffs =
+                                                                        [
+                                                                            ...updated.cutOffTimes,
+                                                                        ]
+                                                                    if (
+                                                                        val >
+                                                                        cutoffs.length
+                                                                    ) {
+                                                                        for (
+                                                                            let i =
+                                                                                cutoffs.length;
+                                                                            i <
+                                                                            val;
+                                                                            i++
+                                                                        ) {
+                                                                            cutoffs.push(
+                                                                                '00:00',
+                                                                            )
                                                                         }
-
-                                                                        return {
-                                                                            ...prev,
-                                                                            itemConfigs:
-                                                                                newConfigs,
-                                                                        }
-                                                                    },
-                                                                )
-                                                            }}
-                                                        />
-                                                    </div>
-                                                ),
-                                            )}
-                                        </div>
-                                    )
-                                })}
-                            </div>
-                        )}
-
-                    {showMonthDaySelection && selectedMonth && selectedDay && (
-                        <div className="mt-5">
-                            <h4 className="font-semibold mb-3">
-                                {`Per-Day Settings (${config.type} - ${selectedMonth} - Day ${selectedDay})`}
-                                {config.itemConfigs?.[
-                                    `${selectedMonth}-${selectedDay}`
-                                ]?.considerLastDay && (
-                                    <span className="ml-2 text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">
-                                        Last Day Mode
-                                    </span>
-                                )}
-                            </h4>
-
-                            <div className="border rounded p-3 mb-3 bg-gray-50">
-                                <h5 className="font-medium mb-2">
-                                    {`${selectedMonth} - Day ${selectedDay}`}
-                                    {config.itemConfigs?.[
-                                        `${selectedMonth}-${selectedDay}`
-                                    ]?.considerLastDay && (
-                                        <span className="ml-2 text-sm text-blue-600">
-                                            (Notifications will be sent on last
-                                            day of month)
-                                        </span>
-                                    )}
-                                </h5>
-                                <FormItem
-                                    label={`Interval for Day ${selectedDay}`}
-                                >
-                                    <Input
-                                        type="number"
-                                        min="1"
-                                        value={
-                                            config.itemConfigs?.[
-                                                `${selectedMonth}-${selectedDay}`
-                                            ]?.interval || 1
-                                        }
-                                        onChange={(e) => {
-                                            const val =
-                                                parseInt(e.target.value) || 1
-                                            setConfig((prev) => {
-                                                const newConfigs = {
-                                                    ...prev.itemConfigs,
-                                                }
-                                                const itemKey = `${selectedMonth}-${selectedDay}`
-                                                const currentConfig =
-                                                    newConfigs[itemKey] || {
-                                                        interval: 1,
-                                                        cutOffTimes: ['00:00'],
-                                                        considerLastDay: false,
-                                                    }
-                                                const cutoffs = [
-                                                    ...currentConfig.cutOffTimes,
-                                                ]
-
-                                                if (val > cutoffs.length) {
-                                                    for (
-                                                        let i = cutoffs.length;
-                                                        i < val;
-                                                        i++
-                                                    ) {
-                                                        cutoffs.push('00:00')
-                                                    }
-                                                } else if (
-                                                    val < cutoffs.length
-                                                ) {
-                                                    cutoffs.splice(val)
-                                                }
-
-                                                newConfigs[itemKey] = {
-                                                    ...currentConfig,
-                                                    interval: val,
-                                                    cutOffTimes: cutoffs,
-                                                }
-                                                return {
-                                                    ...prev,
-                                                    itemConfigs: newConfigs,
-                                                }
-                                            })
-                                        }}
-                                    />
-                                </FormItem>
-
-                                {(
-                                    config.itemConfigs?.[
-                                        `${selectedMonth}-${selectedDay}`
-                                    ]?.cutOffTimes || ['00:00']
-                                ).map((time, i) => (
-                                    <div
-                                        key={i}
-                                        className="flex items-center gap-2 mb-2"
-                                    >
-                                        <TimeInput
-                                            format="12"
-                                            value={
-                                                new Date(`2000-01-01T${time}`)
-                                            }
-                                            onChange={(date) => {
-                                                setConfig((prev) => {
-                                                    const newConfigs = {
-                                                        ...prev.itemConfigs,
-                                                    }
-                                                    const itemKey = `${selectedMonth}-${selectedDay}`
-                                                    const currentConfig =
-                                                        newConfigs[itemKey] || {
-                                                            interval: 1,
-                                                            cutOffTimes: [
-                                                                '00:00',
-                                                            ],
-                                                            considerLastDay: false,
-                                                        }
-                                                    const newTimes = [
-                                                        ...currentConfig.cutOffTimes,
-                                                    ]
-
-                                                    if (!date) {
-                                                        newTimes.splice(i, 1)
-                                                    } else {
-                                                        const timeStr = date
-                                                            .toTimeString()
-                                                            .slice(0, 5)
-                                                        newTimes[i] = timeStr
-                                                    }
-
-                                                    newConfigs[itemKey] = {
-                                                        ...currentConfig,
-                                                        cutOffTimes: newTimes,
-                                                    }
-
-                                                    return {
-                                                        ...prev,
-                                                        itemConfigs: newConfigs,
-                                                    }
-                                                })
-                                            }}
-                                        />
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-                    )}
-
-                    {config.type !== 'Weekly' &&
-                        config.type !== 'Monthly' &&
-                        config.type !== 'Fortnightly' &&
-                        config.type !== 'Quarterly' &&
-                        config.type !== 'Half-Yearly' &&
-                        config.type !== 'Yearly' &&
-                        config.cutOffTimes?.length > 0 && (
-                            <div className="mt-4">
-                                <FormItem label="Cut-off Times">
-                                    {config.cutOffTimes.map((time, i) => (
-                                        <div
-                                            key={i}
-                                            className="flex items-center gap-2 mb-2"
-                                        >
-                                            <TimeInput
-                                                format="12"
-                                                value={
-                                                    new Date(
-                                                        `2000-01-01T${time}`,
-                                                    )
-                                                }
-                                                onChange={(date) => {
-                                                    setConfig((prev) => {
-                                                        const newTimes = [
-                                                            ...prev.cutOffTimes!,
-                                                        ]
-
-                                                        if (!date) {
-                                                            newTimes.splice(
-                                                                i,
-                                                                1,
+                                                                    } else if (
+                                                                        val <
+                                                                        cutoffs.length
+                                                                    ) {
+                                                                        cutoffs.splice(
+                                                                            val,
+                                                                        )
+                                                                    }
+                                                                    newConfigs[
+                                                                        item
+                                                                    ] = {
+                                                                        ...updated,
+                                                                        interval:
+                                                                            val,
+                                                                        cutOffTimes:
+                                                                            cutoffs,
+                                                                    }
+                                                                    return {
+                                                                        ...prev,
+                                                                        itemConfigs:
+                                                                            newConfigs,
+                                                                    }
+                                                                },
                                                             )
-                                                        } else {
-                                                            const timeString =
-                                                                date
-                                                                    .toTimeString()
-                                                                    .slice(0, 5)
-                                                            newTimes[i] =
-                                                                timeString
-                                                        }
+                                                        }}
+                                                    />
+                                                </FormItem>
 
-                                                        return {
-                                                            ...prev,
-                                                            cutOffTimes:
-                                                                newTimes,
-                                                        }
-                                                    })
-                                                }}
-                                            />
-                                        </div>
-                                    ))}
-                                </FormItem>
-                            </div>
-                        )}
+                                                {dayConfig.cutOffTimes.map(
+                                                    (time, i) => (
+                                                        <div
+                                                            key={i}
+                                                            className="flex items-center gap-2 mb-2"
+                                                        >
+                                                            <TimeInput
+                                                                format="12"
+                                                                value={
+                                                                    new Date(
+                                                                        `2000-01-01T${time}`,
+                                                                    )
+                                                                }
+                                                                onChange={(
+                                                                    date,
+                                                                ) => {
+                                                                    setConfig(
+                                                                        (
+                                                                            prev,
+                                                                        ) => {
+                                                                            const newConfigs =
+                                                                                {
+                                                                                    ...prev.itemConfigs,
+                                                                                }
+                                                                            const updated =
+                                                                                newConfigs[
+                                                                                    item
+                                                                                ]
+                                                                            const newTimes =
+                                                                                [
+                                                                                    ...updated.cutOffTimes,
+                                                                                ]
 
-                    <div className="flex justify-end space-x-2 mt-6">
+                                                                            if (
+                                                                                !date
+                                                                            ) {
+                                                                                newTimes.splice(
+                                                                                    i,
+                                                                                    1,
+                                                                                )
+                                                                            } else {
+                                                                                const timeStr =
+                                                                                    date
+                                                                                        .toTimeString()
+                                                                                        .slice(
+                                                                                            0,
+                                                                                            5,
+                                                                                        )
+                                                                                newTimes[
+                                                                                    i
+                                                                                ] =
+                                                                                    timeStr
+                                                                            }
+
+                                                                            newConfigs[
+                                                                                item
+                                                                            ] =
+                                                                                {
+                                                                                    ...updated,
+                                                                                    cutOffTimes:
+                                                                                        newTimes,
+                                                                                }
+
+                                                                            return {
+                                                                                ...prev,
+                                                                                itemConfigs:
+                                                                                    newConfigs,
+                                                                            }
+                                                                        },
+                                                                    )
+                                                                }}
+                                                            />
+                                                        </div>
+                                                    ),
+                                                )}
+                                            </div>
+                                        )
+                                    })}
+                                </div>
+                            )}
+
+                        {config.type !== 'Weekly' &&
+                            config.type !== 'Monthly' &&
+                            config.type !== 'Fortnightly' &&
+                            config.type !== 'Quarterly' &&
+                            config.type !== 'Half-Yearly' &&
+                            config.type !== 'Yearly' &&
+                            config.cutOffTimes?.length > 0 && (
+                                <div className="mt-4">
+                                    <FormItem label="Cut-off Times">
+                                        {config.cutOffTimes.map((time, i) => (
+                                            <div
+                                                key={i}
+                                                className="flex items-center gap-2 mb-2"
+                                            >
+                                                <TimeInput
+                                                    format="12"
+                                                    value={
+                                                        new Date(
+                                                            `2000-01-01T${time}`,
+                                                        )
+                                                    }
+                                                    onChange={(date) => {
+                                                        setConfig((prev) => {
+                                                            const newTimes = [
+                                                                ...prev.cutOffTimes!,
+                                                            ]
+                                                            if (!date) {
+                                                                newTimes.splice(
+                                                                    i,
+                                                                    1,
+                                                                )
+                                                            } else {
+                                                                const timeString =
+                                                                    date
+                                                                        .toTimeString()
+                                                                        .slice(
+                                                                            0,
+                                                                            5,
+                                                                        )
+                                                                newTimes[i] =
+                                                                    timeString
+                                                            }
+                                                            return {
+                                                                ...prev,
+                                                                cutOffTimes:
+                                                                    newTimes,
+                                                            }
+                                                        })
+                                                    }}
+                                                />
+                                            </div>
+                                        ))}
+                                    </FormItem>
+                                </div>
+                            )}
+                    </div>
+
+                    <div className="bg-white flex justify-end space-x-2 py-4 px-6">
                         <Button onClick={onClose}>Cancel</Button>
                         <Button variant="solid" onClick={handleConfirm}>
                             Confirm
                         </Button>
                     </div>
                 </div>
-            </Dialog>
+            </Drawer>
 
             <Dialog
                 isOpen={showLastDayConfirm}

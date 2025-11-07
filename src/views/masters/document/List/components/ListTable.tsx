@@ -3,7 +3,7 @@ import Tooltip from '@/components/ui/Tooltip'
 import DataTable from '@/components/shared/DataTable'
 import { useNavigate } from 'react-router'
 import cloneDeep from 'lodash/cloneDeep'
-import { TbPencil, TbEye } from 'react-icons/tb'
+import { TbEye, TbEdit, TbFileText, TbFilePencil } from 'react-icons/tb'
 import type { OnSortParam, ColumnDef, Row } from '@/components/shared/DataTable'
 import type { TableQueries } from '@/@types/common'
 import useDocumentList from '../hooks/useList'
@@ -14,10 +14,12 @@ const ActionColumn = ({
     onEdit,
     onViewDetail,
     onEditorViewDetail,
+    onEditorDetail,
 }: {
     onEdit: () => void
     onViewDetail: () => void
     onEditorViewDetail: () => void
+    onEditorDetail: () => void
 }) => {
     return (
         <div className="flex items-center gap-3">
@@ -27,7 +29,7 @@ const ActionColumn = ({
                     role="button"
                     onClick={onEdit}
                 >
-                    <TbPencil />
+                    <TbEdit />
                 </div>
             </Tooltip>
             <Tooltip title="View">
@@ -45,7 +47,17 @@ const ActionColumn = ({
                     role="button"
                     onClick={onEditorViewDetail}
                 >
-                    <TbEye />
+                    <TbFileText />
+                </div>
+            </Tooltip>
+
+            <Tooltip title="Document Edit">
+                <div
+                    className={`text-xl cursor-pointer select-none font-semibold`}
+                    role="button"
+                    onClick={onEditorDetail}
+                >
+                    <TbFilePencil />
                 </div>
             </Tooltip>
         </div>
@@ -65,6 +77,7 @@ const DocumentListTable = () => {
         setSelectedDocument,
         selectedDocument,
     } = useDocumentList()
+    console.log(documentList)
 
     const handleEdit = (document: Document) => {
         const path = endpointConfig.master.document.edit.replace(
@@ -84,6 +97,13 @@ const DocumentListTable = () => {
 
     const handleEditorViewDetails = (document: Document) => {
         const path = endpointConfig.master.document.editorview
+            .replace(':docId', String(document.id))
+            .replace(':id', String(document.editor?.id))
+        navigate(path)
+    }
+
+    const handleEditorDetails = (document: Document) => {
+        const path = endpointConfig.master.document.editorEdit
             .replace(':docId', String(document.id))
             .replace(':id', String(document.editor?.id))
         navigate(path)
@@ -132,6 +152,9 @@ const DocumentListTable = () => {
                         }
                         onEditorViewDetail={() =>
                             handleEditorViewDetails(props.row.original)
+                        }
+                        onEditorDetail={() =>
+                            handleEditorDetails(props.row.original)
                         }
                     />
                 ),

@@ -26,9 +26,12 @@ export interface FrequencyConfig {
     count: number
     selectedItems?: string[]
     itemConfigs?: Record<string, ItemConfig>
+    selectedMonth?: string
+    selectedDay?: string
 }
 
 export interface DataEntrySchedule {
+    id?: string | number
     frequency: FrequencyConfig
     startDate: string
     endDate?: string

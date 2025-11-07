@@ -142,6 +142,12 @@ const DocumentAddEdit = () => {
                 return
             }
 
+            if (isEditor && isEdit) {
+                setPendingSubmission({ values, isEditor: true })
+                setIsFrequencyPopupOpen(true)
+                return
+            }
+
             await performSubmission(values, isEditor)
         },
         [isEdit, isView, isEditor, documentId],
@@ -227,7 +233,7 @@ const DocumentAddEdit = () => {
 
             <FrequencyPopup
                 isOpen={isFrequencyPopupOpen}
-                // initialData={documentData?.dataEntrySchedule?.frequency}
+                initialData={documentData?.dataEntrySchedule?.frequency}
                 onClose={() => {
                     setIsFrequencyPopupOpen(false)
                     setPendingSubmission(null)
