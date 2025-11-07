@@ -44,12 +44,22 @@ const FrequencyPopup = ({
     const [pendingMonth, setPendingMonth] = useState<string>('')
     const [pendingConfigType, setPendingConfigType] =
         useState<FrequencyType>('Monthly')
-    const selectedMonth = config.selectedMonth || ''
-    const selectedDay = config.selectedDay || ''
 
     useEffect(() => {
         if (initialData) {
             setConfig(initialData)
+            if (
+                initialData.selectedMonth &&
+                (initialData.type === 'Quarterly' ||
+                    initialData.type === 'Half-Yearly' ||
+                    initialData.type === 'Yearly')
+            ) {
+                const days = generateDaysForMonth(
+                    initialData.selectedMonth,
+                    initialData.type,
+                )
+                setAvailableDays(days)
+            }
         }
     }, [initialData])
 
@@ -156,16 +166,21 @@ const FrequencyPopup = ({
         return monthDays[monthName as keyof typeof monthDays] || 31
     }
 
-    const generateDaysForMonth = () => {
-        if (config.type === 'Quarterly' || config.type === 'Half-Yearly') {
+    const generateDaysForMonth = (
+        month: string,
+        frequencyType?: FrequencyType,
+    ) => {
+        const currentType = frequencyType || config.type
+
+        if (currentType === 'Quarterly' || currentType === 'Half-Yearly') {
             return Array.from({ length: 31 }, (_, i) => ({
                 value: `${i + 1}`,
                 label: `Day ${i + 1}`,
             }))
         }
 
-        if (config.type === 'Yearly' && selectedMonth) {
-            const days = getMonthDays(selectedMonth)
+        if (currentType === 'Yearly' && month) {
+            const days = getMonthDays(month)
             return Array.from({ length: days }, (_, i) => ({
                 value: `${i + 1}`,
                 label: `Day ${i + 1}`,
@@ -234,7 +249,7 @@ const FrequencyPopup = ({
             itemConfigs: {
                 [itemKey]: {
                     interval: 1,
-                    cutOffTimes: ['00:00'],
+                    cutOffTimes: ['09:00'],
                     considerLastDay: considerLastDay,
                 },
             },
@@ -259,22 +274,33 @@ const FrequencyPopup = ({
     }
 
     useEffect(() => {
+        const selectedMonth = config.selectedMonth || ''
         if (
             selectedMonth &&
             (config.type === 'Quarterly' ||
                 config.type === 'Half-Yearly' ||
                 config.type === 'Yearly')
         ) {
-            const days = generateDaysForMonth()
+            const days = generateDaysForMonth(selectedMonth)
             setAvailableDays(days)
-            setConfig((prev) => ({
-                ...prev,
-                selectedDay: '',
-            }))
+            if (
+                !(
+                    config.selectedDay &&
+                    days.find((d) => d.value === config.selectedDay)
+                )
+            ) {
+                setConfig((prev) => ({
+                    ...prev,
+                    selectedDay: '',
+                }))
+            }
+        } else {
+            setAvailableDays([])
         }
-    }, [selectedMonth, config.type])
-
+    }, [config.selectedMonth, config.type])
     const handleConfirm = () => {
+        const selectedMonth = config.selectedMonth || ''
+        const selectedDay = config.selectedDay || ''
         if (
             (config.type === 'Quarterly' ||
                 config.type === 'Half-Yearly' ||
@@ -325,6 +351,9 @@ const FrequencyPopup = ({
     const isCountEditable = (type: FrequencyType) => {
         return type === 'Weekly'
     }
+
+    const selectedMonth = config.selectedMonth || ''
+    const selectedDay = config.selectedDay || ''
 
     return (
         <>
@@ -481,7 +510,9 @@ const FrequencyPopup = ({
                                     <FormItem label="Select Day">
                                         <Select
                                             value={availableDays.find(
-                                                (d) => d.value === selectedDay,
+                                                (d) =>
+                                                    d.value ===
+                                                    config.selectedDay,
                                             )}
                                             options={availableDays}
                                             isDisabled={!selectedMonth}
