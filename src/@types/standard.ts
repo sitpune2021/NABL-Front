@@ -35,6 +35,7 @@ export type Child = {
     isChild: boolean
     count: number
     children: Child[]
+    depth?: number
 }
 
 // Standard type
@@ -47,6 +48,7 @@ export type Standard = {
     isChild: boolean
     count: number
     children: Child[]
+    depth?: number
 }
 
 export type StandardListState = {

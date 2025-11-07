@@ -113,26 +113,53 @@ const OverviewSection = ({
                         )}
                     />
                 </FormItem>
+
+                <FormItem
+                    label="Email"
+                    invalid={Boolean(errors.email)}
+                    errorMessage={errors.email?.message}
+                >
+                    <Controller
+                        name="email"
+                        control={control}
+                        render={({ field }) => (
+                            <Input
+                                type="email"
+                                autoComplete="off"
+                                readOnly={readOnly}
+                                placeholder="Enter Email"
+                                {...field}
+                            />
+                        )}
+                    />
+                </FormItem>
+
+                <FormItem label="Status">
+                    <Controller
+                        name="status"
+                        control={control}
+                        defaultValue="active"
+                        render={({ field }) => (
+                            <Select
+                                options={[
+                                    { label: 'Active', value: 'active' },
+                                    { label: 'Deactive', value: 'deactive' },
+                                ]}
+                                value={{
+                                    label:
+                                        field.value === 'active'
+                                            ? 'Active'
+                                            : 'Deactive',
+                                    value: field.value,
+                                }}
+                                onChange={(selected) =>
+                                    field.onChange(selected?.value)
+                                }
+                            />
+                        )}
+                    />
+                </FormItem>
             </div>
-            <FormItem
-                label="Email"
-                invalid={Boolean(errors.email)}
-                errorMessage={errors.email?.message}
-            >
-                <Controller
-                    name="email"
-                    control={control}
-                    render={({ field }) => (
-                        <Input
-                            type="email"
-                            autoComplete="off"
-                            readOnly={readOnly}
-                            placeholder="Enter Email"
-                            {...field}
-                        />
-                    )}
-                />
-            </FormItem>
             <div className="flex items-end gap-4 w-full">
                 <FormItem
                     invalid={Boolean(errors.phone) || Boolean(errors.dialCode)}
