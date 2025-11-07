@@ -17,6 +17,7 @@ type StandardFormProps = {
     newStandard?: boolean
     readOnly?: boolean
 } & CommonProps
+
 const createStandardSchema = (): z.ZodType<any> =>
     z
         .object({
@@ -116,6 +117,7 @@ const StandardForm = ({
                             name="standards"
                             errors={errors}
                             readOnly={readOnly}
+                            depth={0}
                         />
                     </div>
                 </div>

@@ -105,6 +105,7 @@ const UserAddEdit = () => {
                         cluster_name: '',
                         location_name: '',
                         department_name: '',
+                        status: '',
                     }
                 }
                 readOnly={isView}
