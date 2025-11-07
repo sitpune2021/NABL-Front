@@ -15,6 +15,7 @@ export type FrequencyType =
 export interface ItemConfig {
     interval: number
     cutOffTimes: string[]
+    considerLastDay?: boolean
 }
 
 export interface FrequencyConfig {
@@ -25,9 +26,12 @@ export interface FrequencyConfig {
     count: number
     selectedItems?: string[]
     itemConfigs?: Record<string, ItemConfig>
+    selectedMonth?: string
+    selectedDay?: string
 }
 
 export interface DataEntrySchedule {
+    id?: string | number
     frequency: FrequencyConfig
     startDate: string
     endDate?: string
