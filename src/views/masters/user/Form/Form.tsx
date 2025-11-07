@@ -50,6 +50,7 @@ const validationSchema = z.object({
     cluster_name: z.string().optional().or(z.literal('')),
     location_name: z.string().optional().or(z.literal('')),
     department_name: z.string().optional().or(z.literal('')),
+    status: z.string().optional().or(z.literal('')),
 })
 
 const UserForm = (props: UserFormProps) => {

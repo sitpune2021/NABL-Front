@@ -6,80 +6,86 @@ import Button from '@/components/ui/Button'
 import StandardCard from './StandardCard'
 import type { FormValues } from './StandardForm'
 
+// Type-safe paths for useFieldArray
+type StandardFieldPath =
+    | 'standards'
+    | `standards.${number}`
+    | `standards.${number}.children`
+
 interface StandardRecursiveSectionProps {
     control: Control<FormValues>
-    name: string | any
+    name: StandardFieldPath
     errors: FieldErrors<FormValues>
     readOnly: boolean
     isRoot?: boolean
+    depth?: number
 }
 
-const createDefaultStandard = () => ({
-    id: Math.random(), // safer unique id
+const createDefaultStandard = (depth = 0) => ({
+    id: Math.random(),
     title: '',
     message: '',
     note: true,
     isChild: false,
     count: 0,
     children: [],
+    depth,
 })
 
 const StandardRecursiveSection = ({
     control,
-    name,
+    name = 'standards' as StandardFieldPath,
     errors,
     readOnly,
     isRoot = false,
+    depth = 0,
 }: StandardRecursiveSectionProps) => {
     const { fields, append, update } = useFieldArray({
         control,
         name,
-        keyName: 'reactId', // prevent id conflicts
+        keyName: 'reactId',
     })
 
     const watchedStandards = useWatch({ control, name, defaultValue: [] })
     const hasAppended = useRef(false)
 
+    // Add default root standard if empty
     useEffect(() => {
         if (isRoot && !hasAppended.current && fields.length === 0) {
-            append(createDefaultStandard())
+            append(createDefaultStandard(depth))
             hasAppended.current = true
         }
-    }, [isRoot])
+    }, [isRoot, fields.length, append, depth])
 
+    // Update children automatically based on count
     useEffect(() => {
-        watchedStandards?.forEach(
-            (
-                standard: { isChild: any; children: never[]; count: number },
-                index: number,
-            ) => {
-                if (!standard?.isChild) return
+        watchedStandards?.forEach((standard: any, index: number) => {
+            if (!standard?.isChild) return
 
-                const currentChildren = standard.children || []
-                const targetCount = standard.count || 0
+            const currentChildren = standard.children || []
+            const targetCount = standard.count || 0
 
-                if (targetCount > currentChildren.length) {
-                    const extra = Array.from(
-                        { length: targetCount - currentChildren.length },
-                        () => createDefaultStandard(),
-                    )
-                    update(index, {
-                        ...standard,
-                        children: [...currentChildren, ...extra],
-                    })
-                } else if (targetCount < currentChildren.length) {
-                    update(index, {
-                        ...standard,
-                        children: currentChildren.slice(0, targetCount),
-                    })
-                }
-            },
-        )
+            if (targetCount > currentChildren.length) {
+                const extra = Array.from(
+                    { length: targetCount - currentChildren.length },
+                    () => createDefaultStandard((standard.depth || 0) + 1),
+                )
+                update(index, {
+                    ...standard,
+                    children: [...currentChildren, ...extra],
+                })
+            } else if (targetCount < currentChildren.length) {
+                update(index, {
+                    ...standard,
+                    children: currentChildren.slice(0, targetCount),
+                })
+            }
+        })
     }, [watchedStandards, update])
 
     const handleAddSection = useCallback(() => {
-        append(createDefaultStandard())
-    }, [append])
+        append(createDefaultStandard(depth))
+    }, [append, depth])
 
     return (
         <div>
@@ -105,7 +111,7 @@ const StandardRecursiveSection = ({
                     control={control}
                     watchedStandards={watchedStandards}
                     baseName={name}
-                    depth={isRoot ? 0 : 1}
+                    depth={depth}
                 />
             ))}
         </div>

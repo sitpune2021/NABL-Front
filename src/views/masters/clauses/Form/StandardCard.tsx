@@ -37,10 +37,17 @@ const StandardCard: React.FC<StandardCardProps> = ({
         [errors],
     )
 
+    const getTitleLabel = (depth: number) => {
+        if (depth === 0) return 'Clause Title'
+
+        const repeatSub = 'Sub '.repeat(depth)
+        return `${repeatSub}Clause Title`.trim()
+    }
+
     return (
         <Card key={standard.id} className="mt-3">
             <FormItem
-                label="Clause Title"
+                label={getTitleLabel(standard.depth ?? 0)}
                 invalid={!!getError(`${path}.title`)}
                 errorMessage={getError(`${path}.title`)?.message}
             >
@@ -136,7 +143,7 @@ const StandardCard: React.FC<StandardCardProps> = ({
             {current?.children?.length > 0 && (
                 <StandardRecursiveSection
                     control={control}
-                    name={`${path}.children`}
+                    name={`${path}.children` as `standards.${number}.children`}
                     errors={errors}
                     readOnly={readOnly}
                 />

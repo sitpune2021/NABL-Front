@@ -27,6 +27,8 @@ export type User = {
     zone_name?: string
     cluster_name?: string
     location_name?: string
+    department_name?: string
+    status?: string
 }
 
 export type UserListState = {
@@ -61,6 +63,7 @@ export type Fields = {
     cluster_name?: string
     location_name?: string
     department_name?: string
+    status?: string
 }
 
 export type TagsFields = {
