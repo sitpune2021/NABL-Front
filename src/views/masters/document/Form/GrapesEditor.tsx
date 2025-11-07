@@ -130,7 +130,7 @@ export default function GrapesEditor({
         })
 
         addCustomBlocks(editor)
-        addDynamicFields(editor)
+        addDynamicFields(editor, documentData)
 
         // Debounced form sync
         const handleChange = debounce(() => {
