@@ -98,7 +98,7 @@ const OverviewSection = ({
     const [selectedDepartments, setSelectedDepartments] = useState<
         DepartmentOption[]
     >([])
-    const [counter] = useState(1) // temporary increment
+    const [counter] = useState(1)
     const generateDocumentNo = (
         categoryOption: { value: string; label: string } | null,
         departmentOptions: { value: string; label: string }[],
@@ -128,73 +128,10 @@ const OverviewSection = ({
     const handleDepartmentChange = (options: DepartmentOption[]) => {
         setSelectedDepartments(options || [])
         const newDocNo = generateDocumentNo(selectedCategory, options || [])
-        setValue('documentNo', newDocNo) // update form value
+        setValue('documentNo', newDocNo)
     }
-
-    const frequency = useWatch({ control, name: 'frequency' })
-    const effectiveDate = useWatch({ control, name: 'effectiveDate' })
-    const duration = useWatch({ control, name: 'duration' })
-
-    const [durationOptions, setDurationOptions] = useState<
-        { value: string; label: string }[]
-    >([])
-    const [notificationDate, setNotificationDate] = useState<string | null>(
-        null,
-    )
     const [selectedHeaderHtml, setSelectedHeaderHtml] = useState<string>('')
     const [selectedFooterHtml, setSelectedFooterHtml] = useState<string>('')
-
-    useEffect(() => {
-        if (frequency === 'Weekly') {
-            setDurationOptions(
-                Array.from({ length: 7 }, (_, i) => ({
-                    value: String(i + 1),
-                    label: `${i + 1} Day${i + 1 > 1 ? 's' : ''}`,
-                })),
-            )
-        } else if (frequency === 'Monthly') {
-            setDurationOptions([
-                { value: '1', label: '1 Month' },
-                { value: '2', label: '2 Months' },
-                { value: '3', label: '3 Months' },
-                { value: '6', label: '6 Months' },
-                { value: '9', label: '9 Months' },
-                { value: '12', label: '12 Months' },
-            ])
-        } else if (frequency === 'Yearly') {
-            setDurationOptions([
-                { value: '1', label: '1 Year' },
-                { value: '2', label: '2 Years' },
-                { value: '3', label: '3 Years' },
-                { value: '5', label: '5 Years' },
-                { value: '6', label: '6 Years' },
-                { value: '8', label: '8 Years' },
-                { value: '10', label: '10 Years' },
-            ])
-        } else {
-            setDurationOptions([])
-        }
-    }, [frequency])
-
-    useEffect(() => {
-        if (!effectiveDate || !frequency || !duration) {
-            setNotificationDate(null)
-            return
-        }
-
-        const start = new Date(effectiveDate)
-        const notifyDate = new Date(start)
-
-        if (frequency === 'Weekly') {
-            notifyDate.setDate(start.getDate() - parseInt(duration))
-        } else if (frequency === 'Monthly') {
-            notifyDate.setMonth(start.getMonth() - parseInt(duration))
-        } else if (frequency === 'Yearly') {
-            notifyDate.setFullYear(start.getFullYear() - parseInt(duration))
-        }
-
-        setNotificationDate(notifyDate.toDateString())
-    }, [effectiveDate, frequency, duration])
 
     const availableHeaders: TemplateOption[] = useMemo(() => {
         return (
@@ -221,6 +158,99 @@ const OverviewSection = ({
                 })) || []
         )
     }, [templateList])
+
+    const frequency = useWatch({ control, name: 'frequency' })
+    const effectiveDate = useWatch({ control, name: 'effectiveDate' })
+    const durationValue = useWatch({ control, name: 'durationValue' })
+    const durationUnit = useWatch({ control, name: 'durationUnit' })
+
+    const [notificationDate, setNotificationDate] = useState<string | null>(
+        null,
+    )
+    const [unitOptions, setUnitOptions] = useState<
+        { value: string; label: string }[]
+    >([])
+    const [nextDate, setNextDate] = useState<string | null>(null)
+
+    function getLastDayOfMonth(year: number, month: number) {
+        return new Date(year, month + 1, 0)
+    }
+
+    useEffect(() => {
+        setValue('durationValue', undefined)
+        setValue('durationUnit', undefined)
+        setNotificationDate(null)
+        setNextDate(null)
+    }, [frequency, setValue])
+
+    useEffect(() => {
+        if (frequency === 'Weekly') {
+            setUnitOptions([{ value: 'Day', label: 'Day' }])
+        } else if (frequency === 'Monthly') {
+            setUnitOptions([{ value: 'Day', label: 'Day' }])
+        } else if (frequency === 'Yearly') {
+            setUnitOptions([
+                { value: 'Day', label: 'Day' },
+                { value: 'Month', label: 'Month' },
+            ])
+        } else {
+            setUnitOptions([])
+        }
+    }, [frequency])
+
+    useEffect(() => {
+        if (!effectiveDate || !frequency) {
+            setNextDate(null)
+            return
+        }
+
+        const start = new Date(effectiveDate)
+        let next = new Date(start)
+
+        if (frequency === 'Weekly') {
+            next.setDate(start.getDate() + 7)
+        } else if (frequency === 'Monthly') {
+            const nextMonth = start.getMonth() + 1
+            const lastDay = getLastDayOfMonth(start.getFullYear(), nextMonth)
+            const target = new Date(start)
+            target.setMonth(nextMonth)
+            if (target.getMonth() !== nextMonth % 12) next = lastDay
+            else next = target
+        } else if (frequency === 'Yearly') {
+            const nextYear = start.getFullYear() + 1
+            const sameMonth = start.getMonth()
+            const lastDayNextMonth = getLastDayOfMonth(nextYear, sameMonth)
+            const candidate = new Date(nextYear, sameMonth, start.getDate())
+            if (candidate.getMonth() !== sameMonth) next = lastDayNextMonth
+            else next = candidate
+        }
+
+        setNextDate(next.toDateString())
+    }, [effectiveDate, frequency])
+
+    useEffect(() => {
+        if (!nextDate || !durationValue || !durationUnit) {
+            setNotificationDate(null)
+            return
+        }
+
+        const next = new Date(nextDate)
+        const notify = new Date(next)
+        const val = Number(durationValue)
+
+        if (durationUnit === 'Day') notify.setDate(next.getDate() - val)
+        if (durationUnit === 'Month') notify.setMonth(next.getMonth() - val)
+
+        setNotificationDate(notify.toDateString())
+    }, [nextDate, durationValue, durationUnit])
+
+    const getMaxValue = () => {
+        if (frequency === 'Weekly') return 6
+        if (frequency === 'Monthly') return 28
+        if (frequency === 'Yearly' && durationUnit === 'Day') return 28
+        if (frequency === 'Yearly' && durationUnit === 'Month') return 11
+        return 0
+    }
 
     return (
         <Card>
@@ -281,11 +311,12 @@ const OverviewSection = ({
                                     field.value?.includes(o.value),
                                 )}
                                 placeholder="Select Department"
+                                isDisabled={readOnly}
                                 onChange={(options) => {
                                     const selected = (options ||
                                         []) as DepartmentOption[]
-                                    field.onChange(selected.map((o) => o.value)) // update form field with values only
-                                    handleDepartmentChange(selected) // update documentNo and selectedDepartments
+                                    field.onChange(selected.map((o) => o.value))
+                                    handleDepartmentChange(selected)
                                 }}
                             />
                         )}
@@ -309,6 +340,7 @@ const OverviewSection = ({
                                         o.value === field.value,
                                 )}
                                 placeholder="Select Category"
+                                isDisabled={readOnly}
                                 onChange={(option) => {
                                     field.onChange(option?.value)
                                     handleCategoryChange(option)
@@ -318,7 +350,6 @@ const OverviewSection = ({
                     />
                 </FormItem>
 
-                {/* ✅ Header with preview */}
                 <FormItem
                     label="Header"
                     invalid={Boolean(errors.header)}
@@ -372,7 +403,6 @@ const OverviewSection = ({
                     />
                 </FormItem>
 
-                {/* ✅ Footer with preview */}
                 <FormItem
                     label="Footer"
                     invalid={Boolean(errors.footer)}
@@ -743,8 +773,7 @@ const OverviewSection = ({
 
                 <FormItem
                     label="Effective Date"
-                    invalid={Boolean(errors.effectiveDate)}
-                    errorMessage={errors.effectiveDate?.message}
+                    invalid={!!errors.effectiveDate}
                 >
                     <Controller
                         name="effectiveDate"
@@ -765,11 +794,7 @@ const OverviewSection = ({
                     />
                 </FormItem>
 
-                <FormItem
-                    label="Review Frequency"
-                    invalid={Boolean(errors.frequency)}
-                    errorMessage={errors.frequency?.message}
-                >
+                <FormItem label="Review Frequency" invalid={!!errors.frequency}>
                     <Controller
                         name="frequency"
                         control={control}
@@ -789,7 +814,7 @@ const OverviewSection = ({
                                     { value: 'Monthly', label: 'Monthly' },
                                     { value: 'Yearly', label: 'Yearly' },
                                 ]}
-                                placeholder="Select Review Frequency"
+                                placeholder="Select Frequency"
                                 isDisabled={readOnly}
                                 onChange={(option) =>
                                     field.onChange(option?.value)
@@ -799,34 +824,67 @@ const OverviewSection = ({
                     />
                 </FormItem>
 
-                <FormItem
-                    label="Notification Duration"
-                    invalid={Boolean(errors.duration)}
-                    errorMessage={errors.duration?.message}
-                >
-                    <Controller
-                        name="duration"
-                        control={control}
-                        render={({ field }) => (
-                            <Select
-                                {...field}
-                                value={
-                                    field.value
-                                        ? durationOptions.find(
-                                              (d) => d.value === field.value,
-                                          )
-                                        : null
-                                }
-                                options={durationOptions}
-                                placeholder="Select Notification Duration"
-                                isDisabled={!frequency}
-                                onChange={(option) =>
-                                    field.onChange(option?.value)
-                                }
+                {frequency && (
+                    <div className="grid grid-cols-2 gap-4">
+                        <FormItem
+                            label="Duration Value"
+                            invalid={!!errors.durationValue}
+                        >
+                            <Controller
+                                name="durationValue"
+                                control={control}
+                                render={({ field }) => (
+                                    <Input
+                                        type="number"
+                                        placeholder="Enter value"
+                                        min={1}
+                                        max={getMaxValue()}
+                                        value={field.value || ''}
+                                        disabled={!durationUnit || readOnly}
+                                        onChange={(e) => {
+                                            const val = e.target.value
+                                            if (
+                                                !getMaxValue() ||
+                                                Number(val) <= getMaxValue()
+                                            ) {
+                                                field.onChange(val)
+                                            }
+                                        }}
+                                    />
+                                )}
                             />
-                        )}
-                    />
-                </FormItem>
+                        </FormItem>
+
+                        <FormItem
+                            label="Duration Unit"
+                            invalid={!!errors.durationUnit}
+                        >
+                            <Controller
+                                name="durationUnit"
+                                control={control}
+                                render={({ field }) => (
+                                    <Select
+                                        {...field}
+                                        value={
+                                            field.value
+                                                ? {
+                                                      value: field.value,
+                                                      label: field.value,
+                                                  }
+                                                : null
+                                        }
+                                        options={unitOptions}
+                                        placeholder="Select Unit"
+                                        isDisabled={!frequency || readOnly}
+                                        onChange={(option) =>
+                                            field.onChange(option?.value)
+                                        }
+                                    />
+                                )}
+                            />
+                        </FormItem>
+                    </div>
+                )}
 
                 <FormItem
                     label="Status"
@@ -868,9 +926,27 @@ const OverviewSection = ({
                 </FormItem>
             </div>
 
-            {notificationDate && (
-                <div className="mt-4 p-3 rounded-lg bg-blue-50 border border-blue-200 text-blue-700">
-                    📢 Notification will trigger on: <b>{notificationDate}</b>
+            {(nextDate || notificationDate) && (
+                <div className="mt-4 p-4 rounded-2xl border border-blue-200 bg-gradient-to-br from-blue-50 to-green-50 shadow-sm">
+                    <div className="space-y-2 ml-2">
+                        {nextDate && (
+                            <div className="flex items-center text-green-700 gap-2">
+                                <span className="text-lg">✅</span>
+                                <span>
+                                    <b>Next Review Date:</b> {nextDate}
+                                </span>
+                            </div>
+                        )}
+
+                        {notificationDate && (
+                            <div className="flex items-center text-blue-700 gap-2">
+                                <span className="text-lg">🔔</span>
+                                <span>
+                                    <b>Notification Date:</b> {notificationDate}
+                                </span>
+                            </div>
+                        )}
+                    </div>
                 </div>
             )}
         </Card>

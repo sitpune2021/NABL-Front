@@ -142,46 +142,18 @@ const FrequencyPopup = ({
         }
     }
 
-    const getMonthDays = (monthName: string) => {
-        if (monthName.startsWith('Month ')) {
-            const monthNumber = parseInt(monthName.replace('Month ', ''))
-            const monthDays = [31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
-            return monthDays[monthNumber - 1] || 31
-        }
-
-        const monthDays = {
-            January: 31,
-            February: 29,
-            March: 31,
-            April: 30,
-            May: 31,
-            June: 30,
-            July: 31,
-            August: 31,
-            September: 30,
-            October: 31,
-            November: 30,
-            December: 31,
-        }
-        return monthDays[monthName as keyof typeof monthDays] || 31
-    }
-
     const generateDaysForMonth = (
         month: string,
         frequencyType?: FrequencyType,
     ) => {
         const currentType = frequencyType || config.type
 
-        if (currentType === 'Quarterly' || currentType === 'Half-Yearly') {
+        if (
+            currentType === 'Quarterly' ||
+            currentType === 'Half-Yearly' ||
+            currentType === 'Yearly'
+        ) {
             return Array.from({ length: 31 }, (_, i) => ({
-                value: `${i + 1}`,
-                label: `Day ${i + 1}`,
-            }))
-        }
-
-        if (currentType === 'Yearly' && month) {
-            const days = getMonthDays(month)
-            return Array.from({ length: days }, (_, i) => ({
                 value: `${i + 1}`,
                 label: `Day ${i + 1}`,
             }))
@@ -196,17 +168,14 @@ const FrequencyPopup = ({
         configType: FrequencyType,
     ) => {
         const dayNum = parseInt(day)
-        if (configType === 'Monthly') {
-            return dayNum >= 28 && dayNum <= 31
-        }
 
         if (
+            configType === 'Monthly' ||
             configType === 'Quarterly' ||
             configType === 'Half-Yearly' ||
             configType === 'Yearly'
         ) {
-            const monthDays = getMonthDays(monthName)
-            return dayNum >= 28 && dayNum <= monthDays
+            return dayNum >= 28 && dayNum <= 31
         }
 
         return false

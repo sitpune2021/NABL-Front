@@ -77,6 +77,8 @@ export type Document = {
     effectiveDate: string
     frequency?: string
     duration?: string
+    durationUnit?: string
+    durationValue?: number
     status?: 'Controlled' | 'Uncontrolled'
     dataEntrySchedule?: DataEntrySchedule
     editor?: {
@@ -128,6 +130,8 @@ export type Fields = {
     effectiveDate: string
     frequency?: string
     duration?: string
+    durationUnit?: string
+    durationValue?: number
     status?: 'Controlled' | 'Uncontrolled'
     dataEntrySchedule?: DataEntrySchedule
     document?: {
