@@ -49,6 +49,8 @@ const validationSchema = z.object({
     effectiveDate: z.string().min(1, 'Effective Date is required'),
     frequency: z.string().optional(),
     duration: z.string().optional(),
+    durationUnit: z.string().optional(),
+    durationValue: z.string().optional(),
     prefix: z.string().optional(),
     status: z.enum(['Controlled', 'Uncontrolled']).optional(),
 })
