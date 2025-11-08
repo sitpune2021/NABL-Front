@@ -18,7 +18,6 @@ export type Instrument = {
     short_name: string
     manufacture: string
     serial_number: string
-    instrument_id: string
 } & PrefixFEntity
 
 export type InstrumentListState = {
@@ -36,12 +35,10 @@ export type InstrumentListAction = {
 
 export type Fields = {
     id?: string
-    name: string
     full_name: string
     short_name: string
     manufacture: string
     serial_number: string
-    instrument_id: string
 } & PrefixFEntity
 
 export type TagsFields = {

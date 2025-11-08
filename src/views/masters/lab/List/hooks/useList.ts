@@ -44,6 +44,11 @@ export default function useLabList() {
         return lab
     }
 
+    const getLocationsByLabId = async (id: string) => {
+        const lab = await apiGetLabById(id)
+        return lab.location
+    }
+
     const labList = data?.list || []
 
     const labListTotal = data?.total || 0
@@ -63,5 +68,6 @@ export default function useLabList() {
         setFilterData,
         saveLabData,
         getLabById, // ✅ Now defined properly
+        getLocationsByLabId,
     }
 }

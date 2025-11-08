@@ -9,7 +9,8 @@ import sleep from '@/utils/sleep'
 import { TbTrash } from 'react-icons/tb'
 import endpointConfig from '@/configs/endpoint.config'
 import useInstrumentList from '../List/hooks/useList'
-import InstrumentForm, { InstrumentFormSchema } from '../Form'
+import InstrumentForm from '../Form'
+import { InstrumentFormSchema } from '@/@types/instrument'
 
 const InstrumentAddEdit = () => {
     const navigate = useNavigate()
@@ -20,8 +21,7 @@ const InstrumentAddEdit = () => {
     const [discardConfirmationOpen, setDiscardConfirmationOpen] =
         useState(false)
     const [isSubmiting, setIsSubmiting] = useState(false)
-    const [instrumentData, setInstrumentData] =
-        useState<InstrumentFormSchema | null>(null)
+    const [instrumentData, setInstrumentData] = useState<InstrumentFormSchema>()
     const [loadingData, setLoadingData] = useState(false)
 
     const isEdit = location.pathname.includes('/edit')
@@ -77,13 +77,11 @@ const InstrumentAddEdit = () => {
                 newInstrument={isAdd}
                 defaultValues={
                     instrumentData ?? {
-                        name: '',
                         prefix: '',
                         full_name: '',
                         short_name: '',
                         manufacture: '',
                         serial_number: '',
-                        instrument_id: '',
                     }
                 }
                 readOnly={isView}

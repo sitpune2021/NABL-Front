@@ -22,7 +22,6 @@ const validationSchema = z.object({
     short_name: z.string().min(1, { message: 'Short Name is required' }),
     manufacture: z.string().min(1, { message: 'Manufacturer is required' }),
     serial_number: z.string().min(1, { message: 'Serial Number is required' }),
-    instrument_id: z.string().min(1, { message: 'Instrument ID is required' }),
     prefix: z
         .string()
         .min(1, { message: 'Prefix is required' })

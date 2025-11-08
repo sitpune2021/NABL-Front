@@ -2,71 +2,143 @@
 export function addCustomBlocks(editor: any) {
     const customBlocks = [
         {
-            id: 'custom-table',
-            label: 'Table',
-            category: 'Custom',
+            id: 'container',
+            label: 'Container',
+            category: 'Layout',
             content: {
                 type: 'default',
                 components: [
                     {
                         tagName: 'div',
-                        style: {
-                            display: 'flex',
-                            'justify-content': 'center',
-                            'margin-top': '20px',
-                        },
-                        components: [
-                            {
-                                tagName: 'table',
-                                classes: ['solution-table'],
-                                stylable: false,
-                                components: [
-                                    {
-                                        tagName: 'thead',
-                                        components: [
-                                            {
-                                                tagName: 'tr',
-                                                components: [
-                                                    ...[
-                                                        'Date',
-                                                        'Quantity Prepared',
-                                                        'Prepared By',
-                                                        'Supervised By',
-                                                        'Distributed to Departments',
-                                                    ].map((header) => ({
-                                                        tagName: 'th',
-                                                        content: header,
-                                                        classes: [
-                                                            'solution-th',
-                                                        ],
-                                                        stylable: false,
-                                                    })),
-                                                ],
-                                            },
-                                        ],
-                                    },
-                                    {
-                                        tagName: 'tbody',
-                                        components: Array.from({
-                                            length: 8,
-                                        }).map(() => ({
-                                            tagName: 'tr',
-                                            components: Array.from({
-                                                length: 5,
-                                            }).map(() => ({
-                                                tagName: 'td',
-                                                classes: ['solution-td'],
-                                                content: '',
-                                                droppable: true,
-                                                stylable: false,
-                                            })),
-                                        })),
-                                    },
-                                ],
-                            },
-                        ],
+                        classes: ['container'],
+                        droppable: true,
+                        stylable: true,
                     },
                 ],
+            },
+        },
+        {
+            id: 'row',
+            label: 'Row',
+            category: 'Layout',
+            content: {
+                type: 'default',
+                components: [
+                    {
+                        tagName: 'div',
+                        classes: ['row'],
+                        droppable: true,
+                        stylable: true,
+                    },
+                ],
+            },
+        },
+        {
+            id: 'col',
+            label: 'Column',
+            category: 'Layout',
+            content: {
+                type: 'default',
+                components: [
+                    {
+                        tagName: 'div',
+                        classes: ['col'],
+                        droppable: true,
+                        stylable: true,
+                    },
+                ],
+            },
+        },
+        {
+            id: 'custom-table',
+            label: 'Table',
+            category: 'Custom',
+            content: {
+                tagName: 'table',
+                classes: ['solution-table'],
+                type: 'table',
+                traits: [
+                    {
+                        type: 'number',
+                        name: 'num_rows',
+                        label: 'Number of Rows',
+                        min: 1,
+                        max: 20,
+                        default: 8, // Default to 8 rows as per your request
+                        changeProp: true,
+                    },
+                    {
+                        type: 'number',
+                        name: 'numCols',
+                        label: 'Number of Columns',
+                        min: 1,
+                        max: 10,
+                        default: 4, // Default to 4 columns (headers) as per your request
+                        changeProp: true,
+                    },
+                ],
+                stylable: false,
+                components: function (props: any) {
+                    const num_rows = props.num_rows || 8
+                    const numCols = props.numCols || 4
+                    const headers = Array.from(
+                        { length: numCols },
+                        (_, i) => `Header ${i + 1}`,
+                    )
+
+                    return [
+                        {
+                            tagName: 'thead',
+                            type: 'thead',
+                            components: [
+                                {
+                                    tagName: 'tr',
+                                    type: 'tr',
+                                    components: headers.map((header) => ({
+                                        tagName: 'th',
+                                        type: 'th',
+                                        content: header,
+                                        classes: ['solution-th'],
+                                    })),
+                                },
+                            ],
+                        },
+                        {
+                            tagName: 'tbody',
+                            type: 'tbody',
+                            components: Array.from({ length: num_rows }).map(
+                                () => ({
+                                    tagName: 'tr',
+                                    type: 'tr',
+                                    components: Array.from({
+                                        length: numCols,
+                                    }).map(() => ({
+                                        tagName: 'td',
+                                        classes: ['solution-td'],
+                                        content: '',
+                                        droppable: true,
+                                        traits: [
+                                            {
+                                                type: 'number',
+                                                name: 'colspan',
+                                                label: 'Colspan',
+                                                min: 1,
+                                                max: numCols,
+                                            },
+                                            {
+                                                type: 'number',
+                                                name: 'rowspan',
+                                                label: 'Rowspan',
+                                                min: 1,
+                                                max: num_rows,
+                                            },
+                                        ],
+                                    })),
+                                }),
+                            ),
+                        },
+                    ]
+                },
             },
         },
         {
@@ -93,10 +165,44 @@ export function addCustomBlocks(editor: any) {
             },
         },
     ]
-
     customBlocks.forEach((block) => editor.BlockManager.add(block.id, block))
 
     editor.CssComposer.addRules([
+        {
+            selectors: ['.container'],
+            style: {
+                width: '100%',
+                'max-width': '1200px',
+                margin: '0 auto',
+                padding: '0 15px',
+                'box-sizing': 'border-box',
+                border: '1px solid #ddd', // Added border for visibility
+                'min-height': '50px', // Added min-height for better visibility
+            },
+        },
+        {
+            selectors: ['.row'],
+            style: {
+                display: 'flex',
+                'flex-wrap': 'wrap',
+                gap: '10px',
+                margin: '0 -15px',
+                border: '1px solid #eee', // Added border for visibility
+                padding: '10px',
+                'min-height': '50px', // Added min-height for better visibility
+            },
+        },
+        {
+            selectors: ['.col'],
+            style: {
+                flex: '1',
+                border: '1px dashed #ccc',
+                padding: '10px',
+                'min-height': '50px',
+                'box-sizing': 'border-box',
+                margin: '0 15px',
+            },
+        },
         {
             selectors: ['.custom-button'],
             style: {
@@ -109,26 +215,10 @@ export function addCustomBlocks(editor: any) {
             },
         },
         {
-            selectors: ['.row'],
-            style: {
-                display: 'flex',
-                gap: '10px',
-            },
-        },
-        {
-            selectors: ['.col'],
-            style: {
-                flex: '1',
-                border: '1px dashed #ccc',
-                padding: '10px',
-                'min-height': '50px',
-            },
-        },
-        {
             selectors: ['.solution-table'],
             style: {
                 margin: '0 auto',
-                width: '90%',
+                width: '100%',
                 'border-collapse': 'collapse',
                 'text-align': 'center',
                 'font-family': 'Arial, sans-serif',
@@ -139,7 +229,7 @@ export function addCustomBlocks(editor: any) {
             selectors: ['.solution-th'],
             style: {
                 border: '1px solid #000',
-                padding: '6px',
+                padding: '8px',
                 'font-weight': 'bold',
                 'background-color': '#f5f5f5',
                 height: '30px',
@@ -153,39 +243,240 @@ export function addCustomBlocks(editor: any) {
                 height: '50px',
                 width: '150px',
                 'min-height': '30px',
+                padding: '8px',
             },
         },
     ])
 }
 
-export function addDynamicFields(editor: any) {
+export function addDynamicFields(editor: any, documentData?: any) {
+    console.log('Document Data:', documentData)
+
+    const personOptions = [
+        { value: 'user', name: 'User' },
+        { value: 'preparedBy', name: 'Prepared By' },
+        { value: 'approvedBy', name: 'Approved By' },
+        { value: 'issuedBy', name: 'Issued By' },
+    ]
+
     const simpleFields = [
         'date',
-        'issuedNo',
-        'copyNo',
-        'amendmentNo',
-        'preparedBy',
-        'approvedBy',
-        'issuedBy',
-        'issueDate',
-        'amendmentDate',
-        'effectiveDate',
-        'username',
-        'department',
+        'number',
+        'person',
+        'designation',
+        'signatory',
         'category',
-        'subcategory',
-        'invoiceNo',
+        'department',
         'userDetails',
-        'signatoryBy',
-        'signatoryOn',
+        'name',
     ]
+
+    const fieldTraits: { [key: string]: any[] } = {
+        date: [
+            {
+                type: 'select',
+                name: 'format',
+                label: 'Date Format',
+                options: [
+                    { value: 'dd/MM/yyyy', name: 'dd/MM/yyyy' },
+                    { value: 'MM/dd/yyyy', name: 'MM/dd/yyyy' },
+                    { value: 'yyyy-MM-dd', name: 'yyyy-MM-dd' },
+                ],
+                default: 'dd/MM/yyyy',
+            },
+            {
+                type: 'select',
+                name: 'dateType',
+                label: 'Date Type',
+                options: [
+                    { value: 'genericDate', name: 'Generic Date' },
+                    { value: 'issueDate', name: 'Issue Date' },
+                    { value: 'amendmentDate', name: 'Amendment Date' },
+                    { value: 'effectiveDate', name: 'Effective Date' },
+                ],
+                default: 'issueDate',
+            },
+        ],
+        number: [
+            {
+                type: 'select',
+                name: 'numberType',
+                label: 'Number Type',
+                options: [
+                    { value: 'documentNo', name: 'Document Number' },
+                    { value: 'issuedNo', name: 'Issued Number' },
+                    { value: 'copyNo', name: 'Copy Number' },
+                    { value: 'amendmentNo', name: 'Amendment Number' },
+                ],
+                default: 'documentNo',
+            },
+        ],
+        person: [
+            {
+                type: 'select',
+                name: 'personRole',
+                label: 'Person Role',
+                options: personOptions,
+                default: 'preparedBy',
+            },
+        ],
+        designation: [
+            {
+                type: 'select',
+                name: 'personDesignation',
+                label: 'Person Designation',
+                options: personOptions,
+                default: 'preparedBy',
+            },
+        ],
+        signatory: [
+            {
+                type: 'select',
+                name: 'personSignatory',
+                label: 'Person Signatory',
+                options: personOptions,
+                default: 'preparedBy',
+            },
+            {
+                type: 'select',
+                name: 'signatoryType',
+                label: 'Signatory Type',
+                options: [
+                    { value: 'on', name: 'Signatory On' },
+                    { value: 'by', name: 'Signatory By' },
+                ],
+                default: 'on',
+            },
+        ],
+        category: [
+            {
+                type: 'select',
+                name: 'categoryLevel',
+                label: 'Category Level',
+                options: [
+                    { value: 'category', name: 'Main Category' },
+                    { value: 'subcategory', name: 'Subcategory' },
+                ],
+                default: 'category',
+            },
+        ],
+        userDetails: [
+            {
+                type: 'select',
+                name: 'userDetailType',
+                label: 'User Detail Type',
+                options: [
+                    { value: 'name', name: 'Name' },
+                    { value: 'role', name: 'Role' },
+                    { value: 'type', name: 'Type' },
+                    { value: 'location', name: 'Location' },
+                    { value: 'email', name: 'Email' },
+                    { value: 'phone', name: 'Phone' },
+                ],
+                default: 'name',
+            },
+        ],
+        name: [
+            {
+                type: 'select',
+                name: 'nameType',
+                label: 'Name Type',
+                options: [
+                    { value: 'lab', name: 'Lab Name' },
+                    { value: 'document', name: 'Document Name' },
+                    { value: 'user', name: 'User Name' },
+                ],
+                default: 'lab',
+            },
+        ],
+    }
+
+    // Utility to pick correct value based on type and documentData
+    function resolveFieldValue(key: string, data: any): string {
+        if (!data) return ''
+
+        switch (key) {
+            case 'date':
+                // Prioritize issueDate → amendmentDate → effectiveDate
+                return (
+                    data.issueDate ||
+                    data.amendmentDate ||
+                    data.effectiveDate ||
+                    ''
+                )
+
+            case 'number':
+                return (
+                    data.documentNo ||
+                    data.issuedNo ||
+                    data.copyNo ||
+                    data.amendmentNo ||
+                    ''
+                )
+
+            case 'person':
+            case 'designation':
+            case 'signatory':
+                // If approvedBy, preparedBy, issuedBy exist, combine or pick one
+                return data.preparedBy || data.approvedBy || data.issuedBy || ''
+
+            case 'category':
+                return data.category || ''
+
+            case 'department':
+                return Array.isArray(data.department)
+                    ? data.department.join(', ')
+                    : data.department || ''
+
+            case 'name':
+                return (
+                    data.labName || data.documentName || data.preparedBy || ''
+                )
+
+            case 'userDetails':
+                return data.location || data.email || data.phone || ''
+
+            default:
+                return data[key] || ''
+        }
+    }
+
     simpleFields.forEach((key) => {
+        const traits = fieldTraits[key] || []
+        const label = key
+            .replace(/([A-Z])/g, ' $1')
+            .replace(/^./, (str) => str.toUpperCase())
+
+        const fieldValue = resolveFieldValue(key, documentData)
+        console.log(fieldValue, 'fieldValue')
+
         editor.BlockManager.add(`field-${key}`, {
-            label: key
-                .replace(/([A-Z])/g, ' $1')
-                .replace(/^./, (s) => s.toUpperCase()),
+            label,
             category: 'Dynamic Fields',
-            content: `{{${key}}}`,
+            content: {
+                type: `field-${key}`,
+                tagName: 'span',
+                attributes: {
+                    'data-field': key,
+                    ...(fieldValue && { 'data-value': fieldValue }),
+                },
+                content: fieldValue ? `{{${fieldValue}}}` : `{{${key}}}`,
+            },
+        })
+
+        editor.DomComponents.addType(`field-${key}`, {
+            model: {
+                defaults: {
+                    tagName: 'span',
+                    attributes: {
+                        'data-field': key,
+                        ...(fieldValue && { 'data-value': fieldValue }),
+                    },
+                    traits,
+                    content: fieldValue ? `{{${fieldValue}}}` : `{{${key}}}`,
+                },
+            },
+            view: {},
         })
     })
 }

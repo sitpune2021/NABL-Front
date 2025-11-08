@@ -1,21 +1,23 @@
-import { useMemo } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import Tooltip from '@/components/ui/Tooltip'
 import DataTable from '@/components/shared/DataTable'
-import { useNavigate } from 'react-router'
+import { useNavigate, useParams } from 'react-router'
 import cloneDeep from 'lodash/cloneDeep'
-import { TbPencil, TbEye } from 'react-icons/tb'
+import { TbPencil, TbEye, TbLocationBolt } from 'react-icons/tb'
 import type { OnSortParam, ColumnDef, Row } from '@/components/shared/DataTable'
 import type { TableQueries } from '@/@types/common'
-import useUserList from '../hooks/useList'
+import useLabList from '../hooks/useList'
 import endpointConfig from '@/configs/endpoint.config'
-import { User } from '@/@types/user'
+import { Lab, LocationField } from '@/@types/lab'
 
 const ActionColumn = ({
     onEdit,
     onViewDetail,
+    onLocation,
 }: {
     onEdit: () => void
     onViewDetail: () => void
+    onLocation: () => void
 }) => {
     return (
         <div className="flex items-center gap-3">
@@ -37,59 +39,80 @@ const ActionColumn = ({
                     <TbEye />
                 </div>
             </Tooltip>
+            <Tooltip title="location">
+                <div
+                    className={`text-xl cursor-pointer select-none font-semibold`}
+                    role="button"
+                    onClick={onLocation}
+                >
+                    <TbLocationBolt />
+                </div>
+            </Tooltip>
         </div>
     )
 }
 
-const UserListTable = () => {
+const LocationLabListTable = () => {
     const navigate = useNavigate()
+    const [locations, setLocations] = useState<LocationField[]>()
+    const { id: labId } = useParams()
 
     const {
-        userList,
-        userListTotal,
+        labListTotal,
         tableData,
         isLoading,
         setTableData,
-        setSelectAllUser,
-        setSelectedUser,
-        selectedUser,
-    } = useUserList()
+        setSelectAllLab,
+        setSelectedLab,
+        selectedLab,
+        getLocationsByLabId,
+    } = useLabList()
 
-    const handleEdit = (user: User) => {
-        const path = endpointConfig.master.user.edit.replace(
+    useEffect(() => {
+        const fetchData = async () => {
+            if (!labId) return
+            try {
+                const response = await getLocationsByLabId(labId)
+                const labs = response ?? []
+                setLocations(labs)
+            } catch (error) {
+                console.error('Failed to fetch locations:', error)
+                setLocations([])
+            }
+        }
+
+        fetchData()
+    }, [labId, getLocationsByLabId])
+
+    const handleEdit = (lab: Lab) => {
+        const path = endpointConfig.master.lab.edit.replace(
             ':id',
-            String(user.id),
+            String(lab.id),
         )
         navigate(path)
     }
 
-    const handleViewDetails = (user: User) => {
-        const path = endpointConfig.master.user.view.replace(
+    const handleLocation = (lab: Lab) => {
+        const path = endpointConfig.master.lab.location.replace(
             ':id',
-            String(user.id),
+            String(lab.id),
         )
         navigate(path)
     }
 
-    const columns: ColumnDef<User>[] = useMemo(
+    const handleViewDetails = (lab: Lab) => {
+        const path = endpointConfig.master.lab.view.replace(
+            ':id',
+            String(lab.id),
+        )
+        navigate(path)
+    }
+
+    const columns: ColumnDef<Lab>[] = useMemo(
         () => [
-            {
-                header: 'Id',
-                accessorKey: 'id',
-            },
             {
                 header: 'Name',
                 accessorKey: 'name',
-            },
-            {
-                header: 'Role',
-                accessorKey: 'role',
-                cell: (props) => {
-                    const rolesArray = props.row.original.role // assuming this is an array
-                    return Array.isArray(rolesArray)
-                        ? rolesArray.map((r) => r.label || r).join(' | ')
-                        : rolesArray
-                },
             },
             {
                 header: 'Action',
@@ -97,6 +120,7 @@ const UserListTable = () => {
                 cell: (props) => (
                     <ActionColumn
                         onEdit={() => handleEdit(props.row.original)}
+                        onLocation={() => handleLocation(props.row.original)}
                         onViewDetail={() =>
                             handleViewDetails(props.row.original)
                         }
@@ -110,8 +134,8 @@ const UserListTable = () => {
 
     const handleSetTableData = (data: TableQueries) => {
         setTableData(data)
-        if (selectedUser.length > 0) {
-            setSelectAllUser([])
+        if (selectedLab.length > 0) {
+            setSelectAllLab([])
         }
     }
 
@@ -134,16 +158,16 @@ const UserListTable = () => {
         handleSetTableData(newTableData)
     }
 
-    const handleRowSelect = (checked: boolean, row: User) => {
-        setSelectedUser(checked, row)
+    const handleRowSelect = (checked: boolean, row: Lab) => {
+        setSelectedLab(checked, row)
     }
 
-    const handleAllRowSelect = (checked: boolean, rows: Row<User>[]) => {
+    const handleAllRowSelect = (checked: boolean, rows: Row<Lab>[]) => {
         if (checked) {
             const originalRows = rows.map((row) => row.original)
-            setSelectAllUser(originalRows)
+            setSelectAllLab(originalRows)
         } else {
-            setSelectAllUser([])
+            setSelectAllLab([])
         }
     }
 
@@ -151,18 +175,18 @@ const UserListTable = () => {
         <DataTable
             selectable
             columns={columns}
-            data={userList}
-            noData={!isLoading && userList.length === 0}
+            data={locations}
+            noData={!isLoading && locations?.length === 0}
             skeletonAvatarColumns={[0]}
             skeletonAvatarProps={{ width: 28, height: 28 }}
             loading={isLoading}
             pagingData={{
-                total: userListTotal,
+                total: labListTotal,
                 pageIndex: tableData.pageIndex as number,
                 pageSize: tableData.pageSize as number,
             }}
             checkboxChecked={(row) =>
-                selectedUser.some((selected) => selected.id === row.id)
+                selectedLab.some((selected) => selected.id === row.id)
             }
             onPaginationChange={handlePaginationChange}
             onSelectChange={handleSelectChange}
@@ -173,4 +197,4 @@ const UserListTable = () => {
     )
 }
 
-export default UserListTable
+export default LocationLabListTable

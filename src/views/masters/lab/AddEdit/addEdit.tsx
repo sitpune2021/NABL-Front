@@ -103,6 +103,7 @@ const LabAddEdit = () => {
                 emails: [{ value: '' }],
                 phones: [{ value: '' }],
                 address: '',
+                instruments: [],
             },
         ],
     }

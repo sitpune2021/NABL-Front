@@ -13,7 +13,19 @@ export type Filter = {
 
 export type Lab = {
     id: string
-    name: string
+    prefix: string
+    shortName: string
+    zone_name: string | null
+    cluster_name: string | null
+    location_name: string | null
+    instruments: (string | number)[]
+    departments: {
+        name: string
+        instruments: (string | number)[]
+    }[]
+    emails: { value: string }[]
+    phones: { value: string }[]
+    address?: string
 }
 
 export type LabListState = {
@@ -36,6 +48,7 @@ export type LocationField = {
     zone_name: string | null
     cluster_name: string | null
     location_name: string | null
+    instruments: (string | number)[]
     departments: {
         name: string
         instruments: (string | number)[]
