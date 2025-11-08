@@ -79,7 +79,7 @@ const CategoryListTable = () => {
             },
             {
                 header: 'Prefix',
-                accessorKey: 'prefix',
+                accessorKey: 'identifier',
             },
             {
                 header: 'Name',

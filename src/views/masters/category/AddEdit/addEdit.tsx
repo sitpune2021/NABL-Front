@@ -77,7 +77,7 @@ const CategoryAddEdit = () => {
                 defaultValues={
                     categoryData ?? {
                         name: '',
-                        prefix: '',
+                        identifier: '',
                     }
                 }
                 readOnly={isView}

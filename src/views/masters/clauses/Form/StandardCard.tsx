@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { memo, useCallback } from 'react'
 import { Controller } from 'react-hook-form'
-import { Card, Checkbox, FormItem, Input } from '@/components/ui'
+import { Card, Checkbox, FormItem, Input, Select } from '@/components/ui'
 import StandardRecursiveSection from './StandardRecursiveSection'
 
 interface StandardCardProps {
@@ -39,13 +39,50 @@ const StandardCard: React.FC<StandardCardProps> = ({
 
     const getTitleLabel = (depth: number) => {
         if (depth === 0) return 'Clause Title'
-
         const repeatSub = 'Sub '.repeat(depth)
         return `${repeatSub}Clause Title`.trim()
     }
 
+    const getNumberedTitle = () => {
+        const title = current?.title || 'Untitled'
+        const numberingType = current?.numberingType
+        if (!numberingType || numberingType === 'none') {
+            return title
+        }
+        // Count previous items with the same numbering type
+        const count =
+            watchedStandards
+                ?.slice(0, index)
+                .filter((item: any) => item?.numberingType === numberingType)
+                .length || 0
+        let prefix = ''
+        if (numberingType === 'numerical') {
+            prefix = `${count + 1}. `
+        } else if (numberingType === 'alphabetical') {
+            prefix = `${String.fromCharCode(97 + count)}. ` // a, b, c, ...
+        }
+        return `${prefix}${title}`
+    }
+
+    const options = [
+        {
+            value: 'none',
+            label: 'None',
+        },
+        {
+            value: 'numerical',
+            label: 'Numerical',
+        },
+        {
+            value: 'alphabetical',
+            label: 'Alphabetical',
+        },
+    ]
+
     return (
         <Card key={standard.id} className="mt-3">
+            <h5>{getNumberedTitle()}</h5>
+
             <FormItem
                 label={getTitleLabel(standard.depth ?? 0)}
                 invalid={!!getError(`${path}.title`)}
@@ -66,7 +103,7 @@ const StandardCard: React.FC<StandardCardProps> = ({
             </FormItem>
 
             <FormItem
-                label="Clause Message"
+                label="Clause Statement"
                 invalid={!!getError(`${path}.message`)}
                 errorMessage={getError(`${path}.message`)?.message}
             >
@@ -87,6 +124,21 @@ const StandardCard: React.FC<StandardCardProps> = ({
             </FormItem>
 
             <div className="flex flex-wrap gap-6 mb-4">
+                <FormItem label="Number">
+                    <Controller
+                        name={`${path}.number`}
+                        control={control}
+                        defaultValue={standard.number ?? false}
+                        render={({ field }) => (
+                            <Checkbox
+                                checked={!!field.value}
+                                disabled={readOnly}
+                                onChange={field.onChange}
+                            />
+                        )}
+                    />
+                </FormItem>
+
                 <FormItem label="Note">
                     <Controller
                         name={`${path}.note`}
@@ -97,6 +149,27 @@ const StandardCard: React.FC<StandardCardProps> = ({
                                 checked={!!field.value}
                                 disabled={readOnly}
                                 onChange={field.onChange}
+                            />
+                        )}
+                    />
+                </FormItem>
+
+                <FormItem label="Numbering Type">
+                    <Controller
+                        name={`${path}.numberingType`}
+                        control={control}
+                        defaultValue={standard.numberingType || 'none'} // Changed default to 'none' so numbering starts only when selected
+                        render={({ field }) => (
+                            <Select
+                                {...field}
+                                value={options.filter(
+                                    (option) => option.value === field.value,
+                                )}
+                                options={options}
+                                placeholder="Select Numbering"
+                                onChange={(option) =>
+                                    field.onChange(option?.value)
+                                }
                             />
                         )}
                     />

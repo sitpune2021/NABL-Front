@@ -17,7 +17,7 @@ const OverviewSection = ({
     const options = categoryList.map((category) => ({
         value: category.id,
         label: category.name.toUpperCase(),
-        prefix: category.prefix, // make sure your API includes this
+        prefix: category.identifier, // make sure your API includes this
     }))
 
     const selecteCatPrefix = useWatch({ control, name: 'cat_id' })
