@@ -84,6 +84,10 @@ const validationSchema = z.object({
                     )
                     .min(1, { message: 'At least one phone is required' }),
                 address: z.string().optional(),
+                instruments: z.array(z.union([z.string(), z.number()])).min(1, {
+                    message:
+                        'At least one instrument is required per department',
+                }),
             }),
         )
         .min(1, { message: 'At least one location is required' }),

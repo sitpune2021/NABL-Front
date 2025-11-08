@@ -74,10 +74,13 @@ const TemplateListTable = () => {
     const columns: ColumnDef<Template>[] = useMemo(
         () => [
             {
+                header: 'Id',
+                accessorKey: 'id',
+            },
+            {
                 header: 'Name',
                 accessorKey: 'name',
             },
-
             {
                 header: 'Type',
                 accessorKey: 'type',

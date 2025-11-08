@@ -97,26 +97,6 @@ const OverviewSection = ({
                 </FormItem>
 
                 <FormItem
-                    label="Instrument ID (UID)"
-                    invalid={Boolean(errors.instrument_id)}
-                    errorMessage={errors.instrument_id?.message}
-                >
-                    <Controller
-                        name="instrument_id"
-                        control={control}
-                        render={({ field }) => (
-                            <Input
-                                type="text"
-                                autoComplete="off"
-                                readOnly={readOnly}
-                                placeholder="Enter Instrument ID (UID)"
-                                {...field}
-                            />
-                        )}
-                    />
-                </FormItem>
-
-                <FormItem
                     label="Prefix"
                     invalid={Boolean(errors.prefix)}
                     errorMessage={errors.prefix?.message}

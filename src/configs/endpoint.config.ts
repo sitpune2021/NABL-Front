@@ -45,6 +45,7 @@ const endpointConfig = {
             list: `${MASTER_PREFIX_PATH}/lab/list`,
             create: `${MASTER_PREFIX_PATH}/lab/create`,
             edit: `${MASTER_PREFIX_PATH}/lab/edit/:id`,
+            location: `${MASTER_PREFIX_PATH}/lab/location/:id`,
             view: `${MASTER_PREFIX_PATH}/lab/view/:id`,
         },
 
