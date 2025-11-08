@@ -298,7 +298,7 @@ const LocationsItems = ({
                 </FormItem>
 
                 <FormItem
-                    label="Instruments"
+                    label="Location Instruments"
                     invalid={!!errors.location?.[index]?.instruments}
                     errorMessage={
                         errors.location?.[index]?.instruments?.message
@@ -408,9 +408,8 @@ const LocationsItems = ({
                                 />
                             </FormItem>
 
-                            {/* Instruments */}
                             <FormItem
-                                label="Instruments"
+                                label="Department Instruments"
                                 invalid={
                                     !!errors.location?.[index]?.departments?.[
                                         deptIndex
