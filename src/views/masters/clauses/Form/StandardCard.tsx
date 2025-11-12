@@ -103,7 +103,7 @@ const StandardCard: React.FC<StandardCardProps> = ({
             </FormItem>
 
             <FormItem
-                label="Clause Statement"
+                label="Clause Message"
                 invalid={!!getError(`${path}.message`)}
                 errorMessage={getError(`${path}.message`)?.message}
             >

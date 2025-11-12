@@ -17,11 +17,13 @@ const OverviewSection = ({
     const options = categoryList.map((category) => ({
         value: category.id,
         label: category.name.toUpperCase(),
-        prefix: category.identifier, // make sure your API includes this
+        identifier: category.identifier, // make sure your API includes this
     }))
 
-    const selecteCatPrefix = useWatch({ control, name: 'cat_id' })
-    const selectedCatPrefix = options.find((z) => z.value === selecteCatPrefix)
+    const selecteCatIdentifier = useWatch({ control, name: 'cat_id' })
+    const selectedCatIdentifier = options.find(
+        (z) => z.value === selecteCatIdentifier,
+    )
 
     return (
         <Card>
@@ -71,11 +73,11 @@ const OverviewSection = ({
                 </FormItem>
                 <FormItem
                     label="Prefix"
-                    invalid={Boolean(errors.prefix)}
-                    errorMessage={errors.prefix?.message}
+                    invalid={Boolean(errors.identifier)}
+                    errorMessage={errors.identifier?.message}
                 >
                     <Controller
-                        name="prefix"
+                        name="identifier"
                         control={control}
                         render={({ field: { onChange, value, ...rest } }) => (
                             <Input
@@ -84,22 +86,22 @@ const OverviewSection = ({
                                 readOnly={readOnly}
                                 placeholder="Prefix"
                                 value={
-                                    selectedCatPrefix?.prefix
-                                        ? `${selectedCatPrefix.prefix}-${(value || '').replace(`${selectedCatPrefix.prefix}-`, '')}`
+                                    selectedCatIdentifier?.identifier
+                                        ? `${selectedCatIdentifier.identifier}-${(value || '').replace(`${selectedCatIdentifier.identifier}-`, '')}`
                                         : value || ''
                                 }
                                 onChange={(e) => {
                                     const inputValue = e.target.value
                                     const cleanedValue =
-                                        selectedCatPrefix?.prefix
+                                        selectedCatIdentifier?.identifier
                                             ? inputValue.replace(
-                                                  `${selectedCatPrefix.prefix}-`,
+                                                  `${selectedCatIdentifier.identifier}-`,
                                                   '',
                                               )
                                             : inputValue
                                     onChange(
-                                        selectedCatPrefix?.prefix
-                                            ? `${selectedCatPrefix.prefix}-${cleanedValue}`
+                                        selectedCatIdentifier?.identifier
+                                            ? `${selectedCatIdentifier.identifier}-${cleanedValue}`
                                             : cleanedValue,
                                     )
                                 }}

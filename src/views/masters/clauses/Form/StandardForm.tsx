@@ -27,8 +27,8 @@ const createStandardSchema = (): z.ZodType<any> =>
             isChild: z.boolean(),
             count: z.number().min(0, { message: 'Count must be 0 or greater' }),
             children: z.array(z.lazy(createStandardSchema)).optional(),
-            number: z.boolean(),
-            numberingType: z.boolean(),
+            number: z.boolean().optional(),
+            numberingType: z.union([z.number(), z.string()]).optional(),
         })
         .superRefine((data, ctx) => {
             if (
