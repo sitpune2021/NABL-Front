@@ -1,9 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useState, useEffect } from 'react'
-import { Controller, useWatch } from 'react-hook-form'
+import { Controller, useWatch, useFormContext } from 'react-hook-form'
 import Card from '@/components/ui/Card'
 import { FormItem } from '@/components/ui/Form'
-import { Checkbox, Select } from '@/components/ui'
+import { Checkbox, Select, Button } from '@/components/ui'
 import { FormSectionBaseProps } from '@/@types/user'
 import useZoneList from '../../zone/List/hooks/useList'
 import useClusterList from '../../cluster/List/hooks/useList'
@@ -74,252 +74,302 @@ const accessModules = [
     },
 ]
 
-type RoleType = {
-    name: string
-    accessRight?: Record<string, string[]>
-}
+const maxBlocks = 10
 
-type Option = { label: string; value: string }
+const AssignPermissionSection: React.FC<FormSectionBaseProps> = ({
+    control,
+}) => {
+    // ✅ Safe access: handle case when component is rendered outside a FormProvider
+    const formContext = useFormContext()
+    const setValue = formContext?.setValue ?? (() => {})
 
-const AssignPermissionSection = ({ control }: FormSectionBaseProps) => {
     const { zoneList } = useZoneList()
     const { clusterList } = useClusterList()
     const { locationList } = useLocationList()
     const { rolesList } = useRolesList()
     const { departmentList } = useDepartmentList()
 
-    const [rolePermissions, setRolePermissions] = useState<
-        Record<string, Record<string, string[]>>
-    >({})
+    const [blocks, setBlocks] = useState<number[]>([0])
+    const [rolePermissions, setRolePermissions] = useState<Record<number, any>>(
+        {},
+    )
 
-    const selectedZone = useWatch({ control, name: 'zone_name' })
-    const selectedCluster = useWatch({ control, name: 'cluster_name' })
-    const selectedRoles = useWatch({ control, name: 'role' }) || []
+    const watched = useWatch({ control })
 
-    const zoneOptions: Option[] = zoneList.map((z: { zone_name: string }) => ({
+    const zoneOptions = zoneList.map((z: any) => ({
         label: z.zone_name,
         value: z.zone_name,
     }))
-
-    const clusterOptions: Option[] = clusterList
-        .filter((c: { zone_name: string }) => c.zone_name === selectedZone)
-        .map((c: { cluster_name: string }) => ({
-            label: c.cluster_name,
-            value: c.cluster_name,
-        }))
-
-    const locationOptions: Option[] = locationList
-        .filter(
-            (l: { cluster_name: string }) => l.cluster_name === selectedCluster,
-        )
-        .map((l: { location_name: string }) => ({
-            label: l.location_name,
-            value: l.location_name,
-        }))
-
-    const roleOptions: Option[] = (rolesList as RoleType[]).map((r) => ({
+    const roleOptions = rolesList.map((r: any) => ({
         label: r.name,
         value: r.name,
     }))
-
-    const departmentOptions: Option[] = departmentList.map(
-        (d: { name: string }) => ({
-            label: d.name,
-            value: d.name,
-        }),
-    )
+    const departmentOptions = departmentList.map((d: any) => ({
+        label: d.name,
+        value: d.name,
+    }))
 
     useEffect(() => {
-        if (Array.isArray(selectedRoles) && selectedRoles.length > 0) {
-            const newPermissions: Record<string, Record<string, string[]>> = {}
+        blocks.forEach((index) => {
+            const selectedRoles = watched?.[`role_${index}`] || []
+            const newPerms: any = {}
+
             selectedRoles.forEach((roleObj: any) => {
-                const roleName = roleObj?.value
-                if (!roleName) return
-                const roleData = (rolesList as RoleType[]).find(
-                    (r) => r.name === roleName,
+                const roleData = rolesList.find(
+                    (r: any) => r.name === roleObj.value,
                 )
-                newPermissions[roleName] = roleData?.accessRight ?? {}
+                if (roleData?.accessRight) {
+                    newPerms[roleObj.value] = { ...roleData.accessRight }
+                }
             })
-            setRolePermissions(newPermissions)
-        }
-    }, [JSON.stringify(selectedRoles), rolesList])
+
+            setRolePermissions((prev) => ({
+                ...prev,
+                [index]: newPerms,
+            }))
+        })
+    }, [watched, rolesList, blocks])
 
     const togglePermission = (
+        index: number,
         role: string,
         moduleId: string,
-        accessValue: string,
+        perm: string,
     ) => {
         setRolePermissions((prev) => {
-            const rolePerms = prev[role] || {}
-            const modulePerms = rolePerms[moduleId] || []
-            const updatedModulePerms = modulePerms.includes(accessValue)
-                ? modulePerms.filter((v) => v !== accessValue)
-                : [...modulePerms, accessValue]
+            const current = prev[index]?.[role]?.[moduleId] || []
+            const updated = current.includes(perm)
+                ? current.filter((p: string) => p !== perm)
+                : [...current, perm]
 
             return {
                 ...prev,
-                [role]: { ...rolePerms, [moduleId]: updatedModulePerms },
+                [index]: {
+                    ...prev[index],
+                    [role]: {
+                        ...prev[index]?.[role],
+                        [moduleId]: updated,
+                    },
+                },
             }
         })
     }
 
+    const addBlock = () => {
+        if (blocks.length < maxBlocks) setBlocks([...blocks, blocks.length])
+    }
+
     return (
         <Card>
-            <h4 className="text-xl font-semibold mb-6 text-gray-800">
-                Assign Roles
+            <h4 className="text-xl font-semibold mb-4">
+                Assign Roles & Permissions
             </h4>
 
-            <div className="grid md:grid-cols-3 gap-4 mb-6">
-                <FormItem label="Zone">
-                    <Controller
-                        name="zone_name"
-                        control={control}
-                        render={({ field }) => (
-                            <Select
-                                placeholder="Select Zone"
-                                options={zoneOptions}
-                                value={zoneOptions.find(
-                                    (o) => o.value === field.value,
-                                )}
-                                onChange={(selected) =>
-                                    field.onChange(selected?.value || '')
-                                }
-                            />
-                        )}
-                    />
-                </FormItem>
+            {blocks.map((index) => {
+                const selectedZone = watched?.[`zone_name_${index}`]
+                const selectedCluster = watched?.[`cluster_name_${index}`]
+                const filteredClusters = clusterList.filter(
+                    (c) => c.zone_name === selectedZone,
+                )
+                const filteredLocations = locationList.filter(
+                    (l) => l.cluster_name === selectedCluster,
+                )
+                const selectedRoles = watched?.[`role_${index}`] || []
 
-                <FormItem label="Cluster">
-                    <Controller
-                        name="cluster_name"
-                        control={control}
-                        render={({ field }) => (
-                            <Select
-                                placeholder="Select Cluster"
-                                options={clusterOptions}
-                                isDisabled={!selectedZone}
-                                value={clusterOptions.find(
-                                    (o) => o.value === field.value,
-                                )}
-                                onChange={(selected) =>
-                                    field.onChange(selected?.value || '')
-                                }
-                            />
-                        )}
-                    />
-                </FormItem>
+                return (
+                    <div
+                        key={index}
+                        className="border p-4 rounded-lg mb-4 bg-white"
+                    >
+                        <div className="grid md:grid-cols-4 gap-4 mb-4">
+                            {/* Zone */}
+                            <FormItem label="Zone">
+                                <Controller
+                                    name={`zone_name_${index}`}
+                                    control={control}
+                                    render={({ field }) => (
+                                        <Select
+                                            options={zoneOptions}
+                                            value={
+                                                zoneOptions.find(
+                                                    (o) =>
+                                                        o.value === field.value,
+                                                ) || null
+                                            }
+                                            placeholder="Select zone"
+                                            onChange={(val) => {
+                                                field.onChange(val?.value)
+                                                setValue(
+                                                    `cluster_name_${index}`,
+                                                    '',
+                                                )
+                                                setValue(
+                                                    `location_name_${index}`,
+                                                    '',
+                                                )
+                                                setValue(
+                                                    `department_name_${index}`,
+                                                    '',
+                                                )
+                                            }}
+                                        />
+                                    )}
+                                />
+                            </FormItem>
 
-                <FormItem label="Location">
-                    <Controller
-                        name="location_name"
-                        control={control}
-                        render={({ field }) => (
-                            <Select
-                                placeholder="Select Location"
-                                options={locationOptions}
-                                isDisabled={!selectedCluster}
-                                value={locationOptions.find(
-                                    (o) => o.value === field.value,
-                                )}
-                                onChange={(selected) =>
-                                    field.onChange(selected?.value || '')
-                                }
-                            />
-                        )}
-                    />
-                </FormItem>
+                            {/* Cluster */}
+                            <FormItem label="Cluster">
+                                <Controller
+                                    name={`cluster_name_${index}`}
+                                    control={control}
+                                    render={({ field }) => (
+                                        <Select
+                                            options={filteredClusters.map(
+                                                (c) => ({
+                                                    label: c.cluster_name,
+                                                    value: c.cluster_name,
+                                                }),
+                                            )}
+                                            value={
+                                                filteredClusters
+                                                    .map((c) => ({
+                                                        label: c.cluster_name,
+                                                        value: c.cluster_name,
+                                                    }))
+                                                    .find(
+                                                        (o) =>
+                                                            o.value ===
+                                                            field.value,
+                                                    ) || null
+                                            }
+                                            placeholder="Select cluster"
+                                            onChange={(val) => {
+                                                field.onChange(val?.value)
+                                                setValue(
+                                                    `location_name_${index}`,
+                                                    '',
+                                                )
+                                                setValue(
+                                                    `department_name_${index}`,
+                                                    '',
+                                                )
+                                            }}
+                                        />
+                                    )}
+                                />
+                            </FormItem>
 
-                <FormItem label="Department">
-                    <Controller
-                        name="department_name"
-                        control={control}
-                        render={({ field }) => (
-                            <Select
-                                placeholder="Select Department"
-                                options={departmentOptions}
-                                value={
-                                    departmentOptions.find(
-                                        (o) => o.value === field.value,
-                                    ) || null
-                                }
-                                onChange={(selected) =>
-                                    field.onChange(selected?.value || '')
-                                }
-                            />
-                        )}
-                    />
-                </FormItem>
+                            {/* Location */}
+                            <FormItem label="Location">
+                                <Controller
+                                    name={`location_name_${index}`}
+                                    control={control}
+                                    render={({ field }) => (
+                                        <Select
+                                            options={filteredLocations.map(
+                                                (l) => ({
+                                                    label: l.location_name,
+                                                    value: l.location_name,
+                                                }),
+                                            )}
+                                            value={
+                                                filteredLocations
+                                                    .map((l) => ({
+                                                        label: l.location_name,
+                                                        value: l.location_name,
+                                                    }))
+                                                    .find(
+                                                        (o) =>
+                                                            o.value ===
+                                                            field.value,
+                                                    ) || null
+                                            }
+                                            placeholder="Select location"
+                                            onChange={(val) =>
+                                                field.onChange(val?.value)
+                                            }
+                                        />
+                                    )}
+                                />
+                            </FormItem>
 
-                <FormItem label="Roles">
-                    <Controller
-                        name="role"
-                        control={control}
-                        render={({ field }) => (
-                            <Select
-                                isMulti
-                                placeholder="Select Roles"
-                                options={roleOptions}
-                                value={roleOptions.filter((o) =>
-                                    field.value?.some(
-                                        (v: any) => v.value === o.value,
-                                    ),
-                                )}
-                                onChange={(selected) =>
-                                    field.onChange(selected || [])
-                                }
-                            />
-                        )}
-                    />
-                </FormItem>
-            </div>
-            {selectedRoles?.length > 0 && (
-                <div className="mt-4">
-                    {selectedRoles.map((roleObj: any) => {
-                        const role = roleObj.value
-                        return (
-                            <div
-                                key={role}
-                                className="mb-6 border border-gray-200 rounded-lg bg-white"
-                            >
-                                <div className="bg-indigo-50 px-4 py-2 border-b border-gray-200">
-                                    <h5 className="text-md font-semibold text-indigo-700">
-                                        Permissions for: {role}
-                                    </h5>
-                                </div>
-                                <div className="overflow-x-auto">
+                            {/* Department */}
+                            <FormItem label="Department">
+                                <Controller
+                                    name={`department_name_${index}`}
+                                    control={control}
+                                    render={({ field }) => (
+                                        <Select
+                                            options={departmentOptions}
+                                            value={
+                                                departmentOptions.find(
+                                                    (o) =>
+                                                        o.value === field.value,
+                                                ) || null
+                                            }
+                                            placeholder="Select department"
+                                            onChange={(val) =>
+                                                field.onChange(val?.value)
+                                            }
+                                        />
+                                    )}
+                                />
+                            </FormItem>
+
+                            {/* Roles */}
+                            <FormItem label="Roles">
+                                <Controller
+                                    name={`role_${index}`}
+                                    control={control}
+                                    render={({ field }) => (
+                                        <Select
+                                            isMulti
+                                            options={roleOptions}
+                                            value={field.value}
+                                            placeholder="Select roles"
+                                            onChange={field.onChange}
+                                        />
+                                    )}
+                                />
+                            </FormItem>
+                        </div>
+
+                        {/* Role Permissions */}
+                        {selectedRoles.length > 0 &&
+                            selectedRoles.map((roleObj: any) => (
+                                <div
+                                    key={roleObj.value}
+                                    className="border rounded mt-4"
+                                >
+                                    <div className="bg-gray-50 px-4 py-2 font-semibold">
+                                        {roleObj.value}
+                                    </div>
                                     <table className="min-w-full text-sm">
-                                        <thead className="bg-indigo-100">
+                                        <thead className="bg-gray-100">
                                             <tr>
                                                 <th className="px-4 py-2 text-left">
                                                     Module
                                                 </th>
                                                 {[
-                                                    'Read',
-                                                    'Write',
-                                                    'Delete',
-                                                    'Data Entry',
-                                                    'Data Review',
-                                                ].map((header) => (
+                                                    'read',
+                                                    'write',
+                                                    'delete',
+                                                    'data-entry',
+                                                    'data-review',
+                                                ].map((perm) => (
                                                     <th
-                                                        key={header}
-                                                        className="px-3 py-2 text-center"
+                                                        key={perm}
+                                                        className="px-2 text-center capitalize"
                                                     >
-                                                        {header}
+                                                        {perm}
                                                     </th>
                                                 ))}
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            {accessModules.map((mod, idx) => (
-                                                <tr
-                                                    key={mod.id}
-                                                    className={
-                                                        idx % 2 === 0
-                                                            ? 'bg-white'
-                                                            : 'bg-gray-50'
-                                                    }
-                                                >
-                                                    <td className="px-4 py-2 border-t font-medium text-gray-700">
+                                            {accessModules.map((mod) => (
+                                                <tr key={mod.id}>
+                                                    <td className="px-4 py-2 border">
                                                         {mod.name}
                                                     </td>
                                                     {[
@@ -331,34 +381,37 @@ const AssignPermissionSection = ({ control }: FormSectionBaseProps) => {
                                                     ].map((perm) => (
                                                         <td
                                                             key={perm}
-                                                            className="text-center border-t px-2"
+                                                            className="text-center border"
                                                         >
                                                             {mod.accessor.includes(
                                                                 perm,
                                                             ) ? (
                                                                 <Checkbox
                                                                     checked={
-                                                                        !rolePermissions[
-                                                                            role
+                                                                        rolePermissions[
+                                                                            index
+                                                                        ]?.[
+                                                                            roleObj
+                                                                                .value
                                                                         ]?.[
                                                                             mod
                                                                                 .id
                                                                         ]?.includes(
                                                                             perm,
-                                                                        )
+                                                                        ) ||
+                                                                        false
                                                                     }
                                                                     onChange={() =>
                                                                         togglePermission(
-                                                                            role,
+                                                                            index,
+                                                                            roleObj.value,
                                                                             mod.id,
                                                                             perm,
                                                                         )
                                                                     }
                                                                 />
                                                             ) : (
-                                                                <span className="text-gray-400">
-                                                                    —
-                                                                </span>
+                                                                <span>—</span>
                                                             )}
                                                         </td>
                                                     ))}
@@ -367,10 +420,20 @@ const AssignPermissionSection = ({ control }: FormSectionBaseProps) => {
                                         </tbody>
                                     </table>
                                 </div>
-                            </div>
-                        )
-                    })}
-                </div>
+                            ))}
+                    </div>
+                )
+            })}
+
+            {blocks.length < maxBlocks && (
+                <Button
+                    type="button"
+                    variant="solid"
+                    size="sm"
+                    onClick={addBlock}
+                >
+                    + Add Block
+                </Button>
             )}
         </Card>
     )

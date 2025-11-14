@@ -29,6 +29,7 @@ export type User = {
     location_name?: string
     department_name?: string
     status?: string
+    accessRight?: Record<string, string[]>
 }
 
 export type UserListState = {
@@ -64,6 +65,7 @@ export type Fields = {
     location_name?: string
     department_name?: string
     status?: string
+    accessRight?: Record<string, string[]>
 }
 
 export type TagsFields = {
