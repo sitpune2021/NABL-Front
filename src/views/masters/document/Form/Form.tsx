@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useMemo } from 'react'
 import { Form } from '@/components/ui/Form'
 import Container from '@/components/shared/Container'
@@ -10,6 +11,59 @@ import type { CommonProps } from '@/@types/common'
 import type { DocumentFormSchema, EditorFormSchema } from '@/@types/document'
 import GrapesEditor from './GrapesEditor'
 import { useParams } from 'react-router'
+
+function findThDetails(components: any): any[] {
+    const results: any[] = []
+    const models = components?.models || components || []
+
+    models.forEach((comp: any) => {
+        const tagName = comp.get?.('tagName') || comp.tagName
+        const innerComps = comp.components?.() || comp.components || []
+
+        if (tagName === 'th') {
+            // Get traits (name + value)
+            const traits = comp.get?.('traits') || comp.traits || []
+            const traitData = traits.map((t: any) => {
+                const name = t.get?.('name') || t.name
+                const value =
+                    t.get?.('value') || t.attributes?.value || t.default || ''
+                return { name, value }
+            })
+
+            // ✅ Get header text from nested <span> dynamically
+            let headerText = ''
+
+            if (innerComps && innerComps.length > 0) {
+                const spanChild = innerComps.find(
+                    (child: any) =>
+                        (child.get?.('tagName') || child.tagName) === 'span' ||
+                        (child.get?.('type') || child.type) === 'text',
+                )
+
+                if (spanChild) {
+                    // Force sync content from live model
+                    headerText =
+                        spanChild.get?.('content') ||
+                        spanChild.view?.el?.innerText ||
+                        spanChild.content ||
+                        ''
+                }
+            }
+
+            results.push({
+                headerText: headerText.trim(),
+                traits: traitData,
+            })
+        }
+
+        // Recursive call
+        if (innerComps?.length) {
+            results.push(...findThDetails(innerComps))
+        }
+    })
+
+    return results
+}
 
 type DocumentFormProps = {
     onFormSubmit: (values: DocumentFormSchema & EditorFormSchema) => void
@@ -49,6 +103,8 @@ const validationSchema = z.object({
     effectiveDate: z.string().min(1, 'Effective Date is required'),
     frequency: z.string().optional(),
     duration: z.string().optional(),
+    durationUnit: z.string().optional(),
+    durationValue: z.string().optional(),
     prefix: z.string().optional(),
     status: z.enum(['Controlled', 'Uncontrolled']).optional(),
 })
@@ -101,6 +157,10 @@ const DocumentForm = ({
     }, [memoizedDefaults, reset])
 
     const onSubmit = (values: DocumentFormSchema | EditorFormSchema) => {
+        const docJson = values.document?.json
+        // console.log("TH Element docJson:", docJson);
+        const thTraits = findThDetails(docJson)
+        console.log('TH traits:', thTraits)
         onFormSubmit?.(values as DocumentFormSchema & EditorFormSchema)
     }
 

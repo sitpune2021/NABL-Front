@@ -296,6 +296,43 @@ const LocationsItems = ({
                         )}
                     />
                 </FormItem>
+
+                <FormItem
+                    label="Location Instruments"
+                    invalid={!!errors.location?.[index]?.instruments}
+                    errorMessage={
+                        errors.location?.[index]?.instruments?.message
+                    }
+                >
+                    <Controller
+                        name={`location.${index}.instruments`}
+                        control={control}
+                        render={({ field }) => (
+                            <Select
+                                isMulti
+                                placeholder="Select Instruments"
+                                options={instrumentList.map((i) => ({
+                                    label: i.full_name,
+                                    value: i.id,
+                                }))}
+                                value={instrumentList
+                                    .map((i) => ({
+                                        label: i.full_name,
+                                        value: i.id,
+                                    }))
+                                    .filter((opt) =>
+                                        field.value?.includes(opt.value),
+                                    )}
+                                isDisabled={readOnly}
+                                onChange={(selected) =>
+                                    field.onChange(
+                                        selected?.map((s) => s.value) || [],
+                                    )
+                                }
+                            />
+                        )}
+                    />
+                </FormItem>
             </div>
 
             {/* --- Departments --- */}
@@ -371,9 +408,8 @@ const LocationsItems = ({
                                 />
                             </FormItem>
 
-                            {/* Instruments */}
                             <FormItem
-                                label="Instruments"
+                                label="Department Instruments"
                                 invalid={
                                     !!errors.location?.[index]?.departments?.[
                                         deptIndex

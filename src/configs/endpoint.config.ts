@@ -45,6 +45,7 @@ const endpointConfig = {
             list: `${MASTER_PREFIX_PATH}/lab/list`,
             create: `${MASTER_PREFIX_PATH}/lab/create`,
             edit: `${MASTER_PREFIX_PATH}/lab/edit/:id`,
+            location: `${MASTER_PREFIX_PATH}/lab/location/:id`,
             view: `${MASTER_PREFIX_PATH}/lab/view/:id`,
         },
 
@@ -114,6 +115,11 @@ const endpointConfig = {
             create: `${MASTER_PREFIX_PATH}/instrument/create`,
             edit: `${MASTER_PREFIX_PATH}/instrument/edit/:id`,
             view: `${MASTER_PREFIX_PATH}/instrument/view/:id`,
+        },
+    },
+    setting: {
+        config: {
+            list: `${MASTER_PREFIX_PATH}/config/list`,
         },
     },
 }

@@ -34,6 +34,7 @@ const LocationsSection = ({
                                     prefix: '',
                                     shortName: '',
                                     emails: [{ value: '' }],
+                                    instruments: [],
                                     phones: [{ value: '' }],
                                     address: '',
                                 })

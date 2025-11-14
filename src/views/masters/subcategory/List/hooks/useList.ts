@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import {
     apiSubCategory,
     apiGetSubCategoryList,
@@ -7,9 +8,13 @@ import {
 import useSWR from 'swr'
 import { useSubCategoryListStore } from '../store/listStore'
 import type { TableQueries } from '@/@types/common'
-import { Fields, GetSubCategoryListResponse } from '@/@types/subcategory'
+import {
+    Fields,
+    GetSubCategoryListResponse,
+    GetSubCategoryDetailResponse,
+} from '@/@types/subcategory'
 
-export default function useSubCategoryList() {
+export default function useSubCategoryList(subCategoryId?: string) {
     const {
         tableData,
         filterData,
@@ -31,29 +36,51 @@ export default function useSubCategoryList() {
             revalidateOnFocus: false,
         },
     )
-    const saveSubCategoryData = async (subcategory: Fields) => {
-        if (subcategory.id) {
-            await apiUpdateSubCategory(subcategory.id, subcategory)
-        } else {
-            await apiSubCategory(subcategory)
-        }
-        await mutate() // refresh list
-    }
 
-    const getSubCategoryById = async (id: string) => {
-        const subcategory = await apiGetSubCategoryById(id)
-        return subcategory
+    const {
+        data: detailData,
+        error: detailError,
+        isLoading: isDetailLoading,
+        mutate: mutateDetail,
+    } = useSWR<GetSubCategoryDetailResponse>(
+        subCategoryId ? `/api/subcategory/${subCategoryId}` : null,
+        () => apiGetSubCategoryById(subCategoryId!),
+        { revalidateOnFocus: false },
+    )
+
+    const saveSubCategoryData = async (subcategory: Fields) => {
+        let savedData: any
+        if (subcategory.id) {
+            savedData = await apiUpdateSubCategory(subcategory.id, subcategory)
+        } else {
+            savedData = await apiSubCategory(subcategory)
+        }
+        await mutate()
+        if (subcategory.id && mutateDetail) {
+            mutateDetail({ data: savedData }, false)
+        }
+        return savedData
     }
 
     const subcategoryList = data?.data || []
 
     const subcategoryListTotal = data?.total || 0
 
+    const subCategoryDetail = detailData?.data || {
+        name: '',
+        cat_id: '',
+        identifier: '',
+    }
+
     return {
         subcategoryList,
         subcategoryListTotal,
         error,
         isLoading,
+        subCategoryDetail,
+        isDetailLoading,
+        detailError,
+        mutateDetail,
         tableData,
         filterData,
         mutate,
@@ -63,6 +90,5 @@ export default function useSubCategoryList() {
         setSelectAllSubCategory,
         setFilterData,
         saveSubCategoryData,
-        getSubCategoryById, // ✅ Now defined properly
     }
 }

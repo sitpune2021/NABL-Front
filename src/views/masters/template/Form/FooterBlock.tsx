@@ -1,288 +1,340 @@
-export default function FooterBlock() {
-    return (
-        <footer
-            style={{
-                textAlign: 'center',
-                padding: '20px',
-                background: '#f0f0f0',
-                borderTop: '1px solid #ccc',
-            }}
-        >
-            {/* Table Section */}
-            <table
-                style={{
-                    width: '100%',
-                    borderCollapse: 'collapse',
-                    fontFamily: 'Arial, sans-serif',
-                    fontSize: '14px',
-                    marginTop: '20px',
-                    tableLayout: 'fixed',
-                    textAlign: 'center',
-                }}
-            >
-                <tbody>
-                    <tr>
-                        <td
-                            style={{
-                                border: '1px solid #000',
-                                padding: '8px',
-                                fontWeight: 'bold',
-                            }}
-                        >
-                            Document No.
-                        </td>
-                        <td
-                            style={{ border: '1px solid #000', padding: '8px' }}
-                            contentEditable={true}
-                        ></td>
-                        <td
-                            style={{
-                                border: '1px solid #000',
-                                padding: '8px',
-                                fontWeight: 'bold',
-                            }}
-                        >
-                            Document Name
-                        </td>
-                        <td
-                            colSpan={3}
-                            style={{ border: '1px solid #000', padding: '8px' }}
-                            contentEditable={true}
-                        ></td>
-                    </tr>
+/* eslint-disable @typescript-eslint/no-explicit-any */
+const footerContent = {
+    tagName: 'footer',
+    style: {
+        textAlign: 'center',
+        padding: '20px',
+        background: '#f0f0f0',
+        borderTop: '1px solid #ccc',
+    },
+    components: [
+        {
+            tagName: 'table',
+            classes: ['solution-table'],
+            type: 'table',
+            traits: [
+                {
+                    type: 'number',
+                    name: 'num_rows',
+                    label: 'Number of Rows',
+                    min: 5,
+                    max: 10,
+                    default: 7, // Default to 7 rows (matching footer)
+                    changeProp: true,
+                },
+                {
+                    type: 'number',
+                    name: 'numCols',
+                    label: 'Number of Columns',
+                    min: 6,
+                    max: 6, // Fixed to 6 columns for footer
+                    default: 6,
+                    changeProp: true,
+                },
+            ],
+            stylable: false,
+            components: function (props: any) {
+                const num_rows = props.num_rows || 7 // Use prop or default to 7
+                const numCols = props.numCols || 6 // Fixed to 6 for footer
 
-                    <tr>
-                        <td
-                            style={{
-                                border: '1px solid #000',
-                                padding: '8px',
-                                textAlign: 'left',
-                                fontWeight: 'bold',
-                            }}
-                        >
-                            Prepared By
-                        </td>
-                        <td
-                            colSpan={2}
-                            style={{
-                                border: '1px solid #000',
-                                padding: '8px',
-                                textAlign: 'left',
-                            }}
-                            contentEditable={true}
-                        >
-                            Name:{' '}
-                        </td>
-                        <td
-                            colSpan={2}
-                            style={{
-                                border: '1px solid #000',
-                                padding: '8px',
-                                textAlign: 'left',
-                            }}
-                            contentEditable={true}
-                        >
-                            Designation:{' '}
-                        </td>
-                        <td
-                            style={{
-                                border: '1px solid #000',
-                                padding: '8px',
-                                textAlign: 'left',
-                            }}
-                            contentEditable={true}
-                        >
-                            Sign:{' '}
-                        </td>
-                    </tr>
+                const footerRows = [
+                    {
+                        cells: [
+                            {
+                                content: 'Document No.',
+                                colSpan: 1,
+                                style: { fontWeight: 'bold' },
+                            },
+                            {
+                                content: '',
+                                colSpan: 1,
+                                editable: true,
+                            },
+                            {
+                                content: 'Document Name',
+                                colSpan: 1,
+                                style: { fontWeight: 'bold' },
+                            },
+                            {
+                                content: '',
+                                colSpan: 3,
+                                editable: true,
+                            },
+                        ],
+                    },
+                    {
+                        cells: [
+                            {
+                                content: 'Prepared By',
+                                colSpan: 1,
+                                style: {
+                                    textAlign: 'left',
+                                    fontWeight: 'bold',
+                                },
+                            },
+                            {
+                                content: 'Name: ',
+                                colSpan: 2,
+                                style: { textAlign: 'left' },
+                                editable: true,
+                            },
+                            {
+                                content: 'Designation: ',
+                                colSpan: 2,
+                                style: { textAlign: 'left' },
+                                editable: true,
+                            },
+                            {
+                                content: 'Sign: ',
+                                colSpan: 1,
+                                style: { textAlign: 'left' },
+                                editable: true,
+                            },
+                        ],
+                    },
+                    {
+                        cells: [
+                            {
+                                content: 'Approved By',
+                                colSpan: 1,
+                                style: {
+                                    textAlign: 'left',
+                                    fontWeight: 'bold',
+                                },
+                            },
+                            {
+                                content: 'Name: ',
+                                colSpan: 2,
+                                style: { textAlign: 'left' },
+                                editable: true,
+                            },
+                            {
+                                content: 'Designation: ',
+                                colSpan: 2,
+                                style: { textAlign: 'left' },
+                                editable: true,
+                            },
+                            {
+                                content: 'Sign: ',
+                                colSpan: 1,
+                                style: { textAlign: 'left' },
+                                editable: true,
+                            },
+                        ],
+                    },
+                    {
+                        cells: [
+                            {
+                                content: 'Issued By',
+                                colSpan: 1,
+                                style: {
+                                    textAlign: 'left',
+                                    fontWeight: 'bold',
+                                },
+                            },
+                            {
+                                content: 'Name: ',
+                                colSpan: 2,
+                                style: { textAlign: 'left' },
+                                editable: true,
+                            },
+                            {
+                                content: 'Designation: ',
+                                colSpan: 2,
+                                style: { textAlign: 'left' },
+                                editable: true,
+                            },
+                            {
+                                content: 'Sign: ',
+                                colSpan: 1,
+                                style: { textAlign: 'left' },
+                                editable: true,
+                            },
+                        ],
+                    },
+                    {
+                        cells: [
+                            {
+                                content: 'Issue No.',
+                                colSpan: 1,
+                            },
+                            {
+                                content: '',
+                                colSpan: 1,
+                                editable: true,
+                            },
+                            {
+                                content: 'Issue Date',
+                                colSpan: 1,
+                            },
+                            {
+                                content: '',
+                                colSpan: 1,
+                                editable: true,
+                            },
+                            { content: 'Status', colSpan: 1 },
+                            {
+                                content: '',
+                                colSpan: 1,
+                                editable: true,
+                            },
+                        ],
+                    },
+                    {
+                        cells: [
+                            {
+                                content: 'Amendment No.',
+                                colSpan: 1,
+                            },
+                            {
+                                content: '',
+                                colSpan: 1,
+                                editable: true,
+                            },
+                            {
+                                content: 'Amendment Date',
+                                colSpan: 1,
+                            },
+                            {
+                                content: '',
+                                colSpan: 1,
+                                editable: true,
+                            },
+                            {
+                                content: 'Effective Date',
+                                colSpan: 1,
+                            },
+                            {
+                                content: '',
+                                colSpan: 1,
+                                editable: true,
+                            },
+                        ],
+                    },
+                    {
+                        cells: [
+                            { content: 'Copy No.', colSpan: 1 },
+                            {
+                                content: '',
+                                colSpan: 1,
+                                editable: true,
+                            },
+                            {
+                                content: 'Copy Location',
+                                colSpan: 1,
+                            },
+                            {
+                                content: '',
+                                colSpan: 1,
+                                editable: true,
+                            },
+                            { content: 'Page No.', colSpan: 1 },
+                            {
+                                content: '',
+                                colSpan: 1,
+                                editable: true,
+                            },
+                        ],
+                    },
+                ]
 
-                    <tr>
-                        <td
-                            style={{
-                                border: '1px solid #000',
-                                padding: '8px',
-                                textAlign: 'left',
-                                fontWeight: 'bold',
-                            }}
-                        >
-                            Approved By
-                        </td>
-                        <td
-                            colSpan={2}
-                            style={{
-                                border: '1px solid #000',
-                                padding: '8px',
-                                textAlign: 'left',
-                            }}
-                            contentEditable={true}
-                        >
-                            Name:{' '}
-                        </td>
-                        <td
-                            colSpan={2}
-                            style={{
-                                border: '1px solid #000',
-                                padding: '8px',
-                                textAlign: 'left',
-                            }}
-                            contentEditable={true}
-                        >
-                            Designation:{' '}
-                        </td>
-                        <td
-                            style={{
-                                border: '1px solid #000',
-                                padding: '8px',
-                                textAlign: 'left',
-                            }}
-                            contentEditable={true}
-                        >
-                            Sign:{' '}
-                        </td>
-                    </tr>
-
-                    <tr>
-                        <td
-                            style={{
-                                border: '1px solid #000',
-                                padding: '8px',
-                                textAlign: 'left',
-                                fontWeight: 'bold',
-                            }}
-                        >
-                            Issued By
-                        </td>
-                        <td
-                            colSpan={2}
-                            style={{
-                                border: '1px solid #000',
-                                padding: '8px',
-                                textAlign: 'left',
-                            }}
-                            contentEditable={true}
-                        >
-                            Name:{' '}
-                        </td>
-                        <td
-                            colSpan={2}
-                            style={{
-                                border: '1px solid #000',
-                                padding: '8px',
-                                textAlign: 'left',
-                            }}
-                            contentEditable={true}
-                        >
-                            Designation:{' '}
-                        </td>
-                        <td
-                            style={{
-                                border: '1px solid #000',
-                                padding: '8px',
-                                textAlign: 'left',
-                            }}
-                            contentEditable={true}
-                        >
-                            Sign:{' '}
-                        </td>
-                    </tr>
-
-                    <tr>
-                        <td
-                            style={{ border: '1px solid #000', padding: '6px' }}
-                        >
-                            Issue No.
-                        </td>
-                        <td
-                            style={{ border: '1px solid #000', padding: '6px' }}
-                            contentEditable={true}
-                        ></td>
-                        <td
-                            style={{ border: '1px solid #000', padding: '6px' }}
-                        >
-                            Issue Date
-                        </td>
-                        <td
-                            style={{ border: '1px solid #000', padding: '6px' }}
-                            contentEditable={true}
-                        ></td>
-                        <td
-                            style={{ border: '1px solid #000', padding: '6px' }}
-                        >
-                            Status
-                        </td>
-                        <td
-                            style={{ border: '1px solid #000', padding: '6px' }}
-                            contentEditable={true}
-                        ></td>
-                    </tr>
-
-                    <tr>
-                        <td
-                            style={{ border: '1px solid #000', padding: '6px' }}
-                        >
-                            Amendment No.
-                        </td>
-                        <td
-                            style={{ border: '1px solid #000', padding: '6px' }}
-                            contentEditable={true}
-                        ></td>
-                        <td
-                            style={{ border: '1px solid #000', padding: '6px' }}
-                        >
-                            Amendment Date
-                        </td>
-                        <td
-                            style={{ border: '1px solid #000', padding: '6px' }}
-                            contentEditable={true}
-                        ></td>
-                        <td
-                            style={{ border: '1px solid #000', padding: '6px' }}
-                        >
-                            Effective Date
-                        </td>
-                        <td
-                            style={{ border: '1px solid #000', padding: '6px' }}
-                            contentEditable={true}
-                        ></td>
-                    </tr>
-
-                    <tr>
-                        <td
-                            style={{ border: '1px solid #000', padding: '6px' }}
-                        >
-                            Copy No.
-                        </td>
-                        <td
-                            style={{ border: '1px solid #000', padding: '6px' }}
-                            contentEditable={true}
-                        ></td>
-                        <td
-                            style={{ border: '1px solid #000', padding: '6px' }}
-                        >
-                            Copy Location
-                        </td>
-                        <td
-                            style={{ border: '1px solid #000', padding: '6px' }}
-                            contentEditable={true}
-                        ></td>
-                        <td
-                            style={{ border: '1px solid #000', padding: '6px' }}
-                        >
-                            Page No.
-                        </td>
-                        <td
-                            style={{ border: '1px solid #000', padding: '6px' }}
-                            contentEditable={true}
-                        ></td>
-                    </tr>
-                </tbody>
-            </table>
-
-            {/* Footer Text */}
-            <p style={{ marginTop: '20px', fontSize: '13px', color: '#333' }}>
-                © {'{{year}}'} {'{{companyName}}'} Pvt Ltd. All rights
-                reserved.
-            </p>
-        </footer>
-    )
+                return [
+                    {
+                        tagName: 'tbody',
+                        type: 'tbody',
+                        components: footerRows
+                            .slice(0, num_rows)
+                            .map((row) => ({
+                                tagName: 'tr',
+                                type: 'tr',
+                                components: row.cells.map((cell: any) => ({
+                                    tagName: 'td',
+                                    type: 'td',
+                                    classes: ['solution-td'],
+                                    style: cell.style
+                                        ? Object.keys(cell.style)
+                                              .map(
+                                                  (key) =>
+                                                      `${key.replace(/([A-Z])/g, '-$1').toLowerCase()}:${cell.style[key]}`,
+                                              )
+                                              .join(';')
+                                        : '',
+                                    attributes: {
+                                        colSpan: cell.colSpan,
+                                    },
+                                    traits: [
+                                        // Traits with defaults
+                                        {
+                                            type: 'number',
+                                            name: 'colspan',
+                                            label: 'Colspan',
+                                            min: 1,
+                                            max: numCols,
+                                            default: cell.colSpan, // Default to the cell's defined colSpan
+                                        },
+                                        {
+                                            type: 'number',
+                                            name: 'rowspan',
+                                            label: 'Rowspan',
+                                            min: 1,
+                                            max: num_rows,
+                                            default: 1, // Default to 1
+                                        },
+                                    ],
+                                    components: [
+                                        {
+                                            tagName: 'div',
+                                            type: 'text',
+                                            content: cell.content,
+                                            attributes: {
+                                                contentEditable: cell.editable
+                                                    ? 'true'
+                                                    : 'false',
+                                            },
+                                        },
+                                    ],
+                                })),
+                            })),
+                    },
+                ]
+            },
+        },
+        {
+            tagName: 'div',
+            type: 'default', // Or 'div' if you have a custom type
+            style: { marginTop: '20px' }, // Optional styling for the div
+            components: [
+                {
+                    tagName: 'p',
+                    style: {
+                        'font-size': '13px',
+                        color: '#333',
+                        'text-align': 'center',
+                    },
+                    components: [
+                        '© ',
+                        {
+                            tagName: 'span',
+                            type: 'field-year',
+                            attributes: {
+                                'data-field': 'year',
+                            },
+                            content: '{{year}}',
+                        },
+                        ' ',
+                        {
+                            tagName: 'span',
+                            type: 'field-name',
+                            attributes: {
+                                'data-field': 'name',
+                            },
+                            content: '{{name}}',
+                        },
+                        ' Pvt Ltd. All rights reserved.',
+                    ],
+                },
+            ],
+        },
+    ],
 }
+export default footerContent

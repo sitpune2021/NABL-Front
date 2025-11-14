@@ -3,7 +3,7 @@ import Tooltip from '@/components/ui/Tooltip'
 import DataTable from '@/components/shared/DataTable'
 import { useNavigate } from 'react-router'
 import cloneDeep from 'lodash/cloneDeep'
-import { TbPencil, TbEye } from 'react-icons/tb'
+import { TbPencil, TbEye, TbLocationBolt } from 'react-icons/tb'
 import type { OnSortParam, ColumnDef, Row } from '@/components/shared/DataTable'
 import type { TableQueries } from '@/@types/common'
 import useLabList from '../hooks/useList'
@@ -13,9 +13,11 @@ import { Lab } from '@/@types/lab'
 const ActionColumn = ({
     onEdit,
     onViewDetail,
+    onLocation,
 }: {
     onEdit: () => void
     onViewDetail: () => void
+    onLocation: () => void
 }) => {
     return (
         <div className="flex items-center gap-3">
@@ -35,6 +37,15 @@ const ActionColumn = ({
                     onClick={onViewDetail}
                 >
                     <TbEye />
+                </div>
+            </Tooltip>
+            <Tooltip title="location">
+                <div
+                    className={`text-xl cursor-pointer select-none font-semibold`}
+                    role="button"
+                    onClick={onLocation}
+                >
+                    <TbLocationBolt />
                 </div>
             </Tooltip>
         </div>
@@ -63,6 +74,14 @@ const LabListTable = () => {
         navigate(path)
     }
 
+    const handleLocation = (lab: Lab) => {
+        const path = endpointConfig.master.lab.location.replace(
+            ':id',
+            String(lab.id),
+        )
+        navigate(path)
+    }
+
     const handleViewDetails = (lab: Lab) => {
         const path = endpointConfig.master.lab.view.replace(
             ':id',
@@ -74,17 +93,13 @@ const LabListTable = () => {
     const columns: ColumnDef<Lab>[] = useMemo(
         () => [
             {
+                header: 'Id',
+                accessorKey: 'id',
+            },
+            {
                 header: 'Name',
                 accessorKey: 'name',
             },
-            {
-                header: 'Lab Type',
-                accessorKey: 'labType',
-            },
-            // {
-            //     header: 'department',
-            //     accessorKey: 'department',
-            // },
             {
                 header: 'Lab Code',
                 accessorKey: 'labCode',
@@ -95,6 +110,7 @@ const LabListTable = () => {
                 cell: (props) => (
                     <ActionColumn
                         onEdit={() => handleEdit(props.row.original)}
+                        onLocation={() => handleLocation(props.row.original)}
                         onViewDetail={() =>
                             handleViewDetails(props.row.original)
                         }

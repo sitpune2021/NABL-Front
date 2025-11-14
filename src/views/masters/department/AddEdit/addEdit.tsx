@@ -78,7 +78,7 @@ const DepartmentAddEdit = () => {
                 defaultValues={
                     departmentData ?? {
                         name: '',
-                        prefix: '',
+                        identifier: '',
                     }
                 }
                 readOnly={isView}

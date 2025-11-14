@@ -12,16 +12,14 @@ import { Fields, GetDepartmentListResponse } from '@/@types/department'
 export default function useDepartmentList() {
     const {
         tableData,
-        filterData,
         setTableData,
         selectedDepartment,
         setSelectedDepartment,
         setSelectAllDepartment,
-        setFilterData,
     } = useDepartmentListStore((state) => state)
 
     const { data, error, isLoading, mutate } = useSWR(
-        ['/api/department', { ...tableData, ...filterData }],
+        ['/api/department', { ...tableData }],
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         ([_, params]) =>
             apiGetDepartmentList<GetDepartmentListResponse, TableQueries>(
@@ -46,7 +44,7 @@ export default function useDepartmentList() {
         return department
     }
 
-    const departmentList = data?.list || []
+    const departmentList = data?.data || []
 
     const departmentListTotal = data?.total || 0
 
@@ -56,13 +54,11 @@ export default function useDepartmentList() {
         error,
         isLoading,
         tableData,
-        filterData,
         mutate,
         setTableData,
         selectedDepartment,
         setSelectedDepartment,
         setSelectAllDepartment,
-        setFilterData,
         saveDepartmentData,
         getDepartmentById, // ✅ Now defined properly
     }

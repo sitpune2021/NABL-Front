@@ -78,8 +78,25 @@ const SubCategoryListTable = () => {
                 accessorKey: 'id',
             },
             {
+                header: 'Category',
+                accessorKey: 'category',
+                cell: (props) => {
+                    const { name, identifier } = props.row.original.category
+                    return (
+                        <div className="flex items-center gap-2">
+                            <div>
+                                <div className="font-bold heading-text">
+                                    {name}
+                                </div>
+                                <div>{identifier}</div>
+                            </div>
+                        </div>
+                    )
+                },
+            },
+            {
                 header: 'Prefix',
-                accessorKey: 'prefix',
+                accessorKey: 'identifier',
             },
             {
                 header: 'Sub Category',

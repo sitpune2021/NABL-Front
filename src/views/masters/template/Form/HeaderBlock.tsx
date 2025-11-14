@@ -1,4 +1,3 @@
-// HeaderBlock.tsx
 export default function HeaderBlock() {
     return (
         <header
@@ -16,7 +15,7 @@ export default function HeaderBlock() {
             {/* Logo on left */}
             <div style={{ flex: '0 0 auto' }}>
                 <img
-                    src="https://via.placeholder.com/120x60?text=Logo"
+                    src="https://iconape.com/wp-content/files/ge/264650/png/NABL_India-logo.png"
                     alt="Logo"
                     style={{
                         width: '120px',
@@ -26,18 +25,30 @@ export default function HeaderBlock() {
                 />
             </div>
 
-            {/* Company details on right */}
+            {/* Dynamic Fields */}
             <div style={{ flex: '1 1 auto', textAlign: 'right' }}>
-                <h2 style={{ margin: 0, fontSize: '18px' }}>
-                    {'{{companyName}}'}
-                </h2>
-                <p style={{ margin: '2px 0', fontSize: '14px' }}>
+                {/* Dynamic Name Field */}
+                <span
+                    data-field="name"
+                    data-gjs-type="field-name"
+                    name-type="lab"
+                    style={{ margin: 0, fontSize: '18px', display: 'block' }}
+                >
+                    {'{{name}}'}
+                </span>
+
+                {/* Dynamic Address Field */}
+                <span
+                    data-field="address"
+                    data-gjs-type="field-address"
+                    style={{
+                        margin: '2px 0',
+                        fontSize: '14px',
+                        display: 'block',
+                    }}
+                >
                     {'{{address}}'}
-                </p>
-                <p style={{ margin: '2px 0', fontSize: '14px' }}>
-                    {'{{email}}'}
-                </p>
-                <p style={{ margin: 0, fontSize: '14px' }}>{'{{phone}}'}</p>
+                </span>
             </div>
         </header>
     )
