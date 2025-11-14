@@ -8,7 +8,7 @@ import type { OnSortParam, ColumnDef, Row } from '@/components/shared/DataTable'
 import type { TableQueries } from '@/@types/common'
 import useUserList from '../hooks/useList'
 import endpointConfig from '@/configs/endpoint.config'
-import { User } from '@/@types/user'
+import { User, UserRole } from '@/@types/user'
 
 const ActionColumn = ({
     onEdit,
@@ -82,13 +82,29 @@ const UserListTable = () => {
                 accessorKey: 'name',
             },
             {
-                header: 'Role',
-                accessorKey: 'role',
+                header: 'Roles',
+                accessorKey: 'userRoles',
                 cell: (props) => {
-                    const rolesArray = props.row.original.role // assuming this is an array
-                    return Array.isArray(rolesArray)
-                        ? rolesArray.map((r) => r.label || r).join(' | ')
-                        : rolesArray
+                    const user = props.row.original as User & {
+                        userRoles?: UserRole[]
+                    }
+                    const userRoles = user.userRoles
+
+                    if (!userRoles || userRoles.length === 0) {
+                        return '-'
+                    }
+
+                    const roleNames: string[] = []
+
+                    userRoles.forEach((userRole) => {
+                        if (userRole.roles) {
+                            userRole.roles.forEach((role) => {
+                                if (role.label) roleNames.push(role.label)
+                            })
+                        }
+                    })
+
+                    return roleNames.length > 0 ? roleNames.join('|') : '-'
                 },
             },
             {
