@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect } from 'react'
 import { Form } from '@/components/ui/Form'
 import Container from '@/components/shared/Container'
@@ -51,6 +52,24 @@ const validationSchema = z.object({
     location_name: z.string().optional().or(z.literal('')),
     department_name: z.string().optional().or(z.literal('')),
     status: z.string().optional().or(z.literal('')),
+    userRoles: z
+        .array(
+            z.object({
+                zone_name: z.string().optional().or(z.literal('')),
+                cluster_name: z.string().optional().or(z.literal('')),
+                location_name: z.string().optional().or(z.literal('')),
+                department_name: z.string().optional().or(z.literal('')),
+                roles: z
+                    .array(
+                        z.object({
+                            value: z.string().optional(),
+                            label: z.string().optional(),
+                        }),
+                    )
+                    .optional(),
+            }),
+        )
+        .optional(),
 })
 
 const UserForm = (props: UserFormProps) => {
@@ -68,6 +87,15 @@ const UserForm = (props: UserFormProps) => {
         control,
     } = useForm<UserFormSchema>({
         defaultValues: {
+            userRoles: [
+                {
+                    zone_name: '',
+                    cluster_name: '',
+                    location_name: '',
+                    department_name: '',
+                    roles: [],
+                },
+            ],
             ...defaultValues,
         },
         resolver: zodResolver(validationSchema),
@@ -75,9 +103,23 @@ const UserForm = (props: UserFormProps) => {
 
     useEffect(() => {
         if (!isEmpty(defaultValues)) {
-            reset(defaultValues)
+            const existingUserRoles = (defaultValues as any).userRoles
+            const formattedValues = {
+                ...defaultValues,
+                userRoles: existingUserRoles || [
+                    {
+                        zone_name: '',
+                        cluster_name: '',
+                        location_name: '',
+                        department_name: '',
+                        roles: [],
+                    },
+                ],
+            }
+            console.log('Setting form values:', formattedValues)
+            reset(formattedValues)
         }
-    }, [JSON.stringify(defaultValues)])
+    }, [defaultValues, reset])
 
     const onSubmit = (values: UserFormSchema) => {
         onFormSubmit?.(values)

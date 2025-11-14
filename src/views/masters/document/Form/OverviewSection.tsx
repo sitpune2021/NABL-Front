@@ -821,35 +821,6 @@ const OverviewSection = ({
                 {frequency && (
                     <div className="grid grid-cols-2 gap-4">
                         <FormItem
-                            label="Duration Value"
-                            invalid={!!errors.durationValue}
-                        >
-                            <Controller
-                                name="durationValue"
-                                control={control}
-                                render={({ field }) => (
-                                    <Input
-                                        type="number"
-                                        placeholder="Enter value"
-                                        min={1}
-                                        max={getMaxValue()}
-                                        value={field.value || ''}
-                                        disabled={!durationUnit || readOnly}
-                                        onChange={(e) => {
-                                            const val = e.target.value
-                                            if (
-                                                !getMaxValue() ||
-                                                Number(val) <= getMaxValue()
-                                            ) {
-                                                field.onChange(val)
-                                            }
-                                        }}
-                                    />
-                                )}
-                            />
-                        </FormItem>
-
-                        <FormItem
                             label="Duration Unit"
                             invalid={!!errors.durationUnit}
                         >
@@ -873,6 +844,35 @@ const OverviewSection = ({
                                         onChange={(option) =>
                                             field.onChange(option?.value)
                                         }
+                                    />
+                                )}
+                            />
+                        </FormItem>
+
+                        <FormItem
+                            label="Duration Value"
+                            invalid={!!errors.durationValue}
+                        >
+                            <Controller
+                                name="durationValue"
+                                control={control}
+                                render={({ field }) => (
+                                    <Input
+                                        type="number"
+                                        placeholder="Enter value"
+                                        min={1}
+                                        max={getMaxValue()}
+                                        value={field.value || ''}
+                                        disabled={!durationUnit || readOnly}
+                                        onChange={(e) => {
+                                            const val = e.target.value
+                                            if (
+                                                !getMaxValue() ||
+                                                Number(val) <= getMaxValue()
+                                            ) {
+                                                field.onChange(val)
+                                            }
+                                        }}
                                     />
                                 )}
                             />
