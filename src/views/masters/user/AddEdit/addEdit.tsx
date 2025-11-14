@@ -91,7 +91,6 @@ const UserAddEdit = () => {
                         name: '',
                         username: '',
                         email: '',
-                        role: [],
                         phone: '',
                         dialCode: '+91',
                         address: '',
@@ -101,11 +100,21 @@ const UserAddEdit = () => {
                         issuedBy: true,
                         approvedBy: true,
                         signUpload: '',
-                        zone_name: '',
-                        cluster_name: '',
-                        location_name: '',
-                        department_name: '',
                         status: '',
+                        userRoles: [
+                            {
+                                zone_name: '',
+                                cluster_name: '',
+                                location_name: '',
+                                department: [
+                                    {
+                                        department_name: '',
+                                        roles: [],
+                                        permissions: {},
+                                    },
+                                ],
+                            },
+                        ],
                     }
                 }
                 readOnly={isView}

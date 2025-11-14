@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { TableQueries } from './common'
 import type { Control, FieldErrors } from 'react-hook-form'
 
@@ -16,7 +17,6 @@ export type User = {
     name: string
     email: string
     phone: string
-    role?: string
     username: string
     address?: string
     issuedBy: boolean
@@ -24,11 +24,10 @@ export type User = {
     signUpload?: string
     preparedBy: boolean
     dialCode: string
-    zone_name?: string
-    cluster_name?: string
-    location_name?: string
-    department_name?: string
     status?: string
+    city?: string
+    postcode?: string
+    userRoles?: UserRole[]
 }
 
 export type UserListState = {
@@ -44,31 +43,40 @@ export type UserListAction = {
     setSelectAllUser: (customer: User[]) => void
 }
 
+export type Department = {
+    department_name?: string
+    roles?: Array<{ value?: string; label?: string }>
+    permissions?: Record<string, any>
+}
+
 export type UserRole = {
     id?: string
     zone_name?: string
     cluster_name?: string
     location_name?: string
-    department_name?: string
-    roles?: { value?: string; label?: string }[]
+    department?: Array<Department>
 }
 
 export type Fields = {
     id?: string
     name: string
+    username: string
     email: string
     phone: string
-    username: string
-    address?: string
-    issuedBy: boolean
-    approvedBy: boolean
-    signUpload?: string
-    preparedBy: boolean
     dialCode: string
+
+    address?: string
     city?: string
     postcode?: string
+
+    issuedBy: boolean
+    approvedBy: boolean
+    preparedBy: boolean
+
+    signUpload?: string
     status?: string
-    userRoles?: UserRole[]
+
+    userRoles?: Array<UserRole>
 }
 
 export type TagsFields = {
@@ -81,4 +89,5 @@ export type FormSectionBaseProps = {
     control: Control<UserFormSchema>
     errors: FieldErrors<UserFormSchema>
     readOnly?: boolean
+    setValue?: any
 }
