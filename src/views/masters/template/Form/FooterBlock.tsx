@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 const footerContent = {
     tagName: 'footer',
     style: {
@@ -32,7 +33,7 @@ const footerContent = {
                 },
             ],
             stylable: false,
-            components: function (props) {
+            components: function (props: any) {
                 const num_rows = props.num_rows || 7 // Use prop or default to 7
                 const numCols = props.numCols || 6 // Fixed to 6 for footer
 
@@ -246,7 +247,7 @@ const footerContent = {
                             .map((row) => ({
                                 tagName: 'tr',
                                 type: 'tr',
-                                components: row.cells.map((cell) => ({
+                                components: row.cells.map((cell: any) => ({
                                     tagName: 'td',
                                     type: 'td',
                                     classes: ['solution-td'],

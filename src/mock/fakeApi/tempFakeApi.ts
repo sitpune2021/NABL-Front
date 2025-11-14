@@ -1,4 +1,3 @@
-import './fake/departmentApi'
 import './fake/documentApi'
 import './fake/labsApi'
 import './fake/signatoryByApi'

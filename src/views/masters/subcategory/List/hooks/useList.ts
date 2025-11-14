@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import {
     apiSubCategory,
     apiGetSubCategoryList,
@@ -48,7 +49,7 @@ export default function useSubCategoryList(subCategoryId?: string) {
     )
 
     const saveSubCategoryData = async (subcategory: Fields) => {
-        let savedData
+        let savedData: any
         if (subcategory.id) {
             savedData = await apiUpdateSubCategory(subcategory.id, subcategory)
         } else {
