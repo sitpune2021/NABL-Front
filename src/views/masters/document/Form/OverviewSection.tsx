@@ -71,7 +71,7 @@ const OverviewSection = ({
 
     const options = categoryList.map((category: Category) => ({
         value: category.name,
-        label: `${category.name.toUpperCase()} - ${category.prefix}`,
+        label: `${category.name.toUpperCase()} - ${category.identifier}`,
     }))
 
     const getUserOptions = (users: User[], roleKey: keyof User) =>
@@ -88,7 +88,7 @@ const OverviewSection = ({
 
     const departmentOptions = departmentList.map((dept) => ({
         value: dept.name,
-        label: `${dept.name.toUpperCase()} - ${dept.prefix}`,
+        label: `${dept.name.toUpperCase()} - ${dept.identifier}`,
     }))
 
     const [selectedCategory, setSelectedCategory] = useState<{
@@ -638,12 +638,6 @@ const OverviewSection = ({
                         name="preparedBy"
                         control={control}
                         render={({ field }) => (
-                            // <Input
-                            //     type="text"
-                            //     readOnly={readOnly}
-                            //     placeholder="Prepared By"
-                            //     {...field}
-                            // />
                             <Select
                                 {...field}
                                 options={preparedByOptions}

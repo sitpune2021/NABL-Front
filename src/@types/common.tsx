@@ -46,4 +46,8 @@ export type PrefixFEntity = {
     prefix: string
 }
 
+export type IdentifierEntity = {
+    identifier: string
+}
+
 export type GetPrefixResponse = PrefixFormSchema[]

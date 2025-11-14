@@ -97,8 +97,44 @@ export function addCustomBlocks(editor: any) {
                                     components: headers.map((header) => ({
                                         tagName: 'th',
                                         type: 'th',
-                                        content: header,
                                         classes: ['solution-th'],
+                                        traits: [
+                                            {
+                                                type: 'select',
+                                                name: 'type',
+                                                label: 'Input Type',
+                                                options: [
+                                                    {
+                                                        value: 'text',
+                                                        name: 'Text',
+                                                    },
+                                                    {
+                                                        value: 'number',
+                                                        name: 'Number',
+                                                    },
+                                                    {
+                                                        value: 'checkbox',
+                                                        name: 'Checkbox',
+                                                    },
+                                                    {
+                                                        value: 'radio',
+                                                        name: 'Radio',
+                                                    },
+                                                    {
+                                                        value: 'select',
+                                                        name: 'Select',
+                                                    },
+                                                ],
+                                            },
+                                        ],
+                                        components: [
+                                            {
+                                                tagName: 'span',
+                                                type: 'text',
+                                                content: header,
+                                                editable: true, // Let user edit header text directly
+                                            },
+                                        ],
                                     })),
                                 },
                             ],

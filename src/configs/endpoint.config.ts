@@ -117,6 +117,11 @@ const endpointConfig = {
             view: `${MASTER_PREFIX_PATH}/instrument/view/:id`,
         },
     },
+    setting: {
+        config: {
+            list: `${MASTER_PREFIX_PATH}/config/list`,
+        },
+    },
 }
 
 export default endpointConfig

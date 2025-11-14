@@ -4,6 +4,7 @@ import othersRoute from './othersRoute'
 import type { Routes } from '@/@types/routes'
 import masterRoute from './masterRoute'
 import endpointConfig from '../endpoint.config'
+import settingRoute from './settingRoute'
 
 export const publicRoutes: Routes = [...authRoute]
 
@@ -16,4 +17,5 @@ export const protectedRoutes: Routes = [
     },
     ...masterRoute,
     ...othersRoute,
+    ...settingRoute,
 ]

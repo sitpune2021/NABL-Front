@@ -27,6 +27,8 @@ const createStandardSchema = (): z.ZodType<any> =>
             isChild: z.boolean(),
             count: z.number().min(0, { message: 'Count must be 0 or greater' }),
             children: z.array(z.lazy(createStandardSchema)).optional(),
+            number: z.boolean().optional(),
+            numberingType: z.union([z.number(), z.string()]).optional(),
         })
         .superRefine((data, ctx) => {
             if (
@@ -70,6 +72,8 @@ const StandardForm = ({
                         isChild: false,
                         count: 0,
                         children: [],
+                        numberingType: 'numerical',
+                        number: true,
                     },
                 ]
 

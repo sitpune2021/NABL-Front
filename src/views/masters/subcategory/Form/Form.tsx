@@ -23,7 +23,7 @@ const validationSchema = z.object({
         z.string().min(1, { message: 'category required' }),
     ]),
     name: z.string().min(1, { message: ' name required' }),
-    prefix: z.string().regex(/^[A-Z]{1,4}-[A-Z]{1,4}$/, {
+    identifier: z.string().regex(/^[A-Z]{1,4}-[A-Z]{1,4}$/, {
         message:
             'Prefix must be in format ZZZ-XXXX (zone prefix + 1–4 uppercase letters only)',
     }),

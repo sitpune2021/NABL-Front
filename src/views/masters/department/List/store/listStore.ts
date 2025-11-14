@@ -12,27 +12,8 @@ export const initialTableData: TableQueries = {
     },
 }
 
-export const initialFilterData = {
-    purchasedProducts: '',
-    purchaseChannel: [
-        'all',
-        'header',
-        'footer',
-        'generic',
-        'draft',
-        'draft-header',
-        'draft-footer',
-        'draft-generic',
-        'archived-all',
-        'archived-header',
-        'archived-footer',
-        'archived-generic',
-    ],
-}
-
 const initialState: DepartmentListState = {
     tableData: initialTableData,
-    filterData: initialFilterData,
     selectedDepartment: [],
 }
 
@@ -40,7 +21,6 @@ export const useDepartmentListStore = create<
     DepartmentListState & DepartmentListAction
 >((set) => ({
     ...initialState,
-    setFilterData: (payload) => set(() => ({ filterData: payload })),
     setTableData: (payload) => set(() => ({ tableData: payload })),
     setSelectedDepartment: (checked, row) =>
         set((state) => {

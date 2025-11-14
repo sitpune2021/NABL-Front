@@ -253,6 +253,22 @@ const masterNavigationConfig: NavigationTree[] = [
                 },
                 subMenu: [],
             },
+            {
+                key: 'settings.config.list',
+                path: `${endpointConfig.setting.config.list}`,
+                title: 'Standards',
+                translateKey: 'nav.settingconfig.list',
+                icon: 'helpCeterEditArticle',
+                type: NAV_ITEM_TYPE_ITEM,
+                authority: [],
+                meta: {
+                    description: {
+                        translateKey: 'nav.settingConfig.listDesc',
+                        label: 'AI-powered chat systems',
+                    },
+                },
+                subMenu: [],
+            },
         ],
     },
     {
