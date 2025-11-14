@@ -28,7 +28,7 @@ const OverviewSection = ({
                                 type="text"
                                 autoComplete="off"
                                 readOnly={readOnly}
-                                placeholder="Name"
+                                placeholder="Enter Name"
                                 {...field}
                             />
                         )}
@@ -36,18 +36,18 @@ const OverviewSection = ({
                 </FormItem>
                 <FormItem
                     label="Prefix"
-                    invalid={Boolean(errors.prefix)}
-                    errorMessage={errors.prefix?.message}
+                    invalid={Boolean(errors.identifier)}
+                    errorMessage={errors.identifier?.message}
                 >
                     <Controller
-                        name="prefix"
+                        name="identifier"
                         control={control}
                         render={({ field }) => (
                             <Input
                                 type="text"
                                 autoComplete="off"
                                 readOnly={readOnly}
-                                placeholder="Prefix"
+                                placeholder="Enter Prefix"
                                 {...field}
                             />
                         )}

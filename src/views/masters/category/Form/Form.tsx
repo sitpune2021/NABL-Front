@@ -19,7 +19,7 @@ type CategoryFormProps = {
 
 const validationSchema = z.object({
     name: z.string().min(1, { message: ' Name required' }),
-    prefix: z
+    identifier: z
         .string()
         .min(1, { message: 'Prefix is required' })
         .max(4, { message: 'Prefix must be at most 4 characters' })

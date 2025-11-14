@@ -1,11 +1,16 @@
+import { Category } from './category'
 import { TableQueries } from './common'
-import type { PrefixFEntity } from './common'
+import type { IdentifierEntity } from './common'
 
 import type { Control, FieldErrors } from 'react-hook-form'
 
 export type GetSubCategoryListResponse = {
     data: SubCategory[]
     total: number
+}
+
+export type GetSubCategoryDetailResponse = {
+    data: SubCategories
 }
 
 export type Filter = {
@@ -17,7 +22,14 @@ export type SubCategory = {
     id: string
     name: string
     cat_id: string | number
-} & PrefixFEntity
+    category: Category
+} & IdentifierEntity
+
+export type SubCategories = {
+    id: string
+    name: string
+    cat_id: string | number
+} & IdentifierEntity
 
 export type SubCategoryListState = {
     tableData: TableQueries
@@ -36,7 +48,8 @@ export type Fields = {
     id?: string
     name: string
     cat_id: string | number
-} & PrefixFEntity
+    category?: Category
+} & IdentifierEntity
 
 export type TagsFields = {
     tags: Array<{ value: string; label: string }>

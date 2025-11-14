@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { useParams, useNavigate, useLocation } from 'react-router'
 import Container from '@/components/shared/Container'
 import Button from '@/components/ui/Button'
@@ -15,36 +15,22 @@ import { SubCategoryFormSchema } from '@/@types/subcategory'
 const SubCategoryAddEdit = () => {
     const navigate = useNavigate()
     const location = useLocation()
-    const { id: subcategoryId } = useParams()
-    const { saveSubCategoryData, getSubCategoryById } = useSubCategoryList()
+    const { id } = useParams()
+    const { saveSubCategoryData, subCategoryDetail } = useSubCategoryList(id)
 
     const [discardConfirmationOpen, setDiscardConfirmationOpen] =
         useState(false)
     const [isSubmiting, setIsSubmiting] = useState(false)
-    const [subcategoryData, setSubCategoryData] =
-        useState<SubCategoryFormSchema>()
-    const [loadingData, setLoadingData] = useState(false)
 
     const isEdit = location.pathname.includes('/edit')
     const isView = location.pathname.includes('/view')
     const isAdd = location.pathname.includes('/create')
-
-    // Load existing subcategory data in edit or view mode
-    useEffect(() => {
-        if (!isAdd && subcategoryId) {
-            setLoadingData(true)
-            getSubCategoryById(subcategoryId)
-                .then((data) => {
-                    setSubCategoryData(data)
-                })
-                .finally(() => setLoadingData(false))
-        }
-    }, [subcategoryId, isAdd])
+    // const loading = isAdd ? isLoading : isDetailLoading
 
     const handleFormSubmit = async (values: SubCategoryFormSchema) => {
         if (isView) return
         setIsSubmiting(true)
-        const payload = isEdit ? { ...values, id: subcategoryId } : values
+        const payload = isEdit ? { ...values, id } : values
         await saveSubCategoryData(payload)
         await sleep(800)
         setIsSubmiting(false)
@@ -69,19 +55,15 @@ const SubCategoryAddEdit = () => {
     const handleDiscard = () => setDiscardConfirmationOpen(true)
     const handleCancel = () => setDiscardConfirmationOpen(false)
 
-    if (loadingData && !isAdd) {
-        return <p className="p-4">Loading subcategory data...</p>
-    }
-
     return (
         <>
             <SubCategoryForm
                 newSubCategory={isAdd}
                 defaultValues={
-                    subcategoryData ?? {
+                    subCategoryDetail ?? {
                         name: '',
                         cat_id: '',
-                        prefix: '',
+                        identifier: '',
                     }
                 }
                 readOnly={isView}

@@ -1,6 +1,5 @@
+import { Search } from '@/components/form'
 import useDepartmentList from '../hooks/useList'
-import DepartmentListSearch from './ListSearch'
-import DepartmentListTableFilter from './ListTableFilter'
 import cloneDeep from 'lodash/cloneDeep'
 
 const DepartmentListTableTools = () => {
@@ -21,8 +20,7 @@ const DepartmentListTableTools = () => {
 
     return (
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2">
-            <DepartmentListSearch onInputChange={handleInputChange} />
-            <DepartmentListTableFilter />
+            <Search onInputChange={handleInputChange} />
         </div>
     )
 }
