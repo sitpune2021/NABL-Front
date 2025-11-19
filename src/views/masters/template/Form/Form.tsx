@@ -1,17 +1,17 @@
-import { useEffect } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { Form, FormItem } from '@/components/ui/Form'
 import Container from '@/components/shared/Container'
 import BottomStickyBar from '@/components/template/BottomStickyBar'
 import isEmpty from 'lodash/isEmpty'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useForm, Controller } from 'react-hook-form'
+import { useForm, Controller, useWatch } from 'react-hook-form'
 import { z } from 'zod'
 import type { CommonProps } from '@/@types/common'
 import { TemplateFormSchema } from '@/@types/template'
 import GrapesEditor from './GrapesEditor'
-import Dialog from '@/components/ui/Dialog' // Assuming Dialog is imported from your UI components
-import Input from '@/components/ui/Input' // Assuming Input is imported
-import Button from '@/components/ui/Button' // Assuming Button is imported
+import Dialog from '@/components/ui/Dialog'
+import Input from '@/components/ui/Input'
+import Button from '@/components/ui/Button'
 import { useParams } from 'react-router'
 
 type TemplateFormProps = {
@@ -47,6 +47,7 @@ const TemplateForm = ({
         formState: { errors },
         control,
         setValue,
+        trigger,
     } = useForm<TemplateFormSchema>({
         defaultValues: {
             ...defaultValues,
@@ -54,13 +55,55 @@ const TemplateForm = ({
         resolver: zodResolver(validationSchema),
     })
     const { type } = useParams<{ type: string }>()
+    const [actionDialogOpen, setActionDialogOpen] = useState(false)
+    const draftTimer = useRef<number | null>(null)
+    const watchedTemplate = useWatch({ control, name: 'template' })
+
+    useEffect(() => {
+        if (!defaultValues) return
+
+        const draft = localStorage.getItem('template-draft')
+
+        if (draft) {
+            try {
+                const parsed = JSON.parse(draft)
+                setValue('template', parsed)
+            } catch {
+                console.warn('Invalid draft found')
+            }
+        }
+    }, [])
 
     useEffect(() => {
         if (!isEmpty(defaultValues)) reset(defaultValues)
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [JSON.stringify(defaultValues)])
 
+    useEffect(() => {
+        if (!watchedTemplate) return
+
+        if (draftTimer.current) {
+            clearTimeout(draftTimer.current)
+        }
+
+        draftTimer.current = window.setTimeout(() => {
+            localStorage.setItem(
+                'template-draft',
+                JSON.stringify(watchedTemplate),
+            )
+        }, 2000)
+
+        return () => {
+            if (draftTimer.current) clearTimeout(draftTimer.current)
+        }
+    }, [watchedTemplate])
+
     const onSubmit = (values: TemplateFormSchema) => onFormSubmit?.(values)
+
+    const validateAndOpenActionModal = async () => {
+        const valid = await trigger('name')
+        if (valid) setActionDialogOpen(true)
+    }
 
     return (
         <>
@@ -122,12 +165,84 @@ const TemplateForm = ({
                         variant="solid"
                         type="button"
                         loading={isSubmiting}
-                        onClick={() => {
-                            const form = document.querySelector('form')
-                            if (form) form.requestSubmit()
-                        }}
+                        onClick={validateAndOpenActionModal}
                     >
                         {isEdit ? 'Update' : 'Create'}
+                    </Button>
+                </div>
+            </Dialog>
+
+            <Dialog
+                isOpen={actionDialogOpen}
+                className="max-w-[300px]"
+                onClose={() => setActionDialogOpen(false)}
+            >
+                <h5 className="mb-4">Select Action</h5>
+
+                <div className="flex flex-col gap-3">
+                    {/* Normal Save*/}
+                    <Button
+                        variant="default"
+                        onClick={() => {
+                            localStorage.removeItem('template-draft')
+                            const form = document.querySelector(
+                                'form',
+                            ) as HTMLFormElement
+                            if (form) form.requestSubmit()
+                            setActionDialogOpen(false)
+                            onDialogClose()
+                        }}
+                    >
+                        Save
+                    </Button>
+
+                    {/* Save as Draft */}
+                    <Button
+                        variant="default"
+                        onClick={() => {
+                            let draftType = 'draft'
+
+                            if (type === 'header') draftType = 'draft-header'
+                            else if (type === 'footer')
+                                draftType = 'draft-footer'
+                            else if (type === 'template' || type === 'generic')
+                                draftType = 'draft-generic'
+
+                            setValue('type', draftType)
+
+                            const form = document.querySelector(
+                                'form',
+                            ) as HTMLFormElement
+                            if (form) form.requestSubmit()
+
+                            setActionDialogOpen(false)
+                            onDialogClose()
+                        }}
+                    >
+                        Save as Draft
+                    </Button>
+
+                    {/* Archive */}
+                    <Button
+                        variant="default"
+                        onClick={() => {
+                            setValue('type', 'archived')
+                            const form = document.querySelector(
+                                'form',
+                            ) as HTMLFormElement
+                            if (form) form.requestSubmit()
+                            setActionDialogOpen(false)
+                            onDialogClose()
+                        }}
+                    >
+                        Archive
+                    </Button>
+
+                    <Button
+                        variant="default"
+                        onClick={() => setActionDialogOpen(false)}
+                    >
+                        Cancel
                     </Button>
                 </div>
             </Dialog>
