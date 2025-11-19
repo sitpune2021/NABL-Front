@@ -21,7 +21,7 @@ const ActionColumn = ({
         <div className="flex items-center gap-3">
             <Tooltip title="Edit">
                 <div
-                    className={`text-xl cursor-pointer select-none font-semibold`}
+                    className="text-xl cursor-pointer select-none font-semibold"
                     role="button"
                     onClick={onEdit}
                 >
@@ -30,7 +30,7 @@ const ActionColumn = ({
             </Tooltip>
             <Tooltip title="View">
                 <div
-                    className={`text-xl cursor-pointer select-none font-semibold`}
+                    className="text-xl cursor-pointer select-none font-semibold"
                     role="button"
                     onClick={onViewDetail}
                 >
@@ -46,14 +46,23 @@ const TemplateListTable = () => {
 
     const {
         templateList,
-        templateListTotal,
         tableData,
         isLoading,
         setTableData,
         setSelectAllTemplate,
         setSelectedTemplate,
         selectedTemplate,
+        filterData,
     } = useTemplateList()
+
+    const filteredList = useMemo(() => {
+        const list = templateList || []
+        const selected = filterData?.purchaseChannel || []
+
+        if (selected.includes('all')) return list
+
+        return list.filter((item) => selected.includes(item.type))
+    }, [templateList, filterData])
 
     const handleEdit = (template: Template) => {
         const path = endpointConfig.master.template.edit.replace(
@@ -145,13 +154,13 @@ const TemplateListTable = () => {
         <DataTable
             selectable
             columns={columns}
-            data={templateList}
-            noData={!isLoading && templateList.length === 0}
+            data={filteredList}
+            noData={!isLoading && filteredList.length === 0}
             skeletonAvatarColumns={[0]}
             skeletonAvatarProps={{ width: 28, height: 28 }}
             loading={isLoading}
             pagingData={{
-                total: templateListTotal,
+                total: filteredList.length,
                 pageIndex: tableData.pageIndex as number,
                 pageSize: tableData.pageSize as number,
             }}

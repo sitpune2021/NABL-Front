@@ -68,55 +68,57 @@ const TemplateListTableFilter = () => {
                 onClose={onDialogClose}
                 onRequestClose={onDialogClose}
             >
-                <h4 className="mb-4">Filter</h4>
-                <Form onSubmit={handleSubmit(onSubmit)}>
-                    <FormItem label="Products">
-                        <Controller
-                            name="purchasedProducts"
-                            control={control}
-                            render={({ field }) => (
-                                <Input
-                                    type="text"
-                                    autoComplete="off"
-                                    placeholder="Search by purchased product"
-                                    {...field}
-                                />
-                            )}
-                        />
-                    </FormItem>
-                    <FormItem label="Purchase Channel">
-                        <Controller
-                            name="purchaseChannel"
-                            control={control}
-                            render={({ field }) => (
-                                <Checkbox.Group
-                                    vertical
-                                    className="flex mt-4"
-                                    {...field}
-                                >
-                                    {channelList.map((source, index) => (
-                                        <Checkbox
-                                            key={source + index}
-                                            name={field.name}
-                                            value={source}
-                                            className="justify-between flex-row-reverse heading-text"
-                                        >
-                                            {source}
-                                        </Checkbox>
-                                    ))}
-                                </Checkbox.Group>
-                            )}
-                        />
-                    </FormItem>
-                    <div className="flex justify-end items-center gap-2 mt-4">
-                        <Button type="button" onClick={() => reset()}>
-                            Reset
-                        </Button>
-                        <Button type="submit" variant="solid">
-                            Apply
-                        </Button>
-                    </div>
-                </Form>
+                <div className="max-h-[70vh] overflow-y-auto pr-2">
+                    <h4 className="mb-4">Filter</h4>
+                    <Form onSubmit={handleSubmit(onSubmit)}>
+                        <FormItem label="Products">
+                            <Controller
+                                name="purchasedProducts"
+                                control={control}
+                                render={({ field }) => (
+                                    <Input
+                                        type="text"
+                                        autoComplete="off"
+                                        placeholder="Search by purchased product"
+                                        {...field}
+                                    />
+                                )}
+                            />
+                        </FormItem>
+                        <FormItem label="Purchase Channel">
+                            <Controller
+                                name="purchaseChannel"
+                                control={control}
+                                render={({ field }) => (
+                                    <Checkbox.Group
+                                        vertical
+                                        className="flex mt-4"
+                                        {...field}
+                                    >
+                                        {channelList.map((source, index) => (
+                                            <Checkbox
+                                                key={source + index}
+                                                name={field.name}
+                                                value={source}
+                                                className="justify-between flex-row-reverse heading-text"
+                                            >
+                                                {source}
+                                            </Checkbox>
+                                        ))}
+                                    </Checkbox.Group>
+                                )}
+                            />
+                        </FormItem>
+                        <div className="flex justify-end items-center gap-2 mt-4">
+                            <Button type="button" onClick={() => reset()}>
+                                Reset
+                            </Button>
+                            <Button type="submit" variant="solid">
+                                Apply
+                            </Button>
+                        </div>
+                    </Form>
+                </div>
             </Dialog>
         </>
     )
