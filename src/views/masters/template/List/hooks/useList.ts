@@ -6,6 +6,7 @@ import {
 } from '@/services/TemplateService'
 import useSWR from 'swr'
 import { useTemplateListStore } from '../store/listStore'
+import { useMemo } from 'react'
 import type { TableQueries } from '@/@types/common'
 import { Fields, GetTemplateListResponse } from '@/@types/template'
 
@@ -21,36 +22,44 @@ export default function useTemplateList() {
     } = useTemplateListStore((state) => state)
 
     const { data, error, isLoading, mutate } = useSWR(
-        ['/api/template', { ...tableData, ...filterData }],
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        ([_, params]) =>
+        ['/api/template', { ...tableData }],
+        ([, params]) =>
             apiGetTemplateList<GetTemplateListResponse, TableQueries>(params),
-        {
-            revalidateOnFocus: false,
-        },
+
+        { revalidateOnFocus: false },
     )
+
+    // ⭐ FINAL FILTER LOGIC
+    const filteredList = useMemo(() => {
+        const list = data?.list || []
+
+        const selectedChannels = filterData.purchaseChannel
+
+        // If ALL selected → return whole list
+        if (selectedChannels.includes('all')) {
+            return list
+        }
+
+        // Filter by item.type matching selected filters
+        return list.filter((item) => selectedChannels.includes(item.type))
+    }, [data, filterData])
+
     const saveTemplateData = async (template: Fields) => {
         if (template.id) {
             await apiUpdateTemplate(template.id, template)
         } else {
             await apiTemplate(template)
         }
-        await mutate() // refresh list
+        await mutate()
     }
 
-    // ✅ Get single template by ID (for edit or view)
     const getTemplateById = async (id: string) => {
-        const template = await apiGetTemplateById(id)
-        return template
+        return await apiGetTemplateById(id)
     }
-
-    const templateList = data?.list || []
-
-    const templateListTotal = data?.total || 0
 
     return {
-        templateList,
-        templateListTotal,
+        templateList: filteredList,
+        templateListTotal: filteredList.length,
         error,
         isLoading,
         tableData,
@@ -62,6 +71,6 @@ export default function useTemplateList() {
         setSelectAllTemplate,
         setFilterData,
         saveTemplateData,
-        getTemplateById, // ✅ Now defined properly
+        getTemplateById,
     }
 }

@@ -46,19 +46,14 @@ export const useTemplateListStore = create<
         set((state) => {
             const prevData = state.selectedTemplate
             if (checked) {
-                return { selectedTemplate: [...prevData, ...[row]] }
+                return { selectedTemplate: [...prevData, row] }
             } else {
-                if (
-                    prevData.some((prevTemplate) => row.id === prevTemplate.id)
-                ) {
-                    return {
-                        selectedTemplate: prevData.filter(
-                            (prevTemplate) => prevTemplate.id !== row.id,
-                        ),
-                    }
+                return {
+                    selectedTemplate: prevData.filter(
+                        (prev) => prev.id !== row.id,
+                    ),
                 }
-                return { selectedTemplate: prevData }
             }
         }),
-    setSelectAllTemplate: (row) => set(() => ({ selectedTemplate: row })),
+    setSelectAllTemplate: (rows) => set(() => ({ selectedTemplate: rows })),
 }))
