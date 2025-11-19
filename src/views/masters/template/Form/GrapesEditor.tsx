@@ -88,8 +88,8 @@ export default function GrapesEditor({
         })
 
         if (readOnly) {
-            editor.getWrapper().set('editable', false)
-            editor.Panels.getPanels().reset()
+            editor.getWrapper()?.set('editable', false)
+            editor.Panels.getPanels()?.reset()
         }
 
         editorRef.current = editor

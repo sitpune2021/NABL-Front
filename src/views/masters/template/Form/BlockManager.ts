@@ -182,9 +182,39 @@ export function addCustomBlocks(editor: any) {
             label: 'Text',
             category: 'Basic',
             content: {
+                tagName: 'p',
                 type: 'text',
                 content: 'Editable text here',
                 stylable: true,
+                traits: [
+                    {
+                        type: 'select',
+                        name: 'tagName',
+                        label: 'Tag Name',
+                        options: [
+                            { value: 'p', name: 'Paragraph (p)' },
+                            { value: 'span', name: 'Span' },
+                            { value: 'h1', name: 'Heading 1 (h1)' },
+                            { value: 'h2', name: 'Heading 2 (h2)' },
+                            { value: 'h3', name: 'Heading 3 (h3)' },
+                            { value: 'h4', name: 'Heading 4 (h4)' },
+                            { value: 'h5', name: 'Heading 5 (h5)' },
+                            { value: 'h6', name: 'Heading 6 (h6)' },
+                        ],
+                        changeProp: true,
+                    },
+                    {
+                        type: 'select',
+                        name: 'mode',
+                        label: 'Field Mode',
+                        options: [
+                            { value: 'static', name: 'Static' },
+                            { value: 'dynamic', name: 'Dynamic' },
+                        ],
+                        default: 'static',
+                        changeProp: true,
+                    },
+                ],
             },
         },
         {
