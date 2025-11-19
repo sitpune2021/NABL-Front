@@ -9,14 +9,14 @@ import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import type { CommonProps } from '@/@types/common'
 import { UnitFormSchema } from '@/@types/unit'
-import ConfirmDialog from '@/components/shared/ConfirmDialog' // Import ConfirmDialog
+import ConfirmDialog from '@/components/shared/ConfirmDialog'
 
 type UnitFormProps = {
     onFormSubmit: (values: UnitFormSchema) => void
     defaultValues?: UnitFormSchema
     newUnit?: boolean
     readOnly?: boolean
-    existingUnits?: string[] // Existing unit names for duplicate check
+    existingUnits?: string[]
 } & CommonProps
 
 const validationSchema = z.object({
@@ -26,10 +26,10 @@ const validationSchema = z.object({
 const UnitForm = (props: UnitFormProps) => {
     const {
         onFormSubmit,
-        defaultValues = {},
+        defaultValues,
         readOnly = false,
         children,
-        existingUnits = [], // Pass existing unit names
+        existingUnits = [],
     } = props
 
     const {
@@ -40,20 +40,17 @@ const UnitForm = (props: UnitFormProps) => {
         watch,
         trigger,
     } = useForm<UnitFormSchema>({
-        defaultValues: {
-            ...defaultValues,
-        },
+        defaultValues: defaultValues,
         resolver: zodResolver(validationSchema),
     })
 
     const [confirmDialogOpen, setConfirmDialogOpen] = useState(false)
     const [pendingSubmitData, setPendingSubmitData] =
         useState<UnitFormSchema | null>(null)
+    const [justSubmitted, setJustSubmitted] = useState(false)
 
-    // Watch name field for real-time validation
     const nameValue = watch('name')
 
-    // Check for case-insensitive duplicates
     const checkDuplicate = (name: string): boolean => {
         if (!name) return false
         return existingUnits.some(
@@ -61,7 +58,11 @@ const UnitForm = (props: UnitFormProps) => {
         )
     }
 
-    const hasDuplicate = checkDuplicate(nameValue)
+    const hasDuplicate =
+        !justSubmitted &&
+        checkDuplicate(nameValue) &&
+        nameValue.trim().length > 0 &&
+        nameValue !== defaultValues?.name
 
     useEffect(() => {
         if (!isEmpty(defaultValues)) {
@@ -84,19 +85,19 @@ const UnitForm = (props: UnitFormProps) => {
     }
 
     const onSubmit = async (values: UnitFormSchema) => {
-        // Check if form is valid
         const isValid = await trigger()
         if (!isValid) return
 
-        // Check for case-insensitive duplicate
+        setJustSubmitted(true)
+
         if (checkDuplicate(values.name)) {
-            // Show confirmation dialog for duplicate
             setPendingSubmitData(values)
             setConfirmDialogOpen(true)
         } else {
-            // No duplicate, submit directly
             onFormSubmit?.(values)
         }
+
+        setTimeout(() => setJustSubmitted(false), 1000)
     }
 
     return (
@@ -115,7 +116,7 @@ const UnitForm = (props: UnitFormProps) => {
                                 readOnly={readOnly}
                                 hasDuplicate={
                                     hasDuplicate &&
-                                    nameValue !== defaultValues.name
+                                    nameValue !== defaultValues?.name
                                 }
                             />
                         </div>
@@ -124,7 +125,6 @@ const UnitForm = (props: UnitFormProps) => {
                 <BottomStickyBar>{children}</BottomStickyBar>
             </Form>
 
-            {/* Confirmation Dialog for Duplicate */}
             <ConfirmDialog
                 isOpen={confirmDialogOpen}
                 type="warning"

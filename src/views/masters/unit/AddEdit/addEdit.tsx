@@ -16,8 +16,7 @@ const UnitAddEdit = () => {
     const navigate = useNavigate()
     const location = useLocation()
     const { id: unitId } = useParams()
-    const { saveUnitData, getUnitById, unitList } = useUnitList() // unitList मिळवा
-
+    const { saveUnitData, getUnitById, unitList } = useUnitList()
     const [discardConfirmationOpen, setDiscardConfirmationOpen] =
         useState(false)
     const [isSubmiting, setIsSubmiting] = useState(false)
@@ -28,12 +27,10 @@ const UnitAddEdit = () => {
     const isView = location.pathname.includes('/view')
     const isAdd = location.pathname.includes('/create')
 
-    // Existing unit names for duplicate check (current unit वगळून)
     const existingUnitNames = unitList
-        .filter((unit) => !isEdit || unit.id !== unitId) // Edit mode मध्ये current unit exclude करा
+        .filter((unit) => !isEdit || unit.id !== unitId)
         .map((unit) => unit.name)
 
-    // Load existing unit data in edit or view mode
     useEffect(() => {
         if (!isAdd && unitId) {
             setLoadingData(true)
@@ -83,7 +80,7 @@ const UnitAddEdit = () => {
                 newUnit={isAdd}
                 defaultValues={unitData ?? { name: '' }}
                 readOnly={isView}
-                existingUnits={existingUnitNames} // Pass existing units for duplicate check
+                existingUnits={existingUnitNames}
                 onFormSubmit={handleFormSubmit}
             >
                 <Container>

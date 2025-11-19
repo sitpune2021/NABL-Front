@@ -29,7 +29,6 @@ export type User = {
     location_name?: string
     department_name?: string
     status?: string
-    accessRight?: Record<string, string[]>
 }
 
 export type UserListState = {
@@ -45,12 +44,20 @@ export type UserListAction = {
     setSelectAllUser: (customer: User[]) => void
 }
 
+export type UserRole = {
+    id?: string
+    zone_name?: string
+    cluster_name?: string
+    location_name?: string
+    department_name?: string
+    roles?: { value?: string; label?: string }[]
+}
+
 export type Fields = {
     id?: string
     name: string
     email: string
     phone: string
-    role?: { value?: string; label?: string }[]
     username: string
     address?: string
     issuedBy: boolean
@@ -60,12 +67,8 @@ export type Fields = {
     dialCode: string
     city?: string
     postcode?: string
-    zone_name?: string
-    cluster_name?: string
-    location_name?: string
-    department_name?: string
     status?: string
-    accessRight?: Record<string, string[]>
+    userRoles?: UserRole[]
 }
 
 export type TagsFields = {
