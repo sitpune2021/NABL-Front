@@ -24,6 +24,7 @@ interface GrapesEditorProps {
 
 interface TemplatePart {
     html: string
+    json: string
     css: string
 }
 
@@ -47,9 +48,9 @@ export default function GrapesEditor({
     const { getTemplateById } = useTemplateList()
 
     const [template, setTemplate] = useState<Template>({
-        header: { html: '', css: '' },
-        footer: { html: '', css: '' },
-        section: { html: '', css: '' },
+        header: { html: '', json: '', css: '' },
+        footer: { html: '', json: '', css: '' },
+        section: { html: '', json: '', css: '' },
     })
 
     // 1. Load templates (header/footer and section for edit)
@@ -70,14 +71,17 @@ export default function GrapesEditor({
                 setTemplate({
                     header: {
                         html: header?.template?.html || '',
+                        json: header?.template?.json || '',
                         css: header?.template?.css || '',
                     },
                     footer: {
                         html: footer?.template?.html || '',
+                        json: footer?.template?.json || '',
                         css: footer?.template?.css || '',
                     },
                     section: {
                         html: documentData.document?.html || '',
+                        json: documentData.document?.json || '',
                         css: documentData.document?.css || '',
                     },
                 })
@@ -164,26 +168,37 @@ export default function GrapesEditor({
             const { header, footer, section } = template
 
             const insertNonEditable = (
-                html: string,
+                json: string,
                 className: string,
                 css: string,
             ) => {
-                if (!html) return
-                const wrappedHtml = `<div class="non-editable ${className}">${html}</div>`
-                editor.addComponents(wrappedHtml)
-                if (css) editor.addStyle(css)
+                if (!json) return
+                try {
+                    const components = JSON.parse(json)
+                    const wrappedComponents = {
+                        ...components,
+                        attributes: {
+                            ...components.attributes,
+                            class: `non-editable ${className}`,
+                        },
+                    }
+                    editor.addComponents(wrappedComponents)
+                    if (css) editor.addStyle(css)
+                } catch (error) {
+                    console.error('Error parsing JSON for', className, error)
+                }
             }
 
             if (isEdit) {
                 // EDIT MODE: only insert section
-                if (section?.html) {
-                    editor.addComponents(section.html)
+                if (section?.json) {
+                    editor.addComponents(section.json)
                     if (section.css) editor.addStyle(section.css)
                 }
             } else {
                 // ADD MODE: insert header/footer
-                insertNonEditable(header.html, 'header-section', header.css)
-                insertNonEditable(footer.html, 'footer-section', footer.css)
+                insertNonEditable(header.json, 'header-section', header.css)
+                insertNonEditable(footer.json, 'footer-section', footer.css)
             }
 
             // Apply CSS to lock non-editable sections

@@ -12,7 +12,7 @@ import type { DocumentFormSchema, EditorFormSchema } from '@/@types/document'
 import GrapesEditor from './GrapesEditor'
 import { useParams } from 'react-router'
 
-function findThDetails(components: any): any[] {
+export function findThDetails(components: any): any[] {
     const results: any[] = []
     const models = components?.models || components || []
 
@@ -137,10 +137,10 @@ const DocumentForm = ({
                       document: {
                           html: '',
                           css: '',
+                          json: '',
                       },
                   } as EditorFormSchema)
             : (defaultValues as DocumentFormSchema),
-        /* eslint-disable @typescript-eslint/no-explicit-any */
         resolver: zodResolver(
             isEditor ? editorSchema : validationSchema,
         ) as any,
@@ -157,10 +157,10 @@ const DocumentForm = ({
     }, [memoizedDefaults, reset])
 
     const onSubmit = (values: DocumentFormSchema | EditorFormSchema) => {
-        const docJson = values.document?.json
-        // console.log("TH Element docJson:", docJson);
-        const thTraits = findThDetails(docJson)
-        console.log('TH traits:', thTraits)
+        // const docJson = values.document?.json
+        // // console.log("TH Element docJson:", docJson);
+        // const thTraits = findThDetails(docJson)
+        // console.log('TH traits:', thTraits)
         onFormSubmit?.(values as DocumentFormSchema & EditorFormSchema)
     }
 

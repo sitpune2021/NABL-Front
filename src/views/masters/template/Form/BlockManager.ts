@@ -1,5 +1,60 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 export function addCustomBlocks(editor: any) {
+    editor.DomComponents.addType('solution-th', {
+        isComponent: (el: any) =>
+            el.tagName === 'TH' && el.classList.contains('solution-th'),
+        model: {
+            defaults: {
+                traits: [
+                    {
+                        type: 'select',
+                        name: 'type',
+                        label: 'Input Type',
+                        options: [
+                            { value: 'text', name: 'Text' },
+                            { value: 'number', name: 'Number' },
+                            { value: 'checkbox', name: 'Checkbox' },
+                            { value: 'radio', name: 'Radio' },
+                            { value: 'select', name: 'Select' },
+                        ],
+                    },
+                ],
+            },
+            updated(prop: any, val: any) {
+                if (prop === 'type') (this as any).addAttributes({ type: val })
+            },
+        },
+    })
+
+    editor.DomComponents.addType('solution-td', {
+        isComponent: (el: any) =>
+            el.tagName === 'TD' && el.classList.contains('solution-td'),
+        model: {
+            defaults: {
+                traits: [
+                    {
+                        type: 'number',
+                        name: 'colspan',
+                        label: 'Colspan',
+                        min: 1,
+                    },
+                    {
+                        type: 'number',
+                        name: 'rowspan',
+                        label: 'Rowspan',
+                        min: 1,
+                    },
+                ],
+            },
+            updated(prop: any, val: any) {
+                if (prop === 'colspan')
+                    (this as any).addAttributes({ colspan: val })
+                if (prop === 'rowspan')
+                    (this as any).addAttributes({ rowspan: val })
+            },
+        },
+    })
+
     const customBlocks = [
         {
             id: 'container',
@@ -64,7 +119,7 @@ export function addCustomBlocks(editor: any) {
                         label: 'Number of Rows',
                         min: 1,
                         max: 20,
-                        default: 8, // Default to 8 rows as per your request
+                        default: 8,
                         changeProp: true,
                     },
                     {
@@ -73,7 +128,7 @@ export function addCustomBlocks(editor: any) {
                         label: 'Number of Columns',
                         min: 1,
                         max: 10,
-                        default: 4, // Default to 4 columns (headers) as per your request
+                        default: 4,
                         changeProp: true,
                     },
                 ],
@@ -86,70 +141,69 @@ export function addCustomBlocks(editor: any) {
                         (_, i) => `Header ${i + 1}`,
                     )
 
-                    return [
-                        {
-                            tagName: 'thead',
-                            type: 'thead',
-                            components: [
-                                {
-                                    tagName: 'tr',
-                                    type: 'tr',
-                                    components: headers.map((header) => ({
-                                        tagName: 'th',
-                                        type: 'th',
-                                        classes: ['solution-th'],
-                                        traits: [
-                                            {
-                                                type: 'select',
-                                                name: 'type',
-                                                label: 'Input Type',
-                                                options: [
-                                                    {
-                                                        value: 'text',
-                                                        name: 'Text',
-                                                    },
-                                                    {
-                                                        value: 'number',
-                                                        name: 'Number',
-                                                    },
-                                                    {
-                                                        value: 'checkbox',
-                                                        name: 'Checkbox',
-                                                    },
-                                                    {
-                                                        value: 'radio',
-                                                        name: 'Radio',
-                                                    },
-                                                    {
-                                                        value: 'select',
-                                                        name: 'Select',
-                                                    },
-                                                ],
-                                            },
-                                        ],
-                                        components: [
-                                            {
-                                                tagName: 'span',
-                                                type: 'text',
-                                                content: header,
-                                                editable: true, // Let user edit header text directly
-                                            },
-                                        ],
-                                    })),
-                                },
-                            ],
-                        },
-                        {
-                            tagName: 'tbody',
-                            type: 'tbody',
-                            components: Array.from({ length: num_rows }).map(
-                                () => ({
-                                    tagName: 'tr',
-                                    type: 'tr',
-                                    components: Array.from({
-                                        length: numCols,
-                                    }).map(() => ({
+                    // Generate thead
+                    const thead = {
+                        tagName: 'thead',
+                        type: 'thead',
+                        components: [
+                            {
+                                tagName: 'tr',
+                                type: 'tr',
+                                components: headers.map((header) => ({
+                                    tagName: 'th',
+                                    type: 'solution-th',
+                                    classes: ['solution-th'],
+                                    traits: [
+                                        {
+                                            type: 'select',
+                                            name: 'type',
+                                            label: 'Input Type',
+                                            options: [
+                                                { value: 'text', name: 'Text' },
+                                                {
+                                                    value: 'number',
+                                                    name: 'Number',
+                                                },
+                                                {
+                                                    value: 'checkbox',
+                                                    name: 'Checkbox',
+                                                },
+                                                {
+                                                    value: 'radio',
+                                                    name: 'Radio',
+                                                },
+                                                {
+                                                    value: 'select',
+                                                    name: 'Select',
+                                                },
+                                            ],
+                                        },
+                                    ],
+                                    components: [
+                                        {
+                                            tagName: 'span',
+                                            type: 'text',
+                                            content: header,
+                                            editable: true,
+                                        },
+                                    ],
+                                })),
+                            },
+                        ],
+                    }
+
+                    // Generate tbody
+                    const tbody = {
+                        tagName: 'tbody',
+                        type: 'tbody',
+                        components: Array.from({ length: num_rows }).map(
+                            () => ({
+                                tagName: 'tr',
+                                type: 'tr',
+                                components: Array.from({ length: numCols }).map(
+                                    () => ({
                                         tagName: 'td',
+                                        type: 'solution-td',
                                         classes: ['solution-td'],
                                         content: '',
                                         droppable: true,
@@ -169,11 +223,13 @@ export function addCustomBlocks(editor: any) {
                                                 max: num_rows,
                                             },
                                         ],
-                                    })),
-                                }),
-                            ),
-                        },
-                    ]
+                                    }),
+                                ),
+                            }),
+                        ),
+                    }
+
+                    return [thead, tbody]
                 },
             },
         },
@@ -201,6 +257,7 @@ export function addCustomBlocks(editor: any) {
             },
         },
     ]
+
     customBlocks.forEach((block) => editor.BlockManager.add(block.id, block))
 
     editor.CssComposer.addRules([
@@ -212,8 +269,8 @@ export function addCustomBlocks(editor: any) {
                 margin: '0 auto',
                 padding: '0 15px',
                 'box-sizing': 'border-box',
-                border: '1px solid #ddd', // Added border for visibility
-                'min-height': '50px', // Added min-height for better visibility
+                border: '1px solid #ddd',
+                'min-height': '50px',
             },
         },
         {
@@ -223,9 +280,9 @@ export function addCustomBlocks(editor: any) {
                 'flex-wrap': 'wrap',
                 gap: '10px',
                 margin: '0 -15px',
-                border: '1px solid #eee', // Added border for visibility
+                border: '1px solid #eee',
                 padding: '10px',
-                'min-height': '50px', // Added min-height for better visibility
+                'min-height': '50px',
             },
         },
         {

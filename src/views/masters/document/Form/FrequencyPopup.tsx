@@ -9,20 +9,20 @@ import Input from '@/components/ui/Input'
 import TimeInput from '@/components/ui/TimeInput'
 import Notification from '@/components/ui/Notification'
 import toast from '@/components/ui/toast'
-import { FrequencyConfig, FrequencyType } from '@/@types/document'
-
-interface FrequencyPopupProps {
-    isOpen: boolean
-    onClose: () => void
-    onConfirm: (config: FrequencyConfig) => void
-    initialData?: FrequencyConfig
-}
+import {
+    FrequencyConfig,
+    FrequencyPopupProps,
+    FrequencyType,
+} from '@/@types/document'
+import { Card } from '@/components/ui'
 
 const FrequencyPopup = ({
     isOpen,
     onClose,
     onConfirm,
     initialData,
+    initialSettings,
+    triates,
 }: FrequencyPopupProps) => {
     const [config, setConfig] = useState<FrequencyConfig>({
         type: 'Daily',
@@ -44,10 +44,13 @@ const FrequencyPopup = ({
     const [pendingMonth, setPendingMonth] = useState<string>('')
     const [pendingConfigType, setPendingConfigType] =
         useState<FrequencyType>('Monthly')
+    const [settings, setSettings] = useState<Record<string, any>>({})
+    const [tempInput, setTempInput] = useState<Record<string, string>>({})
 
     useEffect(() => {
         if (initialData) {
             setConfig(initialData)
+            setSettings(initialSettings)
             if (
                 initialData.selectedMonth &&
                 (initialData.type === 'Quarterly' ||
@@ -61,7 +64,7 @@ const FrequencyPopup = ({
                 setAvailableDays(days)
             }
         }
-    }, [initialData])
+    }, [initialData, initialSettings])
 
     useEffect(() => {
         if (
@@ -298,8 +301,35 @@ const FrequencyPopup = ({
         }
 
         console.log('Saving Frequency Config:', config)
-        onConfirm(config)
+        onConfirm(config, settings)
         onClose()
+    }
+
+    const updateSetting = (header: string, type: string, value: any) => {
+        setSettings((prev) => ({
+            ...prev,
+            [header]: {
+                type,
+                ...prev[header],
+                ...value,
+            },
+        }))
+    }
+
+    const addOption = (header: string, type: string) => {
+        const newValue = tempInput[header]?.trim()
+        if (!newValue) return
+
+        setSettings((prev) => ({
+            ...prev,
+            [header]: {
+                type,
+                ...prev[header],
+                options: [...(prev[header]?.options || []), newValue],
+            },
+        }))
+
+        setTempInput((prev) => ({ ...prev, [header]: '' }))
     }
 
     const monthOptions = getMonthOptions()
@@ -1128,6 +1158,165 @@ const FrequencyPopup = ({
                                     </FormItem>
                                 </div>
                             )}
+                    </div>
+                    <div className="flex-1 p-6">
+                        <h2>Dynamic Settings Builder (Create / Edit)</h2>
+                        {triates.map((field, index) => {
+                            const type = field.traits[0].value
+                            const saved = settings[field.headerText] || {}
+
+                            return (
+                                <Card key={index}>
+                                    <h4 className="mb-6">
+                                        {field.headerText} - ({type})
+                                    </h4>
+                                    <div className="grid md:grid-cols-2 gap-4">
+                                        {type === 'text' && (
+                                            <div>
+                                                <label>Text Validation:</label>
+                                                <select
+                                                    style={{ marginLeft: 10 }}
+                                                    value={
+                                                        saved.validation || ''
+                                                    }
+                                                    onChange={(e) =>
+                                                        updateSetting(
+                                                            field.headerText,
+                                                            type,
+                                                            {
+                                                                validation:
+                                                                    e.target
+                                                                        .value,
+                                                            },
+                                                        )
+                                                    }
+                                                >
+                                                    <option value="">
+                                                        Select
+                                                    </option>
+                                                    <option value="alphabet">
+                                                        Alphabet Only
+                                                    </option>
+                                                    <option value="alphanumeric">
+                                                        Alphanumeric
+                                                    </option>
+                                                    <option value="email">
+                                                        Email
+                                                    </option>
+                                                    <option value="no-spaces">
+                                                        No Spaces
+                                                    </option>
+                                                </select>
+                                            </div>
+                                        )}
+
+                                        {type === 'number' && (
+                                            <div>
+                                                <label>Min:</label>
+                                                <input
+                                                    type="number"
+                                                    style={{
+                                                        marginLeft: 10,
+                                                        width: 80,
+                                                    }}
+                                                    value={saved.min ?? ''}
+                                                    onChange={(e) =>
+                                                        updateSetting(
+                                                            field.headerText,
+                                                            type,
+                                                            {
+                                                                min: Number(
+                                                                    e.target
+                                                                        .value,
+                                                                ),
+                                                            },
+                                                        )
+                                                    }
+                                                />
+
+                                                <label
+                                                    style={{ marginLeft: 20 }}
+                                                >
+                                                    Max:
+                                                </label>
+                                                <input
+                                                    type="number"
+                                                    style={{
+                                                        marginLeft: 10,
+                                                        width: 80,
+                                                    }}
+                                                    value={saved.max ?? ''}
+                                                    onChange={(e) =>
+                                                        updateSetting(
+                                                            field.headerText,
+                                                            type,
+                                                            {
+                                                                max: Number(
+                                                                    e.target
+                                                                        .value,
+                                                                ),
+                                                            },
+                                                        )
+                                                    }
+                                                />
+                                            </div>
+                                        )}
+
+                                        {(type === 'checkbox' ||
+                                            type === 'select' ||
+                                            type === 'radio') && (
+                                            <div>
+                                                <label>Add Option:</label>
+                                                <input
+                                                    type="text"
+                                                    value={
+                                                        tempInput[
+                                                            field.headerText
+                                                        ] || ''
+                                                    }
+                                                    style={{ marginLeft: 10 }}
+                                                    placeholder="Enter value"
+                                                    onChange={(e) =>
+                                                        setTempInput(
+                                                            (prev) => ({
+                                                                ...prev,
+                                                                [field.headerText]:
+                                                                    e.target
+                                                                        .value,
+                                                            }),
+                                                        )
+                                                    }
+                                                />
+                                                <button
+                                                    style={{ marginLeft: 10 }}
+                                                    onClick={() =>
+                                                        addOption(
+                                                            field.headerText,
+                                                            type,
+                                                        )
+                                                    }
+                                                >
+                                                    Add
+                                                </button>
+
+                                                <div style={{ marginTop: 10 }}>
+                                                    {(saved.options || []).map(
+                                                        (
+                                                            opt: string,
+                                                            idx: number,
+                                                        ) => (
+                                                            <div key={idx}>
+                                                                • {opt}
+                                                            </div>
+                                                        ),
+                                                    )}
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
+                                </Card>
+                            )
+                        })}
                     </div>
 
                     <div className="bg-white flex justify-end space-x-2 py-4 px-6">
