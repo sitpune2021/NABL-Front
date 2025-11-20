@@ -22,7 +22,6 @@ export function findThDetails(components: any): any[] {
         const innerComps = comp.components?.() || comp.components || []
 
         if (tagName === 'th') {
-            // Get traits (name + value)
             const traits = comp.get?.('traits') || comp.traits || []
             const traitData = traits.map((t: any) => {
                 const name = t.get?.('name') || t.name
@@ -30,11 +29,11 @@ export function findThDetails(components: any): any[] {
                     t.get?.('value') ||
                     t.attributes?.value ||
                     t.attributes?.default ||
+                    t?.default ||
                     ''
                 return { name, value }
             })
 
-            // ✅ Get header text from nested <span> dynamically
             let headerText = ''
 
             if (innerComps && innerComps.length > 0) {
@@ -45,7 +44,6 @@ export function findThDetails(components: any): any[] {
                 )
 
                 if (spanChild) {
-                    // Force sync content from live model
                     headerText =
                         spanChild.get?.('content') ||
                         spanChild.view?.el?.innerText ||
@@ -55,63 +53,42 @@ export function findThDetails(components: any): any[] {
             }
 
             results.push({
-                componentType: 'th', // To distinguish
                 headerText: headerText.trim(),
                 traits: traitData,
             })
         } else if (compType === 'text-block') {
-            // Handle text-block components
-            // Get traits (name + value)
             const traits = comp.get?.('traits') || comp.traits || []
-            const traitData = traits.map((t: any) => {
+            const traitData: any[] = []
+            let headerText = ''
+            traits.forEach((t: any) => {
                 const name = t.get?.('name') || t.name
                 const value =
                     t.get?.('value') ||
                     t.attributes?.value ||
                     t.attributes?.default ||
                     ''
-                return { name, value }
+
+                if (name === 'inputType') {
+                    traitData.push({ name: 'type', value })
+                } else if (name === 'label') {
+                    headerText = value
+                }
             })
 
-            // Check if 'mode' is 'dynamic' (only extract if true)
-            const modeTrait = traitData.find((t: any) => t.name === 'mode')
-            if (modeTrait && modeTrait.value === 'dynamic') {
-                // Define defaults for text components
-                const defaultTraits = {
-                    tagName: 'p', // Default tagName
-                    mode: 'static', // Default mode
-                }
-
-                // Convert traitData array to an object for easy merging
-                const traitObj: { [key: string]: any } = {}
-                traitData.forEach((t: any) => {
-                    traitObj[t.name] = t.value
-                })
-
-                // Merge defaults into the trait object
-                const mergedTraits = { ...defaultTraits, ...traitObj }
-
-                // Convert back to array format
-                const finalTraitData = Object.entries(mergedTraits).map(
-                    ([name, value]) => ({
-                        name,
-                        value,
-                    }),
-                )
-
-                // Get content for text components
-                const content = comp.get?.('content') || comp.content || ''
-
-                results.push({
-                    componentType: 'text-block', // To distinguish
-                    tagName,
-                    content: content.trim(),
-                    traits: finalTraitData,
-                })
+            if (!traitData.find((t) => t.name === 'tagName')) {
+                traitData.push({ name: 'tagName', value: tagName || 'p' })
             }
+            const content = comp.get?.('content') || comp.content || ''
+
+            results.push({
+                componentType: 'text-block',
+                tagName,
+                headerText: headerText.trim(),
+                content: content.trim(),
+                traits: traitData,
+            })
         }
 
-        // Recursive call
         if (innerComps?.length) {
             results.push(...findThDetails(innerComps))
         }

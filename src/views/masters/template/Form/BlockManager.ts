@@ -116,6 +116,10 @@ export function addCustomBlocks(editor: any) {
                 ],
             },
             init() {
+                ;(this as any).on(
+                    'change:mode',
+                    (this as any).updateDynamicTraits,
+                )
                 ;(this as any).updateDynamicTraits()
             },
             updated(prop: any, value: any) {
@@ -129,9 +133,12 @@ export function addCustomBlocks(editor: any) {
             },
             updateDynamicTraits() {
                 const mode = (this as any).get('mode')
-                const traits = (this as any).getTraits()
-                const labelT = traits.getTrait('label')
-                const inputT = traits.getTrait('inputType')
+                const traits = (this as any).get('traits')
+                const labelT =
+                    traits && traits.find((t: any) => t.get('name') === 'label')
+                const inputT =
+                    traits &&
+                    traits.find((t: any) => t.get('name') === 'inputType')
 
                 if (mode === 'dynamic') {
                     if (!labelT) {
@@ -140,7 +147,10 @@ export function addCustomBlocks(editor: any) {
                             name: 'label',
                             label: 'Label',
                             placeholder: 'Enter label for the input',
+                            value: (this as any).get('label') || '',
                         })
+                    } else {
+                        labelT.set('value', (this as any).get('label') || '')
                     }
                     if (!inputT) {
                         ;(this as any).addTrait({
@@ -150,14 +160,17 @@ export function addCustomBlocks(editor: any) {
                             options: [
                                 { value: 'text', name: 'Text' },
                                 { value: 'number', name: 'Number' },
-                                { value: 'email', name: 'Email' },
-                                { value: 'password', name: 'Password' },
                                 { value: 'checkbox', name: 'Checkbox' },
                                 { value: 'radio', name: 'Radio' },
                                 { value: 'select', name: 'Select' },
                             ],
-                            default: 'text',
+                            default: (this as any).get('inputType') || 'text',
                         })
+                    } else {
+                        inputT.set(
+                            'value',
+                            (this as any).get('inputType') || 'text',
+                        )
                     }
                 } else {
                     if (labelT) (this as any).removeTrait('label')
@@ -253,51 +266,56 @@ export function addCustomBlocks(editor: any) {
                         (_, i) => `Header ${i + 1}`,
                     )
 
-                    // Generate thead
                     const thead = {
                         tagName: 'thead',
                         type: 'thead',
-                        components: headers.map((header) => ({
-                            tagName: 'th',
-                            type: 'solution-th',
-                            classes: ['solution-th'],
-                            traits: [
-                                {
-                                    type: 'select',
-                                    name: 'type',
-                                    label: 'Input Type',
-                                    default: 'text', // Default added here too
-                                    options: [
-                                        { value: 'text', name: 'Text' },
+                        components: [
+                            {
+                                tagName: 'tr',
+                                type: 'tr',
+                                components: headers.map((header) => ({
+                                    tagName: 'th',
+                                    type: 'solution-th',
+                                    classes: ['solution-th'],
+                                    traits: [
                                         {
-                                            value: 'number',
-                                            name: 'Number',
-                                        },
-                                        {
-                                            value: 'checkbox',
-                                            name: 'Checkbox',
-                                        },
-                                        {
-                                            value: 'radio',
-                                            name: 'Radio',
-                                        },
-                                        {
-                                            value: 'select',
-                                            name: 'Select',
+                                            type: 'select',
+                                            name: 'type',
+                                            label: 'Input Type',
+                                            default: 'text', // Default added here too
+                                            options: [
+                                                { value: 'text', name: 'Text' },
+                                                {
+                                                    value: 'number',
+                                                    name: 'Number',
+                                                },
+                                                {
+                                                    value: 'checkbox',
+                                                    name: 'Checkbox',
+                                                },
+                                                {
+                                                    value: 'radio',
+                                                    name: 'Radio',
+                                                },
+                                                {
+                                                    value: 'select',
+                                                    name: 'Select',
+                                                },
+                                            ],
+                                            changeProp: true,
                                         },
                                     ],
-                                    changeProp: true,
-                                },
-                            ],
-                            components: [
-                                {
-                                    tagName: 'span',
-                                    type: 'text',
-                                    content: header,
-                                    editable: true,
-                                },
-                            ],
-                        })),
+                                    components: [
+                                        {
+                                            tagName: 'span',
+                                            type: 'text',
+                                            content: header,
+                                            editable: true,
+                                        },
+                                    ],
+                                })),
+                            },
+                        ],
                     }
 
                     // Generate tbody
@@ -458,7 +476,7 @@ export function addCustomBlocks(editor: any) {
 }
 
 export function addDynamicFields(editor: any, documentData?: any) {
-    console.log('Document Data:', documentData)
+    // console.log('Document Data:', documentData)
 
     const personOptions = [
         { value: 'user', name: 'User' },
@@ -656,7 +674,7 @@ export function addDynamicFields(editor: any, documentData?: any) {
             .replace(/^./, (str) => str.toUpperCase())
 
         const fieldValue = resolveFieldValue(key, documentData)
-        console.log(fieldValue, 'fieldValue')
+        // console.log(fieldValue, 'fieldValue')
 
         editor.BlockManager.add(`field-${key}`, {
             label,
