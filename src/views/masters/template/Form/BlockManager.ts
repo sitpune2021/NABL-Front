@@ -57,32 +57,48 @@ export function addCustomBlocks(editor: any) {
     })
 
     editor.DomComponents.addType('text-block', {
-        isComponent: (el: any) =>
-            el.tagName &&
-            ['p', 'span', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6'].includes(
-                el.tagName,
-            ) &&
-            el.classList.contains('text-block'),
+        isComponent(el: any) {
+            return el.classList && el.classList.contains('text-block')
+        },
+
         model: {
             defaults: {
                 tagName: 'p',
-                type: 'text',
-                content: 'Editable text here',
+                classes: ['text-block'],
+                droppable: false,
                 stylable: true,
+                editable: false,
+                selectable: true,
+                hoverable: true,
+                highlightable: true,
+                components: [
+                    {
+                        type: 'text',
+                        content: 'Editable text here',
+
+                        editable: true,
+                        selectable: true,
+                        hoverable: true,
+                        highlightable: true,
+                        badgable: true,
+                        layerable: true,
+                        void: false,
+                    },
+                ],
                 traits: [
                     {
                         type: 'select',
                         name: 'tagName',
                         label: 'Tag Name',
                         options: [
-                            { value: 'p', name: 'Paragraph (p)' },
+                            { value: 'p', name: 'Paragraph' },
                             { value: 'span', name: 'Span' },
-                            { value: 'h1', name: 'Heading 1 (h1)' },
-                            { value: 'h2', name: 'Heading 2 (h2)' },
-                            { value: 'h3', name: 'Heading 3 (h3)' },
-                            { value: 'h4', name: 'Heading 4 (h4)' },
-                            { value: 'h5', name: 'Heading 5 (h5)' },
-                            { value: 'h6', name: 'Heading 6 (h6)' },
+                            { value: 'h1', name: 'Heading 1' },
+                            { value: 'h2', name: 'Heading 2' },
+                            { value: 'h3', name: 'Heading 3' },
+                            { value: 'h4', name: 'Heading 4' },
+                            { value: 'h5', name: 'Heading 5' },
+                            { value: 'h6', name: 'Heading 6' },
                         ],
                         changeProp: true,
                     },
@@ -99,11 +115,54 @@ export function addCustomBlocks(editor: any) {
                     },
                 ],
             },
-            updated(prop: any, val: any) {
+            init() {
+                ;(this as any).updateDynamicTraits()
+            },
+            updated(prop: any, value: any) {
                 if (prop === 'tagName') {
-                    ;(this as any).set('tagName', val)
+                    ;(this as any).set('tagName', value)
+                }
+                if (prop === 'mode') {
+                    ;(this as any).updateDynamicTraits()
                 }
                 // Add other updates if needed
+            },
+            updateDynamicTraits() {
+                const mode = (this as any).get('mode')
+                const traits = (this as any).getTraits()
+                const labelT = traits.getTrait('label')
+                const inputT = traits.getTrait('inputType')
+
+                if (mode === 'dynamic') {
+                    if (!labelT) {
+                        ;(this as any).addTrait({
+                            type: 'text',
+                            name: 'label',
+                            label: 'Label',
+                            placeholder: 'Enter label for the input',
+                        })
+                    }
+                    if (!inputT) {
+                        ;(this as any).addTrait({
+                            type: 'select',
+                            name: 'inputType',
+                            label: 'Input Type',
+                            options: [
+                                { value: 'text', name: 'Text' },
+                                { value: 'number', name: 'Number' },
+                                { value: 'email', name: 'Email' },
+                                { value: 'password', name: 'Password' },
+                                { value: 'checkbox', name: 'Checkbox' },
+                                { value: 'radio', name: 'Radio' },
+                                { value: 'select', name: 'Select' },
+                            ],
+                            default: 'text',
+                        })
+                    }
+                } else {
+                    if (labelT) (this as any).removeTrait('label')
+                    if (inputT) (this as any).removeTrait('inputType')
+                }
             },
         },
     })
@@ -287,40 +346,16 @@ export function addCustomBlocks(editor: any) {
             label: 'Text',
             category: 'Basic',
             content: {
-                tagName: 'p',
-                type: 'text-block', // Changed to match the custom type
-                content: 'Editable text here',
-                stylable: true,
-                classes: ['text-block'], // Added class for isComponent check
-                traits: [
+                type: 'text-block',
+                classes: ['text-block'],
+                components: [
                     {
-                        type: 'select',
-                        name: 'tagName',
-                        label: 'Tag Name',
-                        options: [
-                            { value: 'p', name: 'Paragraph (p)' },
-                            { value: 'span', name: 'Span' },
-                            { value: 'h1', name: 'Heading 1 (h1)' },
-                            { value: 'h2', name: 'Heading 2 (h2)' },
-                            { value: 'h3', name: 'Heading 3 (h3)' },
-                            { value: 'h4', name: 'Heading 4 (h4)' },
-                            { value: 'h5', name: 'Heading 5 (h5)' },
-                            { value: 'h6', name: 'Heading 6 (h6)' },
-                        ],
-                        changeProp: true,
-                    },
-                    {
-                        type: 'select',
-                        name: 'mode',
-                        label: 'Field Mode',
-                        options: [
-                            { value: 'static', name: 'Static' },
-                            { value: 'dynamic', name: 'Dynamic' },
-                        ],
-                        default: 'static',
-                        changeProp: true,
+                        type: 'text',
+                        content: 'Editable text here',
+                        editable: true,
                     },
                 ],
+                stylable: true,
             },
         },
         {
