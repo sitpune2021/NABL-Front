@@ -10,6 +10,7 @@ export function addCustomBlocks(editor: any) {
                         type: 'select',
                         name: 'type',
                         label: 'Input Type',
+                        default: 'text', // Default value added
                         options: [
                             { value: 'text', name: 'Text' },
                             { value: 'number', name: 'Number' },
@@ -51,6 +52,58 @@ export function addCustomBlocks(editor: any) {
                     (this as any).addAttributes({ colspan: val })
                 if (prop === 'rowspan')
                     (this as any).addAttributes({ rowspan: val })
+            },
+        },
+    })
+
+    editor.DomComponents.addType('text-block', {
+        isComponent: (el: any) =>
+            el.tagName &&
+            ['p', 'span', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6'].includes(
+                el.tagName,
+            ) &&
+            el.classList.contains('text-block'),
+        model: {
+            defaults: {
+                tagName: 'p',
+                type: 'text',
+                content: 'Editable text here',
+                stylable: true,
+                traits: [
+                    {
+                        type: 'select',
+                        name: 'tagName',
+                        label: 'Tag Name',
+                        options: [
+                            { value: 'p', name: 'Paragraph (p)' },
+                            { value: 'span', name: 'Span' },
+                            { value: 'h1', name: 'Heading 1 (h1)' },
+                            { value: 'h2', name: 'Heading 2 (h2)' },
+                            { value: 'h3', name: 'Heading 3 (h3)' },
+                            { value: 'h4', name: 'Heading 4 (h4)' },
+                            { value: 'h5', name: 'Heading 5 (h5)' },
+                            { value: 'h6', name: 'Heading 6 (h6)' },
+                        ],
+                        changeProp: true,
+                    },
+                    {
+                        type: 'select',
+                        name: 'mode',
+                        label: 'Field Mode',
+                        options: [
+                            { value: 'static', name: 'Static' },
+                            { value: 'dynamic', name: 'Dynamic' },
+                        ],
+                        default: 'static',
+                        changeProp: true,
+                    },
+                ],
+            },
+            updated(prop: any, val: any) {
+                if (prop === 'tagName') {
+                    ;(this as any).set('tagName', val)
+                }
+                // Add other updates if needed
             },
         },
     })
@@ -145,51 +198,47 @@ export function addCustomBlocks(editor: any) {
                     const thead = {
                         tagName: 'thead',
                         type: 'thead',
-                        components: [
-                            {
-                                tagName: 'tr',
-                                type: 'tr',
-                                components: headers.map((header) => ({
-                                    tagName: 'th',
-                                    type: 'solution-th',
-                                    classes: ['solution-th'],
-                                    traits: [
+                        components: headers.map((header) => ({
+                            tagName: 'th',
+                            type: 'solution-th',
+                            classes: ['solution-th'],
+                            traits: [
+                                {
+                                    type: 'select',
+                                    name: 'type',
+                                    label: 'Input Type',
+                                    default: 'text', // Default added here too
+                                    options: [
+                                        { value: 'text', name: 'Text' },
                                         {
-                                            type: 'select',
-                                            name: 'type',
-                                            label: 'Input Type',
-                                            options: [
-                                                { value: 'text', name: 'Text' },
-                                                {
-                                                    value: 'number',
-                                                    name: 'Number',
-                                                },
-                                                {
-                                                    value: 'checkbox',
-                                                    name: 'Checkbox',
-                                                },
-                                                {
-                                                    value: 'radio',
-                                                    name: 'Radio',
-                                                },
-                                                {
-                                                    value: 'select',
-                                                    name: 'Select',
-                                                },
-                                            ],
+                                            value: 'number',
+                                            name: 'Number',
+                                        },
+                                        {
+                                            value: 'checkbox',
+                                            name: 'Checkbox',
+                                        },
+                                        {
+                                            value: 'radio',
+                                            name: 'Radio',
+                                        },
+                                        {
+                                            value: 'select',
+                                            name: 'Select',
                                         },
                                     ],
-                                    components: [
-                                        {
-                                            tagName: 'span',
-                                            type: 'text',
-                                            content: header,
-                                            editable: true,
-                                        },
-                                    ],
-                                })),
-                            },
-                        ],
+                                    changeProp: true,
+                                },
+                            ],
+                            components: [
+                                {
+                                    tagName: 'span',
+                                    type: 'text',
+                                    content: header,
+                                    editable: true,
+                                },
+                            ],
+                        })),
                     }
 
                     // Generate tbody
@@ -239,9 +288,10 @@ export function addCustomBlocks(editor: any) {
             category: 'Basic',
             content: {
                 tagName: 'p',
-                type: 'text',
+                type: 'text-block', // Changed to match the custom type
                 content: 'Editable text here',
                 stylable: true,
+                classes: ['text-block'], // Added class for isComponent check
                 traits: [
                     {
                         type: 'select',

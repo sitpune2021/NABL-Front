@@ -18,6 +18,7 @@ export function findThDetails(components: any): any[] {
 
     models.forEach((comp: any) => {
         const tagName = comp.get?.('tagName') || comp.tagName
+        const compType = comp.get?.('type') || comp.type
         const innerComps = comp.components?.() || comp.components || []
 
         if (tagName === 'th') {
@@ -26,7 +27,10 @@ export function findThDetails(components: any): any[] {
             const traitData = traits.map((t: any) => {
                 const name = t.get?.('name') || t.name
                 const value =
-                    t.get?.('value') || t.attributes?.value || t.default || ''
+                    t.get?.('value') ||
+                    t.attributes?.value ||
+                    t.attributes?.default ||
+                    ''
                 return { name, value }
             })
 
@@ -51,9 +55,60 @@ export function findThDetails(components: any): any[] {
             }
 
             results.push({
+                componentType: 'th', // To distinguish
                 headerText: headerText.trim(),
                 traits: traitData,
             })
+        } else if (compType === 'text-block') {
+            // Handle text-block components
+            // Get traits (name + value)
+            const traits = comp.get?.('traits') || comp.traits || []
+            const traitData = traits.map((t: any) => {
+                const name = t.get?.('name') || t.name
+                const value =
+                    t.get?.('value') ||
+                    t.attributes?.value ||
+                    t.attributes?.default ||
+                    ''
+                return { name, value }
+            })
+
+            // Check if 'mode' is 'dynamic' (only extract if true)
+            const modeTrait = traitData.find((t: any) => t.name === 'mode')
+            if (modeTrait && modeTrait.value === 'dynamic') {
+                // Define defaults for text components
+                const defaultTraits = {
+                    tagName: 'p', // Default tagName
+                    mode: 'static', // Default mode
+                }
+
+                // Convert traitData array to an object for easy merging
+                const traitObj: { [key: string]: any } = {}
+                traitData.forEach((t: any) => {
+                    traitObj[t.name] = t.value
+                })
+
+                // Merge defaults into the trait object
+                const mergedTraits = { ...defaultTraits, ...traitObj }
+
+                // Convert back to array format
+                const finalTraitData = Object.entries(mergedTraits).map(
+                    ([name, value]) => ({
+                        name,
+                        value,
+                    }),
+                )
+
+                // Get content for text components
+                const content = comp.get?.('content') || comp.content || ''
+
+                results.push({
+                    componentType: 'text-block', // To distinguish
+                    tagName,
+                    content: content.trim(),
+                    traits: finalTraitData,
+                })
+            }
         }
 
         // Recursive call
