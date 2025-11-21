@@ -302,7 +302,6 @@ export function addCustomBlocks(editor: any) {
                                                     name: 'Select',
                                                 },
                                             ],
-                                            changeProp: true,
                                         },
                                     ],
                                     components: [

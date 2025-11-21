@@ -15,7 +15,7 @@ import type { DocumentFormSchema, FrequencyConfig } from '@/@types/document'
 import { defaultDocumentValues } from '@/constants/intial-doc.constant'
 import { apiGetDocumentEditortById } from '@/services/DocumentService'
 import FrequencyPopup from '../Form/FrequencyPopup'
-import { findThDetails } from '../Form/Form'
+import { categorizeThDetails } from '../Form/Form'
 import DynamicFormWrapper from '../Form/DynamicWrapper'
 
 function buildPath(path: string, params: Record<string, string | number>) {
@@ -43,7 +43,7 @@ const DocumentAddEdit = () => {
         values: DocumentFormSchema
         isEditor: boolean
     } | null>(null)
-    const [triates, setTriates] = useState<any[]>([])
+    const [triates, setTriates] = useState<any>({ daily: [], oneTime: [] })
 
     const pathParts = location.pathname.split('/')
     const isEdit = pathParts.includes('edit')
@@ -142,14 +142,14 @@ const DocumentAddEdit = () => {
             if (isView) return
 
             if (isEditor && !isEdit && !values.dataEntrySchedule) {
-                setTriates(findThDetails(values.document?.json))
+                setTriates(categorizeThDetails(values.document?.json))
                 setPendingSubmission({ values, isEditor: true })
                 setIsFrequencyPopupOpen(true)
                 return
             }
 
             if (isEditor && isEdit) {
-                setTriates(findThDetails(values.document?.json))
+                setTriates(categorizeThDetails(values.document?.json))
                 setPendingSubmission({ values, isEditor: true })
                 setIsFrequencyPopupOpen(true)
                 return

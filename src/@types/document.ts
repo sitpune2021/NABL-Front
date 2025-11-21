@@ -25,7 +25,7 @@ export interface FrequencyPopupProps {
     onConfirm: (config: FrequencyConfig, settings: any) => void
     initialData?: FrequencyConfig
     initialSettings?: any
-    triates: Field[]
+    triates: { daily: Field[]; oneTime: Field[] }
 }
 
 export type Trait = {
