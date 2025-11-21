@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useState, useMemo, useCallback } from 'react'
 import { useParams, useNavigate, useLocation } from 'react-router'
 import Container from '@/components/shared/Container'
@@ -14,6 +15,8 @@ import type { DocumentFormSchema, FrequencyConfig } from '@/@types/document'
 import { defaultDocumentValues } from '@/constants/intial-doc.constant'
 import { apiGetDocumentEditortById } from '@/services/DocumentService'
 import FrequencyPopup from '../Form/FrequencyPopup'
+import { categorizeThDetails } from '../Form/Form'
+import DynamicFormWrapper from '../Form/DynamicWrapper'
 
 function buildPath(path: string, params: Record<string, string | number>) {
     return Object.entries(params).reduce(
@@ -40,12 +43,14 @@ const DocumentAddEdit = () => {
         values: DocumentFormSchema
         isEditor: boolean
     } | null>(null)
+    const [triates, setTriates] = useState<any>({ daily: [], oneTime: [] })
 
     const pathParts = location.pathname.split('/')
     const isEdit = pathParts.includes('edit')
     const isView = location.pathname.includes('/view')
     const isAdd = location.pathname.includes('/create')
     const isEditor = pathParts.includes('editor')
+    const isDataEntry = pathParts.includes('data-entry')
 
     useEffect(() => {
         if (documentId) {
@@ -137,12 +142,14 @@ const DocumentAddEdit = () => {
             if (isView) return
 
             if (isEditor && !isEdit && !values.dataEntrySchedule) {
+                setTriates(categorizeThDetails(values.document?.json))
                 setPendingSubmission({ values, isEditor: true })
                 setIsFrequencyPopupOpen(true)
                 return
             }
 
             if (isEditor && isEdit) {
+                setTriates(categorizeThDetails(values.document?.json))
                 setPendingSubmission({ values, isEditor: true })
                 setIsFrequencyPopupOpen(true)
                 return
@@ -153,7 +160,10 @@ const DocumentAddEdit = () => {
         [isEdit, isView, isEditor, documentId],
     )
 
-    const handleFrequencyConfirm = async (frequencyConfig: FrequencyConfig) => {
+    const handleFrequencyConfirm = async (
+        frequencyConfig: FrequencyConfig,
+        settings: any,
+    ) => {
         if (pendingSubmission) {
             const valuesWithFrequency = {
                 ...pendingSubmission.values,
@@ -161,6 +171,7 @@ const DocumentAddEdit = () => {
                     frequency: frequencyConfig,
                     startDate: new Date().toISOString(),
                 },
+                settings: settings,
             }
             await performSubmission(
                 valuesWithFrequency,
@@ -185,6 +196,14 @@ const DocumentAddEdit = () => {
         return <p className="p-4 text-gray-600">Loading document data...</p>
     }
 
+    if (isDataEntry && documentData?.settings) {
+        return (
+            <DynamicFormWrapper
+                isDataEntry={isDataEntry}
+                documentData={documentData}
+            ></DynamicFormWrapper>
+        )
+    }
     return (
         <>
             <DocumentForm
@@ -234,6 +253,8 @@ const DocumentAddEdit = () => {
             <FrequencyPopup
                 isOpen={isFrequencyPopupOpen}
                 initialData={documentData?.dataEntrySchedule?.frequency}
+                initialSettings={documentData?.settings}
+                triates={triates}
                 onClose={() => {
                     setIsFrequencyPopupOpen(false)
                     setPendingSubmission(null)

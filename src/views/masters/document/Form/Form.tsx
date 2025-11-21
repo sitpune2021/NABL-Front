@@ -12,57 +12,113 @@ import type { DocumentFormSchema, EditorFormSchema } from '@/@types/document'
 import GrapesEditor from './GrapesEditor'
 import { useParams } from 'react-router'
 
-function findThDetails(components: any): any[] {
-    const results: any[] = []
-    const models = components?.models || components || []
+export function categorizeThDetails(components: any) {
+    const daily: any[] = []
+    const oneTime: any[] = []
 
-    models.forEach((comp: any) => {
-        const tagName = comp.get?.('tagName') || comp.tagName
-        const innerComps = comp.components?.() || comp.components || []
+    const traverseComponents = (components: any): any[] => {
+        const results: any[] = []
+        const models = components?.models || components || []
 
-        if (tagName === 'th') {
-            // Get traits (name + value)
-            const traits = comp.get?.('traits') || comp.traits || []
-            const traitData = traits.map((t: any) => {
-                const name = t.get?.('name') || t.name
-                const value =
-                    t.get?.('value') || t.attributes?.value || t.default || ''
-                return { name, value }
-            })
+        models.forEach((comp: any) => {
+            const tagName = comp.get?.('tagName') || comp.tagName
+            const compType = comp.get?.('type') || comp.type
+            const innerComps = comp.components?.() || comp.components || []
 
-            // ✅ Get header text from nested <span> dynamically
-            let headerText = ''
-
-            if (innerComps && innerComps.length > 0) {
-                const spanChild = innerComps.find(
-                    (child: any) =>
-                        (child.get?.('tagName') || child.tagName) === 'span' ||
-                        (child.get?.('type') || child.type) === 'text',
-                )
-
-                if (spanChild) {
-                    // Force sync content from live model
-                    headerText =
-                        spanChild.get?.('content') ||
-                        spanChild.view?.el?.innerText ||
-                        spanChild.content ||
+            if (tagName === 'th') {
+                const traits = comp.get?.('traits') || comp.traits || []
+                const traitData = traits.map((t: any) => {
+                    const name = t.get?.('name') || t.name
+                    const value =
+                        t.get?.('value') ||
+                        t.attributes?.value ||
+                        t.attributes?.default ||
+                        t?.default ||
                         ''
+                    return { name, value }
+                })
+
+                let headerText = ''
+
+                if (innerComps && innerComps.length > 0) {
+                    const spanChild = innerComps.find(
+                        (child: any) =>
+                            (child.get?.('tagName') || child.tagName) ===
+                                'span' ||
+                            (child.get?.('type') || child.type) === 'text',
+                    )
+
+                    if (spanChild) {
+                        headerText =
+                            spanChild.get?.('content') ||
+                            spanChild.view?.el?.innerText ||
+                            spanChild.content ||
+                            ''
+                    }
+                }
+
+                results.push({
+                    headerText: headerText.trim(),
+                    traits: traitData,
+                })
+            } else if (compType === 'text-block') {
+                const traits = comp.get?.('traits') || comp.traits || []
+                const traitData: any[] = []
+                let headerText = ''
+                let mode = 'static'
+                traits.forEach((t: any) => {
+                    const name = t.get?.('name') || t.name
+                    const value =
+                        t.get?.('value') ||
+                        t.attributes?.value ||
+                        t.attributes?.default ||
+                        ''
+
+                    if (name === 'inputType') {
+                        traitData.push({ name: 'type', value })
+                    } else if (name === 'label') {
+                        headerText = value
+                    } else if (name === 'mode') {
+                        mode = value
+                    }
+                })
+
+                if (!traitData.find((t) => t.name === 'tagName')) {
+                    traitData.push({ name: 'tagName', value: tagName || 'p' })
+                }
+                const content = comp.get?.('content') || comp.content || ''
+
+                if (mode === 'dynamic') {
+                    results.push({
+                        componentType: 'text-block',
+                        tagName,
+                        headerText: headerText.trim(),
+                        content: content.trim(),
+                        traits: traitData,
+                        mode,
+                    })
                 }
             }
 
-            results.push({
-                headerText: headerText.trim(),
-                traits: traitData,
-            })
-        }
+            if (innerComps?.length) {
+                results.push(...traverseComponents(innerComps))
+            }
+        })
 
-        // Recursive call
-        if (innerComps?.length) {
-            results.push(...findThDetails(innerComps))
+        return results
+    }
+
+    const allResults = traverseComponents(components)
+
+    allResults.forEach((item) => {
+        if (item.componentType === 'text-block' && item.mode === 'dynamic') {
+            oneTime.push(item)
+        } else {
+            daily.push(item)
         }
     })
 
-    return results
+    return { daily, oneTime }
 }
 
 type DocumentFormProps = {
@@ -137,10 +193,10 @@ const DocumentForm = ({
                       document: {
                           html: '',
                           css: '',
+                          json: '',
                       },
                   } as EditorFormSchema)
             : (defaultValues as DocumentFormSchema),
-        /* eslint-disable @typescript-eslint/no-explicit-any */
         resolver: zodResolver(
             isEditor ? editorSchema : validationSchema,
         ) as any,
@@ -157,10 +213,10 @@ const DocumentForm = ({
     }, [memoizedDefaults, reset])
 
     const onSubmit = (values: DocumentFormSchema | EditorFormSchema) => {
-        const docJson = values.document?.json
-        // console.log("TH Element docJson:", docJson);
-        const thTraits = findThDetails(docJson)
-        console.log('TH traits:', thTraits)
+        // const docJson = values.document?.json
+        // // console.log("TH Element docJson:", docJson);
+        // const thTraits = findThDetails(docJson)
+        // console.log('TH traits:', thTraits)
         onFormSubmit?.(values as DocumentFormSchema & EditorFormSchema)
     }
 

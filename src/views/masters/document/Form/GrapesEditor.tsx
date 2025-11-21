@@ -23,8 +23,9 @@ interface GrapesEditorProps {
 }
 
 interface TemplatePart {
-    html: string
-    css: string
+    html: string | undefined
+    json: any | undefined
+    css: string | undefined
 }
 
 interface Template {
@@ -47,9 +48,9 @@ export default function GrapesEditor({
     const { getTemplateById } = useTemplateList()
 
     const [template, setTemplate] = useState<Template>({
-        header: { html: '', css: '' },
-        footer: { html: '', css: '' },
-        section: { html: '', css: '' },
+        header: { html: '', json: '', css: '' },
+        footer: { html: '', json: '', css: '' },
+        section: { html: '', json: '', css: '' },
     })
 
     // 1. Load templates (header/footer and section for edit)
@@ -68,21 +69,24 @@ export default function GrapesEditor({
                 ])
 
                 setTemplate({
-                    header: {
-                        html: header?.template?.html || '',
-                        css: header?.template?.css || '',
+                    header: header?.template || {
+                        html: '',
+                        json: '',
+                        css: '',
                     },
-                    footer: {
-                        html: footer?.template?.html || '',
-                        css: footer?.template?.css || '',
+                    footer: footer?.template || {
+                        html: '',
+                        json: '',
+                        css: '',
                     },
-                    section: {
-                        html: documentData.document?.html || '',
-                        css: documentData.document?.css || '',
+                    section: documentData.document || {
+                        html: '',
+                        json: '',
+                        css: '',
                     },
                 })
-            } catch (error) {
-                console.error('Error loading templates:', error)
+            } catch (err) {
+                console.error('Error loading templates:', err)
             }
         }
 
@@ -103,13 +107,7 @@ export default function GrapesEditor({
             blockManager: { appendTo: '#blocks' },
             canvas: { styles: [], scripts: [] },
             deviceManager: {
-                devices: [
-                    {
-                        name: 'A4',
-                        width: '210mm',
-                        height: '297mm',
-                    },
-                ],
+                devices: [{ name: 'A4', width: '210mm', height: '297mm' }],
             },
         })
 
@@ -132,12 +130,12 @@ export default function GrapesEditor({
         addCustomBlocks(editor)
         addDynamicFields(editor, documentData)
 
-        // Debounced form sync
         const handleChange = debounce(() => {
-            const html = editor.getHtml()
-            const css = editor.getCss()
-            const json = editor.getComponents()
-            setValue('document', { html, css, json })
+            setValue('document', {
+                html: editor.getHtml(),
+                css: editor.getCss(),
+                json: editor.getComponents(),
+            })
         }, 1000)
 
         editor.on('change', handleChange)
@@ -155,54 +153,81 @@ export default function GrapesEditor({
     }, [setValue, readOnly])
 
     // 3. Insert templates after both editor is ready AND templates are loaded
+    const lockTree = (component: any) => {
+        component.set({
+            editable: false,
+            selectable: false,
+            draggable: false,
+            droppable: false,
+            removable: false,
+            copyable: false,
+            hoverable: false,
+            highlightable: false,
+        })
+
+        component.components().forEach((child: any) => {
+            lockTree(child)
+        })
+    }
+
     useEffect(() => {
         if (readOnly) return
+
         const editor = editorRef.current
         if (!editor || !isEditorReady) return
+        const { header, footer, section } = template
+        const containsHeader = JSON.stringify(section?.json || '').includes(
+            'header-section',
+        )
+        const containsFooter = JSON.stringify(section?.json || '').includes(
+            'footer-section',
+        )
 
-        const insertTemplates = () => {
-            const { header, footer, section } = template
+        const insertJSON = (json: any, className: string, css?: string) => {
+            try {
+                // Create wrapper
+                editor.addComponents(
+                    `<div class="${className} non-editable"></div>`,
+                )
 
-            const insertNonEditable = (
-                html: string,
-                className: string,
-                css: string,
-            ) => {
-                if (!html) return
-                const wrappedHtml = `<div class="non-editable ${className}">${html}</div>`
-                editor.addComponents(wrappedHtml)
+                const wrapper = editor.getWrapper().find(`.${className}`)[0]
+                if (!wrapper) return
+
+                wrapper.append(json)
+
+                // Lock wrapper + children
+                lockTree(wrapper)
+
                 if (css) editor.addStyle(css)
+            } catch (err) {
+                console.error(`Failed parsing JSON for ${className}:`, err)
             }
-
-            if (isEdit) {
-                // EDIT MODE: only insert section
-                if (section?.html) {
-                    editor.addComponents(section.html)
-                    if (section.css) editor.addStyle(section.css)
-                }
-            } else {
-                // ADD MODE: insert header/footer
-                insertNonEditable(header.html, 'header-section', header.css)
-                insertNonEditable(footer.html, 'footer-section', footer.css)
-            }
-
-            // Apply CSS to lock non-editable sections
-            editor.addStyle(`
-                .non-editable {
-                    pointer-events: none;
-                    opacity: 0.9;
-                }
-            `)
         }
 
-        insertTemplates()
+        if (isEdit) {
+            if (section?.json) editor.setComponents(section.json)
+
+            if (section?.css) editor.addStyle(section.css)
+
+            if (!containsHeader && header.json) {
+                insertJSON(header.json, 'header-section', header.css)
+            }
+
+            if (!containsFooter && footer.json) {
+                insertJSON(footer.json, 'footer-section', footer.css)
+            }
+
+            return
+        }
+
+        if (header.json) insertJSON(header.json, 'header-section', header.css)
+
+        editor.addComponents(`<div class="editable-section"></div>`)
+
+        if (footer.json) insertJSON(footer.json, 'footer-section', footer.css)
     }, [template, isEditorReady, isEdit, readOnly])
 
-    const parsedContent = {
-        header: '',
-        content: '',
-        footer: '',
-    }
+    const parsedContent = { header: '', content: '', footer: '' }
 
     if (readOnly && template.section?.html) {
         try {
@@ -212,21 +237,18 @@ export default function GrapesEditor({
                 'text/html',
             )
 
-            // Extract header
             const headerEl = doc.querySelector('.header-section')
             if (headerEl) {
                 parsedContent.header = headerEl.outerHTML
                 headerEl.remove()
             }
 
-            // Extract footer
             const footerEl = doc.querySelector('.footer-section')
             if (footerEl) {
                 parsedContent.footer = footerEl.outerHTML
                 footerEl.remove()
             }
 
-            // Remaining content
             parsedContent.content = doc.body.innerHTML.trim()
         } catch (err) {
             console.error('Failed to parse section HTML', err)
@@ -253,7 +275,6 @@ export default function GrapesEditor({
         return cleanedCss + '\n' + extractedStyles
     }
 
-    // In your render function (readOnly part)
     const updatedCss = extractMediaQueryStyles(
         template.section?.css || '',
         'max-width: 210mm',
@@ -277,16 +298,16 @@ export default function GrapesEditor({
                             __html:
                                 updatedCss +
                                 `
-        .editable-section,
-        .header-section,
-        .footer-section {
-          max-width: 210mm;
-          word-wrap: break-word;
-          overflow-wrap: break-word;
-          box-sizing: border-box;
-          margin: 0 auto;
-        }
-      `,
+                                .editable-section,
+                                .header-section,
+                                .footer-section {
+                                    max-width: 210mm;
+                                    word-wrap: break-word;
+                                    overflow-wrap: break-word;
+                                    box-sizing: border-box;
+                                    margin: 0 auto;
+                                }
+                            `,
                         }}
                     />
 

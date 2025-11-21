@@ -3,7 +3,13 @@ import Tooltip from '@/components/ui/Tooltip'
 import DataTable from '@/components/shared/DataTable'
 import { useNavigate } from 'react-router'
 import cloneDeep from 'lodash/cloneDeep'
-import { TbEye, TbEdit, TbFileText, TbFilePencil } from 'react-icons/tb'
+import {
+    TbEye,
+    TbEdit,
+    TbFileText,
+    TbFilePencil,
+    TbBrandSentry,
+} from 'react-icons/tb'
 import type { OnSortParam, ColumnDef, Row } from '@/components/shared/DataTable'
 import type { TableQueries } from '@/@types/common'
 import useDocumentList from '../hooks/useList'
@@ -15,11 +21,13 @@ const ActionColumn = ({
     onViewDetail,
     onEditorViewDetail,
     onEditorDetail,
+    onDataEntryForm,
 }: {
     onEdit: () => void
     onViewDetail: () => void
     onEditorViewDetail: () => void
     onEditorDetail: () => void
+    onDataEntryForm: () => void
 }) => {
     return (
         <div className="flex items-center gap-3">
@@ -58,6 +66,16 @@ const ActionColumn = ({
                     onClick={onEditorDetail}
                 >
                     <TbFilePencil />
+                </div>
+            </Tooltip>
+
+            <Tooltip title="Data Entry Form">
+                <div
+                    className={`text-xl cursor-pointer select-none font-semibold`}
+                    role="button"
+                    onClick={onDataEntryForm}
+                >
+                    <TbBrandSentry />
                 </div>
             </Tooltip>
         </div>
@@ -104,6 +122,13 @@ const DocumentListTable = () => {
 
     const handleEditorDetails = (document: Document) => {
         const path = endpointConfig.master.document.editorEdit
+            .replace(':docId', String(document.id))
+            .replace(':id', String(document.editor?.id))
+        navigate(path)
+    }
+
+    const handleDataEntryForm = (document: Document) => {
+        const path = endpointConfig.master.document.dataEntry
             .replace(':docId', String(document.id))
             .replace(':id', String(document.editor?.id))
         navigate(path)
@@ -159,6 +184,9 @@ const DocumentListTable = () => {
                         }
                         onEditorDetail={() =>
                             handleEditorDetails(props.row.original)
+                        }
+                        onDataEntryForm={() =>
+                            handleDataEntryForm(props.row.original)
                         }
                     />
                 ),

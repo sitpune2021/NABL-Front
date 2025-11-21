@@ -1,5 +1,185 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 export function addCustomBlocks(editor: any) {
+    editor.DomComponents.addType('solution-th', {
+        isComponent: (el: any) =>
+            el.tagName === 'TH' && el.classList.contains('solution-th'),
+        model: {
+            defaults: {
+                traits: [
+                    {
+                        type: 'select',
+                        name: 'type',
+                        label: 'Input Type',
+                        default: 'text', // Default value added
+                        options: [
+                            { value: 'text', name: 'Text' },
+                            { value: 'number', name: 'Number' },
+                            { value: 'checkbox', name: 'Checkbox' },
+                            { value: 'radio', name: 'Radio' },
+                            { value: 'select', name: 'Select' },
+                        ],
+                    },
+                ],
+            },
+            updated(prop: any, val: any) {
+                if (prop === 'type') (this as any).addAttributes({ type: val })
+            },
+        },
+    })
+
+    editor.DomComponents.addType('solution-td', {
+        isComponent: (el: any) =>
+            el.tagName === 'TD' && el.classList.contains('solution-td'),
+        model: {
+            defaults: {
+                traits: [
+                    {
+                        type: 'number',
+                        name: 'colspan',
+                        label: 'Colspan',
+                        min: 1,
+                    },
+                    {
+                        type: 'number',
+                        name: 'rowspan',
+                        label: 'Rowspan',
+                        min: 1,
+                    },
+                ],
+            },
+            updated(prop: any, val: any) {
+                if (prop === 'colspan')
+                    (this as any).addAttributes({ colspan: val })
+                if (prop === 'rowspan')
+                    (this as any).addAttributes({ rowspan: val })
+            },
+        },
+    })
+
+    editor.DomComponents.addType('text-block', {
+        isComponent(el: any) {
+            return el.classList && el.classList.contains('text-block')
+        },
+
+        model: {
+            defaults: {
+                tagName: 'p',
+                classes: ['text-block'],
+                droppable: false,
+                stylable: true,
+                editable: false,
+                selectable: true,
+                hoverable: true,
+                highlightable: true,
+                components: [
+                    {
+                        type: 'text',
+                        content: 'Editable text here',
+
+                        editable: true,
+                        selectable: true,
+                        hoverable: true,
+                        highlightable: true,
+                        badgable: true,
+                        layerable: true,
+                        void: false,
+                    },
+                ],
+                traits: [
+                    {
+                        type: 'select',
+                        name: 'tagName',
+                        label: 'Tag Name',
+                        options: [
+                            { value: 'p', name: 'Paragraph' },
+                            { value: 'span', name: 'Span' },
+                            { value: 'h1', name: 'Heading 1' },
+                            { value: 'h2', name: 'Heading 2' },
+                            { value: 'h3', name: 'Heading 3' },
+                            { value: 'h4', name: 'Heading 4' },
+                            { value: 'h5', name: 'Heading 5' },
+                            { value: 'h6', name: 'Heading 6' },
+                        ],
+                        changeProp: true,
+                    },
+                    {
+                        type: 'select',
+                        name: 'mode',
+                        label: 'Field Mode',
+                        options: [
+                            { value: 'static', name: 'Static' },
+                            { value: 'dynamic', name: 'Dynamic' },
+                        ],
+                        default: 'static',
+                        changeProp: true,
+                    },
+                ],
+            },
+            init() {
+                ;(this as any).on(
+                    'change:mode',
+                    (this as any).updateDynamicTraits,
+                )
+                ;(this as any).updateDynamicTraits()
+            },
+            updated(prop: any, value: any) {
+                if (prop === 'tagName') {
+                    ;(this as any).set('tagName', value)
+                }
+                if (prop === 'mode') {
+                    ;(this as any).updateDynamicTraits()
+                }
+                // Add other updates if needed
+            },
+            updateDynamicTraits() {
+                const mode = (this as any).get('mode')
+                const traits = (this as any).get('traits')
+                const labelT =
+                    traits && traits.find((t: any) => t.get('name') === 'label')
+                const inputT =
+                    traits &&
+                    traits.find((t: any) => t.get('name') === 'inputType')
+
+                if (mode === 'dynamic') {
+                    if (!labelT) {
+                        ;(this as any).addTrait({
+                            type: 'text',
+                            name: 'label',
+                            label: 'Label',
+                            placeholder: 'Enter label for the input',
+                            value: (this as any).get('label') || '',
+                        })
+                    } else {
+                        labelT.set('value', (this as any).get('label') || '')
+                    }
+                    if (!inputT) {
+                        ;(this as any).addTrait({
+                            type: 'select',
+                            name: 'inputType',
+                            label: 'Input Type',
+                            options: [
+                                { value: 'text', name: 'Text' },
+                                { value: 'number', name: 'Number' },
+                                { value: 'checkbox', name: 'Checkbox' },
+                                { value: 'radio', name: 'Radio' },
+                                { value: 'select', name: 'Select' },
+                            ],
+                            default: (this as any).get('inputType') || 'text',
+                        })
+                    } else {
+                        inputT.set(
+                            'value',
+                            (this as any).get('inputType') || 'text',
+                        )
+                    }
+                } else {
+                    if (labelT) (this as any).removeTrait('label')
+                    if (inputT) (this as any).removeTrait('inputType')
+                }
+            },
+        },
+    })
+
     const customBlocks = [
         {
             id: 'container',
@@ -64,7 +244,7 @@ export function addCustomBlocks(editor: any) {
                         label: 'Number of Rows',
                         min: 1,
                         max: 20,
-                        default: 8, // Default to 8 rows as per your request
+                        default: 8,
                         changeProp: true,
                     },
                     {
@@ -73,7 +253,7 @@ export function addCustomBlocks(editor: any) {
                         label: 'Number of Columns',
                         min: 1,
                         max: 10,
-                        default: 4, // Default to 4 columns (headers) as per your request
+                        default: 4,
                         changeProp: true,
                     },
                 ],
@@ -86,70 +266,69 @@ export function addCustomBlocks(editor: any) {
                         (_, i) => `Header ${i + 1}`,
                     )
 
-                    return [
-                        {
-                            tagName: 'thead',
-                            type: 'thead',
-                            components: [
-                                {
-                                    tagName: 'tr',
-                                    type: 'tr',
-                                    components: headers.map((header) => ({
-                                        tagName: 'th',
-                                        type: 'th',
-                                        classes: ['solution-th'],
-                                        traits: [
-                                            {
-                                                type: 'select',
-                                                name: 'type',
-                                                label: 'Input Type',
-                                                options: [
-                                                    {
-                                                        value: 'text',
-                                                        name: 'Text',
-                                                    },
-                                                    {
-                                                        value: 'number',
-                                                        name: 'Number',
-                                                    },
-                                                    {
-                                                        value: 'checkbox',
-                                                        name: 'Checkbox',
-                                                    },
-                                                    {
-                                                        value: 'radio',
-                                                        name: 'Radio',
-                                                    },
-                                                    {
-                                                        value: 'select',
-                                                        name: 'Select',
-                                                    },
-                                                ],
-                                            },
-                                        ],
-                                        components: [
-                                            {
-                                                tagName: 'span',
-                                                type: 'text',
-                                                content: header,
-                                                editable: true, // Let user edit header text directly
-                                            },
-                                        ],
-                                    })),
-                                },
-                            ],
-                        },
-                        {
-                            tagName: 'tbody',
-                            type: 'tbody',
-                            components: Array.from({ length: num_rows }).map(
-                                () => ({
-                                    tagName: 'tr',
-                                    type: 'tr',
-                                    components: Array.from({
-                                        length: numCols,
-                                    }).map(() => ({
+                    const thead = {
+                        tagName: 'thead',
+                        type: 'thead',
+                        components: [
+                            {
+                                tagName: 'tr',
+                                type: 'tr',
+                                components: headers.map((header) => ({
+                                    tagName: 'th',
+                                    type: 'solution-th',
+                                    classes: ['solution-th'],
+                                    traits: [
+                                        {
+                                            type: 'select',
+                                            name: 'type',
+                                            label: 'Input Type',
+                                            default: 'text', // Default added here too
+                                            options: [
+                                                { value: 'text', name: 'Text' },
+                                                {
+                                                    value: 'number',
+                                                    name: 'Number',
+                                                },
+                                                {
+                                                    value: 'checkbox',
+                                                    name: 'Checkbox',
+                                                },
+                                                {
+                                                    value: 'radio',
+                                                    name: 'Radio',
+                                                },
+                                                {
+                                                    value: 'select',
+                                                    name: 'Select',
+                                                },
+                                            ],
+                                        },
+                                    ],
+                                    components: [
+                                        {
+                                            tagName: 'span',
+                                            type: 'text',
+                                            content: header,
+                                            editable: true,
+                                        },
+                                    ],
+                                })),
+                            },
+                        ],
+                    }
+
+                    // Generate tbody
+                    const tbody = {
+                        tagName: 'tbody',
+                        type: 'tbody',
+                        components: Array.from({ length: num_rows }).map(
+                            () => ({
+                                tagName: 'tr',
+                                type: 'tr',
+                                components: Array.from({ length: numCols }).map(
+                                    () => ({
                                         tagName: 'td',
+                                        type: 'solution-td',
                                         classes: ['solution-td'],
                                         content: '',
                                         droppable: true,
@@ -169,11 +348,13 @@ export function addCustomBlocks(editor: any) {
                                                 max: num_rows,
                                             },
                                         ],
-                                    })),
-                                }),
-                            ),
-                        },
-                    ]
+                                    }),
+                                ),
+                            }),
+                        ),
+                    }
+
+                    return [thead, tbody]
                 },
             },
         },
@@ -182,39 +363,16 @@ export function addCustomBlocks(editor: any) {
             label: 'Text',
             category: 'Basic',
             content: {
-                tagName: 'p',
-                type: 'text',
-                content: 'Editable text here',
-                stylable: true,
-                traits: [
+                type: 'text-block',
+                classes: ['text-block'],
+                components: [
                     {
-                        type: 'select',
-                        name: 'tagName',
-                        label: 'Tag Name',
-                        options: [
-                            { value: 'p', name: 'Paragraph (p)' },
-                            { value: 'span', name: 'Span' },
-                            { value: 'h1', name: 'Heading 1 (h1)' },
-                            { value: 'h2', name: 'Heading 2 (h2)' },
-                            { value: 'h3', name: 'Heading 3 (h3)' },
-                            { value: 'h4', name: 'Heading 4 (h4)' },
-                            { value: 'h5', name: 'Heading 5 (h5)' },
-                            { value: 'h6', name: 'Heading 6 (h6)' },
-                        ],
-                        changeProp: true,
-                    },
-                    {
-                        type: 'select',
-                        name: 'mode',
-                        label: 'Field Mode',
-                        options: [
-                            { value: 'static', name: 'Static' },
-                            { value: 'dynamic', name: 'Dynamic' },
-                        ],
-                        default: 'static',
-                        changeProp: true,
+                        type: 'text',
+                        content: 'Editable text here',
+                        editable: true,
                     },
                 ],
+                stylable: true,
             },
         },
         {
@@ -231,6 +389,7 @@ export function addCustomBlocks(editor: any) {
             },
         },
     ]
+
     customBlocks.forEach((block) => editor.BlockManager.add(block.id, block))
 
     editor.CssComposer.addRules([
@@ -242,8 +401,8 @@ export function addCustomBlocks(editor: any) {
                 margin: '0 auto',
                 padding: '0 15px',
                 'box-sizing': 'border-box',
-                border: '1px solid #ddd', // Added border for visibility
-                'min-height': '50px', // Added min-height for better visibility
+                border: '1px solid #ddd',
+                'min-height': '50px',
             },
         },
         {
@@ -253,9 +412,9 @@ export function addCustomBlocks(editor: any) {
                 'flex-wrap': 'wrap',
                 gap: '10px',
                 margin: '0 -15px',
-                border: '1px solid #eee', // Added border for visibility
+                border: '1px solid #eee',
                 padding: '10px',
-                'min-height': '50px', // Added min-height for better visibility
+                'min-height': '50px',
             },
         },
         {
@@ -316,7 +475,7 @@ export function addCustomBlocks(editor: any) {
 }
 
 export function addDynamicFields(editor: any, documentData?: any) {
-    console.log('Document Data:', documentData)
+    // console.log('Document Data:', documentData)
 
     const personOptions = [
         { value: 'user', name: 'User' },
@@ -514,7 +673,7 @@ export function addDynamicFields(editor: any, documentData?: any) {
             .replace(/^./, (str) => str.toUpperCase())
 
         const fieldValue = resolveFieldValue(key, documentData)
-        console.log(fieldValue, 'fieldValue')
+        // console.log(fieldValue, 'fieldValue')
 
         editor.BlockManager.add(`field-${key}`, {
             label,
