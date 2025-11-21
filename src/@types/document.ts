@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { TableQueries } from './common'
 
 import type { Control, FieldErrors, UseFormSetValue } from 'react-hook-form'
@@ -16,6 +17,25 @@ export interface ItemConfig {
     interval: number
     cutOffTimes: string[]
     considerLastDay?: boolean
+}
+
+export interface FrequencyPopupProps {
+    isOpen: boolean
+    onClose: () => void
+    onConfirm: (config: FrequencyConfig, settings: any) => void
+    initialData?: FrequencyConfig
+    initialSettings?: any
+    triates: { daily: Field[]; oneTime: Field[] }
+}
+
+export type Trait = {
+    name: string
+    value: string
+}
+
+export type Field = {
+    headerText: string
+    traits: Trait[]
 }
 
 export interface FrequencyConfig {
@@ -138,7 +158,9 @@ export type Fields = {
         html: string
         css: string
         js: string
+        json: string
     }
+    settings?: any
 }
 
 export type TagsFields = {

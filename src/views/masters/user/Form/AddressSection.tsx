@@ -20,13 +20,13 @@ const AddressSection = ({ control, errors, readOnly }: AddressSectionProps) => {
                     name="address"
                     control={control}
                     render={({ field }) => (
-                        <textarea
+                        <Input
                             {...field}
                             autoComplete="off"
                             placeholder="Enter full address"
                             readOnly={readOnly}
                             rows={2}
-                            className="w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100"
+                            textArea={true}
                         />
                     )}
                 />

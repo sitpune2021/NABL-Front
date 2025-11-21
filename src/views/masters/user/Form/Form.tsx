@@ -22,48 +22,59 @@ type UserFormProps = {
 } & CommonProps
 
 const validationSchema = z.object({
-    name: z.string().min(1, { message: ' name required' }),
-    username: z.string().min(1, { message: ' username required' }),
-    email: z.string().min(1, { message: ' email required' }).email({
-        message: 'Invalid email address',
-    }),
-    role: z
-        .array(
-            z.object({
-                value: z.string().optional(),
-                label: z.string().optional(),
-            }),
-        )
-        .optional(),
+    name: z.string().min(1, { message: 'Name required' }),
+    username: z.string().min(1, { message: 'Username required' }),
+    email: z
+        .string()
+        .min(1, { message: 'Email required' })
+        .email({ message: 'Invalid email address' }),
+
     dialCode: z.string().min(1, { message: 'Please select your country code' }),
     phone: z
         .string()
         .min(1, { message: 'Please input your mobile number' })
-        .max(10, { message: 'Please your mobile number should be 10 digit' }),
-    address: z.string().optional().or(z.literal('')),
-    city: z.string().optional().or(z.literal('')),
-    postcode: z.string().optional().or(z.literal('')),
+        .max(10, { message: 'Mobile number must be 10 digits' }),
+
+    address: z.string().optional(),
+    city: z.string().optional(),
+    postcode: z.string().optional(),
+
     preparedBy: z.boolean(),
     issuedBy: z.boolean(),
     approvedBy: z.boolean(),
-    signUpload: z.string().optional().or(z.literal('')),
-    zone_name: z.string().optional().or(z.literal('')),
-    cluster_name: z.string().optional().or(z.literal('')),
-    location_name: z.string().optional().or(z.literal('')),
-    department_name: z.string().optional().or(z.literal('')),
-    status: z.string().optional().or(z.literal('')),
+
+    signUpload: z.string().optional(),
+    status: z.string().optional(),
+
     userRoles: z
         .array(
             z.object({
-                zone_name: z.string().optional().or(z.literal('')),
-                cluster_name: z.string().optional().or(z.literal('')),
-                location_name: z.string().optional().or(z.literal('')),
-                department_name: z.string().optional().or(z.literal('')),
-                roles: z
+                id: z.string().optional(),
+                zone_name: z.string().optional(),
+                cluster_name: z.string().optional(),
+                location_name: z.string().optional(),
+
+                department: z
                     .array(
                         z.object({
-                            value: z.string().optional(),
-                            label: z.string().optional(),
+                            department_name: z.string().optional(),
+                            roles: z
+                                .array(
+                                    z.object({
+                                        value: z.string().optional(),
+                                        label: z.string().optional(),
+                                    }),
+                                )
+                                .optional(),
+                            permissions: z
+                                .record(
+                                    z.string(), // role name
+                                    z.record(
+                                        z.string(), // module id
+                                        z.array(z.string()), // permission types
+                                    ),
+                                )
+                                .optional(),
                         }),
                     )
                     .optional(),
@@ -85,17 +96,9 @@ const UserForm = (props: UserFormProps) => {
         reset,
         formState: { errors },
         control,
+        setValue,
     } = useForm<UserFormSchema>({
         defaultValues: {
-            userRoles: [
-                {
-                    zone_name: '',
-                    cluster_name: '',
-                    location_name: '',
-                    department_name: '',
-                    roles: [],
-                },
-            ],
             ...defaultValues,
         },
         resolver: zodResolver(validationSchema),
@@ -111,8 +114,13 @@ const UserForm = (props: UserFormProps) => {
                         zone_name: '',
                         cluster_name: '',
                         location_name: '',
-                        department_name: '',
-                        roles: [],
+                        department: [
+                            {
+                                department_name: '',
+                                roles: [],
+                                permissions: {},
+                            },
+                        ],
                     },
                 ],
             }
@@ -143,6 +151,7 @@ const UserForm = (props: UserFormProps) => {
                             control={control}
                             errors={errors}
                             readOnly={readOnly}
+                            setValue={setValue}
                         />
                     </div>
                     <div className="md:w-[370px] gap-4 flex flex-col">

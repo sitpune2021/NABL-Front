@@ -79,6 +79,8 @@ export default tseslint.config(
                 'import/no-named-as-default': 0,
                 'react/prop-types': 'off',
                 'react/no-unknown-property': 'off',
+                'react/display-name': 'off',
+                'react-hooks/exhaustive-deps': 'warn',
                 'react/jsx-sort-props': [
                     'warn',
                     {
