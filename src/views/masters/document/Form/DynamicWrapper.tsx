@@ -20,15 +20,12 @@ const DynamicFormWrapper = ({
 
     if (!isDataEntry) return null
 
-    const renderField = (label: any, config: any) => {
+    const renderField = (label: string, config: any) => {
         switch (config.type) {
+            // Text input
             case 'text':
                 return (
-                    <FormItem
-                        label={label}
-                        invalid={Boolean(errors[label])}
-                        // errorMessage={errors[label]?.message}
-                    >
+                    <FormItem label={label} invalid={Boolean(errors[label])}>
                         <Controller
                             name={label}
                             control={control}
@@ -49,20 +46,34 @@ const DynamicFormWrapper = ({
                     </FormItem>
                 )
 
-            case 'number':
+            // Textarea
+            case 'textarea':
                 return (
-                    <FormItem
-                        label={label}
-                        invalid={Boolean(errors[label])}
-                        // errorMessage={errors[label]?.message}
-                    >
+                    <FormItem label={label} invalid={Boolean(errors[label])}>
                         <Controller
                             name={label}
                             control={control}
-                            rules={{
-                                min: config.min,
-                                max: config.max,
-                            }}
+                            render={({ field }) => (
+                                <Input
+                                    textArea
+                                    placeholder={`Enter ${label}`}
+                                    rows={config.rows || 4}
+                                    readOnly={readOnly}
+                                    {...field}
+                                />
+                            )}
+                        />
+                    </FormItem>
+                )
+
+            // Number input
+            case 'number':
+                return (
+                    <FormItem label={label} invalid={Boolean(errors[label])}>
+                        <Controller
+                            name={label}
+                            control={control}
+                            rules={{ min: config.min, max: config.max }}
                             render={({ field }) => (
                                 <Input
                                     type="number"
@@ -75,26 +86,23 @@ const DynamicFormWrapper = ({
                     </FormItem>
                 )
 
+            // Checkbox group
             case 'checkbox':
                 return (
-                    <FormItem
-                        label={label}
-                        invalid={Boolean(errors[label])}
-                        // errorMessage={errors[label]?.message}
-                    >
+                    <FormItem label={label} invalid={Boolean(errors[label])}>
                         <Controller
                             name={label}
                             control={control}
                             render={({ field }) => (
                                 <Checkbox.Group
                                     className="flex mt-4"
-                                    value={field.value || []} // current selected values
-                                    onChange={field.onChange} // updates RHF state automatically
+                                    value={field.value || []}
+                                    onChange={field.onChange}
                                 >
-                                    {config.options.map(
-                                        (option: any, index: any) => (
+                                    {(config.options || []).map(
+                                        (option: any, idx: number) => (
                                             <Checkbox
-                                                key={option + index}
+                                                key={option + idx}
                                                 name={field.name}
                                                 value={option}
                                                 className="justify-between flex-row-reverse heading-text"
@@ -109,23 +117,45 @@ const DynamicFormWrapper = ({
                     </FormItem>
                 )
 
+            // Radio buttons
+            case 'radio':
+                return (
+                    <FormItem label={label} invalid={Boolean(errors[label])}>
+                        {/* <Controller
+                            name={label}
+                            control={control}
+                            render={({ field }) => (
+                                <Radio.Group
+                                    value={field.value}
+                                    onChange={(e) => field.onChange(e.target.value)}
+                                >
+                                    {(config.options || []).map((option: any, idx: number) => (
+                                        <Radio key={option + idx} value={option}>
+                                            {option}
+                                        </Radio>
+                                    ))}
+                                </Radio.Group>
+                            )}
+                        /> */}
+                    </FormItem>
+                )
+
+            // Single select dropdown
             case 'select':
                 return (
-                    <FormItem
-                        label={label}
-                        invalid={Boolean(errors[label])}
-                        // errorMessage={errors[label]?.message}
-                    >
+                    <FormItem label={label} invalid={Boolean(errors[label])}>
                         <Controller
                             name={label}
                             control={control}
                             render={({ field }) => (
                                 <Select
                                     {...field}
-                                    options={config.options.map((o: any) => ({
-                                        value: o,
-                                        label: o,
-                                    }))}
+                                    options={(config.options || []).map(
+                                        (o: any) => ({
+                                            value: o,
+                                            label: o,
+                                        }),
+                                    )}
                                     placeholder={`Select ${label}`}
                                     isDisabled={readOnly}
                                     value={
@@ -142,6 +172,154 @@ const DynamicFormWrapper = ({
                                 />
                             )}
                         />
+                    </FormItem>
+                )
+
+            // Multi-select
+            case 'multiselect':
+                return (
+                    <FormItem label={label} invalid={Boolean(errors[label])}>
+                        <Controller
+                            name={label}
+                            control={control}
+                            render={({ field }) => (
+                                <Select
+                                    isMulti
+                                    placeholder={`Select ${label}`}
+                                    options={(config.options || []).map(
+                                        (o: any) => ({
+                                            value: o,
+                                            label: o,
+                                        }),
+                                    )}
+                                    value={field.value || []}
+                                    isDisabled={readOnly}
+                                    onChange={field.onChange}
+                                />
+                            )}
+                        />
+                    </FormItem>
+                )
+
+            // Date picker
+            case 'date':
+                return (
+                    <FormItem label={label} invalid={Boolean(errors[label])}>
+                        {/* <Controller
+                            name={label}
+                            control={control}
+                            render={({ field }) => (
+                                <DatePicker
+                                    onChange={(date, dateString) => field.onChange(dateString)}
+                                    value={field.value ? moment(field.value) : null}
+                                    disabled={readOnly}
+                                    style={{ width: '100%' }}
+                                />
+                            )}
+                        /> */}
+                    </FormItem>
+                )
+
+            // Time picker
+            case 'time':
+                return (
+                    <FormItem label={label} invalid={Boolean(errors[label])}>
+                        {/* <Controller
+                            name={label}
+                            control={control}
+                            render={({ field }) => (
+                                <TimePicker
+                                    onChange={(time, timeString) => field.onChange(timeString)}
+                                    value={field.value ? moment(field.value, 'HH:mm') : null}
+                                    disabled={readOnly}
+                                    style={{ width: '100%' }}
+                                />
+                            )}
+                        /> */}
+                    </FormItem>
+                )
+
+            // DateTime picker
+            case 'datetime':
+                return (
+                    <FormItem label={label} invalid={Boolean(errors[label])}>
+                        {/* <Controller
+                            name={label}
+                            control={control}
+                            render={({ field }) => (
+                                <DatePicker
+                                    showTime
+                                    onChange={(date, dateString) => field.onChange(dateString)}
+                                    value={field.value ? moment(field.value) : null}
+                                    disabled={readOnly}
+                                    style={{ width: '100%' }}
+                                />
+                            )}
+                        /> */}
+                    </FormItem>
+                )
+
+            // Email input
+            case 'email':
+                return (
+                    <FormItem label={label} invalid={Boolean(errors[label])}>
+                        <Controller
+                            name={label}
+                            control={control}
+                            rules={{
+                                pattern: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                            }}
+                            render={({ field }) => (
+                                <Input
+                                    placeholder={`Enter ${label}`}
+                                    readOnly={readOnly}
+                                    {...field}
+                                />
+                            )}
+                        />
+                    </FormItem>
+                )
+
+            // URL input
+            case 'url':
+                return (
+                    <FormItem label={label} invalid={Boolean(errors[label])}>
+                        <Controller
+                            name={label}
+                            control={control}
+                            rules={{
+                                pattern:
+                                    /^(https?:\/\/)?([\w-]+)\.([a-z]{2,6})(\/[\w-]*)*\/?$/i,
+                            }}
+                            render={({ field }) => (
+                                <Input
+                                    placeholder={`Enter ${label}`}
+                                    readOnly={readOnly}
+                                    {...field}
+                                />
+                            )}
+                        />
+                    </FormItem>
+                )
+
+            // Range / Slider
+            case 'range':
+                return (
+                    <FormItem label={label} invalid={Boolean(errors[label])}>
+                        {/* <Controller
+                            name={label}
+                            control={control}
+                            render={({ field }) => (
+                                <Slider
+                                    min={config.min || 0}
+                                    max={config.max || 100}
+                                    step={config.step || 1}
+                                    value={field.value || 0}
+                                    onChange={field.onChange}
+                                    disabled={readOnly}
+                                />
+                            )}
+                        /> */}
                     </FormItem>
                 )
 

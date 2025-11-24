@@ -1,3 +1,4 @@
+ 
 import { useMemo } from 'react'
 import Tooltip from '@/components/ui/Tooltip'
 import DataTable from '@/components/shared/DataTable'
@@ -8,7 +9,7 @@ import type { OnSortParam, ColumnDef, Row } from '@/components/shared/DataTable'
 import type { TableQueries } from '@/@types/common'
 import useUserList from '../hooks/useList'
 import endpointConfig from '@/configs/endpoint.config'
-import { User, UserRole } from '@/@types/user'
+import { User } from '@/@types/user'
 
 const ActionColumn = ({
     onEdit,
@@ -83,28 +84,42 @@ const UserListTable = () => {
             },
             {
                 header: 'Roles',
-                accessorKey: 'userRoles',
-                cell: (props) => {
-                    const user = props.row.original as User & {
-                        userRoles?: UserRole[]
+                accessorKey: 'locations',
+                cell: ({ row }) => {
+                    const user = row.original as User & {
+                        locations?: {
+                            id: number
+                            name: string
+                            departments?: {
+                                id: number
+                                name: string
+                                roles?: {
+                                    id: number
+                                    name: string
+                                    permissions?: string[]
+                                }[]
+                            }[]
+                        }[]
                     }
-                    const userRoles = user.userRoles
 
-                    if (!userRoles || userRoles.length === 0) {
+                    if (!user.locations || user.locations.length === 0)
                         return '-'
-                    }
 
-                    const roleNames: string[] = []
+                    // Map location → departments → roles
+                    const locationBlocks = user.locations.map((location) => {
+                        const departmentBlocks =
+                            location.departments?.map((dept) => {
+                                const roleNames =
+                                    dept.roles
+                                        ?.map((role) => role.name)
+                                        .filter(Boolean) ?? []
+                                return `${dept.name}: ${roleNames.join(' | ')}`
+                            }) ?? []
 
-                    userRoles.forEach((userRole) => {
-                        if (userRole.roles) {
-                            userRole.roles.forEach((role) => {
-                                if (role.label) roleNames.push(role.label)
-                            })
-                        }
+                        return `${location.name} → ${departmentBlocks.join(' ; ')}`
                     })
 
-                    return roleNames.length > 0 ? roleNames.join('|') : '-'
+                    return locationBlocks.join(' || ')
                 },
             },
             {

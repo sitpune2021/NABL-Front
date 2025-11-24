@@ -44,7 +44,7 @@ export default function useLocationList() {
         return location
     }
 
-    const locationList = data?.list || []
+    const locationList = data?.data || []
 
     const locationListTotal = data?.total || 0
 

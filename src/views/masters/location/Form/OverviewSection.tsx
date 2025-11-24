@@ -20,24 +20,22 @@ const OverviewSection = ({
     const { clusterList } = useClusterList()
 
     const zoneOptions = zoneList.map((zone) => ({
-        label: zone.zone_name,
-        value: zone.zone_name,
+        label: zone.name,
+        value: zone.id,
     }))
 
     const filteredClusters = useMemo(() => {
         if (!selectedZone) return []
-        return clusterList.filter(
-            (cluster) => cluster.zone_name === selectedZone,
-        )
+        return clusterList.filter((cluster) => cluster.zone_id === selectedZone)
     }, [selectedZone, clusterList])
 
     const clusterOptions = filteredClusters.map((cluster) => ({
-        label: cluster.cluster_name,
-        value: cluster.cluster_name,
-        prefix: cluster.prefix,
+        label: cluster.name,
+        value: cluster.id,
+        prefix: cluster.identifier,
     }))
 
-    const selectedClustersName = useWatch({ control, name: 'cluster_name' })
+    const selectedClustersName = useWatch({ control, name: 'cluster_id' })
 
     const selectedClusters = clusterOptions.find(
         (z) => z.value === selectedClustersName,
@@ -49,11 +47,11 @@ const OverviewSection = ({
             <div className="grid md:grid-cols-2 gap-4">
                 <FormItem
                     label="Zone"
-                    invalid={Boolean(errors.zone_name)}
-                    errorMessage={errors.zone_name?.message}
+                    invalid={Boolean(errors.zone_id)}
+                    errorMessage={errors.zone_id?.message}
                 >
                     <Controller
-                        name="zone_name"
+                        name="zone_id"
                         control={control}
                         render={({ field }) => (
                             <Select
@@ -76,11 +74,11 @@ const OverviewSection = ({
                 </FormItem>
                 <FormItem
                     label="Cluster"
-                    invalid={Boolean(errors.cluster_name)}
-                    errorMessage={errors.cluster_name?.message}
+                    invalid={Boolean(errors.cluster_id)}
+                    errorMessage={errors.cluster_id?.message}
                 >
                     <Controller
-                        name="cluster_name"
+                        name="cluster_id"
                         control={control}
                         render={({ field }) => (
                             <Select
@@ -108,11 +106,11 @@ const OverviewSection = ({
 
                 <FormItem
                     label="Name"
-                    invalid={Boolean(errors.location_name)}
-                    errorMessage={errors.location_name?.message}
+                    invalid={Boolean(errors.name)}
+                    errorMessage={errors.name?.message}
                 >
                     <Controller
-                        name="location_name"
+                        name="name"
                         control={control}
                         render={({ field }) => (
                             <Input
@@ -148,11 +146,11 @@ const OverviewSection = ({
 
                 <FormItem
                     label="Prefix"
-                    invalid={Boolean(errors.prefix)}
-                    errorMessage={errors.prefix?.message}
+                    invalid={Boolean(errors.identifier)}
+                    errorMessage={errors.identifier?.message}
                 >
                     <Controller
-                        name="prefix"
+                        name="identifier"
                         control={control}
                         render={({ field: { onChange, value, ...rest } }) => (
                             <Input

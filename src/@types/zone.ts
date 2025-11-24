@@ -1,30 +1,23 @@
-import { PrefixFEntity, TableQueries } from './common'
+import { IdentifierEntity, TableQueries } from './common'
 
 import type { Control, FieldErrors } from 'react-hook-form'
 
 export type GetZoneListResponse = {
-    list: Zone[]
+    data: Zone[]
     total: number
-}
-
-export type Filter = {
-    purchasedProducts: string
-    purchaseChannel: Array<string>
 }
 
 export type Zone = {
     id: string
-    zone_name: string
-} & PrefixFEntity
+    name: string
+} & IdentifierEntity
 
 export type ZoneListState = {
     tableData: TableQueries
-    filterData: Filter
     selectedZone: Partial<Zone>[]
 }
 
 export type ZoneListAction = {
-    setFilterData: (payload: Filter) => void
     setTableData: (payload: TableQueries) => void
     setSelectedZone: (checked: boolean, customer: Zone) => void
     setSelectAllZone: (customer: Zone[]) => void
@@ -32,8 +25,8 @@ export type ZoneListAction = {
 
 export type Fields = {
     id?: string
-    zone_name: string
-} & PrefixFEntity
+    name: string
+} & IdentifierEntity
 
 export type TagsFields = {
     tags: Array<{ value: string; label: string }>

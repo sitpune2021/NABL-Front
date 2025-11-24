@@ -36,6 +36,8 @@ const FrequencyPopup = ({
         selectedDay: '',
     })
 
+    console.log(triates)
+
     const [availableDays, setAvailableDays] = useState<
         { value: string; label: string }[]
     >([])
@@ -46,6 +48,13 @@ const FrequencyPopup = ({
         useState<FrequencyType>('Monthly')
     const [settings, setSettings] = useState<Record<string, any>>({})
     const [tempInput, setTempInput] = useState<Record<string, string>>({})
+
+    const tables = ['location', 'department', 'user']
+    const fields: Record<string, string[]> = {
+        user: ['name', 'email', 'age'],
+        location: ['name', 'identifier'],
+        department: ['name', 'identifier'],
+    }
 
     useEffect(() => {
         if (initialData) {
@@ -331,6 +340,7 @@ const FrequencyPopup = ({
 
         setTempInput((prev) => ({ ...prev, [header]: '' }))
     }
+    console.log(addOption)
 
     const monthOptions = getMonthOptions()
     const dayOptions = getDayOptions()
@@ -1159,34 +1169,161 @@ const FrequencyPopup = ({
                                 </div>
                             )}
                     </div>
-                    <div className="flex-1 p-6">
-                        <h2>Dynamic Settings Builder (Create / Edit)</h2>
+                    <div className="p-6">
                         {(['daily', 'oneTime'] as const).map((section) => (
                             <div key={section} className="mb-6">
                                 <h3 className="mt-4 mb-2 font-semibold capitalize">
                                     {section}
                                 </h3>
-                                {triates[section].map(
-                                    (field: any, index: any) => {
-                                        const type =
-                                            field.traits?.[0]?.value ?? 'text'
-                                        const saved =
-                                            settings[field.headerText] || {}
-                                        return (
-                                            <Card
-                                                key={`${section}-${index}`}
-                                                className="mb-4"
-                                            >
-                                                <h4 className="mb-4">
-                                                    {field.headerText} - ({type}
-                                                    )
-                                                </h4>
-                                                <div className="grid md:grid-cols-2 gap-4">
-                                                    {/* Text Input */}
-                                                    {type === 'text' && (
+
+                                {triates[section].map((field, index) => {
+                                    const type =
+                                        field.traits?.[0]?.value ?? 'text'
+                                    const saved =
+                                        settings[field.headerText] || {}
+
+                                    return (
+                                        <Card
+                                            key={`${section}-${index}`}
+                                            className="mb-4"
+                                        >
+                                            <h4 className="mb-4">
+                                                {field.headerText} - ({type})
+                                            </h4>
+
+                                            <div className="grid md:grid-cols-2 gap-4">
+                                                {/* Dynamic checkbox only for daily */}
+                                                {section === 'daily' && (
+                                                    <div>
+                                                        <label>
+                                                            Dynamic:
+                                                            <input
+                                                                type="checkbox"
+                                                                checked={
+                                                                    saved.dynamic ||
+                                                                    false
+                                                                }
+                                                                style={{
+                                                                    marginLeft: 10,
+                                                                }}
+                                                                onChange={(e) =>
+                                                                    updateSetting(
+                                                                        field.headerText,
+                                                                        type,
+                                                                        {
+                                                                            dynamic:
+                                                                                e
+                                                                                    .target
+                                                                                    .checked,
+                                                                        },
+                                                                    )
+                                                                }
+                                                            />
+                                                        </label>
+                                                    </div>
+                                                )}
+
+                                                {/* Table & Field selection (oneTime always, daily if dynamic) */}
+                                                {saved.dynamic && (
+                                                    <div className="mt-2">
+                                                        <label>Table:</label>
+                                                        <select
+                                                            style={{
+                                                                marginLeft: 10,
+                                                            }}
+                                                            value={
+                                                                saved.table ||
+                                                                ''
+                                                            }
+                                                            onChange={(e) =>
+                                                                updateSetting(
+                                                                    field.headerText,
+                                                                    type,
+                                                                    {
+                                                                        table: e
+                                                                            .target
+                                                                            .value,
+                                                                        field: '',
+                                                                    },
+                                                                )
+                                                            }
+                                                        >
+                                                            <option value="">
+                                                                Select Table
+                                                            </option>
+                                                            {tables.map((t) => (
+                                                                <option
+                                                                    key={t}
+                                                                    value={t}
+                                                                >
+                                                                    {t}
+                                                                </option>
+                                                            ))}
+                                                        </select>
+
+                                                        {saved.table && (
+                                                            <>
+                                                                <label
+                                                                    style={{
+                                                                        marginLeft: 10,
+                                                                    }}
+                                                                >
+                                                                    Field:
+                                                                </label>
+                                                                <select
+                                                                    value={
+                                                                        saved.field ||
+                                                                        ''
+                                                                    }
+                                                                    onChange={(
+                                                                        e,
+                                                                    ) =>
+                                                                        updateSetting(
+                                                                            field.headerText,
+                                                                            type,
+                                                                            {
+                                                                                field: e
+                                                                                    .target
+                                                                                    .value,
+                                                                            },
+                                                                        )
+                                                                    }
+                                                                >
+                                                                    <option value="">
+                                                                        Select
+                                                                        Field
+                                                                    </option>
+                                                                    {fields[
+                                                                        saved
+                                                                            .table
+                                                                    ]?.map(
+                                                                        (f) => (
+                                                                            <option
+                                                                                key={
+                                                                                    f
+                                                                                }
+                                                                                value={
+                                                                                    f
+                                                                                }
+                                                                            >
+                                                                                {
+                                                                                    f
+                                                                                }
+                                                                            </option>
+                                                                        ),
+                                                                    )}
+                                                                </select>
+                                                            </>
+                                                        )}
+                                                    </div>
+                                                )}
+
+                                                {/* Validation and additional settings for static inputs */}
+                                                {!saved.dynamic &&
+                                                    type === 'text' && (
                                                         <div>
                                                             <label>
-                                                                Text Validation:
+                                                                Validation:
                                                             </label>
                                                             <select
                                                                 style={{
@@ -1229,7 +1366,8 @@ const FrequencyPopup = ({
                                                         </div>
                                                     )}
 
-                                                    {type === 'number' && (
+                                                {!saved.dynamic &&
+                                                    type === 'number' && (
                                                         <div className="flex items-center gap-4">
                                                             <div>
                                                                 <label>
@@ -1295,88 +1433,10 @@ const FrequencyPopup = ({
                                                             </div>
                                                         </div>
                                                     )}
-
-                                                    {(type === 'checkbox' ||
-                                                        type === 'select' ||
-                                                        type === 'radio') && (
-                                                        <div>
-                                                            <label>
-                                                                Add Option:
-                                                            </label>
-                                                            <input
-                                                                type="text"
-                                                                value={
-                                                                    tempInput[
-                                                                        field
-                                                                            .headerText
-                                                                    ] || ''
-                                                                }
-                                                                style={{
-                                                                    marginLeft: 10,
-                                                                }}
-                                                                placeholder="Enter value"
-                                                                onChange={(e) =>
-                                                                    setTempInput(
-                                                                        (
-                                                                            prev,
-                                                                        ) => ({
-                                                                            ...prev,
-                                                                            [field.headerText]:
-                                                                                e
-                                                                                    .target
-                                                                                    .value,
-                                                                        }),
-                                                                    )
-                                                                }
-                                                            />
-                                                            <button
-                                                                style={{
-                                                                    marginLeft: 10,
-                                                                }}
-                                                                onClick={() =>
-                                                                    addOption(
-                                                                        field.headerText,
-                                                                        type,
-                                                                    )
-                                                                }
-                                                            >
-                                                                Add
-                                                            </button>
-
-                                                            {saved.options
-                                                                ?.length >
-                                                                0 && (
-                                                                <div
-                                                                    style={{
-                                                                        marginTop: 10,
-                                                                    }}
-                                                                >
-                                                                    {saved.options.map(
-                                                                        (
-                                                                            opt: string,
-                                                                            idx: number,
-                                                                        ) => (
-                                                                            <div
-                                                                                key={
-                                                                                    idx
-                                                                                }
-                                                                            >
-                                                                                •{' '}
-                                                                                {
-                                                                                    opt
-                                                                                }
-                                                                            </div>
-                                                                        ),
-                                                                    )}
-                                                                </div>
-                                                            )}
-                                                        </div>
-                                                    )}
-                                                </div>
-                                            </Card>
-                                        )
-                                    },
-                                )}
+                                            </div>
+                                        </Card>
+                                    )
+                                })}
                             </div>
                         ))}
                     </div>

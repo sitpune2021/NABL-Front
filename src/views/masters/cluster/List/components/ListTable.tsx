@@ -78,16 +78,38 @@ const ClusterListTable = () => {
                 accessorKey: 'id',
             },
             {
-                header: 'Prefix',
-                accessorKey: 'prefix',
-            },
-            {
                 header: 'Zone',
-                accessorKey: 'zone_name',
+                accessorKey: 'zone',
+                cell: (props) => {
+                    const { name, identifier } = props.row.original.zone
+                    return (
+                        <div className="flex items-center gap-2">
+                            <div>
+                                <div className="font-bold heading-text">
+                                    {name}
+                                </div>
+                                <div>{identifier}</div>
+                            </div>
+                        </div>
+                    )
+                },
             },
             {
                 header: 'Cluster',
-                accessorKey: 'cluster_name',
+                accessorKey: 'cluster',
+                cell: (props) => {
+                    const { name, identifier } = props.row.original
+                    return (
+                        <div className="flex items-center gap-2">
+                            <div>
+                                <div className="font-bold heading-text">
+                                    {name}
+                                </div>
+                                <div>{identifier}</div>
+                            </div>
+                        </div>
+                    )
+                },
             },
             {
                 header: 'Action',

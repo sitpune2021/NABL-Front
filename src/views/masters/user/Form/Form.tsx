@@ -43,32 +43,33 @@ const validationSchema = z.object({
     issuedBy: z.boolean(),
     approvedBy: z.boolean(),
 
-    signUpload: z.string().optional(),
-    status: z.string().optional(),
+    signature: z.string().optional(),
 
     userRoles: z
         .array(
             z.object({
-                id: z.string().optional(),
-                zone_name: z.string().optional(),
-                cluster_name: z.string().optional(),
-                location_name: z.string().optional(),
+                zone_id: z.number().optional(),
+                cluster_id: z.number().optional(),
+                location_id: z.number().optional(),
 
                 department: z
                     .array(
                         z.object({
-                            department_name: z.string().optional(),
+                            department_id: z.number().optional(),
                             roles: z
                                 .array(
                                     z.object({
-                                        value: z.string().optional(),
+                                        value: z.number().optional(),
                                         label: z.string().optional(),
                                     }),
                                 )
                                 .optional(),
                             permissions: z
                                 .record(
-                                    z.string(), // role name
+                                    z.union([
+                                        z.string(), // role name
+                                        z.number(),
+                                    ]),
                                     z.record(
                                         z.string(), // module id
                                         z.array(z.string()), // permission types
@@ -111,8 +112,8 @@ const UserForm = (props: UserFormProps) => {
                 ...defaultValues,
                 userRoles: existingUserRoles || [
                     {
-                        zone_name: '',
-                        cluster_name: '',
+                        zone_id: '',
+                        cluster_id: '',
                         location_name: '',
                         department: [
                             {
@@ -124,7 +125,6 @@ const UserForm = (props: UserFormProps) => {
                     },
                 ],
             }
-            console.log('Setting form values:', formattedValues)
             reset(formattedValues)
         }
     }, [defaultValues, reset])

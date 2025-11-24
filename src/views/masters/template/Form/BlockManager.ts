@@ -12,11 +12,19 @@ export function addCustomBlocks(editor: any) {
                         label: 'Input Type',
                         default: 'text', // Default value added
                         options: [
-                            { value: 'text', name: 'Text' },
-                            { value: 'number', name: 'Number' },
-                            { value: 'checkbox', name: 'Checkbox' },
-                            { value: 'radio', name: 'Radio' },
-                            { value: 'select', name: 'Select' },
+                            { value: 'text', name: 'Text' }, // Single-line text input
+                            { value: 'textarea', name: 'Textarea' }, // Multi-line text input
+                            { value: 'number', name: 'Number' }, // Numeric input
+                            { value: 'checkbox', name: 'Checkbox' }, // Boolean / multiple choice
+                            { value: 'radio', name: 'Radio' }, // Single choice from options
+                            { value: 'select', name: 'Select' }, // Dropdown
+                            { value: 'multiselect', name: 'Multi Select' }, // Select multiple options
+                            { value: 'date', name: 'Date' }, // Date picker
+                            { value: 'time', name: 'Time' }, // Time picker
+                            { value: 'datetime', name: 'Date & Time' }, // Date + time picker
+                            { value: 'url', name: 'URL' }, // Link input
+                            { value: 'email', name: 'Email' }, // Email input
+                            { value: 'range', name: 'Range' },
                         ],
                     },
                 ],
@@ -160,9 +168,6 @@ export function addCustomBlocks(editor: any) {
                             options: [
                                 { value: 'text', name: 'Text' },
                                 { value: 'number', name: 'Number' },
-                                { value: 'checkbox', name: 'Checkbox' },
-                                { value: 'radio', name: 'Radio' },
-                                { value: 'select', name: 'Select' },
                             ],
                             default: (this as any).get('inputType') || 'text',
                         })
@@ -284,22 +289,45 @@ export function addCustomBlocks(editor: any) {
                                             label: 'Input Type',
                                             default: 'text', // Default added here too
                                             options: [
-                                                { value: 'text', name: 'Text' },
+                                                { value: 'text', name: 'Text' }, // Single-line text input
+                                                {
+                                                    value: 'textarea',
+                                                    name: 'Textarea',
+                                                }, // Multi-line text input
                                                 {
                                                     value: 'number',
                                                     name: 'Number',
-                                                },
+                                                }, // Numeric input
                                                 {
                                                     value: 'checkbox',
                                                     name: 'Checkbox',
-                                                },
+                                                }, // Boolean / multiple choice
                                                 {
                                                     value: 'radio',
                                                     name: 'Radio',
-                                                },
+                                                }, // Single choice from options
                                                 {
                                                     value: 'select',
                                                     name: 'Select',
+                                                }, // Dropdown
+                                                {
+                                                    value: 'multiselect',
+                                                    name: 'Multi Select',
+                                                }, // Select multiple options
+                                                { value: 'date', name: 'Date' }, // Date picker
+                                                { value: 'time', name: 'Time' }, // Time picker
+                                                {
+                                                    value: 'datetime',
+                                                    name: 'Date & Time',
+                                                }, // Date + time picker
+                                                { value: 'url', name: 'URL' }, // Link input
+                                                {
+                                                    value: 'email',
+                                                    name: 'Email',
+                                                }, // Email input
+                                                {
+                                                    value: 'range',
+                                                    name: 'Range',
                                                 },
                                             ],
                                         },

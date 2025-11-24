@@ -95,12 +95,21 @@ const SubCategoryListTable = () => {
                 },
             },
             {
-                header: 'Prefix',
-                accessorKey: 'identifier',
-            },
-            {
                 header: 'Sub Category',
-                accessorKey: 'name',
+                accessorKey: 'Sub Category',
+                cell: (props) => {
+                    const { name, identifier } = props.row.original
+                    return (
+                        <div className="flex items-center gap-2">
+                            <div>
+                                <div className="font-bold heading-text">
+                                    {name}
+                                </div>
+                                <div>{identifier}</div>
+                            </div>
+                        </div>
+                    )
+                },
             },
             {
                 header: '',
