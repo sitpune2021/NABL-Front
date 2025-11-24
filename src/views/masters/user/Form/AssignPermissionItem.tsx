@@ -3,8 +3,7 @@ import React, { useEffect, useMemo } from 'react'
 import { Controller, useWatch, useFieldArray } from 'react-hook-form'
 import { Button, Select, Checkbox } from '@/components/ui'
 import { FormItem } from '@/components/ui/Form'
-import { HiMinus } from 'react-icons/hi'
-
+import { HiMinus, HiPlus } from 'react-icons/hi'
 import useZoneList from '../../zone/List/hooks/useList'
 import useClusterList from '../../cluster/List/hooks/useList'
 import useLocationList from '../../location/List/hooks/useList'
@@ -30,14 +29,12 @@ const AssignPermissionItem = ({
     onRemove,
     setValue,
 }: AssignPermissionItemProps) => {
-    /** Lists */
     const { zoneList } = useZoneList()
     const { clusterList } = useClusterList()
     const { locationList } = useLocationList()
     const { rolesList, accessModules } = useRolesList()
     const { departmentList } = useDepartmentList()
 
-    /** Department Field Array */
     const {
         fields: deptFields,
         append: appendDept,
@@ -47,7 +44,6 @@ const AssignPermissionItem = ({
         name: `userRoles.${index}.department`,
     })
 
-    /** Watch dependent values */
     const selectedZone = useWatch({
         control,
         name: `userRoles.${index}.zone_name`,
@@ -57,7 +53,6 @@ const AssignPermissionItem = ({
         name: `userRoles.${index}.cluster_name`,
     })
 
-    /** Dropdown options (memoized) */
     const zoneOptions = useMemo<Option[]>(
         () =>
             zoneList.map((z: any) => ({
@@ -101,22 +96,20 @@ const AssignPermissionItem = ({
     )
 
     return (
-        <>
-            {/* Remove entire user role block */}
-            <div className="flex justify-end mb-2">
+        <div className="bg-white shadow-lg rounded-xl p-6 mb-6 border border-gray-200">
+            <div className="flex justify-end mb-4">
                 {!readOnly && onRemove && (
                     <Button
-                        size="xs"
+                        size="sm"
                         type="button"
                         icon={<HiMinus />}
+                        className="border border-blue-500 text-blue-500  rounded-full shadow-md transition-all duration-200"
                         onClick={onRemove}
                     />
                 )}
             </div>
 
-            {/* Zone / Cluster / Location */}
-            <div className="grid md:grid-cols-3 gap-4 mb-4">
-                {/* Zone */}
+            <div className="grid md:grid-cols-3 gap-6 mb-6">
                 <FormItem
                     label="Zone"
                     invalid={!!errors?.userRoles?.[index]?.zone_name}
@@ -135,6 +128,7 @@ const AssignPermissionItem = ({
                                 value={zoneOptions.find(
                                     (o) => o.value === field.value,
                                 )}
+                                className="rounded-lg border-gray-300 focus:border-blue-500 focus:ring-blue-500"
                                 onChange={(opt) =>
                                     field.onChange(opt?.value || '')
                                 }
@@ -143,7 +137,6 @@ const AssignPermissionItem = ({
                     />
                 </FormItem>
 
-                {/* Cluster */}
                 <FormItem
                     label="Cluster"
                     invalid={!!errors?.userRoles?.[index]?.cluster_name}
@@ -162,6 +155,7 @@ const AssignPermissionItem = ({
                                 value={clusterOptions.find(
                                     (o) => o.value === field.value,
                                 )}
+                                className="rounded-lg border-gray-300 focus:border-blue-500 focus:ring-blue-500"
                                 onChange={(opt) =>
                                     field.onChange(opt?.value || '')
                                 }
@@ -170,7 +164,6 @@ const AssignPermissionItem = ({
                     />
                 </FormItem>
 
-                {/* Location */}
                 <FormItem
                     label="Location"
                     invalid={!!errors?.userRoles?.[index]?.location_name}
@@ -189,6 +182,7 @@ const AssignPermissionItem = ({
                                 value={locationOptions.find(
                                     (o) => o.value === field.value,
                                 )}
+                                className="rounded-lg border-gray-300 focus:border-blue-500 focus:ring-blue-500"
                                 onChange={(opt) =>
                                     field.onChange(opt?.value || '')
                                 }
@@ -198,7 +192,6 @@ const AssignPermissionItem = ({
                 </FormItem>
             </div>
 
-            {/* Department Blocks */}
             {deptFields.map((dept, dIndex) => (
                 <DepartmentBlock
                     key={dept.id}
@@ -216,31 +209,31 @@ const AssignPermissionItem = ({
                 />
             ))}
 
-            {/* Add Department */}
             {!readOnly && (
-                <Button
-                    size="xs"
-                    type="button"
-                    onClick={() =>
-                        appendDept({
-                            department_name: '',
-                            roles: [],
-                            permissions: {},
-                        })
-                    }
-                >
-                    + Add Department
-                </Button>
+                <div className="mt-6 flex">
+                    <Button
+                        size="sm"
+                        type="button"
+                        icon={<HiPlus />}
+                        className="border border-blue-500 text-blue-500 shadow-md transition-all duration-200"
+                        onClick={() =>
+                            appendDept({
+                                department_name: '',
+                                roles: [],
+                                permissions: {},
+                            })
+                        }
+                    >
+                        Add Department
+                    </Button>
+                </div>
             )}
-        </>
+        </div>
     )
 }
 
 export default AssignPermissionItem
 
-/* =======================================================
-   DEPARTMENT BLOCK
-======================================================= */
 const DepartmentBlock = React.memo(
     ({
         index,
@@ -255,21 +248,18 @@ const DepartmentBlock = React.memo(
         accessModules,
         setValue,
     }: any) => {
-        /** Selected roles */
         const roles =
             useWatch({
                 control,
                 name: `userRoles.${index}.department.${dIndex}.roles`,
             }) || []
 
-        /** Permissions */
         const permissions =
             useWatch({
                 control,
                 name: `userRoles.${index}.department.${dIndex}.permissions`,
             }) || {}
 
-        /** Initialize / Cleanup permissions for roles */
         useEffect(() => {
             if (!Array.isArray(roles)) return
 
@@ -291,7 +281,6 @@ const DepartmentBlock = React.memo(
                 { shouldDirty: false },
             )
         }, [roles, setValue, rolesList])
-        /** Toggle Permission */
         const setPermission = (
             role: string,
             moduleId: string,
@@ -311,77 +300,79 @@ const DepartmentBlock = React.memo(
         }
 
         return (
-            <div className="grid md:grid-cols-2 gap-4 mb-4 border p-3 bg-gray-50 rounded">
-                {/* Department */}
-                <FormItem
-                    label="Department"
-                    invalid={
-                        !!errors?.userRoles?.[index]?.department?.[dIndex]
-                            ?.department_name
-                    }
-                    errorMessage={
-                        errors?.userRoles?.[index]?.department?.[dIndex]
-                            ?.department_name?.message
-                    }
-                >
-                    <Controller
-                        name={`userRoles.${index}.department.${dIndex}.department_name`}
-                        control={control}
-                        render={({ field }) => (
-                            <Select
-                                options={departmentOptions}
-                                placeholder="Select Department"
-                                isDisabled={readOnly}
-                                value={departmentOptions.find(
-                                    (o: { value: any }) =>
-                                        o.value === field.value,
-                                )}
-                                onChange={(opt) =>
-                                    field.onChange(opt?.value || '')
-                                }
-                            />
-                        )}
-                    />
-                </FormItem>
+            <div className="relative bg-blue-50/20 border border-blue-200 rounded-lg p-4 mb-4 shadow-sm">
+                <div className="grid md:grid-cols-2 gap-6 mb-4">
+                    <FormItem
+                        label="Department"
+                        invalid={
+                            !!errors?.userRoles?.[index]?.department?.[dIndex]
+                                ?.department_name
+                        }
+                        errorMessage={
+                            errors?.userRoles?.[index]?.department?.[dIndex]
+                                ?.department_name?.message
+                        }
+                    >
+                        <Controller
+                            name={`userRoles.${index}.department.${dIndex}.department_name`}
+                            control={control}
+                            render={({ field }) => (
+                                <Select
+                                    options={departmentOptions}
+                                    placeholder="Select Department"
+                                    isDisabled={readOnly}
+                                    value={departmentOptions.find(
+                                        (o: { value: any }) =>
+                                            o.value === field.value,
+                                    )}
+                                    className="rounded-lg border-gray-300 focus:border-blue-500 focus:ring-blue-500"
+                                    onChange={(opt) =>
+                                        field.onChange(opt?.value || '')
+                                    }
+                                />
+                            )}
+                        />
+                    </FormItem>
 
-                {/* Roles */}
-                <FormItem
-                    label="Roles"
-                    invalid={
-                        !!errors?.userRoles?.[index]?.department?.[dIndex]
-                            ?.roles
-                    }
-                    errorMessage={
-                        errors?.userRoles?.[index]?.department?.[dIndex]?.roles
-                            ?.message
-                    }
-                >
-                    <Controller
-                        name={`userRoles.${index}.department.${dIndex}.roles`}
-                        control={control}
-                        render={({ field }) => (
-                            <Select
-                                isMulti
-                                options={roleOptions}
-                                placeholder="Select Roles"
-                                isDisabled={readOnly}
-                                value={roleOptions.filter(
-                                    (opt: { value: any }) =>
-                                        field.value?.some(
-                                            (r: any) => r.value === opt.value,
-                                        ),
-                                )}
-                                onChange={(selected) =>
-                                    field.onChange(selected || [])
-                                }
-                            />
-                        )}
-                    />
-                </FormItem>
+                    <FormItem
+                        label="Roles"
+                        invalid={
+                            !!errors?.userRoles?.[index]?.department?.[dIndex]
+                                ?.roles
+                        }
+                        errorMessage={
+                            errors?.userRoles?.[index]?.department?.[dIndex]
+                                ?.roles?.message
+                        }
+                    >
+                        <Controller
+                            name={`userRoles.${index}.department.${dIndex}.roles`}
+                            control={control}
+                            render={({ field }) => (
+                                <Select
+                                    isMulti
+                                    options={roleOptions}
+                                    placeholder="Select Roles"
+                                    isDisabled={readOnly}
+                                    value={roleOptions.filter(
+                                        (opt: { value: any }) =>
+                                            field.value?.some(
+                                                (r: any) =>
+                                                    r.value === opt.value,
+                                            ),
+                                    )}
+                                    className="rounded-lg border-gray-300 focus:border-blue-500 focus:ring-blue-500"
+                                    onChange={(selected) =>
+                                        field.onChange(selected || [])
+                                    }
+                                />
+                            )}
+                        />
+                    </FormItem>
+                </div>
 
-                {/* Permission Table */}
                 {roles.length > 0 && (
-                    <div className="mt-4 md:col-span-2">
+                    <div className="mt-6">
                         {roles.map((r: any) => (
                             <PermissionTable
                                 key={r.value}
@@ -394,24 +385,22 @@ const DepartmentBlock = React.memo(
                         ))}
                     </div>
                 )}
-
-                {/* Remove Department */}
                 {!readOnly && dIndex > 0 && (
-                    <Button
-                        size="xs"
-                        type="button"
-                        icon={<HiMinus />}
-                        onClick={() => removeDept(dIndex)}
-                    />
+                    <div className="absolute top-2 right-2">
+                        <Button
+                            size="xs"
+                            type="button"
+                            icon={<HiMinus />}
+                            className="border border-blue-500 text-blue-500 hover:bg-blue-50 rounded-full shadow-md transition-all duration-200"
+                            onClick={() => removeDept(dIndex)}
+                        />
+                    </div>
                 )}
             </div>
         )
     },
 )
 
-/* =======================================================
-   PERMISSION TABLE
-======================================================= */
 const PermissionTable = React.memo(
     ({ role, permissions, accessModules, onToggle, readOnly }: any) => {
         if (!accessModules?.length) return null
@@ -425,19 +414,24 @@ const PermissionTable = React.memo(
         ]
 
         return (
-            <div className="mb-6 border border-gray-200 rounded-lg bg-white">
-                <div className="bg-indigo-50 px-4 py-2 border-b">
-                    <h5 className="text-md font-semibold text-indigo-700">
+            <div className="mb-6 border border-gray-300 rounded-lg bg-white shadow-md overflow-hidden">
+                <div className="bg-gradient-to-r from-blue-500 to-indigo-600 px-4 py-3 border-b">
+                    <h5 className="text-md font-semibold text-white">
                         Permissions for: {role}
                     </h5>
                 </div>
 
                 <table className="min-w-full text-sm">
-                    <thead className="bg-indigo-100">
+                    <thead className="bg-blue-100">
                         <tr>
-                            <th className="px-4 py-2 text-left">Module</th>
+                            <th className="px-4 py-3 text-left font-semibold text-blue-800">
+                                Module
+                            </th>
                             {permOptions.map((p) => (
-                                <th key={p} className="px-3 py-2 text-center">
+                                <th
+                                    key={p}
+                                    className="px-3 py-3 text-center font-semibold text-blue-800"
+                                >
                                     {p.replace('-', ' ')}
                                 </th>
                             ))}
@@ -448,18 +442,18 @@ const PermissionTable = React.memo(
                         {accessModules.map((mod: any, idx: number) => (
                             <tr
                                 key={mod.id}
-                                className={
+                                className={`hover:bg-blue-50 transition-colors duration-150 ${
                                     idx % 2 === 0 ? 'bg-white' : 'bg-gray-50'
-                                }
+                                }`}
                             >
-                                <td className="px-4 py-2 border-t font-medium">
+                                <td className="px-4 py-3 border-t font-medium text-gray-800">
                                     {mod.name}
                                 </td>
 
                                 {permOptions.map((perm) => (
                                     <td
                                         key={perm}
-                                        className="text-center border-t px-2"
+                                        className="text-center border-t px-2 py-3"
                                     >
                                         {mod.accessor.some(
                                             (a: any) => a.value === perm,
@@ -469,6 +463,7 @@ const PermissionTable = React.memo(
                                                     mod.id
                                                 ]?.includes(perm)}
                                                 disabled={readOnly}
+                                                className="rounded focus:ring-blue-500"
                                                 onChange={() =>
                                                     onToggle(role, mod.id, perm)
                                                 }
