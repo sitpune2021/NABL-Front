@@ -298,7 +298,7 @@ const LocationsItems = ({
                 </FormItem>
 
                 <FormItem
-                    label="Location Instruments"
+                    label="Location Level Instruments"
                     invalid={!!errors.location?.[index]?.instruments}
                     errorMessage={
                         errors.location?.[index]?.instruments?.message
@@ -353,7 +353,10 @@ const LocationsItems = ({
                 </div>
 
                 {departmentFields.map((deptItem, deptIndex) => (
-                    <div key={deptItem.id} className="border p-3 mb-2 rounded">
+                    <div
+                        key={deptItem.id}
+                        className="border border-blue-200  shadow-sm p-3 mb-2 rounded"
+                    >
                         <div className="grid md:grid-cols-2 gap-4">
                             {/* Department */}
                             <FormItem
@@ -409,7 +412,7 @@ const LocationsItems = ({
                             </FormItem>
 
                             <FormItem
-                                label="Department Instruments"
+                                label="Department Level Instruments"
                                 invalid={
                                     !!errors.location?.[index]?.departments?.[
                                         deptIndex
@@ -465,7 +468,7 @@ const LocationsItems = ({
                                 className="mt-2"
                                 onClick={() => removeDepartment(deptIndex)}
                             >
-                                Remove Department
+                                -
                             </Button>
                         )}
                     </div>
