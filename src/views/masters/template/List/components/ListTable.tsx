@@ -59,9 +59,56 @@ const TemplateListTable = () => {
         const list = templateList || []
         const selected = filterData?.purchaseChannel || []
 
+        if (!selected.length) return list
+
         if (selected.includes('all')) return list
 
-        return list.filter((item) => selected.includes(item.type))
+        return list.filter((item) => {
+            const type = (item.type || '').toLowerCase()
+
+            if (selected.includes('archived-all')) {
+                if (type.startsWith('archived')) return true
+            }
+            if (
+                selected.includes('archived-header') &&
+                type === 'archived-header'
+            ) {
+                return true
+            }
+
+            if (selected.includes('header') && type === 'header') {
+                return true
+            }
+
+            if (selected.includes('footer') && type === 'footer') {
+                return true
+            }
+
+            if (selected.includes('generic') && type === 'generic') {
+                return true
+            }
+
+            if (
+                selected.includes('archived-footer') &&
+                type === 'archived-footer'
+            ) {
+                return true
+            }
+            if (
+                selected.includes('archived-generic') &&
+                type === 'archived-generic'
+            ) {
+                return true
+            }
+
+            if (selected.includes('draft')) {
+                if (type.startsWith('draft')) return true
+            }
+
+            if (selected.includes(type)) return true
+
+            return false
+        })
     }, [templateList, filterData])
 
     const handleEdit = (template: Template) => {
