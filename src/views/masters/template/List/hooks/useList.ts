@@ -25,23 +25,41 @@ export default function useTemplateList() {
         ['/api/template', { ...tableData }],
         ([, params]) =>
             apiGetTemplateList<GetTemplateListResponse, TableQueries>(params),
-
-        { revalidateOnFocus: false },
+        {
+            revalidateOnFocus: false,
+        },
     )
 
-    // ⭐ FINAL FILTER LOGIC
+    // ⭐ FINAL FIXED FILTER LOGIC
     const filteredList = useMemo(() => {
         const list = data?.list || []
+        const selected = filterData.purchaseChannel || []
 
-        const selectedChannels = filterData.purchaseChannel
+        if (!selected.length) return list
 
-        // If ALL selected → return whole list
-        if (selectedChannels.includes('all')) {
-            return list
-        }
+        // CASE 1: all → entire list
+        if (selected.includes('all')) return list
 
-        // Filter by item.type matching selected filters
-        return list.filter((item) => selectedChannels.includes(item.type))
+        return list.filter((item) => {
+            const type = item.type?.toLowerCase() || ''
+
+            // CASE 2: archived-all → archived-*
+            if (selected.includes('archived-all')) {
+                if (type.startsWith('archived')) return true
+            }
+
+            // CASE 3: draft → draft-*
+            if (selected.includes('draft')) {
+                if (type.startsWith('draft')) return true
+            }
+
+            // CASE 4: exact match
+            if (selected.includes(type)) {
+                return true
+            }
+
+            return false
+        })
     }, [data, filterData])
 
     const saveTemplateData = async (template: Fields) => {
