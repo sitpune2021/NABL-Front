@@ -52,18 +52,20 @@ const UserAddEdit = () => {
             id: isEdit ? userId : undefined,
         }
 
-        await saveUserData(payload)
+        const result = await saveUserData(payload)
         await sleep(800)
         setIsSubmiting(false)
 
         toast.push(
-            <Notification type="success">
-                {isEdit ? 'User updated!' : 'User created!'}
+            <Notification type={result.success ? 'success' : 'danger'}>
+                {result.message}
             </Notification>,
             { placement: 'top-center' },
         )
 
-        navigate(`${endpointConfig.master.user.list}`)
+        if (result.success) {
+            navigate(endpointConfig.master.user.list)
+        }
     }
 
     const handleConfirmDiscard = () => {
@@ -99,16 +101,15 @@ const UserAddEdit = () => {
                         preparedBy: true,
                         issuedBy: true,
                         approvedBy: true,
-                        signUpload: '',
-                        status: '',
+                        signature: '',
                         userRoles: [
                             {
-                                zone_name: '',
-                                cluster_name: '',
-                                location_name: '',
+                                zone_id: '',
+                                cluster_id: '',
+                                location_id: '',
                                 department: [
                                     {
-                                        department_name: '',
+                                        department_id: '',
                                         roles: [],
                                         permissions: {},
                                     },

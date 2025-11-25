@@ -36,6 +36,8 @@ const FrequencyPopup = ({
         selectedDay: '',
     })
 
+    console.log(triates)
+
     const [availableDays, setAvailableDays] = useState<
         { value: string; label: string }[]
     >([])
@@ -46,6 +48,13 @@ const FrequencyPopup = ({
         useState<FrequencyType>('Monthly')
     const [settings, setSettings] = useState<Record<string, any>>({})
     const [tempInput, setTempInput] = useState<Record<string, string>>({})
+
+    const tables = ['location', 'department', 'user']
+    const fields: Record<string, string[]> = {
+        user: ['name', 'email', 'age'],
+        location: ['name', 'identifier'],
+        department: ['name', 'identifier'],
+    }
 
     useEffect(() => {
         if (initialData) {
@@ -331,6 +340,7 @@ const FrequencyPopup = ({
 
         setTempInput((prev) => ({ ...prev, [header]: '' }))
     }
+    console.log(addOption)
 
     const monthOptions = getMonthOptions()
     const dayOptions = getDayOptions()
@@ -1159,224 +1169,435 @@ const FrequencyPopup = ({
                                 </div>
                             )}
                     </div>
-                    <div className="flex-1 p-6">
-                        <h2>Dynamic Settings Builder (Create / Edit)</h2>
+                    <div className="p-6">
                         {(['daily', 'oneTime'] as const).map((section) => (
                             <div key={section} className="mb-6">
                                 <h3 className="mt-4 mb-2 font-semibold capitalize">
                                     {section}
                                 </h3>
-                                {triates[section].map(
-                                    (field: any, index: any) => {
-                                        const type =
-                                            field.traits?.[0]?.value ?? 'text'
-                                        const saved =
-                                            settings[field.headerText] || {}
-                                        return (
-                                            <Card
-                                                key={`${section}-${index}`}
-                                                className="mb-4"
-                                            >
-                                                <h4 className="mb-4">
-                                                    {field.headerText} - ({type}
-                                                    )
-                                                </h4>
-                                                <div className="grid md:grid-cols-2 gap-4">
-                                                    {/* Text Input */}
-                                                    {type === 'text' && (
-                                                        <div>
-                                                            <label>
-                                                                Text Validation:
-                                                            </label>
-                                                            <select
+
+                                {triates[section].map((field, index) => {
+                                    const type =
+                                        field.traits?.[0]?.value ?? 'text'
+                                    const saved =
+                                        settings[field.headerText] || {}
+
+                                    return (
+                                        <Card
+                                            key={`${section}-${index}`}
+                                            className="mb-4"
+                                        >
+                                            <h4 className="mb-4">
+                                                {field.headerText} - ({type})
+                                            </h4>
+
+                                            <div className="grid md:grid-cols-2 gap-4">
+                                                {/* Dynamic checkbox only for daily */}
+                                                {section === 'daily' && (
+                                                    <div>
+                                                        <label>
+                                                            Dynamic:
+                                                            <input
+                                                                type="checkbox"
+                                                                checked={
+                                                                    saved.dynamic ||
+                                                                    false
+                                                                }
                                                                 style={{
                                                                     marginLeft: 10,
                                                                 }}
-                                                                value={
-                                                                    saved.validation ||
-                                                                    ''
-                                                                }
                                                                 onChange={(e) =>
                                                                     updateSetting(
                                                                         field.headerText,
                                                                         type,
                                                                         {
-                                                                            validation:
+                                                                            dynamic:
                                                                                 e
                                                                                     .target
-                                                                                    .value,
+                                                                                    .checked,
                                                                         },
                                                                     )
                                                                 }
-                                                            >
-                                                                <option value="">
-                                                                    Select
-                                                                </option>
-                                                                <option value="alphabet">
-                                                                    Alphabet
-                                                                    Only
-                                                                </option>
-                                                                <option value="alphanumeric">
-                                                                    Alphanumeric
-                                                                </option>
-                                                                <option value="email">
-                                                                    Email
-                                                                </option>
-                                                                <option value="no-spaces">
-                                                                    No Spaces
-                                                                </option>
-                                                            </select>
-                                                        </div>
-                                                    )}
-
-                                                    {type === 'number' && (
-                                                        <div className="flex items-center gap-4">
-                                                            <div>
-                                                                <label>
-                                                                    Min:
-                                                                </label>
-                                                                <input
-                                                                    type="number"
-                                                                    style={{
-                                                                        marginLeft: 10,
-                                                                        width: 80,
-                                                                    }}
-                                                                    value={
-                                                                        saved.min ??
-                                                                        ''
-                                                                    }
-                                                                    onChange={(
-                                                                        e,
-                                                                    ) =>
-                                                                        updateSetting(
-                                                                            field.headerText,
-                                                                            type,
-                                                                            {
-                                                                                min: Number(
-                                                                                    e
-                                                                                        .target
-                                                                                        .value,
-                                                                                ),
-                                                                            },
-                                                                        )
-                                                                    }
-                                                                />
-                                                            </div>
-                                                            <div>
-                                                                <label>
-                                                                    Max:
-                                                                </label>
-                                                                <input
-                                                                    type="number"
-                                                                    style={{
-                                                                        marginLeft: 10,
-                                                                        width: 80,
-                                                                    }}
-                                                                    value={
-                                                                        saved.max ??
-                                                                        ''
-                                                                    }
-                                                                    onChange={(
-                                                                        e,
-                                                                    ) =>
-                                                                        updateSetting(
-                                                                            field.headerText,
-                                                                            type,
-                                                                            {
-                                                                                max: Number(
-                                                                                    e
-                                                                                        .target
-                                                                                        .value,
-                                                                                ),
-                                                                            },
-                                                                        )
-                                                                    }
-                                                                />
-                                                            </div>
-                                                        </div>
-                                                    )}
-
-                                                    {(type === 'checkbox' ||
-                                                        type === 'select' ||
-                                                        type === 'radio') && (
-                                                        <div>
-                                                            <label>
-                                                                Add Option:
-                                                            </label>
-                                                            <input
-                                                                type="text"
-                                                                value={
-                                                                    tempInput[
-                                                                        field
-                                                                            .headerText
-                                                                    ] || ''
-                                                                }
-                                                                style={{
-                                                                    marginLeft: 10,
-                                                                }}
-                                                                placeholder="Enter value"
-                                                                onChange={(e) =>
-                                                                    setTempInput(
-                                                                        (
-                                                                            prev,
-                                                                        ) => ({
-                                                                            ...prev,
-                                                                            [field.headerText]:
-                                                                                e
-                                                                                    .target
-                                                                                    .value,
-                                                                        }),
-                                                                    )
-                                                                }
                                                             />
-                                                            <button
-                                                                style={{
-                                                                    marginLeft: 10,
-                                                                }}
-                                                                onClick={() =>
-                                                                    addOption(
-                                                                        field.headerText,
-                                                                        type,
-                                                                    )
-                                                                }
-                                                            >
-                                                                Add
-                                                            </button>
+                                                        </label>
+                                                    </div>
+                                                )}
 
-                                                            {saved.options
-                                                                ?.length >
-                                                                0 && (
-                                                                <div
+                                                {/* Table & Field selection (oneTime always, daily if dynamic) */}
+                                                {saved.dynamic && (
+                                                    <div className="mt-2">
+                                                        <label>Table:</label>
+                                                        <select
+                                                            style={{
+                                                                marginLeft: 10,
+                                                            }}
+                                                            value={
+                                                                saved.table ||
+                                                                ''
+                                                            }
+                                                            onChange={(e) =>
+                                                                updateSetting(
+                                                                    field.headerText,
+                                                                    type,
+                                                                    {
+                                                                        table: e
+                                                                            .target
+                                                                            .value,
+                                                                        field: '',
+                                                                    },
+                                                                )
+                                                            }
+                                                        >
+                                                            <option value="">
+                                                                Select Table
+                                                            </option>
+                                                            {tables.map((t) => (
+                                                                <option
+                                                                    key={t}
+                                                                    value={t}
+                                                                >
+                                                                    {t}
+                                                                </option>
+                                                            ))}
+                                                        </select>
+
+                                                        {saved.table && (
+                                                            <>
+                                                                <label
                                                                     style={{
-                                                                        marginTop: 10,
+                                                                        marginLeft: 10,
                                                                     }}
                                                                 >
-                                                                    {saved.options.map(
-                                                                        (
-                                                                            opt: string,
-                                                                            idx: number,
-                                                                        ) => (
-                                                                            <div
+                                                                    Field:
+                                                                </label>
+                                                                <select
+                                                                    value={
+                                                                        saved.field ||
+                                                                        ''
+                                                                    }
+                                                                    onChange={(
+                                                                        e,
+                                                                    ) =>
+                                                                        updateSetting(
+                                                                            field.headerText,
+                                                                            type,
+                                                                            {
+                                                                                field: e
+                                                                                    .target
+                                                                                    .value,
+                                                                            },
+                                                                        )
+                                                                    }
+                                                                >
+                                                                    <option value="">
+                                                                        Select
+                                                                        Field
+                                                                    </option>
+                                                                    {fields[
+                                                                        saved
+                                                                            .table
+                                                                    ]?.map(
+                                                                        (f) => (
+                                                                            <option
                                                                                 key={
-                                                                                    idx
+                                                                                    f
+                                                                                }
+                                                                                value={
+                                                                                    f
                                                                                 }
                                                                             >
-                                                                                •{' '}
                                                                                 {
-                                                                                    opt
+                                                                                    f
                                                                                 }
-                                                                            </div>
+                                                                            </option>
                                                                         ),
                                                                     )}
+                                                                </select>
+                                                            </>
+                                                        )}
+                                                    </div>
+                                                )}
+
+                                                {!saved.dynamic && (
+                                                    <>
+                                                        {/* Text */}
+                                                        {type === 'text' && (
+                                                            <div>
+                                                                <label>
+                                                                    Validation:
+                                                                </label>
+                                                                <select
+                                                                    style={{
+                                                                        marginLeft: 10,
+                                                                    }}
+                                                                    value={
+                                                                        saved.validation ||
+                                                                        ''
+                                                                    }
+                                                                    onChange={(
+                                                                        e,
+                                                                    ) =>
+                                                                        updateSetting(
+                                                                            field.headerText,
+                                                                            type,
+                                                                            {
+                                                                                validation:
+                                                                                    e
+                                                                                        .target
+                                                                                        .value,
+                                                                            },
+                                                                        )
+                                                                    }
+                                                                >
+                                                                    <option value="">
+                                                                        Select
+                                                                    </option>
+                                                                    <option value="alphabet">
+                                                                        Alphabet
+                                                                        Only
+                                                                    </option>
+                                                                    <option value="alphanumeric">
+                                                                        Alphanumeric
+                                                                    </option>
+                                                                    <option value="email">
+                                                                        Email
+                                                                    </option>
+                                                                    <option value="no-spaces">
+                                                                        No
+                                                                        Spaces
+                                                                    </option>
+                                                                </select>
+                                                            </div>
+                                                        )}
+
+                                                        {/* Textarea */}
+                                                        {type ===
+                                                            'textarea' && (
+                                                            <div>
+                                                                <label>
+                                                                    Rows:
+                                                                </label>
+                                                                <input
+                                                                    type="number"
+                                                                    value={
+                                                                        saved.rows ||
+                                                                        3
+                                                                    }
+                                                                    style={{
+                                                                        marginLeft: 10,
+                                                                        width: 60,
+                                                                    }}
+                                                                    onChange={(
+                                                                        e,
+                                                                    ) =>
+                                                                        updateSetting(
+                                                                            field.headerText,
+                                                                            type,
+                                                                            {
+                                                                                rows: Number(
+                                                                                    e
+                                                                                        .target
+                                                                                        .value,
+                                                                                ),
+                                                                            },
+                                                                        )
+                                                                    }
+                                                                />
+                                                            </div>
+                                                        )}
+
+                                                        {/* Number */}
+                                                        {type === 'number' && (
+                                                            <div className="flex items-center gap-4">
+                                                                <div>
+                                                                    <label>
+                                                                        Min:
+                                                                    </label>
+                                                                    <input
+                                                                        type="number"
+                                                                        value={
+                                                                            saved.min ??
+                                                                            ''
+                                                                        }
+                                                                        style={{
+                                                                            marginLeft: 10,
+                                                                            width: 80,
+                                                                        }}
+                                                                        onChange={(
+                                                                            e,
+                                                                        ) =>
+                                                                            updateSetting(
+                                                                                field.headerText,
+                                                                                type,
+                                                                                {
+                                                                                    min: Number(
+                                                                                        e
+                                                                                            .target
+                                                                                            .value,
+                                                                                    ),
+                                                                                },
+                                                                            )
+                                                                        }
+                                                                    />
                                                                 </div>
-                                                            )}
-                                                        </div>
-                                                    )}
-                                                </div>
-                                            </Card>
-                                        )
-                                    },
-                                )}
+                                                                <div>
+                                                                    <label>
+                                                                        Max:
+                                                                    </label>
+                                                                    <input
+                                                                        type="number"
+                                                                        value={
+                                                                            saved.max ??
+                                                                            ''
+                                                                        }
+                                                                        style={{
+                                                                            marginLeft: 10,
+                                                                            width: 80,
+                                                                        }}
+                                                                        onChange={(
+                                                                            e,
+                                                                        ) =>
+                                                                            updateSetting(
+                                                                                field.headerText,
+                                                                                type,
+                                                                                {
+                                                                                    max: Number(
+                                                                                        e
+                                                                                            .target
+                                                                                            .value,
+                                                                                    ),
+                                                                                },
+                                                                            )
+                                                                        }
+                                                                    />
+                                                                </div>
+                                                            </div>
+                                                        )}
+
+                                                        {/* Checkbox, Radio, Select, Multiselect */}
+                                                        {(type === 'checkbox' ||
+                                                            type === 'radio' ||
+                                                            type === 'select' ||
+                                                            type ===
+                                                                'multiselect') && (
+                                                            <div>
+                                                                <label>
+                                                                    Options
+                                                                    (comma
+                                                                    separated):
+                                                                </label>
+                                                                <input
+                                                                    type="text"
+                                                                    value={
+                                                                        saved.options ||
+                                                                        ''
+                                                                    }
+                                                                    style={{
+                                                                        marginLeft: 10,
+                                                                    }}
+                                                                    onChange={(
+                                                                        e,
+                                                                    ) =>
+                                                                        updateSetting(
+                                                                            field.headerText,
+                                                                            type,
+                                                                            {
+                                                                                options:
+                                                                                    e
+                                                                                        .target
+                                                                                        .value,
+                                                                            },
+                                                                        )
+                                                                    }
+                                                                />
+                                                            </div>
+                                                        )}
+
+                                                        {/* Date / Time / DateTime */}
+                                                        {(type === 'date' ||
+                                                            type === 'time' ||
+                                                            type ===
+                                                                'datetime') && (
+                                                            <div>
+                                                                <label>
+                                                                    {type ===
+                                                                        'date' &&
+                                                                        'Date Format'}
+                                                                    {type ===
+                                                                        'time' &&
+                                                                        'Time Format'}
+                                                                    {type ===
+                                                                        'datetime' &&
+                                                                        'DateTime Format'}
+                                                                </label>
+                                                                <select
+                                                                    style={{
+                                                                        marginLeft: 10,
+                                                                    }}
+                                                                    value={
+                                                                        saved.format ||
+                                                                        ''
+                                                                    }
+                                                                    onChange={(
+                                                                        e,
+                                                                    ) =>
+                                                                        updateSetting(
+                                                                            field.headerText,
+                                                                            type,
+                                                                            {
+                                                                                format: e
+                                                                                    .target
+                                                                                    .value,
+                                                                            },
+                                                                        )
+                                                                    }
+                                                                >
+                                                                    {type ===
+                                                                        'date' && (
+                                                                        <>
+                                                                            <option value="YYYY-MM-DD">
+                                                                                YYYY-MM-DD
+                                                                            </option>
+                                                                            <option value="DD/MM/YYYY">
+                                                                                DD/MM/YYYY
+                                                                            </option>
+                                                                        </>
+                                                                    )}
+                                                                    {type ===
+                                                                        'time' && (
+                                                                        <>
+                                                                            <option value="HH:mm">
+                                                                                HH:mm
+                                                                            </option>
+                                                                            <option value="hh:mm A">
+                                                                                hh:mm
+                                                                                A
+                                                                            </option>
+                                                                        </>
+                                                                    )}
+                                                                    {type ===
+                                                                        'datetime' && (
+                                                                        <>
+                                                                            <option value="YYYY-MM-DD HH:mm">
+                                                                                YYYY-MM-DD
+                                                                                HH:mm
+                                                                            </option>
+                                                                            <option value="DD/MM/YYYY hh:mm A">
+                                                                                DD/MM/YYYY
+                                                                                hh:mm
+                                                                                A
+                                                                            </option>
+                                                                        </>
+                                                                    )}
+                                                                </select>
+                                                            </div>
+                                                        )}
+                                                    </>
+                                                )}
+                                            </div>
+                                        </Card>
+                                    )
+                                })}
                             </div>
                         ))}
                     </div>

@@ -19,12 +19,12 @@ const AssignPermissionSection = ({
 
     const addNewRole = () => {
         append({
-            zone_name: '',
-            cluster_name: '',
-            location_name: '',
+            zone_id: '',
+            cluster_id: '',
+            location_id: '',
             department: [
                 {
-                    department_name: '',
+                    department_id: '',
                     roles: [],
                     permissions: {},
                 },

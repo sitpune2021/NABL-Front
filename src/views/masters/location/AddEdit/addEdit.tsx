@@ -82,11 +82,11 @@ const LocationAddEdit = () => {
                 newLocation={isAdd}
                 defaultValues={
                     locationData ?? {
-                        location_name: '',
-                        zone_name: '',
-                        cluster_name: '',
+                        name: '',
+                        zone_id: '',
+                        cluster_id: '',
                         short_name: '',
-                        prefix: '',
+                        identifier: '',
                     }
                 }
                 readOnly={isView}

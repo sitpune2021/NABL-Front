@@ -2,41 +2,41 @@ import { User } from '@/@types/user'
 import { USER_KEY } from '@/constants/api.constant'
 import { mock } from '@/mock/MockAdapter'
 
-mock.onGet(`/api/user`).reply(() => {
-    const raw = localStorage.getItem(USER_KEY)
-    const Data = raw ? (JSON.parse(raw) as User[]) : []
-    const response = {
-        list: Data,
-        total: Data.length,
-    }
+// mock.onGet(`/api/user`).reply(() => {
+//     const raw = localStorage.getItem(USER_KEY)
+//     const Data = raw ? (JSON.parse(raw) as User[]) : []
+//     const response = {
+//         list: Data,
+//         total: Data.length,
+//     }
 
-    return [200, response]
-})
+//     return [200, response]
+// })
 
-mock.onPost('/api/user').reply((config) => {
-    const raw = localStorage.getItem(USER_KEY)
-    const existing = raw ? (JSON.parse(raw) as User[]) : []
+// mock.onPost('/api/user').reply((config) => {
+//     const raw = localStorage.getItem(USER_KEY)
+//     const existing = raw ? (JSON.parse(raw) as User[]) : []
 
-    const user = JSON.parse(config.data)
+//     const user = JSON.parse(config.data)
 
-    let updated: User[]
+//     let updated: User[]
 
-    const index = existing.findIndex((c) => c.id === user.id)
+//     const index = existing.findIndex((c) => c.id === user.id)
 
-    if (index > -1) {
-        // Update existing
-        existing[index] = { ...existing[index], ...user }
-        updated = [...existing]
-    } else {
-        // Add new
-        user.id = user.id || Date.now()
-        updated = [...existing, user]
-    }
+//     if (index > -1) {
+//         // Update existing
+//         existing[index] = { ...existing[index], ...user }
+//         updated = [...existing]
+//     } else {
+//         // Add new
+//         user.id = user.id || Date.now()
+//         updated = [...existing, user]
+//     }
 
-    localStorage.setItem(USER_KEY, JSON.stringify(updated))
+//     localStorage.setItem(USER_KEY, JSON.stringify(updated))
 
-    return [200, { message: 'User saved successfully' }]
-})
+//     return [200, { message: 'User saved successfully' }]
+// })
 
 mock.onGet(new RegExp('/api/user/\\d+')).reply((config) => {
     const id = config.url?.split('/').pop()

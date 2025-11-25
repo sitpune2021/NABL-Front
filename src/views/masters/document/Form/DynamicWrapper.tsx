@@ -2,6 +2,41 @@
 import { Container } from '@/components/shared'
 import { Card, Checkbox, Form, FormItem, Input, Select } from '@/components/ui'
 import { useForm, Controller } from 'react-hook-form'
+import { useEffect, useState } from 'react'
+import axios from 'axios'
+
+const useDynamicOptions = (config: any) => {
+    const [options, setOptions] = useState<any[]>([])
+    const [loading, setLoading] = useState(false)
+
+    useEffect(() => {
+        if (!config?.dynamic || !config?.table || !config?.field) return
+
+        const fetchOptions = async () => {
+            setLoading(true)
+            try {
+                const res = await axios.get(
+                    `http://192.168.1.32:8000/api/${config.table}`,
+                )
+                const rows = Array.isArray(res.data?.data) ? res.data.data : []
+                const extracted = rows
+                    .map((item: any) => item[config.field])
+                    .filter((v: any) => v !== null && v !== undefined)
+
+                setOptions(extracted)
+            } catch (err) {
+                console.error('Dynamic dropdown fetch failed:', err)
+                setOptions([])
+            } finally {
+                setLoading(false)
+            }
+        }
+
+        fetchOptions()
+    }, [config?.dynamic, config?.table, config?.field])
+
+    return { options, loading }
+}
 
 const DynamicFormWrapper = ({
     isDataEntry,
@@ -12,142 +47,185 @@ const DynamicFormWrapper = ({
         control,
         handleSubmit,
         formState: { errors },
-    } = useForm()
+    } = useForm({
+        defaultValues: documentData?.defaultValues || {},
+    })
 
-    const onSubmit = (data: any) => {
-        console.log(data)
-    }
+    const onSubmit = (data: any) => console.log('FORM DATA:', data)
 
     if (!isDataEntry) return null
 
-    const renderField = (label: any, config: any) => {
-        switch (config.type) {
-            case 'text':
-                return (
-                    <FormItem
-                        label={label}
-                        invalid={Boolean(errors[label])}
-                        // errorMessage={errors[label]?.message}
-                    >
-                        <Controller
-                            name={label}
-                            control={control}
-                            rules={{
-                                pattern:
-                                    config.validation === 'alphabet'
-                                        ? /^[A-Za-z]+$/
-                                        : undefined,
-                            }}
-                            render={({ field }) => (
-                                <Input
-                                    placeholder={`Enter ${label}`}
-                                    readOnly={readOnly}
-                                    {...field}
-                                />
-                            )}
-                        />
-                    </FormItem>
-                )
+    const renderField = (name: string, config: any) => {
+        const label = config.label || name
+        const fieldName = name.replace(/\s+/g, '_')
 
-            case 'number':
-                return (
-                    <FormItem
-                        label={label}
-                        invalid={Boolean(errors[label])}
-                        // errorMessage={errors[label]?.message}
-                    >
-                        <Controller
-                            name={label}
-                            control={control}
-                            rules={{
-                                min: config.min,
-                                max: config.max,
-                            }}
-                            render={({ field }) => (
-                                <Input
-                                    type="number"
-                                    placeholder={`Enter ${label}`}
-                                    readOnly={readOnly}
-                                    {...field}
-                                />
-                            )}
-                        />
-                    </FormItem>
-                )
+        const { options: dynamicOptions, loading } = useDynamicOptions(config)
 
-            case 'checkbox':
-                return (
-                    <FormItem
-                        label={label}
-                        invalid={Boolean(errors[label])}
-                        // errorMessage={errors[label]?.message}
-                    >
-                        <Controller
-                            name={label}
-                            control={control}
-                            render={({ field }) => (
-                                <Checkbox.Group
-                                    className="flex mt-4"
-                                    value={field.value || []} // current selected values
-                                    onChange={field.onChange} // updates RHF state automatically
-                                >
-                                    {config.options.map(
-                                        (option: any, index: any) => (
-                                            <Checkbox
-                                                key={option + index}
-                                                name={field.name}
-                                                value={option}
-                                                className="justify-between flex-row-reverse heading-text"
-                                            >
-                                                {option}
-                                            </Checkbox>
-                                        ),
-                                    )}
-                                </Checkbox.Group>
-                            )}
-                        />
-                    </FormItem>
-                )
+        const finalOptions = config.dynamic
+            ? dynamicOptions
+            : typeof config.options === 'string'
+              ? config.options.split(',').map((o: string) => o.trim())
+              : config.options || []
 
-            case 'select':
-                return (
-                    <FormItem
-                        label={label}
-                        invalid={Boolean(errors[label])}
-                        // errorMessage={errors[label]?.message}
-                    >
-                        <Controller
-                            name={label}
-                            control={control}
-                            render={({ field }) => (
-                                <Select
-                                    {...field}
-                                    options={config.options.map((o: any) => ({
-                                        value: o,
-                                        label: o,
-                                    }))}
-                                    placeholder={`Select ${label}`}
-                                    isDisabled={readOnly}
-                                    value={
-                                        field.value
-                                            ? {
-                                                  value: field.value,
-                                                  label: field.value,
-                                              }
-                                            : null
-                                    }
-                                    onChange={(option) =>
-                                        field.onChange(option?.value)
-                                    }
-                                />
-                            )}
-                        />
-                    </FormItem>
-                )
+        const patternRules =
+            config.validation === 'alphabet'
+                ? {
+                      pattern: {
+                          value: /^[A-Za-z]+$/,
+                          message: 'Only alphabets allowed',
+                      },
+                  }
+                : config.type === 'email'
+                  ? {
+                        pattern: {
+                            value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                            message: 'Invalid email',
+                        },
+                    }
+                  : config.type === 'url'
+                    ? {
+                          pattern: {
+                              value: /^(https?:\/\/)?([\w-]+)\.([a-z]{2,6})(\/[\w-]*)*\/?$/i,
+                              message: 'Invalid URL',
+                          },
+                      }
+                    : {}
 
-            default:
-                return null
-        }
+        return (
+            <FormItem label={label} invalid={Boolean(errors[fieldName])}>
+                <Controller
+                    name={fieldName}
+                    control={control}
+                    rules={{
+                        required: config.required
+                            ? `${label} is required`
+                            : false,
+                        min: config.min,
+                        max: config.max,
+                        ...patternRules,
+                    }}
+                    render={({ field }) => {
+                        switch (config.type) {
+                            case 'text':
+                                return (
+                                    <Input
+                                        {...field}
+                                        placeholder={`Enter ${label}`}
+                                        readOnly={readOnly}
+                                    />
+                                )
+
+                            case 'textarea':
+                                return (
+                                    <Input
+                                        {...field}
+                                        textArea
+                                        rows={config.rows || 4}
+                                        placeholder={`Enter ${label}`}
+                                        readOnly={readOnly}
+                                    />
+                                )
+
+                            case 'number':
+                                return (
+                                    <Input
+                                        {...field}
+                                        type="number"
+                                        placeholder={`Enter ${label}`}
+                                        readOnly={readOnly}
+                                    />
+                                )
+
+                            case 'datetime':
+                                return (
+                                    <Input
+                                        type="datetime-local"
+                                        value={field.value || ''}
+                                        readOnly={readOnly}
+                                        onChange={(e) =>
+                                            field.onChange(e.target.value)
+                                        }
+                                    />
+                                )
+
+                            case 'checkbox':
+                                return (
+                                    <Checkbox.Group
+                                        className="flex flex-col gap-2 mt-2"
+                                        value={field.value || []}
+                                        onChange={field.onChange}
+                                    >
+                                        {finalOptions.map(
+                                            (o: any, i: number) => (
+                                                <Checkbox key={i} value={o}>
+                                                    {o}
+                                                </Checkbox>
+                                            ),
+                                        )}
+                                    </Checkbox.Group>
+                                )
+
+                            case 'select':
+                                return (
+                                    <Select
+                                        isDisabled={readOnly || loading}
+                                        options={finalOptions.map((o: any) => ({
+                                            value: o,
+                                            label: o,
+                                        }))}
+                                        placeholder={`Select ${label}`}
+                                        value={
+                                            field.value
+                                                ? {
+                                                      label: field.value,
+                                                      value: field.value,
+                                                  }
+                                                : null
+                                        }
+                                        onChange={(opt) =>
+                                            field.onChange(opt?.value)
+                                        }
+                                    />
+                                )
+
+                            case 'multiselect':
+                                return (
+                                    <Select
+                                        isMulti
+                                        isDisabled={readOnly || loading}
+                                        options={finalOptions.map((o: any) => ({
+                                            value: o,
+                                            label: o,
+                                        }))}
+                                        placeholder={`Select ${label}`}
+                                        value={field.value || []}
+                                        onChange={field.onChange}
+                                    />
+                                )
+
+                            case 'email':
+                            case 'url':
+                                return (
+                                    <Input
+                                        {...field}
+                                        placeholder={`Enter ${label}`}
+                                        readOnly={readOnly}
+                                    />
+                                )
+
+                            default:
+                                return null
+                        }
+                    }}
+                />
+
+                {errors[fieldName] && (
+                    <p className="text-red-500 text-xs mt-1">
+                        {errors[fieldName]?.message as string}
+                    </p>
+                )}
+            </FormItem>
+        )
     }
 
     return (
@@ -160,15 +238,26 @@ const DynamicFormWrapper = ({
                 <div className="flex flex-col md:flex-row gap-4">
                     <div className="flex flex-col flex-auto gap-4">
                         <Card>
-                            <h4 className="mb-6">Document Creation</h4>
-                            <div className="grid md:grid-cols-2 gap-4">
+                            <div className="mb-4">
+                                <h4 className="text-xl font-semibold">
+                                    Document Name : {documentData.documentName}
+                                </h4>
+                                <p className="text-sm text-gray-600">
+                                    Document No : {documentData.documentNo}
+                                </p>
+                                <p className="text-sm text-gray-600">
+                                    Lab Name : {documentData.labName}
+                                </p>
+                                <p className="text-sm text-gray-600">
+                                    Location : {documentData.location}
+                                </p>
+                            </div>
+
+                            <div className="grid md:grid-cols-2 gap-6">
                                 {Object.entries(documentData.settings).map(
-                                    ([label, config]) => (
-                                        <div
-                                            key={label}
-                                            style={{ marginBottom: '15px' }}
-                                        >
-                                            {renderField(label, config)}
+                                    ([name, config]) => (
+                                        <div key={name}>
+                                            {renderField(name, config)}
                                         </div>
                                     ),
                                 )}
@@ -177,7 +266,6 @@ const DynamicFormWrapper = ({
                     </div>
                 </div>
             </Container>
-            {/* <BottomStickyBar>{children}</BottomStickyBar> */}
         </Form>
     )
 }

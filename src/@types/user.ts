@@ -3,7 +3,7 @@ import { TableQueries } from './common'
 import type { Control, FieldErrors } from 'react-hook-form'
 
 export type GetUserListResponse = {
-    list: User[]
+    data: User[]
     total: number
 }
 
@@ -21,7 +21,7 @@ export type User = {
     address?: string
     issuedBy: boolean
     approvedBy: boolean
-    signUpload?: string
+    signature?: string
     preparedBy: boolean
     dialCode: string
     status?: string
@@ -44,16 +44,16 @@ export type UserListAction = {
 }
 
 export type Department = {
-    department_name?: string
-    roles?: Array<{ value?: string; label?: string }>
-    permissions?: Record<string, any>
+    department_id?: number
+    roles?: Array<{ value?: number; label?: string }>
+    permissions?: Record<string | number, any>
 }
 
 export type UserRole = {
     id?: string
-    zone_name?: string
-    cluster_name?: string
-    location_name?: string
+    zone_id?: number
+    cluster_id?: number
+    location_id?: number
     department?: Array<Department>
 }
 
@@ -73,9 +73,7 @@ export type Fields = {
     approvedBy: boolean
     preparedBy: boolean
 
-    signUpload?: string
-    status?: string
-
+    signature?: string
     userRoles?: Array<UserRole>
 }
 

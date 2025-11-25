@@ -1,9 +1,9 @@
-import { PrefixFEntity, TableQueries } from './common'
+import { IdentifierEntity, TableQueries } from './common'
 
 import type { Control, FieldErrors } from 'react-hook-form'
 
 export type GetClusterListResponse = {
-    list: Cluster[]
+    data: Cluster[]
     total: number
 }
 
@@ -14,9 +14,14 @@ export type Filter = {
 
 export type Cluster = {
     id: string
-    cluster_name: string
-    zone_name: string
-} & PrefixFEntity
+    zone_id: string | number
+    zone: {
+        id: string
+        name: string
+        identifier: string
+    }
+    name: string
+} & IdentifierEntity
 
 export type ClusterListState = {
     tableData: TableQueries
@@ -33,9 +38,9 @@ export type ClusterListAction = {
 
 export type Fields = {
     id?: string
-    cluster_name: string
-    zone_name: string
-} & PrefixFEntity
+    zone_id: string | number
+    name: string
+} & IdentifierEntity
 
 export type TagsFields = {
     tags: Array<{ value: string; label: string }>

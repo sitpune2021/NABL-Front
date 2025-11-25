@@ -18,8 +18,8 @@ type ZoneFormProps = {
 } & CommonProps
 
 const validationSchema = z.object({
-    zone_name: z.string().min(1, { message: ' name required' }),
-    prefix: z
+    name: z.string().min(1, { message: ' name required' }),
+    identifier: z
         .string()
         .min(1, { message: 'Prefix is required' })
         .max(4, { message: 'Prefix must be at most 4 characters' })

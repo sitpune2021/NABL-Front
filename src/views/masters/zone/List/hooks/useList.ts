@@ -12,16 +12,14 @@ import { Fields, GetZoneListResponse } from '@/@types/zone'
 export default function useZoneList() {
     const {
         tableData,
-        filterData,
         setTableData,
         selectedZone,
         setSelectedZone,
         setSelectAllZone,
-        setFilterData,
     } = useZoneListStore((state) => state)
 
     const { data, error, isLoading, mutate } = useSWR(
-        ['/api/zone', { ...tableData, ...filterData }],
+        ['/api/zone', { ...tableData }],
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         ([_, params]) =>
             apiGetZoneList<GetZoneListResponse, TableQueries>(params),
@@ -44,7 +42,7 @@ export default function useZoneList() {
         return zone
     }
 
-    const zoneList = data?.list || []
+    const zoneList = data?.data || []
 
     const zoneListTotal = data?.total || 0
 
@@ -54,13 +52,11 @@ export default function useZoneList() {
         error,
         isLoading,
         tableData,
-        filterData,
         mutate,
         setTableData,
         selectedZone,
         setSelectedZone,
         setSelectAllZone,
-        setFilterData,
         saveZoneData,
         getZoneById, // ✅ Now defined properly
     }
