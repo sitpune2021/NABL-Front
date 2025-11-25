@@ -1,13 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useState, useMemo, useCallback } from 'react'
 import { useParams, useNavigate, useLocation } from 'react-router'
-import Container from '@/components/shared/Container'
-import Button from '@/components/ui/Button'
 import Notification from '@/components/ui/Notification'
 import toast from '@/components/ui/toast'
 import ConfirmDialog from '@/components/shared/ConfirmDialog'
 import sleep from '@/utils/sleep'
-import { TbTrash } from 'react-icons/tb'
 import endpointConfig from '@/configs/endpoint.config'
 import useDocumentList from '../List/hooks/useList'
 import DocumentForm from '../Form'
@@ -17,6 +14,7 @@ import { apiGetDocumentEditortById } from '@/services/DocumentService'
 import FrequencyPopup from '../Form/FrequencyPopup'
 import { categorizeThDetails } from '../Form/Form'
 import DynamicFormWrapper from '../Form/DynamicWrapper'
+import BottomPanel from '@/components/form/bottomPanel'
 
 function buildPath(path: string, params: Record<string, string | number>) {
     return Object.entries(params).reduce(
@@ -215,39 +213,13 @@ const DocumentAddEdit = () => {
                 isEdit={isEdit}
                 onFormSubmit={handleFormSubmit}
             >
-                <Container>
-                    <div className="flex items-center justify-between px-8">
-                        <span></span>
-                        {!isView && (
-                            <div className="flex items-center">
-                                <Button
-                                    className="ltr:mr-3 rtl:ml-3"
-                                    type="button"
-                                    customColorClass={() =>
-                                        'border-error ring-1 ring-error text-error hover:border-error hover:ring-error hover:text-error bg-transparent'
-                                    }
-                                    icon={<TbTrash />}
-                                    onClick={handleDiscard}
-                                >
-                                    Discard
-                                </Button>
-                                <Button
-                                    variant="solid"
-                                    type="submit"
-                                    loading={isSubmitting}
-                                >
-                                    {isEditor
-                                        ? isEdit
-                                            ? 'Update'
-                                            : 'Create'
-                                        : isEdit
-                                          ? 'Update'
-                                          : 'Create'}
-                                </Button>
-                            </div>
-                        )}
-                    </div>
-                </Container>
+                <BottomPanel
+                    isView={isView}
+                    isSubmitting={isSubmitting}
+                    isEdit={isEdit}
+                    isEditor={isEditor}
+                    onDiscard={handleDiscard}
+                />
             </DocumentForm>
 
             <FrequencyPopup

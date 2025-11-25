@@ -1,16 +1,14 @@
 import { useEffect, useState } from 'react'
 import { useParams, useNavigate, useLocation } from 'react-router'
-import Container from '@/components/shared/Container'
-import Button from '@/components/ui/Button'
 import Notification from '@/components/ui/Notification'
 import toast from '@/components/ui/toast'
 import ConfirmDialog from '@/components/shared/ConfirmDialog'
 import sleep from '@/utils/sleep'
-import { TbTrash } from 'react-icons/tb'
 import endpointConfig from '@/configs/endpoint.config'
 import useLabList from '../List/hooks/useList'
 import LabForm from '../Form'
 import type { LabFormSchema } from '@/@types/lab'
+import BottomPanel from '@/components/form/bottomPanel'
 
 const LabAddEdit = () => {
     const navigate = useNavigate()
@@ -116,33 +114,12 @@ const LabAddEdit = () => {
                 readOnly={isView}
                 onFormSubmit={handleFormSubmit}
             >
-                <Container>
-                    <div className="flex items-center justify-between px-8">
-                        <span></span>
-                        {!isView && (
-                            <div className="flex items-center">
-                                <Button
-                                    className="ltr:mr-3 rtl:ml-3"
-                                    type="button"
-                                    customColorClass={() =>
-                                        'border-error ring-1 ring-error text-error hover:border-error hover:ring-error hover:text-error bg-transparent'
-                                    }
-                                    icon={<TbTrash />}
-                                    onClick={handleDiscard}
-                                >
-                                    Discard
-                                </Button>
-                                <Button
-                                    variant="solid"
-                                    type="submit"
-                                    loading={isSubmitting}
-                                >
-                                    {isEdit ? 'Update' : 'Create'}
-                                </Button>
-                            </div>
-                        )}
-                    </div>
-                </Container>
+                <BottomPanel
+                    isView={isView}
+                    isSubmitting={isSubmitting}
+                    isEdit={isEdit}
+                    onDiscard={handleDiscard}
+                />
             </LabForm>
 
             <ConfirmDialog

@@ -1,16 +1,14 @@
 import { useEffect, useState } from 'react'
 import { useParams, useNavigate, useLocation } from 'react-router'
-import Container from '@/components/shared/Container'
-import Button from '@/components/ui/Button'
 import Notification from '@/components/ui/Notification'
 import toast from '@/components/ui/toast'
 import ConfirmDialog from '@/components/shared/ConfirmDialog'
 import sleep from '@/utils/sleep'
-import { TbTrash } from 'react-icons/tb'
 import endpointConfig from '@/configs/endpoint.config'
 import useTemplateList from '../List/hooks/useList'
 import TemplateForm from '../Form'
 import { TemplateFormSchema } from '@/@types/template'
+import BottomPanel from '@/components/form/bottomPanel'
 
 const TemplateAddEdit = () => {
     const navigate = useNavigate()
@@ -95,34 +93,13 @@ const TemplateAddEdit = () => {
                 onFormSubmit={handleFormSubmit}
                 onDialogClose={onDialogClose}
             >
-                <Container>
-                    <div className="flex items-center justify-between px-8">
-                        <span></span>
-                        {!isView && (
-                            <div className="flex items-center">
-                                <Button
-                                    className="ltr:mr-3 rtl:ml-3"
-                                    type="button"
-                                    customColorClass={() =>
-                                        'border-error ring-1 ring-error text-error hover:border-error hover:ring-error hover:text-error bg-transparent'
-                                    }
-                                    icon={<TbTrash />}
-                                    onClick={handleDiscard}
-                                >
-                                    Discard
-                                </Button>
-
-                                <Button
-                                    variant="solid"
-                                    type="button"
-                                    onClick={() => setDialogIsOpen(true)} // Open the name dialog
-                                >
-                                    {isEdit ? 'Update' : 'Create'}
-                                </Button>
-                            </div>
-                        )}
-                    </div>
-                </Container>
+                <BottomPanel
+                    isView={isView}
+                    isEdit={isEdit}
+                    isSubmitting={isSubmiting}
+                    onDiscard={handleDiscard}
+                    onPrimaryClick={() => setDialogIsOpen(true)}
+                />
             </TemplateForm>
             <ConfirmDialog
                 isOpen={discardConfirmationOpen}
