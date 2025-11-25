@@ -133,32 +133,6 @@ const OverviewSection = ({
                         )}
                     />
                 </FormItem>
-
-                <FormItem label="Status">
-                    <Controller
-                        name="status"
-                        control={control}
-                        defaultValue="active"
-                        render={({ field }) => (
-                            <Select
-                                options={[
-                                    { label: 'Active', value: 'active' },
-                                    { label: 'Deactive', value: 'deactive' },
-                                ]}
-                                value={{
-                                    label:
-                                        field.value === 'active'
-                                            ? 'Active'
-                                            : 'Deactive',
-                                    value: field.value,
-                                }}
-                                onChange={(selected) =>
-                                    field.onChange(selected?.value)
-                                }
-                            />
-                        )}
-                    />
-                </FormItem>
             </div>
             <div className="flex items-end gap-4 w-full">
                 <FormItem

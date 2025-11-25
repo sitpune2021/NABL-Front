@@ -1,6 +1,5 @@
+import { Search } from '@/components/form'
 import useZoneList from '../hooks/useList'
-import ZoneListSearch from './ListSearch'
-import ZoneListTableFilter from './ListTableFilter'
 import cloneDeep from 'lodash/cloneDeep'
 
 const ZoneListTableTools = () => {
@@ -21,8 +20,7 @@ const ZoneListTableTools = () => {
 
     return (
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2">
-            <ZoneListSearch onInputChange={handleInputChange} />
-            <ZoneListTableFilter />
+            <Search onInputChange={handleInputChange} />
         </div>
     )
 }

@@ -43,7 +43,6 @@ const ActionColumn = ({
 
 const ZoneListTable = () => {
     const navigate = useNavigate()
-
     const {
         zoneList,
         zoneListTotal,
@@ -78,12 +77,21 @@ const ZoneListTable = () => {
                 accessorKey: 'id',
             },
             {
-                header: 'Prefix',
-                accessorKey: 'prefix',
-            },
-            {
-                header: 'Name',
-                accessorKey: 'zone_name',
+                header: 'Zone',
+                accessorKey: 'zone',
+                cell: (props) => {
+                    const { name, identifier } = props.row.original
+                    return (
+                        <div className="flex items-center gap-2">
+                            <div>
+                                <div className="font-bold heading-text">
+                                    {name}
+                                </div>
+                                <div>{identifier}</div>
+                            </div>
+                        </div>
+                    )
+                },
             },
             {
                 header: 'Action',

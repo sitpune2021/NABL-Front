@@ -36,8 +36,6 @@ const ClusterAddEdit = () => {
             setLoadingData(true)
             getClusterById(clusterId)
                 .then((data) => {
-                    console.log('Fetched cluster data:', data)
-
                     setClusterData(data)
                 })
                 .finally(() => setLoadingData(false))
@@ -82,9 +80,9 @@ const ClusterAddEdit = () => {
                 newCluster={isAdd}
                 defaultValues={
                     clusterData ?? {
-                        cluster_name: '',
-                        zone_name: '',
-                        prefix: '',
+                        zone_id: '',
+                        name: '',
+                        identifier: '',
                     }
                 }
                 readOnly={isView}

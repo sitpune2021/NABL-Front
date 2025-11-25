@@ -58,10 +58,10 @@ const SideNav = ({
 
     // const uploadFullNavigationTree = async () => {
     //     try {
-    //         const response = await axios.post('http://192.168.1.43:8000/api/navigation-items', navigationConfig)
+    //         const response = await axios.post('http://192.168.1.32:8000/api/navigation-items', navigationConfig)
     //         const savedItem = response.data
     //         return savedItem
-    //     } catch (error) {
+    //     } catch (error:any) {
     //         console.error('Failed to send item:', error.response?.data || error.message)
     //     }
 

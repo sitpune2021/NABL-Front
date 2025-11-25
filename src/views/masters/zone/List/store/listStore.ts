@@ -12,34 +12,14 @@ export const initialTableData: TableQueries = {
     },
 }
 
-export const initialFilterData = {
-    purchasedProducts: '',
-    purchaseChannel: [
-        'all',
-        'header',
-        'footer',
-        'generic',
-        'draft',
-        'draft-header',
-        'draft-footer',
-        'draft-generic',
-        'archived-all',
-        'archived-header',
-        'archived-footer',
-        'archived-generic',
-    ],
-}
-
 const initialState: ZoneListState = {
     tableData: initialTableData,
-    filterData: initialFilterData,
     selectedZone: [],
 }
 
 export const useZoneListStore = create<ZoneListState & ZoneListAction>(
     (set) => ({
         ...initialState,
-        setFilterData: (payload) => set(() => ({ filterData: payload })),
         setTableData: (payload) => set(() => ({ tableData: payload })),
         setSelectedZone: (checked, row) =>
             set((state) => {

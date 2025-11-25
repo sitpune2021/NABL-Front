@@ -15,12 +15,12 @@ const OverviewSection = ({
 }: OverviewSectionProps) => {
     const { zoneList } = useZoneList()
     const options = zoneList.map((zone) => ({
-        label: zone.zone_name,
-        value: zone.zone_name,
-        prefix: zone.prefix, // make sure your API includes this
+        label: zone.name,
+        value: zone.id,
+        prefix: zone.identifier, // make sure your API includes this
     }))
 
-    const selectedZoneName = useWatch({ control, name: 'zone_name' })
+    const selectedZoneName = useWatch({ control, name: 'zone_id' })
 
     const selectedZone = options.find((z) => z.value === selectedZoneName)
 
@@ -31,11 +31,11 @@ const OverviewSection = ({
                 {/* Zone Field */}
                 <FormItem
                     label="Zone"
-                    invalid={Boolean(errors.zone_name)}
-                    errorMessage={errors.zone_name?.message}
+                    invalid={Boolean(errors.zone_id)}
+                    errorMessage={errors.zone_id?.message}
                 >
                     <Controller
-                        name="zone_name"
+                        name="zone_id"
                         control={control}
                         render={({ field }) => (
                             <Select
@@ -59,11 +59,11 @@ const OverviewSection = ({
 
                 <FormItem
                     label="Name"
-                    invalid={Boolean(errors.cluster_name)}
-                    errorMessage={errors.cluster_name?.message}
+                    invalid={Boolean(errors.name)}
+                    errorMessage={errors.name?.message}
                 >
                     <Controller
-                        name="cluster_name"
+                        name="name"
                         control={control}
                         render={({ field }) => (
                             <Input
@@ -79,11 +79,11 @@ const OverviewSection = ({
 
                 <FormItem
                     label="Prefix"
-                    invalid={Boolean(errors.prefix)}
-                    errorMessage={errors.prefix?.message}
+                    invalid={Boolean(errors.identifier)}
+                    errorMessage={errors.identifier?.message}
                 >
                     <Controller
-                        name="prefix"
+                        name="identifier"
                         control={control}
                         render={({ field: { onChange, value, ...rest } }) => (
                             <Input

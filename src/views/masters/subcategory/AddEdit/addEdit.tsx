@@ -16,7 +16,12 @@ const SubCategoryAddEdit = () => {
     const navigate = useNavigate()
     const location = useLocation()
     const { id } = useParams()
-    const { saveSubCategoryData, subCategoryDetail } = useSubCategoryList(id)
+    const {
+        saveSubCategoryData,
+        subCategoryDetail,
+        isLoading,
+        isDetailLoading,
+    } = useSubCategoryList(id)
 
     const [discardConfirmationOpen, setDiscardConfirmationOpen] =
         useState(false)
@@ -25,7 +30,7 @@ const SubCategoryAddEdit = () => {
     const isEdit = location.pathname.includes('/edit')
     const isView = location.pathname.includes('/view')
     const isAdd = location.pathname.includes('/create')
-    // const loading = isAdd ? isLoading : isDetailLoading
+    const loading = isAdd ? isLoading : isDetailLoading
 
     const handleFormSubmit = async (values: SubCategoryFormSchema) => {
         if (isView) return
@@ -54,6 +59,10 @@ const SubCategoryAddEdit = () => {
 
     const handleDiscard = () => setDiscardConfirmationOpen(true)
     const handleCancel = () => setDiscardConfirmationOpen(false)
+
+    if (loading) {
+        return <p className="p-4">Loading sub category data...</p>
+    }
 
     return (
         <>

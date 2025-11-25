@@ -44,7 +44,7 @@ export default function useClusterList() {
         return cluster
     }
 
-    const clusterList = data?.list || []
+    const clusterList = data?.data || []
 
     const clusterListTotal = data?.total || 0
 

@@ -145,14 +145,14 @@ const validationSchema = z.object({
     date: z.string().optional(),
     preparedByDate: z.string().optional(),
     time: z.string().optional(),
-    preparedBy: z.string().min(1, 'Prepared By is required'),
+    preparedBy: z.string().optional(),
     quantityPrepared: z
         .union([z.string(), z.number()])
         .optional()
         .refine((val) => !val || Number(val) >= 0, {
             message: 'Quantity must be a positive number',
         }),
-    approvedBy: z.string().min(1, 'Approved By is required'),
+    approvedBy: z.string().optional(),
     issuedBy: z.string().optional(),
     issueDate: z.string().min(1, 'Issue Date is required'),
     amendmentDate: z.string().optional(),

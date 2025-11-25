@@ -1,9 +1,10 @@
-import { PrefixFEntity, TableQueries } from './common'
+import { Cluster } from './cluster'
+import { IdentifierEntity, TableQueries } from './common'
 
 import type { Control, FieldErrors } from 'react-hook-form'
 
 export type GetLocationListResponse = {
-    list: Location[]
+    data: Location[]
     total: number
 }
 
@@ -14,11 +15,12 @@ export type Filter = {
 
 export type Location = {
     id: string
-    location_name: string
-    zone_name: string
-    cluster_name: string
+    name: string
+    zone_id: string | number
+    cluster_id: string | number
+    cluster: Cluster
     short_name: string
-} & PrefixFEntity
+} & IdentifierEntity
 
 export type LocationListState = {
     tableData: TableQueries
@@ -35,11 +37,11 @@ export type LocationListAction = {
 
 export type Fields = {
     id?: string
-    location_name: string
-    zone_name: string
-    cluster_name: string
+    name: string
+    zone_id: string | number
+    cluster_id: string | number
     short_name: string
-} & PrefixFEntity
+} & IdentifierEntity
 
 export type TagsFields = {
     tags: Array<{ value: string; label: string }>

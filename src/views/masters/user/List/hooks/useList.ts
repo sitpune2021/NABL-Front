@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import {
     apiUser,
     apiGetUserList,
@@ -30,12 +31,30 @@ export default function useUserList() {
         },
     )
     const saveUserData = async (user: Fields) => {
-        if (user.id) {
-            await apiUpdateUser(user.id, user)
-        } else {
-            await apiUser(user)
+        try {
+            let response
+
+            if (user.id) {
+                response = await apiUpdateUser(user.id, user)
+            } else {
+                response = await apiUser(user)
+            }
+            console.log(response, 'response')
+            await mutate()
+
+            return response
+        } catch (error: any) {
+            console.error('Error saving user data:', error)
+
+            // If API sends validation error in response
+            const message =
+                error?.response?.data?.message || 'Failed to save user data'
+
+            return {
+                success: false,
+                message,
+            }
         }
-        await mutate() // refresh list
     }
 
     // ✅ Get single user by ID (for edit or view)
@@ -44,7 +63,7 @@ export default function useUserList() {
         return user
     }
 
-    const userList = data?.list || []
+    const userList = data?.data || []
 
     const userListTotal = data?.total || 0
 

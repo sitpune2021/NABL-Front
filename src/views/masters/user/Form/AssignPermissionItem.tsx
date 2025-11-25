@@ -46,18 +46,18 @@ const AssignPermissionItem = ({
 
     const selectedZone = useWatch({
         control,
-        name: `userRoles.${index}.zone_name`,
+        name: `userRoles.${index}.zone_id`,
     })
     const selectedCluster = useWatch({
         control,
-        name: `userRoles.${index}.cluster_name`,
+        name: `userRoles.${index}.cluster_id`,
     })
 
     const zoneOptions = useMemo<Option[]>(
         () =>
             zoneList.map((z: any) => ({
-                label: z.zone_name,
-                value: z.zone_name,
+                label: z.name,
+                value: z.id,
             })),
         [zoneList],
     )
@@ -65,10 +65,10 @@ const AssignPermissionItem = ({
     const clusterOptions = useMemo<Option[]>(
         () =>
             clusterList
-                .filter((c: any) => c.zone_name === selectedZone)
+                .filter((c: any) => c.zone_id === selectedZone)
                 .map((c: any) => ({
-                    label: c.cluster_name,
-                    value: c.cluster_name,
+                    label: c.name,
+                    value: c.id,
                 })),
         [clusterList, selectedZone],
     )
@@ -76,22 +76,21 @@ const AssignPermissionItem = ({
     const locationOptions = useMemo<Option[]>(
         () =>
             locationList
-                .filter((l: any) => l.cluster_name === selectedCluster)
+                .filter((l: any) => l.cluster_id === selectedCluster)
                 .map((l: any) => ({
-                    label: l.location_name,
-                    value: l.location_name,
+                    label: l.name,
+                    value: l.id,
                 })),
         [locationList, selectedCluster],
     )
 
     const roleOptions = useMemo<Option[]>(
-        () => rolesList.map((r: any) => ({ label: r.name, value: r.name })),
+        () => rolesList.map((r: any) => ({ label: r.name, value: r.id })),
         [rolesList],
     )
 
     const departmentOptions = useMemo<Option[]>(
-        () =>
-            departmentList.map((d: any) => ({ label: d.name, value: d.name })),
+        () => departmentList.map((d: any) => ({ label: d.name, value: d.id })),
         [departmentList],
     )
 
@@ -112,13 +111,11 @@ const AssignPermissionItem = ({
             <div className="grid md:grid-cols-3 gap-6 mb-6">
                 <FormItem
                     label="Zone"
-                    invalid={!!errors?.userRoles?.[index]?.zone_name}
-                    errorMessage={
-                        errors?.userRoles?.[index]?.zone_name?.message
-                    }
+                    invalid={!!errors?.userRoles?.[index]?.zone_id}
+                    errorMessage={errors?.userRoles?.[index]?.zone_id?.message}
                 >
                     <Controller
-                        name={`userRoles.${index}.zone_name`}
+                        name={`userRoles.${index}.zone_id`}
                         control={control}
                         render={({ field }) => (
                             <Select
@@ -139,13 +136,13 @@ const AssignPermissionItem = ({
 
                 <FormItem
                     label="Cluster"
-                    invalid={!!errors?.userRoles?.[index]?.cluster_name}
+                    invalid={!!errors?.userRoles?.[index]?.cluster_id}
                     errorMessage={
-                        errors?.userRoles?.[index]?.cluster_name?.message
+                        errors?.userRoles?.[index]?.cluster_id?.message
                     }
                 >
                     <Controller
-                        name={`userRoles.${index}.cluster_name`}
+                        name={`userRoles.${index}.cluster_id`}
                         control={control}
                         render={({ field }) => (
                             <Select
@@ -166,13 +163,13 @@ const AssignPermissionItem = ({
 
                 <FormItem
                     label="Location"
-                    invalid={!!errors?.userRoles?.[index]?.location_name}
+                    invalid={!!errors?.userRoles?.[index]?.location_id}
                     errorMessage={
-                        errors?.userRoles?.[index]?.location_name?.message
+                        errors?.userRoles?.[index]?.location_id?.message
                     }
                 >
                     <Controller
-                        name={`userRoles.${index}.location_name`}
+                        name={`userRoles.${index}.location_id`}
                         control={control}
                         render={({ field }) => (
                             <Select
@@ -210,23 +207,21 @@ const AssignPermissionItem = ({
             ))}
 
             {!readOnly && (
-                <div className="mt-6 flex">
-                    <Button
-                        size="sm"
-                        type="button"
-                        icon={<HiPlus />}
-                        className="border border-blue-500 text-blue-500 shadow-md transition-all duration-200"
-                        onClick={() =>
-                            appendDept({
-                                department_name: '',
-                                roles: [],
-                                permissions: {},
-                            })
-                        }
-                    >
-                        Add Department
-                    </Button>
-                </div>
+                <Button
+                    size="xs"
+                    type="button"
+                    icon={<HiPlus />}
+                    className="border border-blue-500 text-blue-500 shadow-md transition-all duration-200"
+                    onClick={() =>
+                        appendDept({
+                            department_id: '',
+                            roles: [],
+                            permissions: {},
+                        })
+                    }
+                >
+                    Add Department
+                </Button>
             )}
         </div>
     )
@@ -266,11 +261,11 @@ const DepartmentBlock = React.memo(
             const updated: Record<string, any> = {}
 
             roles.forEach((roleObj: any) => {
-                const roleName = roleObj?.value
-                if (!roleName) return
-                updated[roleName] =
-                    permissions[roleName] ||
-                    rolesList.find((r: { name: any }) => r.name === roleName)
+                const roleId = roleObj?.value
+                if (!roleId) return
+                updated[roleId] =
+                    permissions[roleId] ||
+                    rolesList.find((r: { id: any }) => r.id === roleId)
                         ?.accessRight ||
                     {}
             })
@@ -306,15 +301,15 @@ const DepartmentBlock = React.memo(
                         label="Department"
                         invalid={
                             !!errors?.userRoles?.[index]?.department?.[dIndex]
-                                ?.department_name
+                                ?.department_id
                         }
                         errorMessage={
                             errors?.userRoles?.[index]?.department?.[dIndex]
-                                ?.department_name?.message
+                                ?.department_id?.message
                         }
                     >
                         <Controller
-                            name={`userRoles.${index}.department.${dIndex}.department_name`}
+                            name={`userRoles.${index}.department.${dIndex}.department_id`}
                             control={control}
                             render={({ field }) => (
                                 <Select

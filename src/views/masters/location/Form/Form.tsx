@@ -18,11 +18,17 @@ type LocationFormProps = {
 } & CommonProps
 
 const validationSchema = z.object({
-    location_name: z.string().min(1, { message: ' name required' }),
-    zone_name: z.string().min(1, { message: ' zone required' }),
-    cluster_name: z.string().min(1, { message: ' cluster required' }),
+    name: z.string().min(1, { message: ' name required' }),
+    zone_id: z.union([
+        z.string().min(1, { message: ' zone required' }),
+        z.number(),
+    ]),
+    cluster_id: z.union([
+        z.string().min(1, { message: ' cluster required' }),
+        z.number(),
+    ]),
     short_name: z.any(),
-    prefix: z.string().regex(/^[A-Z]{1,4}-[A-Z]{1,4}-[A-Z]{1,4}$/, {
+    identifier: z.string().regex(/^[A-Z]{1,4}-[A-Z]{1,4}-[A-Z]{1,4}$/, {
         message:
             'Prefix must be in format ZZZ-YYY-XXXX (zone prefix + cluster prefix + 1–4 uppercase letters only)',
     }),
