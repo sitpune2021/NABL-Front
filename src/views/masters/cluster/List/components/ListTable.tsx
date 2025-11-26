@@ -113,6 +113,7 @@ const ClusterListTable = () => {
             },
             {
                 header: 'Action',
+                accessorKey: 'action',
                 id: 'action',
                 cell: (props) => (
                     <ActionColumn

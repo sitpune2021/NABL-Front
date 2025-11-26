@@ -95,7 +95,8 @@ const DepartmentListTable = () => {
                 },
             },
             {
-                header: '',
+                header: 'Action',
+                accessorKey: 'action',
                 id: 'action',
                 cell: (props) => (
                     <ActionColumn

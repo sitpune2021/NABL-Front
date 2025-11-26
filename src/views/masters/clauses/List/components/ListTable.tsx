@@ -90,7 +90,11 @@ const ClausesListTable = () => {
                 accessorKey: 'name',
                 cell: (props) => {
                     const row = props.row.original
-                    return row.name || 'No Name'
+                    return (
+                        <span className="font-bold">
+                            {row.name || 'No Name'}
+                        </span>
+                    )
                 },
             },
             {
@@ -125,7 +129,8 @@ const ClausesListTable = () => {
                 },
             },
             {
-                header: '',
+                header: 'Action',
+                accessorKey: 'action',
                 id: 'action',
                 cell: (props) => {
                     const row = props.row.original

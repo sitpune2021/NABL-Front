@@ -78,15 +78,25 @@ const CategoryListTable = () => {
                 accessorKey: 'id',
             },
             {
-                header: 'Prefix',
-                accessorKey: 'identifier',
-            },
-            {
                 header: 'Name',
                 accessorKey: 'name',
+                cell: (props) => {
+                    const { name, identifier } = props.row.original
+                    return (
+                        <div className="flex items-center gap-2">
+                            <div>
+                                <div className="font-bold heading-text">
+                                    {name}
+                                </div>
+                                <div>{identifier}</div>
+                            </div>
+                        </div>
+                    )
+                },
             },
             {
-                header: '',
+                header: 'Action',
+                accessorKey: 'action',
                 id: 'action',
                 cell: (props) => (
                     <ActionColumn

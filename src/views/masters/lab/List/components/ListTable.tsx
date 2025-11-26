@@ -99,6 +99,19 @@ const LabListTable = () => {
             {
                 header: 'Name',
                 accessorKey: 'name',
+                cell: (props) => {
+                    const { name, labType } = props.row.original
+                    return (
+                        <div className="flex items-center gap-2">
+                            <div>
+                                <div className="font-bold heading-text">
+                                    {name}
+                                </div>
+                                <div>{labType}</div>
+                            </div>
+                        </div>
+                    )
+                },
             },
             {
                 header: 'Lab Code',
@@ -106,6 +119,7 @@ const LabListTable = () => {
             },
             {
                 header: 'Action',
+                accessorKey: 'action',
                 id: 'action',
                 cell: (props) => (
                     <ActionColumn

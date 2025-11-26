@@ -130,6 +130,7 @@ const LocationListTable = () => {
             },
             {
                 header: 'Action',
+                accessorKey: 'action',
                 id: 'action',
                 cell: (props) => (
                     <ActionColumn
