@@ -14,7 +14,6 @@ import {
     FrequencyPopupProps,
     FrequencyType,
 } from '@/@types/document'
-import { Card } from '@/components/ui'
 
 const FrequencyPopup = ({
     isOpen,
@@ -369,357 +368,426 @@ const FrequencyPopup = ({
             <Drawer
                 title="Set Data Entry Frequency"
                 isOpen={isOpen}
+                width={800}
                 onClose={onClose}
                 onRequestClose={onClose}
             >
                 <div className="flex flex-col h-full">
-                    <div className="flex-1 p-6">
-                        <div className="grid grid-cols-1 gap-4">
-                            <FormItem label="Type">
-                                <Select
-                                    value={frequencyTypes.find(
-                                        (t) => t.value === config.type,
-                                    )}
-                                    options={frequencyTypes}
-                                    onChange={(option) => {
-                                        const newType =
-                                            option?.value as FrequencyType
-                                        setConfig((prev) => ({
-                                            ...prev,
-                                            type: newType,
-                                            selectedItems: [],
-                                            selectedMonth: '',
-                                            selectedDay: '',
-                                            count: 1,
-                                            itemConfigs: {},
-                                        }))
-                                        setAvailableDays([])
-                                    }}
-                                />
-                            </FormItem>
+                    <div className="flex-1 p-6 bg-gray-50">
+                        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
+                            <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                                <div className="w-6 h-6 bg-blue-100 rounded-md flex items-center justify-center mr-3">
+                                    <span className="text-blue-600 text-sm font-bold">
+                                        ⚙️
+                                    </span>
+                                </div>
+                                Frequency Settings
+                            </h3>
 
-                            {showCountField && (
-                                <FormItem label="Count">
-                                    <Input
-                                        type="number"
-                                        min="1"
-                                        max={config.type === 'Weekly' ? 7 : 1}
-                                        value={config.count}
-                                        disabled={!isCountEditable(config.type)}
-                                        onChange={(e) => {
-                                            const value =
-                                                parseInt(e.target.value) || 1
-                                            if (config.type === 'Weekly') {
-                                                if (value > 7) {
-                                                    toast.push(
-                                                        <Notification
-                                                            title="Limit exceeded"
-                                                            type="danger"
-                                                        >
-                                                            You can only select
-                                                            up to 7 days in a
-                                                            week.
-                                                        </Notification>,
-                                                    )
-                                                    return
-                                                }
-
-                                                setConfig((prev) => {
-                                                    const currentSelectedItems =
-                                                        prev.selectedItems || []
-                                                    const newSelectedItems =
-                                                        currentSelectedItems.slice(
-                                                            0,
-                                                            value,
-                                                        )
-
-                                                    const newItemConfigs = {
-                                                        ...prev.itemConfigs,
-                                                    }
-                                                    Object.keys(
-                                                        newItemConfigs,
-                                                    ).forEach((key) => {
-                                                        if (
-                                                            !newSelectedItems.includes(
-                                                                key,
-                                                            )
-                                                        ) {
-                                                            delete newItemConfigs[
-                                                                key
-                                                            ]
-                                                        }
-                                                    })
-
-                                                    return {
-                                                        ...prev,
-                                                        count: value,
-                                                        selectedItems:
-                                                            newSelectedItems,
-                                                        itemConfigs:
-                                                            newItemConfigs,
-                                                    }
-                                                })
-                                            } else {
-                                                if (value > 1) {
-                                                    toast.push(
-                                                        <Notification
-                                                            title="Limit exceeded"
-                                                            type="danger"
-                                                        >
-                                                            You can only select
-                                                            1 day for{' '}
-                                                            {config.type.toLowerCase()}{' '}
-                                                            frequency.
-                                                        </Notification>,
-                                                    )
-                                                    return
-                                                }
-                                                setConfig((prev) => ({
-                                                    ...prev,
-                                                    count: value,
-                                                    selectedItems: [],
-                                                    itemConfigs: {},
-                                                }))
-                                            }
+                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                                <FormItem
+                                    label={
+                                        <span className="text-sm font-medium text-gray-700 flex items-center">
+                                            <span className="w-2 h-2 bg-blue-500 rounded-full mr-2"></span>
+                                            Type
+                                        </span>
+                                    }
+                                >
+                                    <Select
+                                        value={frequencyTypes.find(
+                                            (t) => t.value === config.type,
+                                        )}
+                                        options={frequencyTypes}
+                                        onChange={(option) => {
+                                            const newType =
+                                                option?.value as FrequencyType
+                                            setConfig((prev) => ({
+                                                ...prev,
+                                                type: newType,
+                                                selectedItems: [],
+                                                selectedMonth: '',
+                                                selectedDay: '',
+                                                count: 1,
+                                                itemConfigs: {},
+                                            }))
+                                            setAvailableDays([])
                                         }}
                                     />
                                 </FormItem>
-                            )}
 
-                            {showMonthDaySelection && (
-                                <>
+                                {showCountField && (
                                     <FormItem
                                         label={
-                                            config.type === 'Quarterly'
-                                                ? 'Select Month (1-3)'
-                                                : config.type === 'Half-Yearly'
-                                                  ? 'Select Month (1-6)'
-                                                  : 'Select Month'
+                                            <span className="text-sm font-medium text-gray-700 flex items-center">
+                                                <span className="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
+                                                Count
+                                            </span>
                                         }
                                     >
-                                        <Select
-                                            value={monthOptions.find(
-                                                (m) =>
-                                                    m.value === selectedMonth,
-                                            )}
-                                            options={monthOptions}
-                                            onChange={(option) => {
-                                                if (option) {
+                                        <Input
+                                            type="number"
+                                            min="1"
+                                            max={
+                                                config.type === 'Weekly' ? 7 : 1
+                                            }
+                                            value={config.count}
+                                            disabled={
+                                                !isCountEditable(config.type)
+                                            }
+                                            onChange={(e) => {
+                                                const value =
+                                                    parseInt(e.target.value) ||
+                                                    1
+                                                if (config.type === 'Weekly') {
+                                                    if (value > 7) {
+                                                        toast.push(
+                                                            <Notification
+                                                                title="Limit exceeded"
+                                                                type="danger"
+                                                            >
+                                                                You can only
+                                                                select up to 7
+                                                                days in a week.
+                                                            </Notification>,
+                                                        )
+                                                        return
+                                                    }
+
+                                                    setConfig((prev) => {
+                                                        const currentSelectedItems =
+                                                            prev.selectedItems ||
+                                                            []
+                                                        const newSelectedItems =
+                                                            currentSelectedItems.slice(
+                                                                0,
+                                                                value,
+                                                            )
+
+                                                        const newItemConfigs = {
+                                                            ...prev.itemConfigs,
+                                                        }
+                                                        Object.keys(
+                                                            newItemConfigs,
+                                                        ).forEach((key) => {
+                                                            if (
+                                                                !newSelectedItems.includes(
+                                                                    key,
+                                                                )
+                                                            ) {
+                                                                delete newItemConfigs[
+                                                                    key
+                                                                ]
+                                                            }
+                                                        })
+
+                                                        return {
+                                                            ...prev,
+                                                            count: value,
+                                                            selectedItems:
+                                                                newSelectedItems,
+                                                            itemConfigs:
+                                                                newItemConfigs,
+                                                        }
+                                                    })
+                                                } else {
+                                                    if (value > 1) {
+                                                        toast.push(
+                                                            <Notification
+                                                                title="Limit exceeded"
+                                                                type="danger"
+                                                            >
+                                                                You can only
+                                                                select 1 day for{' '}
+                                                                {config.type.toLowerCase()}{' '}
+                                                                frequency.
+                                                            </Notification>,
+                                                        )
+                                                        return
+                                                    }
                                                     setConfig((prev) => ({
                                                         ...prev,
-                                                        selectedMonth:
-                                                            option.value,
-                                                        selectedDay: '',
+                                                        count: value,
+                                                        selectedItems: [],
+                                                        itemConfigs: {},
                                                     }))
                                                 }
                                             }}
                                         />
                                     </FormItem>
+                                )}
+                            </div>
 
-                                    <FormItem label="Select Day">
-                                        <Select
-                                            value={availableDays.find(
-                                                (d) =>
-                                                    d.value ===
-                                                    config.selectedDay,
-                                            )}
-                                            options={availableDays}
-                                            isDisabled={!selectedMonth}
-                                            onChange={(option) => {
-                                                if (option) {
-                                                    handleDaySelection(
-                                                        option.value,
+                            {showMonthDaySelection && (
+                                <div className="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
+                                    <h4 className="text-md font-semibold text-blue-900 mb-4 flex items-center">
+                                        <span className="w-4 h-4 bg-blue-500 rounded-full mr-2"></span>
+                                        Month & Day Selection
+                                    </h4>
+                                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                                        <FormItem
+                                            label={
+                                                <span className="text-sm font-medium text-gray-700">
+                                                    {config.type === 'Quarterly'
+                                                        ? 'Select Month (1-3)'
+                                                        : config.type ===
+                                                            'Half-Yearly'
+                                                          ? 'Select Month (1-6)'
+                                                          : 'Select Month'}
+                                                </span>
+                                            }
+                                        >
+                                            <Select
+                                                value={monthOptions.find(
+                                                    (m) =>
+                                                        m.value ===
                                                         selectedMonth,
-                                                        config.type,
-                                                    )
+                                                )}
+                                                options={monthOptions}
+                                                onChange={(option) => {
+                                                    if (option) {
+                                                        setConfig((prev) => ({
+                                                            ...prev,
+                                                            selectedMonth:
+                                                                option.value,
+                                                            selectedDay: '',
+                                                        }))
+                                                    }
+                                                }}
+                                            />
+                                        </FormItem>
+
+                                        <FormItem
+                                            label={
+                                                <span className="text-sm font-medium text-gray-700">
+                                                    Select Day
+                                                </span>
+                                            }
+                                        >
+                                            <Select
+                                                value={availableDays.find(
+                                                    (d) =>
+                                                        d.value ===
+                                                        config.selectedDay,
+                                                )}
+                                                options={availableDays}
+                                                isDisabled={!selectedMonth}
+                                                onChange={(option) => {
+                                                    if (option) {
+                                                        handleDaySelection(
+                                                            option.value,
+                                                            selectedMonth,
+                                                            config.type,
+                                                        )
+                                                    }
+                                                }}
+                                            />
+                                        </FormItem>
+                                    </div>
+                                </div>
+                            )}
+
+                            {showSingleDaySelection && (
+                                <div className="mt-6 p-4 bg-green-50 rounded-lg border border-green-200">
+                                    <h4 className="text-md font-semibold text-green-900 mb-4 flex items-center">
+                                        <span className="w-4 h-4 bg-green-500 rounded-full mr-2"></span>
+                                        {config.type === 'Weekly'
+                                            ? 'Day Selection'
+                                            : config.type === 'Monthly'
+                                              ? 'Monthly Day Selection'
+                                              : 'Fortnightly Selection'}
+                                    </h4>
+                                    <FormItem
+                                        label={
+                                            <span className="text-sm font-medium text-gray-700">
+                                                {config.type === 'Weekly'
+                                                    ? 'Select Days'
+                                                    : config.type === 'Monthly'
+                                                      ? 'Select Day'
+                                                      : 'Select Day (1-15)'}
+                                            </span>
+                                        }
+                                    >
+                                        <Select
+                                            isMulti={
+                                                config.type === 'Weekly' &&
+                                                config.count > 1
+                                            }
+                                            value={
+                                                config.type === 'Weekly' &&
+                                                config.count > 1
+                                                    ? dayOptions.filter((opt) =>
+                                                          config.selectedItems?.includes(
+                                                              opt.value,
+                                                          ),
+                                                      )
+                                                    : dayOptions.find(
+                                                          (opt) =>
+                                                              config
+                                                                  .selectedItems?.[0] ===
+                                                              opt.value,
+                                                      )
+                                            }
+                                            options={dayOptions}
+                                            onChange={(selectedOptions) => {
+                                                if (
+                                                    config.type === 'Weekly' &&
+                                                    config.count > 1
+                                                ) {
+                                                    const selected =
+                                                        Array.isArray(
+                                                            selectedOptions,
+                                                        )
+                                                            ? selectedOptions.map(
+                                                                  (opt: any) =>
+                                                                      opt.value,
+                                                              )
+                                                            : []
+
+                                                    const limitedSelection =
+                                                        selected.slice(
+                                                            0,
+                                                            config.count,
+                                                        )
+
+                                                    if (
+                                                        selected.length >
+                                                        config.count
+                                                    ) {
+                                                        toast.push(
+                                                            <Notification
+                                                                title="Selection limit"
+                                                                type="danger"
+                                                            >
+                                                                You can only
+                                                                select up to{' '}
+                                                                {config.count}{' '}
+                                                                days.
+                                                            </Notification>,
+                                                        )
+                                                    }
+
+                                                    setConfig((prev) => {
+                                                        const newItemConfigs = {
+                                                            ...prev.itemConfigs,
+                                                        }
+                                                        limitedSelection.forEach(
+                                                            (item) => {
+                                                                if (
+                                                                    !newItemConfigs[
+                                                                        item
+                                                                    ]
+                                                                ) {
+                                                                    newItemConfigs[
+                                                                        item
+                                                                    ] = {
+                                                                        interval: 1,
+                                                                        cutOffTimes:
+                                                                            [
+                                                                                '00:00',
+                                                                            ],
+                                                                        considerLastDay: false,
+                                                                    }
+                                                                }
+                                                            },
+                                                        )
+                                                        Object.keys(
+                                                            newItemConfigs,
+                                                        ).forEach((key) => {
+                                                            if (
+                                                                !limitedSelection.includes(
+                                                                    key,
+                                                                )
+                                                            ) {
+                                                                delete newItemConfigs[
+                                                                    key
+                                                                ]
+                                                            }
+                                                        })
+                                                        return {
+                                                            ...prev,
+                                                            selectedItems:
+                                                                limitedSelection,
+                                                            itemConfigs:
+                                                                newItemConfigs,
+                                                        }
+                                                    })
+                                                } else {
+                                                    const option =
+                                                        selectedOptions as any
+                                                    if (option) {
+                                                        const selectedDay =
+                                                            option.value
+                                                        if (
+                                                            config.type ===
+                                                            'Monthly'
+                                                        ) {
+                                                            handleDaySelection(
+                                                                selectedDay,
+                                                                '',
+                                                                config.type,
+                                                            )
+                                                        } else {
+                                                            setConfig(
+                                                                (prev) => {
+                                                                    const newItemConfigs =
+                                                                        {
+                                                                            ...prev.itemConfigs,
+                                                                        }
+
+                                                                    if (
+                                                                        !newItemConfigs[
+                                                                            selectedDay
+                                                                        ]
+                                                                    ) {
+                                                                        newItemConfigs[
+                                                                            selectedDay
+                                                                        ] = {
+                                                                            interval: 1,
+                                                                            cutOffTimes:
+                                                                                [
+                                                                                    '00:00',
+                                                                                ],
+                                                                            considerLastDay: false,
+                                                                        }
+                                                                    }
+
+                                                                    Object.keys(
+                                                                        newItemConfigs,
+                                                                    ).forEach(
+                                                                        (
+                                                                            key,
+                                                                        ) => {
+                                                                            if (
+                                                                                key !==
+                                                                                selectedDay
+                                                                            ) {
+                                                                                delete newItemConfigs[
+                                                                                    key
+                                                                                ]
+                                                                            }
+                                                                        },
+                                                                    )
+
+                                                                    return {
+                                                                        ...prev,
+                                                                        selectedItems:
+                                                                            [
+                                                                                selectedDay,
+                                                                            ],
+                                                                        selectedDay:
+                                                                            selectedDay,
+                                                                        itemConfigs:
+                                                                            newItemConfigs,
+                                                                    }
+                                                                },
+                                                            )
+                                                        }
+                                                    }
                                                 }
                                             }}
                                         />
                                     </FormItem>
-                                </>
-                            )}
-
-                            {showSingleDaySelection && (
-                                <FormItem
-                                    label={
-                                        config.type === 'Weekly'
-                                            ? 'Select Days'
-                                            : config.type === 'Monthly'
-                                              ? 'Select Day'
-                                              : 'Select Day (1-15)'
-                                    }
-                                >
-                                    <Select
-                                        isMulti={
-                                            config.type === 'Weekly' &&
-                                            config.count > 1
-                                        }
-                                        value={
-                                            config.type === 'Weekly' &&
-                                            config.count > 1
-                                                ? dayOptions.filter((opt) =>
-                                                      config.selectedItems?.includes(
-                                                          opt.value,
-                                                      ),
-                                                  )
-                                                : dayOptions.find(
-                                                      (opt) =>
-                                                          config
-                                                              .selectedItems?.[0] ===
-                                                          opt.value,
-                                                  )
-                                        }
-                                        options={dayOptions}
-                                        onChange={(selectedOptions) => {
-                                            if (
-                                                config.type === 'Weekly' &&
-                                                config.count > 1
-                                            ) {
-                                                const selected = Array.isArray(
-                                                    selectedOptions,
-                                                )
-                                                    ? selectedOptions.map(
-                                                          (opt: any) =>
-                                                              opt.value,
-                                                      )
-                                                    : []
-
-                                                const limitedSelection =
-                                                    selected.slice(
-                                                        0,
-                                                        config.count,
-                                                    )
-
-                                                if (
-                                                    selected.length >
-                                                    config.count
-                                                ) {
-                                                    toast.push(
-                                                        <Notification
-                                                            title="Selection limit"
-                                                            type="danger"
-                                                        >
-                                                            You can only select
-                                                            up to {config.count}{' '}
-                                                            days.
-                                                        </Notification>,
-                                                    )
-                                                }
-
-                                                setConfig((prev) => {
-                                                    const newItemConfigs = {
-                                                        ...prev.itemConfigs,
-                                                    }
-                                                    limitedSelection.forEach(
-                                                        (item) => {
-                                                            if (
-                                                                !newItemConfigs[
-                                                                    item
-                                                                ]
-                                                            ) {
-                                                                newItemConfigs[
-                                                                    item
-                                                                ] = {
-                                                                    interval: 1,
-                                                                    cutOffTimes:
-                                                                        [
-                                                                            '00:00',
-                                                                        ],
-                                                                    considerLastDay: false,
-                                                                }
-                                                            }
-                                                        },
-                                                    )
-                                                    Object.keys(
-                                                        newItemConfigs,
-                                                    ).forEach((key) => {
-                                                        if (
-                                                            !limitedSelection.includes(
-                                                                key,
-                                                            )
-                                                        ) {
-                                                            delete newItemConfigs[
-                                                                key
-                                                            ]
-                                                        }
-                                                    })
-                                                    return {
-                                                        ...prev,
-                                                        selectedItems:
-                                                            limitedSelection,
-                                                        itemConfigs:
-                                                            newItemConfigs,
-                                                    }
-                                                })
-                                            } else {
-                                                const option =
-                                                    selectedOptions as any
-                                                if (option) {
-                                                    const selectedDay =
-                                                        option.value
-                                                    if (
-                                                        config.type ===
-                                                        'Monthly'
-                                                    ) {
-                                                        handleDaySelection(
-                                                            selectedDay,
-                                                            '',
-                                                            config.type,
-                                                        )
-                                                    } else {
-                                                        setConfig((prev) => {
-                                                            const newItemConfigs =
-                                                                {
-                                                                    ...prev.itemConfigs,
-                                                                }
-
-                                                            if (
-                                                                !newItemConfigs[
-                                                                    selectedDay
-                                                                ]
-                                                            ) {
-                                                                newItemConfigs[
-                                                                    selectedDay
-                                                                ] = {
-                                                                    interval: 1,
-                                                                    cutOffTimes:
-                                                                        [
-                                                                            '00:00',
-                                                                        ],
-                                                                    considerLastDay: false,
-                                                                }
-                                                            }
-
-                                                            Object.keys(
-                                                                newItemConfigs,
-                                                            ).forEach((key) => {
-                                                                if (
-                                                                    key !==
-                                                                    selectedDay
-                                                                ) {
-                                                                    delete newItemConfigs[
-                                                                        key
-                                                                    ]
-                                                                }
-                                                            })
-
-                                                            return {
-                                                                ...prev,
-                                                                selectedItems: [
-                                                                    selectedDay,
-                                                                ],
-                                                                selectedDay:
-                                                                    selectedDay,
-                                                                itemConfigs:
-                                                                    newItemConfigs,
-                                                            }
-                                                        })
-                                                    }
-                                                }
-                                            }
-                                        }}
-                                    />
-                                </FormItem>
+                                </div>
                             )}
 
                             {config.type !== 'Weekly' &&
@@ -728,54 +796,78 @@ const FrequencyPopup = ({
                                 config.type !== 'Quarterly' &&
                                 config.type !== 'Half-Yearly' &&
                                 config.type !== 'Yearly' && (
-                                    <FormItem label="Interval">
-                                        <Input
-                                            type="number"
-                                            min="1"
-                                            value={config.interval}
-                                            onChange={(e) =>
-                                                setConfig((prev) => ({
-                                                    ...prev,
-                                                    interval:
-                                                        parseInt(
-                                                            e.target.value,
-                                                        ) || 1,
-                                                }))
+                                    <div className="mt-6 p-4 bg-purple-50 rounded-lg border border-purple-200">
+                                        <FormItem
+                                            label={
+                                                <span className="text-sm font-medium text-gray-700 flex items-center">
+                                                    <span className="w-2 h-2 bg-purple-500 rounded-full mr-2"></span>
+                                                    Interval
+                                                </span>
                                             }
-                                        />
-                                    </FormItem>
+                                        >
+                                            <Input
+                                                type="number"
+                                                min="1"
+                                                value={config.interval}
+                                                onChange={(e) =>
+                                                    setConfig((prev) => ({
+                                                        ...prev,
+                                                        interval:
+                                                            parseInt(
+                                                                e.target.value,
+                                                            ) || 1,
+                                                    }))
+                                                }
+                                            />
+                                        </FormItem>
+                                    </div>
                                 )}
                         </div>
 
                         {showMonthDaySelection &&
                             selectedMonth &&
                             selectedDay && (
-                                <div className="mt-5">
-                                    <h4 className="font-semibold mb-3">
-                                        {`Per-Day Settings (${config.type} - ${selectedMonth} - Day ${selectedDay})`}
+                                <div className="bg-white rounded-lg border border-gray-200 p-6 mb-6 shadow-sm">
+                                    <div className="flex items-center justify-between mb-4">
+                                        <h4 className="text-lg font-semibold text-gray-800 flex items-center">
+                                            <div className="w-6 h-6 bg-orange-100 rounded-md flex items-center justify-center mr-3">
+                                                <span className="text-orange-600 text-sm font-bold">
+                                                    📅
+                                                </span>
+                                            </div>
+                                            {`Per-Day Settings (${config.type} - ${selectedMonth} - Day ${selectedDay})`}
+                                        </h4>
                                         {config.itemConfigs?.[
                                             `${selectedMonth}-${selectedDay}`
                                         ]?.considerLastDay && (
-                                            <span className="ml-2 text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">
+                                            <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 border border-blue-200">
                                                 Last Day Mode
                                             </span>
                                         )}
-                                    </h4>
+                                    </div>
 
-                                    <div className="border rounded p-3 mb-3 bg-gray-50">
-                                        <h5 className="font-medium mb-2">
+                                    <div className="border rounded-lg p-4 bg-gradient-to-r from-orange-50 to-amber-50 border-orange-200">
+                                        <h5 className="font-medium mb-3 text-gray-800 flex items-center">
+                                            <span className="w-3 h-3 bg-orange-400 rounded-full mr-2"></span>
                                             {`${selectedMonth} - Day ${selectedDay}`}
                                             {config.itemConfigs?.[
                                                 `${selectedMonth}-${selectedDay}`
                                             ]?.considerLastDay && (
-                                                <span className="ml-2 text-sm text-blue-600">
+                                                <span className="ml-2 text-sm text-blue-600 bg-blue-100 px-2 py-1 rounded">
                                                     (Notifications will be sent
                                                     on last day of month)
                                                 </span>
                                             )}
                                         </h5>
+
                                         <FormItem
-                                            label={`Interval for Day ${selectedDay}`}
+                                            label={
+                                                <span className="text-sm font-medium text-gray-700 flex items-center">
+                                                    <span className="w-2 h-2 bg-gray-500 rounded-full mr-2"></span>
+                                                    Interval for Day{' '}
+                                                    {selectedDay}
+                                                </span>
+                                            }
                                         >
                                             <Input
                                                 type="number"
@@ -844,78 +936,90 @@ const FrequencyPopup = ({
                                             />
                                         </FormItem>
 
-                                        {(
-                                            config.itemConfigs?.[
-                                                `${selectedMonth}-${selectedDay}`
-                                            ]?.cutOffTimes || ['00:00']
-                                        ).map((time, i) => (
-                                            <div
-                                                key={i}
-                                                className="flex items-center gap-2 mb-2"
-                                            >
-                                                <TimeInput
-                                                    format="12"
-                                                    value={
-                                                        new Date(
-                                                            `2000-01-01T${time}`,
-                                                        )
-                                                    }
-                                                    onChange={(date) => {
-                                                        setConfig((prev) => {
-                                                            const newConfigs = {
-                                                                ...prev.itemConfigs,
-                                                            }
-                                                            const itemKey = `${selectedMonth}-${selectedDay}`
-                                                            const currentConfig =
-                                                                newConfigs[
-                                                                    itemKey
-                                                                ] || {
-                                                                    interval: 1,
-                                                                    cutOffTimes:
+                                        <div className="mt-4">
+                                            <label className="block text-sm font-medium text-gray-700 mb-3 flex items-center">
+                                                <span className="w-2 h-2 bg-gray-500 rounded-full mr-2"></span>
+                                                Cut-off Times
+                                            </label>
+                                            {(
+                                                config.itemConfigs?.[
+                                                    `${selectedMonth}-${selectedDay}`
+                                                ]?.cutOffTimes || ['00:00']
+                                            ).map((time, i) => (
+                                                <div
+                                                    key={i}
+                                                    className="flex items-center gap-3 mb-3 p-3 bg-white rounded-lg border border-gray-200 shadow-xs"
+                                                >
+                                                    <TimeInput
+                                                        format="12"
+                                                        value={
+                                                            new Date(
+                                                                `2000-01-01T${time}`,
+                                                            )
+                                                        }
+                                                        onChange={(date) => {
+                                                            setConfig(
+                                                                (prev) => {
+                                                                    const newConfigs =
+                                                                        {
+                                                                            ...prev.itemConfigs,
+                                                                        }
+                                                                    const itemKey = `${selectedMonth}-${selectedDay}`
+                                                                    const currentConfig =
+                                                                        newConfigs[
+                                                                            itemKey
+                                                                        ] || {
+                                                                            interval: 1,
+                                                                            cutOffTimes:
+                                                                                [
+                                                                                    '00:00',
+                                                                                ],
+                                                                            considerLastDay: false,
+                                                                        }
+                                                                    const newTimes =
                                                                         [
-                                                                            '00:00',
-                                                                        ],
-                                                                    considerLastDay: false,
-                                                                }
-                                                            const newTimes = [
-                                                                ...currentConfig.cutOffTimes,
-                                                            ]
+                                                                            ...currentConfig.cutOffTimes,
+                                                                        ]
 
-                                                            if (!date) {
-                                                                newTimes.splice(
-                                                                    i,
-                                                                    1,
-                                                                )
-                                                            } else {
-                                                                const timeStr =
-                                                                    date
-                                                                        .toTimeString()
-                                                                        .slice(
-                                                                            0,
-                                                                            5,
+                                                                    if (!date) {
+                                                                        newTimes.splice(
+                                                                            i,
+                                                                            1,
                                                                         )
-                                                                newTimes[i] =
-                                                                    timeStr
-                                                            }
+                                                                    } else {
+                                                                        const timeStr =
+                                                                            date
+                                                                                .toTimeString()
+                                                                                .slice(
+                                                                                    0,
+                                                                                    5,
+                                                                                )
+                                                                        newTimes[
+                                                                            i
+                                                                        ] =
+                                                                            timeStr
+                                                                    }
 
-                                                            newConfigs[
-                                                                itemKey
-                                                            ] = {
-                                                                ...currentConfig,
-                                                                cutOffTimes:
-                                                                    newTimes,
-                                                            }
+                                                                    newConfigs[
+                                                                        itemKey
+                                                                    ] = {
+                                                                        ...currentConfig,
+                                                                        cutOffTimes:
+                                                                            newTimes,
+                                                                    }
 
-                                                            return {
-                                                                ...prev,
-                                                                itemConfigs:
-                                                                    newConfigs,
-                                                            }
-                                                        })
-                                                    }}
-                                                />
-                                            </div>
-                                        ))}
+                                                                    return {
+                                                                        ...prev,
+                                                                        itemConfigs:
+                                                                            newConfigs,
+                                                                    }
+                                                                },
+                                                            )
+                                                        }}
+                                                    />
+                                                </div>
+                                            ))}
+                                        </div>
                                     </div>
                                 </div>
                             )}
@@ -923,8 +1027,13 @@ const FrequencyPopup = ({
                         {showSingleDaySelection &&
                             config.selectedItems &&
                             config.selectedItems.length > 0 && (
-                                <div className="mt-5">
-                                    <h4 className="font-semibold mb-3">
+                                <div className="bg-white rounded-lg border border-gray-200 p-6 mb-6 shadow-sm">
+                                    <h4 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                                        <div className="w-6 h-6 bg-green-100 rounded-md flex items-center justify-center mr-3">
+                                            <span className="text-green-600 text-sm font-bold">
+                                                📊
+                                            </span>
+                                        </div>
                                         {config.type === 'Weekly'
                                             ? 'Per-Day Settings'
                                             : config.type === 'Monthly'
@@ -944,23 +1053,37 @@ const FrequencyPopup = ({
                                         return (
                                             <div
                                                 key={item}
-                                                className="border rounded p-3 mb-3 bg-gray-50"
+                                                className="border rounded-lg p-4 mb-4 bg-gradient-to-r from-green-50 to-emerald-50 border-green-200"
                                             >
-                                                <h5 className="font-medium mb-2">
-                                                    {config.type === 'Weekly'
-                                                        ? item
-                                                        : config.type ===
-                                                            'Monthly'
-                                                          ? `Day ${item}`
-                                                          : item}
+                                                <h5 className="font-medium mb-3 text-gray-800 flex items-center justify-between">
+                                                    <span className="flex items-center">
+                                                        <span className="w-3 h-3 bg-green-400 rounded-full mr-2"></span>
+                                                        {config.type ===
+                                                        'Weekly'
+                                                            ? item
+                                                            : config.type ===
+                                                                'Monthly'
+                                                              ? `Day ${item}`
+                                                              : item}
+                                                    </span>
                                                     {dayConfig.considerLastDay && (
-                                                        <span className="ml-2 text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">
+                                                        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 border border-blue-200">
                                                             Last Day Mode
                                                         </span>
                                                     )}
                                                 </h5>
+
                                                 <FormItem
-                                                    label={`Interval for ${config.type === 'Weekly' ? item : `Day ${item}`}`}
+                                                    label={
+                                                        <span className="text-sm font-medium text-gray-700 flex items-center">
+                                                            <span className="w-2 h-2 bg-gray-500 rounded-full mr-2"></span>
+                                                            Interval for{' '}
+                                                            {config.type ===
+                                                            'Weekly'
+                                                                ? item
+                                                                : `Day ${item}`}
+                                                        </span>
+                                                    }
                                                 >
                                                     <Input
                                                         type="number"
@@ -1032,81 +1155,88 @@ const FrequencyPopup = ({
                                                     />
                                                 </FormItem>
 
-                                                {dayConfig.cutOffTimes.map(
-                                                    (time, i) => (
-                                                        <div
-                                                            key={i}
-                                                            className="flex items-center gap-2 mb-2"
-                                                        >
-                                                            <TimeInput
-                                                                format="12"
-                                                                value={
-                                                                    new Date(
-                                                                        `2000-01-01T${time}`,
-                                                                    )
-                                                                }
-                                                                onChange={(
-                                                                    date,
-                                                                ) => {
-                                                                    setConfig(
-                                                                        (
-                                                                            prev,
-                                                                        ) => {
-                                                                            const newConfigs =
-                                                                                {
-                                                                                    ...prev.itemConfigs,
+                                                <div className="mt-4">
+                                                    <label className="block text-sm font-medium text-gray-700 mb-3 flex items-center">
+                                                        <span className="w-2 h-2 bg-gray-500 rounded-full mr-2"></span>
+                                                        Cut-off Times
+                                                    </label>
+
+                                                    {dayConfig.cutOffTimes.map(
+                                                        (time, i) => (
+                                                            <div
+                                                                key={i}
+                                                                className="flex items-center gap-3 mb-3 p-3 bg-white rounded-lg border border-gray-200 shadow-xs"
+                                                            >
+                                                                <TimeInput
+                                                                    format="12"
+                                                                    value={
+                                                                        new Date(
+                                                                            `2000-01-01T${time}`,
+                                                                        )
+                                                                    }
+                                                                    onChange={(
+                                                                        date,
+                                                                    ) => {
+                                                                        setConfig(
+                                                                            (
+                                                                                prev,
+                                                                            ) => {
+                                                                                const newConfigs =
+                                                                                    {
+                                                                                        ...prev.itemConfigs,
+                                                                                    }
+                                                                                const updated =
+                                                                                    newConfigs[
+                                                                                        item
+                                                                                    ]
+                                                                                const newTimes =
+                                                                                    [
+                                                                                        ...updated.cutOffTimes,
+                                                                                    ]
+
+                                                                                if (
+                                                                                    !date
+                                                                                ) {
+                                                                                    newTimes.splice(
+                                                                                        i,
+                                                                                        1,
+                                                                                    )
+                                                                                } else {
+                                                                                    const timeStr =
+                                                                                        date
+                                                                                            .toTimeString()
+                                                                                            .slice(
+                                                                                                0,
+                                                                                                5,
+                                                                                            )
+                                                                                    newTimes[
+                                                                                        i
+                                                                                    ] =
+                                                                                        timeStr
                                                                                 }
-                                                                            const updated =
+
                                                                                 newConfigs[
                                                                                     item
-                                                                                ]
-                                                                            const newTimes =
-                                                                                [
-                                                                                    ...updated.cutOffTimes,
-                                                                                ]
-
-                                                                            if (
-                                                                                !date
-                                                                            ) {
-                                                                                newTimes.splice(
-                                                                                    i,
-                                                                                    1,
-                                                                                )
-                                                                            } else {
-                                                                                const timeStr =
-                                                                                    date
-                                                                                        .toTimeString()
-                                                                                        .slice(
-                                                                                            0,
-                                                                                            5,
-                                                                                        )
-                                                                                newTimes[
-                                                                                    i
                                                                                 ] =
-                                                                                    timeStr
-                                                                            }
+                                                                                    {
+                                                                                        ...updated,
+                                                                                        cutOffTimes:
+                                                                                            newTimes,
+                                                                                    }
 
-                                                                            newConfigs[
-                                                                                item
-                                                                            ] =
-                                                                                {
-                                                                                    ...updated,
-                                                                                    cutOffTimes:
-                                                                                        newTimes,
+                                                                                return {
+                                                                                    ...prev,
+                                                                                    itemConfigs:
+                                                                                        newConfigs,
                                                                                 }
-
-                                                                            return {
-                                                                                ...prev,
-                                                                                itemConfigs:
-                                                                                    newConfigs,
-                                                                            }
-                                                                        },
-                                                                    )
-                                                                }}
-                                                            />
-                                                        </div>
-                                                    ),
-                                                )}
+                                                                            },
+                                                                        )
+                                                                    }}
+                                                                />
+                                                            </div>
+                                                        ),
+                                                    )}
+                                                </div>
                                             </div>
                                         )
                                     })}
@@ -1120,497 +1250,587 @@ const FrequencyPopup = ({
                             config.type !== 'Half-Yearly' &&
                             config.type !== 'Yearly' &&
                             config.cutOffTimes?.length > 0 && (
-                                <div className="mt-4">
-                                    <FormItem label="Cut-off Times">
-                                        {config.cutOffTimes.map((time, i) => (
-                                            <div
-                                                key={i}
-                                                className="flex items-center gap-2 mb-2"
-                                            >
-                                                <TimeInput
-                                                    format="12"
-                                                    value={
-                                                        new Date(
-                                                            `2000-01-01T${time}`,
-                                                        )
-                                                    }
-                                                    onChange={(date) => {
-                                                        setConfig((prev) => {
-                                                            const newTimes = [
-                                                                ...prev.cutOffTimes!,
-                                                            ]
-                                                            if (!date) {
-                                                                newTimes.splice(
-                                                                    i,
-                                                                    1,
+                                <div className="bg-white rounded-lg border border-gray-200 p-6 mb-6 shadow-sm">
+                                    <FormItem
+                                        label={
+                                            <span className="text-lg font-semibold text-gray-800 flex items-center mb-4">
+                                                <div className="w-6 h-6 bg-purple-100 rounded-md flex items-center justify-center mr-3">
+                                                    <span className="text-purple-600 text-sm font-bold">
+                                                        ⏰
+                                                    </span>
+                                                </div>
+                                                Cut-off Times
+                                            </span>
+                                        }
+                                    >
+                                        <div className="space-y-3">
+                                            {config.cutOffTimes.map(
+                                                (time, i) => (
+                                                    <div
+                                                        key={i}
+                                                        className="flex items-center gap-3 p-3 bg-gradient-to-r from-purple-50 to-violet-50 rounded-lg border border-purple-200"
+                                                    >
+                                                        <TimeInput
+                                                            format="12"
+                                                            value={
+                                                                new Date(
+                                                                    `2000-01-01T${time}`,
                                                                 )
-                                                            } else {
-                                                                const timeString =
-                                                                    date
-                                                                        .toTimeString()
-                                                                        .slice(
-                                                                            0,
-                                                                            5,
-                                                                        )
-                                                                newTimes[i] =
-                                                                    timeString
                                                             }
-                                                            return {
-                                                                ...prev,
-                                                                cutOffTimes:
-                                                                    newTimes,
-                                                            }
-                                                        })
-                                                    }}
-                                                />
-                                            </div>
-                                        ))}
+                                                            onChange={(
+                                                                date,
+                                                            ) => {
+                                                                setConfig(
+                                                                    (prev) => {
+                                                                        const newTimes =
+                                                                            [
+                                                                                ...prev.cutOffTimes!,
+                                                                            ]
+                                                                        if (
+                                                                            !date
+                                                                        ) {
+                                                                            newTimes.splice(
+                                                                                i,
+                                                                                1,
+                                                                            )
+                                                                        } else {
+                                                                            const timeString =
+                                                                                date
+                                                                                    .toTimeString()
+                                                                                    .slice(
+                                                                                        0,
+                                                                                        5,
+                                                                                    )
+                                                                            newTimes[
+                                                                                i
+                                                                            ] =
+                                                                                timeString
+                                                                        }
+                                                                        return {
+                                                                            ...prev,
+                                                                            cutOffTimes:
+                                                                                newTimes,
+                                                                        }
+                                                                    },
+                                                                )
+                                                            }}
+                                                        />
+                                                    </div>
+                                                ),
+                                            )}
+                                        </div>
                                     </FormItem>
                                 </div>
                             )}
-                    </div>
-                    <div className="p-6">
-                        {(['daily', 'oneTime'] as const).map((section) => (
-                            <div key={section} className="mb-6">
-                                <h3 className="mt-4 mb-2 font-semibold capitalize">
-                                    {section}
-                                </h3>
 
-                                {triates[section].map((field, index) => {
-                                    const type =
-                                        field.traits?.[0]?.value ?? 'text'
-                                    const saved =
-                                        settings[field.headerText] || {}
+                        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                            <h3 className="text-lg font-semibold text-gray-800 mb-6 flex items-center">
+                                <div className="w-6 h-6 bg-indigo-100 rounded-md flex items-center justify-center mr-3">
+                                    <span className="text-indigo-600 text-sm font-bold">
+                                        📋
+                                    </span>
+                                </div>
+                                Field Configuration
+                            </h3>
 
-                                    return (
-                                        <Card
-                                            key={`${section}-${index}`}
-                                            className="mb-4"
-                                        >
-                                            <h4 className="mb-4">
-                                                {field.headerText} - ({type})
-                                            </h4>
+                            {(['daily', 'oneTime'] as const).map((section) => (
+                                <div key={section} className="mb-8">
+                                    <div className="flex items-center mb-4">
+                                        <div
+                                            className={`w-4 h-4 rounded-full mr-3 ${
+                                                section === 'daily'
+                                                    ? 'bg-green-400'
+                                                    : 'bg-purple-400'
+                                            }`}
+                                        ></div>
+                                        <h3 className="text-lg font-semibold text-gray-800 capitalize">
+                                            {section === 'daily'
+                                                ? '📅 Daily Fields'
+                                                : '⏰ One-Time Fields'}
+                                        </h3>
+                                    </div>
 
-                                            <div className="grid md:grid-cols-2 gap-4">
-                                                {/* Dynamic checkbox only for daily */}
-                                                {section === 'daily' && (
-                                                    <div>
-                                                        <label>
-                                                            Dynamic:
-                                                            <input
-                                                                type="checkbox"
-                                                                checked={
-                                                                    saved.dynamic ||
-                                                                    false
+                                    <div className="space-y-4">
+                                        {triates[section].map(
+                                            (field, index) => {
+                                                const type =
+                                                    field.traits?.[0]?.value ??
+                                                    'text'
+                                                const saved =
+                                                    settings[
+                                                        field.headerText
+                                                    ] || {}
+
+                                                return (
+                                                    <div
+                                                        key={`${section}-${index}`}
+                                                        className="border border-gray-200 rounded-lg p-4 bg-white hover:shadow-md transition-shadow duration-200"
+                                                    >
+                                                        <h4 className="font-semibold text-gray-800 mb-4 flex items-center justify-between">
+                                                            <span className="flex items-center">
+                                                                <span className="w-3 h-3 bg-blue-300 rounded-full mr-2"></span>
+                                                                {
+                                                                    field.headerText
                                                                 }
-                                                                style={{
-                                                                    marginLeft: 10,
-                                                                }}
-                                                                onChange={(e) =>
-                                                                    updateSetting(
-                                                                        field.headerText,
-                                                                        type,
-                                                                        {
-                                                                            dynamic:
-                                                                                e
-                                                                                    .target
-                                                                                    .checked,
-                                                                        },
-                                                                    )
-                                                                }
-                                                            />
-                                                        </label>
-                                                    </div>
-                                                )}
+                                                            </span>
+                                                            <span className="px-3 py-1 text-xs font-medium bg-gray-100 text-gray-700 rounded-full border">
+                                                                {type}
+                                                            </span>
+                                                        </h4>
 
-                                                {/* Table & Field selection (oneTime always, daily if dynamic) */}
-                                                {saved.dynamic && (
-                                                    <div className="mt-2">
-                                                        <label>Table:</label>
-                                                        <select
-                                                            style={{
-                                                                marginLeft: 10,
-                                                            }}
-                                                            value={
-                                                                saved.table ||
-                                                                ''
-                                                            }
-                                                            onChange={(e) =>
-                                                                updateSetting(
-                                                                    field.headerText,
-                                                                    type,
-                                                                    {
-                                                                        table: e
-                                                                            .target
-                                                                            .value,
-                                                                        field: '',
-                                                                    },
-                                                                )
-                                                            }
-                                                        >
-                                                            <option value="">
-                                                                Select Table
-                                                            </option>
-                                                            {tables.map((t) => (
-                                                                <option
-                                                                    key={t}
-                                                                    value={t}
-                                                                >
-                                                                    {t}
-                                                                </option>
-                                                            ))}
-                                                        </select>
-
-                                                        {saved.table && (
-                                                            <>
-                                                                <label
-                                                                    style={{
-                                                                        marginLeft: 10,
-                                                                    }}
-                                                                >
-                                                                    Field:
-                                                                </label>
-                                                                <select
-                                                                    value={
-                                                                        saved.field ||
-                                                                        ''
-                                                                    }
-                                                                    onChange={(
-                                                                        e,
-                                                                    ) =>
-                                                                        updateSetting(
-                                                                            field.headerText,
-                                                                            type,
-                                                                            {
-                                                                                field: e
-                                                                                    .target
-                                                                                    .value,
-                                                                            },
-                                                                        )
-                                                                    }
-                                                                >
-                                                                    <option value="">
-                                                                        Select
-                                                                        Field
-                                                                    </option>
-                                                                    {fields[
-                                                                        saved
-                                                                            .table
-                                                                    ]?.map(
-                                                                        (f) => (
-                                                                            <option
-                                                                                key={
-                                                                                    f
+                                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                            {section ===
+                                                                'daily' && (
+                                                                <div className="flex items-center">
+                                                                    <label className="flex items-center cursor-pointer">
+                                                                        <div className="relative">
+                                                                            <input
+                                                                                type="checkbox"
+                                                                                checked={
+                                                                                    saved.dynamic ||
+                                                                                    false
                                                                                 }
+                                                                                className="sr-only"
+                                                                                onChange={(
+                                                                                    e,
+                                                                                ) =>
+                                                                                    updateSetting(
+                                                                                        field.headerText,
+                                                                                        type,
+                                                                                        {
+                                                                                            dynamic:
+                                                                                                e
+                                                                                                    .target
+                                                                                                    .checked,
+                                                                                        },
+                                                                                    )
+                                                                                }
+                                                                            />
+                                                                            <div
+                                                                                className={`block w-12 h-6 rounded-full transition-colors ${
+                                                                                    saved.dynamic
+                                                                                        ? 'bg-green-500'
+                                                                                        : 'bg-gray-300'
+                                                                                }`}
+                                                                            ></div>
+                                                                            <div
+                                                                                className={`dot absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition-transform ${
+                                                                                    saved.dynamic
+                                                                                        ? 'transform translate-x-6'
+                                                                                        : ''
+                                                                                }`}
+                                                                            ></div>
+                                                                        </div>
+                                                                        <span className="ml-3 text-sm font-medium text-gray-700">
+                                                                            Dynamic
+                                                                            Field
+                                                                        </span>
+                                                                    </label>
+                                                                </div>
+                                                            )}
+
+                                                            {saved.dynamic && (
+                                                                <div className="space-y-3">
+                                                                    <div>
+                                                                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                                                                            Table
+                                                                        </label>
+                                                                        <select
+                                                                            value={
+                                                                                saved.table ||
+                                                                                ''
+                                                                            }
+                                                                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                                                            onChange={(
+                                                                                e,
+                                                                            ) =>
+                                                                                updateSetting(
+                                                                                    field.headerText,
+                                                                                    type,
+                                                                                    {
+                                                                                        table: e
+                                                                                            .target
+                                                                                            .value,
+                                                                                        field: '',
+                                                                                    },
+                                                                                )
+                                                                            }
+                                                                        >
+                                                                            <option value="">
+                                                                                Select
+                                                                                Table
+                                                                            </option>
+                                                                            {tables.map(
+                                                                                (
+                                                                                    t,
+                                                                                ) => (
+                                                                                    <option
+                                                                                        key={
+                                                                                            t
+                                                                                        }
+                                                                                        value={
+                                                                                            t
+                                                                                        }
+                                                                                    >
+                                                                                        {
+                                                                                            t
+                                                                                        }
+                                                                                    </option>
+                                                                                ),
+                                                                            )}
+                                                                        </select>
+                                                                    </div>
+
+                                                                    {saved.table && (
+                                                                        <div>
+                                                                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                                                                                Field
+                                                                            </label>
+                                                                            <select
                                                                                 value={
-                                                                                    f
+                                                                                    saved.field ||
+                                                                                    ''
+                                                                                }
+                                                                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                                                                onChange={(
+                                                                                    e,
+                                                                                ) =>
+                                                                                    updateSetting(
+                                                                                        field.headerText,
+                                                                                        type,
+                                                                                        {
+                                                                                            field: e
+                                                                                                .target
+                                                                                                .value,
+                                                                                        },
+                                                                                    )
                                                                                 }
                                                                             >
-                                                                                {
-                                                                                    f
+                                                                                <option value="">
+                                                                                    Select
+                                                                                    Field
+                                                                                </option>
+                                                                                {fields[
+                                                                                    saved
+                                                                                        .table
+                                                                                ]?.map(
+                                                                                    (
+                                                                                        f,
+                                                                                    ) => (
+                                                                                        <option
+                                                                                            key={
+                                                                                                f
+                                                                                            }
+                                                                                            value={
+                                                                                                f
+                                                                                            }
+                                                                                        >
+                                                                                            {
+                                                                                                f
+                                                                                            }
+                                                                                        </option>
+                                                                                    ),
+                                                                                )}
+                                                                            </select>
+                                                                        </div>
+                                                                    )}
+                                                                </div>
+                                                            )}
+
+                                                            {!saved.dynamic && (
+                                                                <>
+                                                                    {type ===
+                                                                        'text' && (
+                                                                        <div>
+                                                                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                                                                                Validation
+                                                                            </label>
+                                                                            <select
+                                                                                value={
+                                                                                    saved.validation ||
+                                                                                    ''
                                                                                 }
-                                                                            </option>
-                                                                        ),
+                                                                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                                                                onChange={(
+                                                                                    e,
+                                                                                ) =>
+                                                                                    updateSetting(
+                                                                                        field.headerText,
+                                                                                        type,
+                                                                                        {
+                                                                                            validation:
+                                                                                                e
+                                                                                                    .target
+                                                                                                    .value,
+                                                                                        },
+                                                                                    )
+                                                                                }
+                                                                            >
+                                                                                <option value="">
+                                                                                    Select
+                                                                                    Validation
+                                                                                </option>
+                                                                                <option value="alphabet">
+                                                                                    Alphabet
+                                                                                    Only
+                                                                                </option>
+                                                                                <option value="alphanumeric">
+                                                                                    Alphanumeric
+                                                                                </option>
+                                                                                <option value="email">
+                                                                                    Email
+                                                                                </option>
+                                                                                <option value="no-spaces">
+                                                                                    No
+                                                                                    Spaces
+                                                                                </option>
+                                                                            </select>
+                                                                        </div>
                                                                     )}
-                                                                </select>
-                                                            </>
-                                                        )}
+
+                                                                    {type ===
+                                                                        'textarea' && (
+                                                                        <div>
+                                                                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                                                                                Rows
+                                                                            </label>
+                                                                            <input
+                                                                                type="number"
+                                                                                value={
+                                                                                    saved.rows ||
+                                                                                    3
+                                                                                }
+                                                                                className="w-20 px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                                                                onChange={(
+                                                                                    e,
+                                                                                ) =>
+                                                                                    updateSetting(
+                                                                                        field.headerText,
+                                                                                        type,
+                                                                                        {
+                                                                                            rows: Number(
+                                                                                                e
+                                                                                                    .target
+                                                                                                    .value,
+                                                                                            ),
+                                                                                        },
+                                                                                    )
+                                                                                }
+                                                                            />
+                                                                        </div>
+                                                                    )}
+
+                                                                    {type ===
+                                                                        'number' && (
+                                                                        <div className="space-y-3">
+                                                                            <div>
+                                                                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                                                                    Minimum
+                                                                                    Value
+                                                                                </label>
+                                                                                <input
+                                                                                    type="number"
+                                                                                    value={
+                                                                                        saved.min ??
+                                                                                        ''
+                                                                                    }
+                                                                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                                                                    onChange={(
+                                                                                        e,
+                                                                                    ) =>
+                                                                                        updateSetting(
+                                                                                            field.headerText,
+                                                                                            type,
+                                                                                            {
+                                                                                                min: Number(
+                                                                                                    e
+                                                                                                        .target
+                                                                                                        .value,
+                                                                                                ),
+                                                                                            },
+                                                                                        )
+                                                                                    }
+                                                                                />
+                                                                            </div>
+                                                                            <div>
+                                                                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                                                                    Maximum
+                                                                                    Value
+                                                                                </label>
+                                                                                <input
+                                                                                    type="number"
+                                                                                    value={
+                                                                                        saved.max ??
+                                                                                        ''
+                                                                                    }
+                                                                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                                                                    onChange={(
+                                                                                        e,
+                                                                                    ) =>
+                                                                                        updateSetting(
+                                                                                            field.headerText,
+                                                                                            type,
+                                                                                            {
+                                                                                                max: Number(
+                                                                                                    e
+                                                                                                        .target
+                                                                                                        .value,
+                                                                                                ),
+                                                                                            },
+                                                                                        )
+                                                                                    }
+                                                                                />
+                                                                            </div>
+                                                                        </div>
+                                                                    )}
+                                                                    {(type ===
+                                                                        'checkbox' ||
+                                                                        type ===
+                                                                            'radio' ||
+                                                                        type ===
+                                                                            'select' ||
+                                                                        type ===
+                                                                            'multiselect') && (
+                                                                        <div>
+                                                                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                                                                                Options
+                                                                                (comma
+                                                                                separated)
+                                                                            </label>
+                                                                            <input
+                                                                                type="text"
+                                                                                value={
+                                                                                    saved.options ||
+                                                                                    ''
+                                                                                }
+                                                                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                                                                placeholder="Option 1, Option 2, Option 3"
+                                                                                onChange={(
+                                                                                    e,
+                                                                                ) =>
+                                                                                    updateSetting(
+                                                                                        field.headerText,
+                                                                                        type,
+                                                                                        {
+                                                                                            options:
+                                                                                                e
+                                                                                                    .target
+                                                                                                    .value,
+                                                                                        },
+                                                                                    )
+                                                                                }
+                                                                            />
+                                                                        </div>
+                                                                    )}
+
+                                                                    {(type ===
+                                                                        'date' ||
+                                                                        type ===
+                                                                            'time' ||
+                                                                        type ===
+                                                                            'datetime') && (
+                                                                        <div>
+                                                                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                                                                                {type ===
+                                                                                    'date' &&
+                                                                                    'Date Format'}
+                                                                                {type ===
+                                                                                    'time' &&
+                                                                                    'Time Format'}
+                                                                                {type ===
+                                                                                    'datetime' &&
+                                                                                    'DateTime Format'}
+                                                                            </label>
+                                                                            <select
+                                                                                value={
+                                                                                    saved.format ||
+                                                                                    ''
+                                                                                }
+                                                                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                                                                onChange={(
+                                                                                    e,
+                                                                                ) =>
+                                                                                    updateSetting(
+                                                                                        field.headerText,
+                                                                                        type,
+                                                                                        {
+                                                                                            format: e
+                                                                                                .target
+                                                                                                .value,
+                                                                                        },
+                                                                                    )
+                                                                                }
+                                                                            >
+                                                                                {type ===
+                                                                                    'date' && (
+                                                                                    <>
+                                                                                        <option value="YYYY-MM-DD">
+                                                                                            YYYY-MM-DD
+                                                                                        </option>
+                                                                                        <option value="DD/MM/YYYY">
+                                                                                            DD/MM/YYYY
+                                                                                        </option>
+                                                                                    </>
+                                                                                )}
+                                                                                {type ===
+                                                                                    'time' && (
+                                                                                    <>
+                                                                                        <option value="HH:mm">
+                                                                                            HH:mm
+                                                                                        </option>
+                                                                                        <option value="hh:mm A">
+                                                                                            hh:mm
+                                                                                            A
+                                                                                        </option>
+                                                                                    </>
+                                                                                )}
+                                                                                {type ===
+                                                                                    'datetime' && (
+                                                                                    <>
+                                                                                        <option value="YYYY-MM-DD HH:mm">
+                                                                                            YYYY-MM-DD
+                                                                                            HH:mm
+                                                                                        </option>
+                                                                                        <option value="DD/MM/YYYY hh:mm A">
+                                                                                            DD/MM/YYYY
+                                                                                            hh:mm
+                                                                                            A
+                                                                                        </option>
+                                                                                    </>
+                                                                                )}
+                                                                            </select>
+                                                                        </div>
+                                                                    )}
+                                                                </>
+                                                            )}
+                                                        </div>
                                                     </div>
-                                                )}
-
-                                                {!saved.dynamic && (
-                                                    <>
-                                                        {/* Text */}
-                                                        {type === 'text' && (
-                                                            <div>
-                                                                <label>
-                                                                    Validation:
-                                                                </label>
-                                                                <select
-                                                                    style={{
-                                                                        marginLeft: 10,
-                                                                    }}
-                                                                    value={
-                                                                        saved.validation ||
-                                                                        ''
-                                                                    }
-                                                                    onChange={(
-                                                                        e,
-                                                                    ) =>
-                                                                        updateSetting(
-                                                                            field.headerText,
-                                                                            type,
-                                                                            {
-                                                                                validation:
-                                                                                    e
-                                                                                        .target
-                                                                                        .value,
-                                                                            },
-                                                                        )
-                                                                    }
-                                                                >
-                                                                    <option value="">
-                                                                        Select
-                                                                    </option>
-                                                                    <option value="alphabet">
-                                                                        Alphabet
-                                                                        Only
-                                                                    </option>
-                                                                    <option value="alphanumeric">
-                                                                        Alphanumeric
-                                                                    </option>
-                                                                    <option value="email">
-                                                                        Email
-                                                                    </option>
-                                                                    <option value="no-spaces">
-                                                                        No
-                                                                        Spaces
-                                                                    </option>
-                                                                </select>
-                                                            </div>
-                                                        )}
-
-                                                        {/* Textarea */}
-                                                        {type ===
-                                                            'textarea' && (
-                                                            <div>
-                                                                <label>
-                                                                    Rows:
-                                                                </label>
-                                                                <input
-                                                                    type="number"
-                                                                    value={
-                                                                        saved.rows ||
-                                                                        3
-                                                                    }
-                                                                    style={{
-                                                                        marginLeft: 10,
-                                                                        width: 60,
-                                                                    }}
-                                                                    onChange={(
-                                                                        e,
-                                                                    ) =>
-                                                                        updateSetting(
-                                                                            field.headerText,
-                                                                            type,
-                                                                            {
-                                                                                rows: Number(
-                                                                                    e
-                                                                                        .target
-                                                                                        .value,
-                                                                                ),
-                                                                            },
-                                                                        )
-                                                                    }
-                                                                />
-                                                            </div>
-                                                        )}
-
-                                                        {/* Number */}
-                                                        {type === 'number' && (
-                                                            <div className="flex items-center gap-4">
-                                                                <div>
-                                                                    <label>
-                                                                        Min:
-                                                                    </label>
-                                                                    <input
-                                                                        type="number"
-                                                                        value={
-                                                                            saved.min ??
-                                                                            ''
-                                                                        }
-                                                                        style={{
-                                                                            marginLeft: 10,
-                                                                            width: 80,
-                                                                        }}
-                                                                        onChange={(
-                                                                            e,
-                                                                        ) =>
-                                                                            updateSetting(
-                                                                                field.headerText,
-                                                                                type,
-                                                                                {
-                                                                                    min: Number(
-                                                                                        e
-                                                                                            .target
-                                                                                            .value,
-                                                                                    ),
-                                                                                },
-                                                                            )
-                                                                        }
-                                                                    />
-                                                                </div>
-                                                                <div>
-                                                                    <label>
-                                                                        Max:
-                                                                    </label>
-                                                                    <input
-                                                                        type="number"
-                                                                        value={
-                                                                            saved.max ??
-                                                                            ''
-                                                                        }
-                                                                        style={{
-                                                                            marginLeft: 10,
-                                                                            width: 80,
-                                                                        }}
-                                                                        onChange={(
-                                                                            e,
-                                                                        ) =>
-                                                                            updateSetting(
-                                                                                field.headerText,
-                                                                                type,
-                                                                                {
-                                                                                    max: Number(
-                                                                                        e
-                                                                                            .target
-                                                                                            .value,
-                                                                                    ),
-                                                                                },
-                                                                            )
-                                                                        }
-                                                                    />
-                                                                </div>
-                                                            </div>
-                                                        )}
-
-                                                        {/* Checkbox, Radio, Select, Multiselect */}
-                                                        {(type === 'checkbox' ||
-                                                            type === 'radio' ||
-                                                            type === 'select' ||
-                                                            type ===
-                                                                'multiselect') && (
-                                                            <div>
-                                                                <label>
-                                                                    Options
-                                                                    (comma
-                                                                    separated):
-                                                                </label>
-                                                                <input
-                                                                    type="text"
-                                                                    value={
-                                                                        saved.options ||
-                                                                        ''
-                                                                    }
-                                                                    style={{
-                                                                        marginLeft: 10,
-                                                                    }}
-                                                                    onChange={(
-                                                                        e,
-                                                                    ) =>
-                                                                        updateSetting(
-                                                                            field.headerText,
-                                                                            type,
-                                                                            {
-                                                                                options:
-                                                                                    e
-                                                                                        .target
-                                                                                        .value,
-                                                                            },
-                                                                        )
-                                                                    }
-                                                                />
-                                                            </div>
-                                                        )}
-
-                                                        {/* Date / Time / DateTime */}
-                                                        {(type === 'date' ||
-                                                            type === 'time' ||
-                                                            type ===
-                                                                'datetime') && (
-                                                            <div>
-                                                                <label>
-                                                                    {type ===
-                                                                        'date' &&
-                                                                        'Date Format'}
-                                                                    {type ===
-                                                                        'time' &&
-                                                                        'Time Format'}
-                                                                    {type ===
-                                                                        'datetime' &&
-                                                                        'DateTime Format'}
-                                                                </label>
-                                                                <select
-                                                                    style={{
-                                                                        marginLeft: 10,
-                                                                    }}
-                                                                    value={
-                                                                        saved.format ||
-                                                                        ''
-                                                                    }
-                                                                    onChange={(
-                                                                        e,
-                                                                    ) =>
-                                                                        updateSetting(
-                                                                            field.headerText,
-                                                                            type,
-                                                                            {
-                                                                                format: e
-                                                                                    .target
-                                                                                    .value,
-                                                                            },
-                                                                        )
-                                                                    }
-                                                                >
-                                                                    {type ===
-                                                                        'date' && (
-                                                                        <>
-                                                                            <option value="YYYY-MM-DD">
-                                                                                YYYY-MM-DD
-                                                                            </option>
-                                                                            <option value="DD/MM/YYYY">
-                                                                                DD/MM/YYYY
-                                                                            </option>
-                                                                        </>
-                                                                    )}
-                                                                    {type ===
-                                                                        'time' && (
-                                                                        <>
-                                                                            <option value="HH:mm">
-                                                                                HH:mm
-                                                                            </option>
-                                                                            <option value="hh:mm A">
-                                                                                hh:mm
-                                                                                A
-                                                                            </option>
-                                                                        </>
-                                                                    )}
-                                                                    {type ===
-                                                                        'datetime' && (
-                                                                        <>
-                                                                            <option value="YYYY-MM-DD HH:mm">
-                                                                                YYYY-MM-DD
-                                                                                HH:mm
-                                                                            </option>
-                                                                            <option value="DD/MM/YYYY hh:mm A">
-                                                                                DD/MM/YYYY
-                                                                                hh:mm
-                                                                                A
-                                                                            </option>
-                                                                        </>
-                                                                    )}
-                                                                </select>
-                                                            </div>
-                                                        )}
-                                                    </>
-                                                )}
-                                            </div>
-                                        </Card>
-                                    )
-                                })}
-                            </div>
-                        ))}
+                                                )
+                                            },
+                                        )}
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
                     </div>
 
-                    <div className="bg-white flex justify-end space-x-2 py-4 px-6">
-                        <Button onClick={onClose}>Cancel</Button>
-                        <Button variant="solid" onClick={handleConfirm}>
+                    <div className="bg-white border-t border-gray-200 flex justify-end space-x-3 py-4 px-6">
+                        <Button
+                            className="px-6 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition-colors duration-200"
+                            onClick={onClose}
+                        >
+                            Cancel
+                        </Button>
+                        <Button
+                            variant="solid"
+                            className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors duration-200 shadow-sm"
+                            onClick={handleConfirm}
+                        >
                             Confirm
                         </Button>
                     </div>
                 </div>
             </Drawer>
-
             <Dialog
                 isOpen={showLastDayConfirm}
                 width={500}
