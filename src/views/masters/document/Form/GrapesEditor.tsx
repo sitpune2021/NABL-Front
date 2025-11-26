@@ -128,7 +128,7 @@ export default function GrapesEditor({
         })
 
         addCustomBlocks(editor)
-        addDynamicFields(editor, documentData)
+        addDynamicFields(editor)
 
         const handleChange = debounce(() => {
             setValue('document', {
@@ -236,6 +236,29 @@ export default function GrapesEditor({
                 template.section.html,
                 'text/html',
             )
+            const resolveForElement = (el: Element) => {
+                const field = el.getAttribute('data-field')
+                if (!field) return
+                const options: { [key: string]: string } = {}
+                Array.from(el.attributes).forEach((attr) => {
+                    console.log(attr.name)
+
+                    if (
+                        attr.name !== 'data-field' &&
+                        attr.name !== 'data-value' &&
+                        attr.name !== 'id'
+                    ) {
+                        const optionKey = attr.name.replace(/-/g, '')
+                        options[optionKey] = attr.value
+                    }
+                })
+                const value = resolveFieldValue(field, documentData, options)
+                if (value) {
+                    el.textContent = value
+                }
+            }
+
+            doc.querySelectorAll('[data-field]').forEach(resolveForElement)
 
             const headerEl = doc.querySelector('.header-section')
             if (headerEl) {
@@ -252,6 +275,134 @@ export default function GrapesEditor({
             parsedContent.content = doc.body.innerHTML.trim()
         } catch (err) {
             console.error('Failed to parse section HTML', err)
+        }
+    }
+
+    function formatDate(dateStr: string, format: string): string {
+        const date = new Date(dateStr)
+        if (isNaN(date.getTime())) return dateStr // Invalid date, return as-is
+
+        const day = String(date.getDate()).padStart(2, '0')
+        const month = String(date.getMonth() + 1).padStart(2, '0') // Months are 0-indexed
+        const year = String(date.getFullYear())
+
+        return format
+            .replace(/dd/g, day)
+            .replace(/MM/g, month)
+            .replace(/yyyy/g, year)
+    }
+
+    function resolveFieldValue(
+        key: string,
+        data: any,
+        options: { [key: string]: string } = {},
+    ): string {
+        if (!data) return ''
+
+        switch (key) {
+            case 'date': {
+                const dateType = options.datetype || 'issueDate'
+                let dateValue: string
+                switch (dateType) {
+                    case 'issueDate':
+                        dateValue = data.issueDate || ''
+                        break
+                    case 'amendmentDate':
+                        dateValue = data.amendmentDate || ''
+                        break
+                    case 'effectiveDate':
+                        dateValue = data.effectiveDate || ''
+                        break
+                    default:
+                        dateValue = data.genericDate || ''
+                        break
+                }
+                if (options.format && dateValue) {
+                    return formatDate(dateValue, options.format)
+                }
+                return dateValue
+            }
+            case 'number': {
+                const numberType = options.numbertype || 'documentNo'
+                switch (numberType) {
+                    case 'documentNo':
+                        return data.documentNo || ''
+                    case 'issuedNo':
+                        return data.issuedNo || ''
+                    case 'copyNo':
+                        return data.copyNo || ''
+                    case 'amendmentNo':
+                        return data.amendmentNo || ''
+                    default:
+                        return ''
+                }
+            }
+            case 'person':
+            case 'designation':
+            case 'signatory': {
+                const personRole =
+                    options.personrole ||
+                    options.persondesignation ||
+                    options.personsignatory ||
+                    'preparedBy'
+
+                switch (personRole) {
+                    case 'preparedBy':
+                        return data.preparedBy || ''
+                    case 'approvedBy':
+                        return data.approvedBy || ''
+                    case 'issuedBy':
+                        return data.issuedBy || ''
+                    case 'user':
+                        return data.user || ''
+                    default:
+                        return ''
+                }
+            }
+            case 'category': {
+                const categoryLevel = options.categorylevel || 'category'
+                return categoryLevel === 'subcategory'
+                    ? data.subcategory || ''
+                    : data.category || ''
+            }
+            case 'department':
+                return Array.isArray(data.department)
+                    ? data.department.join(', ')
+                    : data.department || ''
+            case 'userDetails': {
+                const userDetailType = options.userdetailtype || 'name'
+                switch (userDetailType) {
+                    case 'name':
+                        return data.name || ''
+                    case 'role':
+                        return data.role || ''
+                    case 'type':
+                        return data.type || ''
+                    case 'location':
+                        return data.location || ''
+                    case 'email':
+                        return data.email || ''
+                    case 'phone':
+                        return data.phone || ''
+                    default:
+                        return ''
+                }
+            }
+            case 'name': {
+                const nameType = options.nametype || 'lab'
+                switch (nameType) {
+                    case 'lab':
+                        return data.labName || ''
+                    case 'document':
+                        return data.documentName || ''
+                    case 'user':
+                        return data.userName || ''
+                    default:
+                        return ''
+                }
+            }
+            default:
+                return data[key] || ''
         }
     }
 

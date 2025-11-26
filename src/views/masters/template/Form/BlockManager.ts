@@ -502,7 +502,7 @@ export function addCustomBlocks(editor: any) {
     ])
 }
 
-export function addDynamicFields(editor: any, documentData?: any) {
+export function addDynamicFields(editor: any) {
     // console.log('Document Data:', documentData)
 
     const personOptions = [
@@ -644,64 +644,11 @@ export function addDynamicFields(editor: any, documentData?: any) {
         ],
     }
 
-    // Utility to pick correct value based on type and documentData
-    function resolveFieldValue(key: string, data: any): string {
-        if (!data) return ''
-
-        switch (key) {
-            case 'date':
-                // Prioritize issueDate → amendmentDate → effectiveDate
-                return (
-                    data.issueDate ||
-                    data.amendmentDate ||
-                    data.effectiveDate ||
-                    ''
-                )
-
-            case 'number':
-                return (
-                    data.documentNo ||
-                    data.issuedNo ||
-                    data.copyNo ||
-                    data.amendmentNo ||
-                    ''
-                )
-
-            case 'person':
-            case 'designation':
-            case 'signatory':
-                // If approvedBy, preparedBy, issuedBy exist, combine or pick one
-                return data.preparedBy || data.approvedBy || data.issuedBy || ''
-
-            case 'category':
-                return data.category || ''
-
-            case 'department':
-                return Array.isArray(data.department)
-                    ? data.department.join(', ')
-                    : data.department || ''
-
-            case 'name':
-                return (
-                    data.labName || data.documentName || data.preparedBy || ''
-                )
-
-            case 'userDetails':
-                return data.location || data.email || data.phone || ''
-
-            default:
-                return data[key] || ''
-        }
-    }
-
     simpleFields.forEach((key) => {
         const traits = fieldTraits[key] || []
         const label = key
             .replace(/([A-Z])/g, ' $1')
             .replace(/^./, (str) => str.toUpperCase())
-
-        const fieldValue = resolveFieldValue(key, documentData)
-        // console.log(fieldValue, 'fieldValue')
 
         editor.BlockManager.add(`field-${key}`, {
             label,
@@ -711,9 +658,8 @@ export function addDynamicFields(editor: any, documentData?: any) {
                 tagName: 'span',
                 attributes: {
                     'data-field': key,
-                    ...(fieldValue && { 'data-value': fieldValue }),
                 },
-                content: fieldValue ? `{{${fieldValue}}}` : `{{${key}}}`,
+                content: `{{${key}}}`,
             },
         })
 
@@ -723,10 +669,9 @@ export function addDynamicFields(editor: any, documentData?: any) {
                     tagName: 'span',
                     attributes: {
                         'data-field': key,
-                        ...(fieldValue && { 'data-value': fieldValue }),
                     },
                     traits,
-                    content: fieldValue ? `{{${fieldValue}}}` : `{{${key}}}`,
+                    content: `{{${key}}}`,
                 },
             },
             view: {},
