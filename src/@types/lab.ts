@@ -14,6 +14,9 @@ export type Filter = {
 export type Lab = {
     id: string
     prefix: string
+    name: string
+    labType: string
+    labCode: string
     shortName: string
     zone_name: string | null
     cluster_name: string | null

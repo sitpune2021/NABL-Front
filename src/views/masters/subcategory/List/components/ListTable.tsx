@@ -112,7 +112,8 @@ const SubCategoryListTable = () => {
                 },
             },
             {
-                header: '',
+                header: 'Action',
+                accessorKey: 'action',
                 id: 'action',
                 cell: (props) => (
                     <ActionColumn

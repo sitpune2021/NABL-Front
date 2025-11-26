@@ -78,15 +78,29 @@ const InstrumentListTable = () => {
                 accessorKey: 'id',
             },
             {
-                header: 'Prefix',
-                accessorKey: 'prefix',
-            },
-            {
                 header: 'Name',
                 accessorKey: 'full_name',
+                cell: (props) => {
+                    const { full_name, prefix } = props.row.original
+                    return (
+                        <div className="flex items-center gap-2">
+                            <div>
+                                <div className="font-bold heading-text">
+                                    {full_name}
+                                </div>
+                                <div>{prefix}</div>
+                            </div>
+                        </div>
+                    )
+                },
             },
             {
-                header: '',
+                header: 'Short Name',
+                accessorKey: 'short_name',
+            },
+            {
+                header: 'Action',
+                accessorKey: 'action',
                 id: 'action',
                 cell: (props) => (
                     <ActionColumn
