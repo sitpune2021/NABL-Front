@@ -51,6 +51,6 @@ export type Token = {
 }
 
 export type OauthSignInCallbackPayload = {
-    onSignIn: (tokens: Token, user?: User) => void
+    onSignIn: (user: User) => void
     redirect: () => void
 }
