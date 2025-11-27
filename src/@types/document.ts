@@ -183,3 +183,17 @@ export type FormSectionBaseProps = {
     readOnly?: boolean
     setValue: UseFormSetValue<DocumentFormSchema | EditorFormSchema>
 }
+
+export type DocumentResolved = Document & {
+    genericDate?: string
+    subcategory?: string
+    userName?: string
+    user?: string
+
+    // userDetails fields
+    name?: string
+    role?: string
+    type?: string
+    email?: string
+    phone?: string
+}
