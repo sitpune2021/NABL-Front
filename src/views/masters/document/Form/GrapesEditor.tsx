@@ -11,7 +11,7 @@ import {
 } from '../../template/Form/BlockManager'
 import useTemplateList from '../../template/List/hooks/useList'
 import { DocumentFormSchema } from '@/@types/document'
-import { Card } from '@/components/ui'
+import IframeContent from './IframeContent'
 
 interface GrapesEditorProps {
     control: Control<any>
@@ -434,64 +434,17 @@ export default function GrapesEditor({
     return (
         <>
             {readOnly ? (
-                <Card
+                <div
                     style={{
-                        width: '210mm',
-                        height: '297mm',
-                        overflow: 'hidden',
-                        boxSizing: 'border-box',
-                        border: '1px solid #ccc',
-                        position: 'relative',
+                        width: '220mm',
+                        height: '300mm',
                     }}
                 >
-                    <style
-                        dangerouslySetInnerHTML={{
-                            __html:
-                                updatedCss +
-                                `
-                                .editable-section,
-                                .header-section,
-                                .footer-section {
-                                    max-width: 210mm;
-                                    word-wrap: break-word;
-                                    overflow-wrap: break-word;
-                                    box-sizing: border-box;
-                                    margin: 0 auto;
-                                }
-                            `,
-                        }}
+                    <IframeContent
+                        parsedContent={parsedContent}
+                        updatedCss={updatedCss}
                     />
-
-                    {/* Header */}
-                    {parsedContent.header && (
-                        <div
-                            className="header-section"
-                            dangerouslySetInnerHTML={{
-                                __html: parsedContent.header,
-                            }}
-                        />
-                    )}
-
-                    {/* Main content */}
-                    {parsedContent.content && (
-                        <div
-                            className="editable-section"
-                            dangerouslySetInnerHTML={{
-                                __html: parsedContent.content,
-                            }}
-                        />
-                    )}
-
-                    {/* Footer */}
-                    {parsedContent.footer && (
-                        <div
-                            className="footer-section"
-                            dangerouslySetInnerHTML={{
-                                __html: parsedContent.footer,
-                            }}
-                        />
-                    )}
-                </Card>
+                </div>
             ) : (
                 <>
                     <div className="flex h-full w-full">
