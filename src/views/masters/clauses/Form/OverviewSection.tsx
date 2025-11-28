@@ -4,7 +4,6 @@ import Card from '@/components/ui/Card'
 import { FormItem } from '@/components/ui/Form'
 import Input from '@/components/ui/Input'
 import Button from '@/components/ui/Button'
-import Checkbox from '@/components/ui/Checkbox'
 import { FormSectionBaseProps, TitleSpecificData } from '@/@types/clauses'
 import { Controller } from 'react-hook-form'
 import Select from '@/components/ui/Select'
@@ -15,24 +14,22 @@ import type { MouseEvent } from 'react'
 import useCategoryList from '../../category/List/hooks/useList'
 import useDocumentList from '../../document/List/hooks/useList'
 
+// ✅ AUTO FREQUENCY HELPER
+const autoFrequencyFromDocument = (docName: string, documentOptions: any[]) => {
+    const doc = documentOptions.find((d) => d.value === docName)
+    return doc?.frequency || ''
+}
+
 type OverviewSectionProps = FormSectionBaseProps & {
     setValue: any
     getValues: any
     accordionData: any[]
 }
 
-const frequencyOptions = [
-    { label: 'Daily', value: 'Daily' },
-    { label: 'Weekly', value: 'Weekly' },
-    { label: 'Monthly', value: 'Monthly' },
-]
-
 const defaultClause = {
     category: '',
     documentName: '',
     frequency: '',
-    required: false,
-    timezone: false,
 }
 
 const OverviewSection = ({
@@ -52,6 +49,7 @@ const OverviewSection = ({
                 value: document.documentName,
                 label: document.documentName,
                 category: document.category,
+                frequency: document.frequency, // MUST BE HERE
             })),
         [documentList],
     )
@@ -112,10 +110,10 @@ const OverviewSection = ({
 
     const findTitleIndex = (titleKey: string): number => {
         const currentData = getValues('titleSpecificData') || []
-        const index = currentData.findIndex(
+
+        return currentData.findIndex(
             (item: TitleSpecificData) => item.titleKey === titleKey,
         )
-        return index
     }
 
     const handleAddNote = (titleKey: string) => {
@@ -196,12 +194,27 @@ const OverviewSection = ({
         const newData = [...currentData]
         const currentClause = newData[titleIndex].clauses[clauseIndex]
 
-        // If category is changed, clear the document name
+        // ✅ AUTO APPLY FREQUENCY BASED ON DOCUMENT
+        if (field === 'documentName') {
+            const autoFreq = autoFrequencyFromDocument(value, documentOptions)
+
+            newData[titleIndex].clauses[clauseIndex] = {
+                ...currentClause,
+                documentName: value,
+                frequency: autoFreq,
+            }
+
+            setValue('titleSpecificData', newData)
+            return
+        }
+
+        // Clear document + frequency when category changes
         if (field === 'category' && value !== currentClause.category) {
             newData[titleIndex].clauses[clauseIndex] = {
                 ...currentClause,
                 category: value,
-                documentName: '', // Clear document name when category changes
+                documentName: '',
+                frequency: '',
             }
         } else {
             newData[titleIndex].clauses[clauseIndex] = {
@@ -216,9 +229,6 @@ const OverviewSection = ({
     const renderRequiredSection = (titleKey: string) => {
         const titleIndex = findTitleIndex(titleKey)
         if (titleIndex === -1) return null
-
-        const titleData = getValues('titleSpecificData')?.[titleIndex]
-        if (!titleData) return null
 
         return (
             <Menu.MenuCollapse
@@ -392,24 +402,8 @@ const OverviewSection = ({
                                                         />
                                                     </FormItem>
 
-                                                    <FormItem
-                                                        label="Document Name"
-                                                        invalid={Boolean(
-                                                            errors
-                                                                .titleSpecificData?.[
-                                                                titleIndex
-                                                            ]?.clauses?.[idx]
-                                                                ?.documentName,
-                                                        )}
-                                                        errorMessage={
-                                                            errors
-                                                                .titleSpecificData?.[
-                                                                titleIndex
-                                                            ]?.clauses?.[idx]
-                                                                ?.documentName
-                                                                ?.message
-                                                        }
-                                                    >
+                                                    {/* DOCUMENT NAME */}
+                                                    <FormItem label="Document Name">
                                                         <Select
                                                             value={
                                                                 filteredDocumentOptions.find(
@@ -421,11 +415,7 @@ const OverviewSection = ({
                                                             options={
                                                                 filteredDocumentOptions
                                                             }
-                                                            placeholder={
-                                                                clause.category
-                                                                    ? 'Select...'
-                                                                    : ''
-                                                            }
+                                                            placeholder="Select..."
                                                             isDisabled={
                                                                 readOnly ||
                                                                 !clause.category
@@ -446,124 +436,15 @@ const OverviewSection = ({
                                                         />
                                                     </FormItem>
 
-                                                    <FormItem
-                                                        label="Frequency"
-                                                        invalid={Boolean(
-                                                            errors
-                                                                .titleSpecificData?.[
-                                                                titleIndex
-                                                            ]?.clauses?.[idx]
-                                                                ?.frequency,
-                                                        )}
-                                                        errorMessage={
-                                                            errors
-                                                                .titleSpecificData?.[
-                                                                titleIndex
-                                                            ]?.clauses?.[idx]
-                                                                ?.frequency
-                                                                ?.message
-                                                        }
-                                                    >
-                                                        <Select
+                                                    {/* ⭐ NEW FREQUENCY READ-ONLY FIELD ⭐ */}
+                                                    <FormItem label="Frequency">
+                                                        <Input
+                                                            readOnly
                                                             value={
-                                                                frequencyOptions.find(
-                                                                    (o) =>
-                                                                        o.value ===
-                                                                        clause.frequency,
-                                                                ) || null
+                                                                clause.frequency
                                                             }
-                                                            options={
-                                                                frequencyOptions
-                                                            }
-                                                            placeholder="Select.."
-                                                            isDisabled={
-                                                                readOnly
-                                                            }
-                                                            menuPortalTarget={
-                                                                document.body
-                                                            }
-                                                            menuPosition="fixed"
-                                                            onChange={(val) =>
-                                                                handleClauseFieldChange(
-                                                                    titleKey,
-                                                                    idx,
-                                                                    'frequency',
-                                                                    val?.value ??
-                                                                        '',
-                                                                )
-                                                            }
-                                                        />
-                                                    </FormItem>
-
-                                                    <FormItem
-                                                        label="Required"
-                                                        invalid={Boolean(
-                                                            errors
-                                                                .titleSpecificData?.[
-                                                                titleIndex
-                                                            ]?.clauses?.[idx]
-                                                                ?.required,
-                                                        )}
-                                                        errorMessage={
-                                                            errors
-                                                                .titleSpecificData?.[
-                                                                titleIndex
-                                                            ]?.clauses?.[idx]
-                                                                ?.required
-                                                                ?.message
-                                                        }
-                                                    >
-                                                        <Checkbox
-                                                            checked={
-                                                                !!clause.required
-                                                            }
-                                                            disabled={readOnly}
-                                                            onChange={(
-                                                                e: boolean,
-                                                            ) =>
-                                                                handleClauseFieldChange(
-                                                                    titleKey,
-                                                                    idx,
-                                                                    'required',
-                                                                    e,
-                                                                )
-                                                            }
-                                                        />
-                                                    </FormItem>
-
-                                                    <FormItem
-                                                        label="Timezone"
-                                                        invalid={Boolean(
-                                                            errors
-                                                                .titleSpecificData?.[
-                                                                titleIndex
-                                                            ]?.clauses?.[idx]
-                                                                ?.timezone,
-                                                        )}
-                                                        errorMessage={
-                                                            errors
-                                                                .titleSpecificData?.[
-                                                                titleIndex
-                                                            ]?.clauses?.[idx]
-                                                                ?.timezone
-                                                                ?.message
-                                                        }
-                                                    >
-                                                        <Checkbox
-                                                            checked={
-                                                                !!clause.timezone
-                                                            }
-                                                            disabled={readOnly}
-                                                            onChange={(
-                                                                e: boolean,
-                                                            ) =>
-                                                                handleClauseFieldChange(
-                                                                    titleKey,
-                                                                    idx,
-                                                                    'timezone',
-                                                                    e,
-                                                                )
-                                                            }
+                                                            placeholder="Auto Frequency"
+                                                            className="bg-gray-100 cursor-not-allowed"
                                                         />
                                                     </FormItem>
                                                 </div>
