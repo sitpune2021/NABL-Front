@@ -14,7 +14,6 @@ import type { MouseEvent } from 'react'
 import useCategoryList from '../../category/List/hooks/useList'
 import useDocumentList from '../../document/List/hooks/useList'
 
-// ✅ AUTO FREQUENCY HELPER
 const autoFrequencyFromDocument = (docName: string, documentOptions: any[]) => {
     const doc = documentOptions.find((d) => d.value === docName)
     return doc?.frequency || ''
@@ -54,12 +53,10 @@ const OverviewSection = ({
         [documentList],
     )
 
-    const categoryOptions = categoryList.map(
-        (category: { name: string; prefix: any }) => ({
-            value: category.name,
-            label: `${category.name.toUpperCase()} - ${category.prefix}`,
-        }),
-    )
+    const categoryOptions = categoryList.map((category) => ({
+        value: category.name,
+        label: `${category.name.toUpperCase()} - ${category.identifier}`,
+    }))
 
     const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set())
 
