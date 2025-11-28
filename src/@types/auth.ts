@@ -7,7 +7,7 @@ export type SignInResponse = {
     token: string
     user: {
         userId: string
-        userName: string
+        username: string
         authority: string[]
         avatar: string
         email: string
@@ -17,7 +17,7 @@ export type SignInResponse = {
 export type SignUpResponse = SignInResponse
 
 export type SignUpCredential = {
-    userName: string
+    username: string
     email: string
     password: string
 }
@@ -40,7 +40,7 @@ export type AuthResult = Promise<{
 export type User = {
     userId?: string | null
     avatar?: string | null
-    userName?: string | null
+    username?: string | null
     email?: string | null
     authority?: string[]
 }

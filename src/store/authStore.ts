@@ -22,7 +22,7 @@ const initialState: AuthState = {
     },
     user: {
         avatar: '',
-        userName: '',
+        username: '',
         email: '',
         authority: [],
     },
