@@ -1,7 +1,7 @@
-import { useRef, useImperativeHandle } from 'react'
+import { useRef, useImperativeHandle, useState } from 'react'
 import AuthContext from './AuthContext'
 import appConfig from '@/configs/app.config'
-import { useSessionUser } from '@/store/authStore'
+import { useSessionUser, useToken } from '@/store/authStore'
 import { apiSignIn, apiSignOut, apiSignUp } from '@/services/AuthService'
 import { REDIRECT_URL_KEY } from '@/constants/app.constant'
 import { useNavigate } from 'react-router'
@@ -11,6 +11,7 @@ import type {
     AuthResult,
     OauthSignInCallbackPayload,
     User,
+    Token,
 } from '@/@types/auth'
 import type { ReactNode, Ref } from 'react'
 import type { NavigateFunction } from 'react-router'
@@ -40,8 +41,10 @@ function AuthProvider({ children }: AuthProviderProps) {
     const setSessionSignedIn = useSessionUser(
         (state) => state.setSessionSignedIn,
     )
+    const { token, setToken } = useToken()
+    const [tokenState, setTokenState] = useState(token)
 
-    const authenticated = Boolean(signedIn)
+    const authenticated = Boolean(tokenState && signedIn)
 
     const navigatorRef = useRef<IsolatedNavigatorRef>(null)
 
@@ -55,14 +58,19 @@ function AuthProvider({ children }: AuthProviderProps) {
         )
     }
 
-    const handleSignIn = (user?: User) => {
+    const handleSignIn = (tokens: Token, user?: User) => {
+        setToken(tokens.accessToken)
+        setTokenState(tokens.accessToken)
         setSessionSignedIn(true)
+
         if (user) {
             setUser(user)
         }
     }
 
     const handleSignOut = () => {
+        setToken('')
+        setUser({})
         setSessionSignedIn(false)
     }
 
@@ -70,7 +78,7 @@ function AuthProvider({ children }: AuthProviderProps) {
         try {
             const resp = await apiSignIn(values)
             if (resp) {
-                handleSignIn(resp.user)
+                handleSignIn({ accessToken: resp.token }, resp.user)
                 redirect()
                 return {
                     status: 'success',
@@ -94,7 +102,7 @@ function AuthProvider({ children }: AuthProviderProps) {
         try {
             const resp = await apiSignUp(values)
             if (resp) {
-                handleSignIn(resp.user)
+                handleSignIn({ accessToken: resp.token }, resp.user)
                 redirect()
                 return {
                     status: 'success',
