@@ -11,7 +11,7 @@ import type {
 import axios from 'axios'
 
 export async function apiSignIn(data: SignInCredential) {
-    axios.get('/sanctum/csrf-cookie', { withCredentials: true })
+    await axios.get('/sanctum/csrf-cookie', { withCredentials: true })
     return ApiService.fetchDataWithAxios<SignInResponse>({
         url: endpointConfig.signIn,
         method: 'post',
