@@ -14,7 +14,7 @@ interface SignUpFormProps extends CommonProps {
 }
 
 type SignUpFormSchema = {
-    userName: string
+    username: string
     password: string
     email: string
     confirmPassword: string
@@ -23,7 +23,7 @@ type SignUpFormSchema = {
 const validationSchema = z
     .object({
         email: z.email({ message: 'Please enter a valid email' }),
-        userName: z.string().min(1, { message: 'Please enter your name' }),
+        username: z.string().min(1, { message: 'Please enter your name' }),
         password: z.string().min(1, { message: 'Password required' }),
         confirmPassword: z
             .string()
@@ -50,11 +50,11 @@ const SignUpForm = (props: SignUpFormProps) => {
     })
 
     const onSignUp = async (values: SignUpFormSchema) => {
-        const { userName, password, email } = values
+        const { username, password, email } = values
 
         if (!disableSubmit) {
             setSubmitting(true)
-            const result = await signUp({ userName, password, email })
+            const result = await signUp({ username, password, email })
 
             if (result?.status === 'failed') {
                 setMessage?.(result.message)
@@ -69,11 +69,11 @@ const SignUpForm = (props: SignUpFormProps) => {
             <Form onSubmit={handleSubmit(onSignUp)}>
                 <FormItem
                     label="User name"
-                    invalid={Boolean(errors.userName)}
-                    errorMessage={errors.userName?.message}
+                    invalid={Boolean(errors.username)}
+                    errorMessage={errors.username?.message}
                 >
                     <Controller
-                        name="userName"
+                        name="username"
                         control={control}
                         render={({ field }) => (
                             <Input

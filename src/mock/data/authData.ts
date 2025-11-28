@@ -2,7 +2,7 @@ export const signInUserData = [
     {
         id: '21',
         avatar: '',
-        userName: 'John Doe',
+        username: 'John Doe',
         email: 'superadmin@example.com',
         password: 'superadmin123',
         authority: ['admin', 'user'],
