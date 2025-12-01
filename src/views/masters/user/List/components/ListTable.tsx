@@ -1,6 +1,7 @@
 import { useMemo } from 'react'
 import Tooltip from '@/components/ui/Tooltip'
 import DataTable from '@/components/shared/DataTable'
+import Avatar from '@/components/ui/Avatar'
 import { useNavigate } from 'react-router'
 import cloneDeep from 'lodash/cloneDeep'
 import { TbPencil, TbEye } from 'react-icons/tb'
@@ -9,6 +10,20 @@ import type { TableQueries } from '@/@types/common'
 import useUserList from '../hooks/useList'
 import endpointConfig from '@/configs/endpoint.config'
 import { User } from '@/@types/user'
+
+// const NameColumn = ({ row }: { row: User }) => {
+//     return (
+//         <div className="flex items-center">
+//             <Avatar size={40} shape="circle" src={row.profileImage} />
+//             <Link
+//                 className={`hover:text-primary ml-2 rtl:mr-2 font-semibold text-gray-900 dark:text-gray-100`}
+//                 to={`/concepts/customers/customer-details/${row.id}`}
+//             >
+//                 {row.name}
+//             </Link>
+//         </div>
+//     )
+// }
 
 const ActionColumn = ({
     onEdit,
@@ -80,6 +95,36 @@ const UserListTable = () => {
             {
                 header: 'Name',
                 accessorKey: 'name',
+                cell: (props) => {
+                    const row = props.row.original
+                    return (
+                        <div className="flex items-center gap-2">
+                            <Avatar
+                                size={40}
+                                shape="circle"
+                                src={row.profileImage}
+                            />
+                            <div>
+                                <div className="font-bold heading-text">
+                                    {row.name}
+                                </div>
+                                <div>{row.email}</div>
+                            </div>
+                        </div>
+                    )
+                },
+            },
+            {
+                header: 'username',
+                accessorKey: 'username',
+                cell: (props) => {
+                    const row = props.row.original
+                    return <span className="font-semibold">{row.username}</span>
+                },
+            },
+            {
+                header: 'phone',
+                accessorKey: 'phone',
             },
             {
                 header: 'Roles',
@@ -110,7 +155,11 @@ const UserListTable = () => {
                             location.departments?.map((dept) => {
                                 const roleNames =
                                     dept.roles
-                                        ?.map((role) => role.name)
+                                        ?.map((role) =>
+                                            role.name
+                                                ? `<b>${role.name}</b>`
+                                                : '',
+                                        )
                                         .filter(Boolean) ?? []
                                 return `${dept.name}: ${roleNames.join(' | ')}`
                             }) ?? []
@@ -118,11 +167,18 @@ const UserListTable = () => {
                         return `${location.name} → ${departmentBlocks.join(' ; ')}`
                     })
 
-                    return locationBlocks.join(' || ')
+                    return (
+                        <span
+                            dangerouslySetInnerHTML={{
+                                __html: locationBlocks.join(' || '),
+                            }}
+                        />
+                    )
                 },
             },
             {
                 header: 'Action',
+                accessorKey: 'action',
                 id: 'action',
                 cell: (props) => (
                     <ActionColumn

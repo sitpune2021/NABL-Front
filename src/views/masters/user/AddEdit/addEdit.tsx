@@ -100,6 +100,7 @@ const UserAddEdit = () => {
                         issuedBy: true,
                         approvedBy: true,
                         signature: '',
+                        profileImage: '',
                         userRoles: [
                             {
                                 zone_id: '',

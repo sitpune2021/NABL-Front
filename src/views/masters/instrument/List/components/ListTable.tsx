@@ -97,6 +97,12 @@ const InstrumentListTable = () => {
             {
                 header: 'Short Name',
                 accessorKey: 'short_name',
+                cell: (props) => {
+                    const row = props.row.original
+                    return (
+                        <span className="font-semibold">{row.short_name}</span>
+                    )
+                },
             },
             {
                 header: 'Action',
