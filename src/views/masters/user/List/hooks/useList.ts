@@ -39,13 +39,10 @@ export default function useUserList() {
             } else {
                 response = await apiUser(user)
             }
-            console.log(response, 'response')
             await mutate()
 
             return response
         } catch (error: any) {
-            console.error('Error saving user data:', error)
-
             // If API sends validation error in response
             const message =
                 error?.response?.data?.message || 'Failed to save user data'

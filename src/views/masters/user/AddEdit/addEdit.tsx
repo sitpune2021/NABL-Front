@@ -62,7 +62,7 @@ const UserAddEdit = () => {
         )
 
         if (result.success) {
-            navigate(endpointConfig.master.user.list)
+            navigate(endpointConfig.setting.user.list)
         }
     }
 
@@ -72,7 +72,7 @@ const UserAddEdit = () => {
             <Notification type="success">Changes discarded!</Notification>,
             { placement: 'top-center' },
         )
-        navigate(`${endpointConfig.master.user.list}`)
+        navigate(`${endpointConfig.setting.user.list}`)
     }
 
     const handleDiscard = () => setDiscardConfirmationOpen(true)

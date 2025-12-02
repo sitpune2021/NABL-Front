@@ -6,6 +6,6 @@ export const actionButtons: ActionButton[] = [
     {
         label: 'Add new User',
         icon: <TbTemplate className="text-xl" />,
-        path: `${endpointConfig.master.user.create}`,
+        path: `${endpointConfig.setting.user.create}`,
     },
 ]

@@ -10,8 +10,6 @@ import useLocationList from '../../location/List/hooks/useList'
 import useRolesList from '../../roles/List/hooks/useList'
 import useDepartmentList from '../../department/List/hooks/useList'
 
-type Option = { label: string; value: string }
-
 export type AssignPermissionItemProps = {
     index: number
     readOnly?: boolean
@@ -20,6 +18,8 @@ export type AssignPermissionItemProps = {
     errors: any
     setValue: any
 }
+
+const permOptions = ['list', 'write', 'delete', 'data-entry', 'data-review']
 
 const AssignPermissionItem = ({
     control,
@@ -53,43 +53,29 @@ const AssignPermissionItem = ({
         name: `userRoles.${index}.cluster_id`,
     })
 
-    const zoneOptions = useMemo<Option[]>(
-        () =>
-            zoneList.map((z: any) => ({
-                label: z.name,
-                value: z.id,
-            })),
+    const zoneOptions = useMemo(
+        () => zoneList.map((z: any) => ({ label: z.name, value: z.id })),
         [zoneList],
     )
-
-    const clusterOptions = useMemo<Option[]>(
+    const clusterOptions = useMemo(
         () =>
             clusterList
                 .filter((c: any) => c.zone_id === selectedZone)
-                .map((c: any) => ({
-                    label: c.name,
-                    value: c.id,
-                })),
+                .map((c: any) => ({ label: c.name, value: c.id })),
         [clusterList, selectedZone],
     )
-
-    const locationOptions = useMemo<Option[]>(
+    const locationOptions = useMemo(
         () =>
             locationList
                 .filter((l: any) => l.cluster_id === selectedCluster)
-                .map((l: any) => ({
-                    label: l.name,
-                    value: l.id,
-                })),
+                .map((l: any) => ({ label: l.name, value: l.id })),
         [locationList, selectedCluster],
     )
-
-    const roleOptions = useMemo<Option[]>(
+    const roleOptions = useMemo(
         () => rolesList.map((r: any) => ({ label: r.name, value: r.id })),
         [rolesList],
     )
-
-    const departmentOptions = useMemo<Option[]>(
+    const departmentOptions = useMemo(
         () => departmentList.map((d: any) => ({ label: d.name, value: d.id })),
         [departmentList],
     )
@@ -102,7 +88,7 @@ const AssignPermissionItem = ({
                         size="sm"
                         type="button"
                         icon={<HiMinus />}
-                        className="border border-blue-500 text-blue-500  rounded-full shadow-md transition-all duration-200"
+                        className="border border-blue-500 text-blue-500 rounded-full shadow-md transition-all duration-200"
                         onClick={onRemove}
                     />
                 )}
@@ -229,6 +215,7 @@ const AssignPermissionItem = ({
 
 export default AssignPermissionItem
 
+// ---------------- Department Block ----------------
 const DepartmentBlock = React.memo(
     ({
         index,
@@ -255,6 +242,7 @@ const DepartmentBlock = React.memo(
                 name: `userRoles.${index}.department.${dIndex}.permissions`,
             }) || {}
 
+        // Initialize permissions properly
         useEffect(() => {
             if (!Array.isArray(roles)) return
 
@@ -263,11 +251,18 @@ const DepartmentBlock = React.memo(
             roles.forEach((roleObj: any) => {
                 const roleId = roleObj?.value
                 if (!roleId) return
-                updated[roleId] =
-                    permissions[roleId] ||
-                    rolesList.find((r: { id: any }) => r.id === roleId)
-                        ?.accessRight ||
+
+                const roleAccess =
+                    rolesList.find((r: any) => r.id === roleId)?.accessRight ||
                     {}
+
+                // Ensure each module has array of permissions
+                const formatted: Record<string, string[]> = {}
+                Object.entries(roleAccess).forEach(([moduleId, perms]: any) => {
+                    formatted[moduleId] = Array.isArray(perms) ? perms : []
+                })
+
+                updated[roleId] = formatted
             })
 
             setValue(
@@ -276,20 +271,22 @@ const DepartmentBlock = React.memo(
                 { shouldDirty: false },
             )
         }, [roles, setValue, rolesList])
+
         const setPermission = (
             role: string,
             moduleId: string,
             perm: string,
         ) => {
-            const existing = permissions?.[role]?.[moduleId] || []
+            const rolePerms = permissions[role] || {}
+            const modulePerms = rolePerms[moduleId] || []
 
-            const updated = existing.includes(perm)
-                ? existing.filter((p: string) => p !== perm)
-                : [...existing, perm]
+            const updatedModulePerms = modulePerms.includes(perm)
+                ? modulePerms.filter((p: any) => p !== perm)
+                : [...modulePerms, perm]
 
             setValue(
                 `userRoles.${index}.department.${dIndex}.permissions.${role}.${moduleId}`,
-                updated,
+                updatedModulePerms,
                 { shouldDirty: true },
             )
         }
@@ -349,12 +346,10 @@ const DepartmentBlock = React.memo(
                                     options={roleOptions}
                                     placeholder="Select Roles"
                                     isDisabled={readOnly}
-                                    value={roleOptions.filter(
-                                        (opt: { value: any }) =>
-                                            field.value?.some(
-                                                (r: any) =>
-                                                    r.value === opt.value,
-                                            ),
+                                    value={roleOptions.filter((opt: any) =>
+                                        field.value?.some(
+                                            (r: any) => r.value === opt.value,
+                                        ),
                                     )}
                                     className="rounded-lg border-gray-300 focus:border-blue-500 focus:ring-blue-500"
                                     onChange={(selected) =>
@@ -373,13 +368,14 @@ const DepartmentBlock = React.memo(
                                 key={r.value}
                                 role={r.value}
                                 accessModules={accessModules}
-                                permissions={permissions?.[r.value] || {}}
+                                permissions={permissions[r.value] || {}}
                                 readOnly={readOnly}
                                 onToggle={setPermission}
                             />
                         ))}
                     </div>
                 )}
+
                 {!readOnly && dIndex > 0 && (
                     <div className="absolute top-2 right-2">
                         <Button
@@ -396,17 +392,14 @@ const DepartmentBlock = React.memo(
     },
 )
 
+// ---------------- Permission Table ----------------
 const PermissionTable = React.memo(
     ({ role, permissions, accessModules, onToggle, readOnly }: any) => {
-        if (!accessModules?.length) return null
+        if (!accessModules || Object.keys(accessModules).length === 0)
+            return null
 
-        const permOptions = [
-            'read',
-            'write',
-            'delete',
-            'data-entry',
-            'data-review',
-        ]
+        // Flatten modules for rendering
+        const modulesList = Object.values(accessModules).flat()
 
         return (
             <div className="mb-6 border border-gray-300 rounded-lg bg-white shadow-md overflow-hidden">
@@ -434,7 +427,7 @@ const PermissionTable = React.memo(
                     </thead>
 
                     <tbody>
-                        {accessModules.map((mod: any, idx: number) => (
+                        {modulesList.map((mod: any, idx: number) => (
                             <tr
                                 key={mod.id}
                                 className={`hover:bg-blue-50 transition-colors duration-150 ${

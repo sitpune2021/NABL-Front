@@ -71,7 +71,7 @@ const UserListTable = () => {
     } = useUserList()
 
     const handleEdit = (user: User) => {
-        const path = endpointConfig.master.user.edit.replace(
+        const path = endpointConfig.setting.user.edit.replace(
             ':id',
             String(user.id),
         )
@@ -79,7 +79,7 @@ const UserListTable = () => {
     }
 
     const handleViewDetails = (user: User) => {
-        const path = endpointConfig.master.user.view.replace(
+        const path = endpointConfig.setting.user.view.replace(
             ':id',
             String(user.id),
         )

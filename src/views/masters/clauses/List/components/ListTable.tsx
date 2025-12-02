@@ -68,7 +68,7 @@ const ClausesListTable = () => {
     } = useClausesList()
 
     const handleEdit = (clauses: Clauses) => {
-        const path = endpointConfig.master.clauses.edit.replace(
+        const path = endpointConfig.setting.clauses.edit.replace(
             ':id',
             String(clauses.id),
         )
@@ -76,7 +76,7 @@ const ClausesListTable = () => {
     }
 
     const handleViewDetails = (clauses: Clauses) => {
-        const path = endpointConfig.master.clauses.view.replace(
+        const path = endpointConfig.setting.clauses.view.replace(
             ':id',
             String(clauses.id),
         )
