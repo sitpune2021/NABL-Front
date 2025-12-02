@@ -55,7 +55,7 @@ const ClausesAddEdit = () => {
             </Notification>,
             { placement: 'top-center' },
         )
-        navigate(`${endpointConfig.master.clauses.list}`)
+        navigate(`${endpointConfig.setting.clauses.list}`)
     }
 
     const handleConfirmDiscard = () => {
@@ -64,7 +64,7 @@ const ClausesAddEdit = () => {
             <Notification type="success">Changes discarded!</Notification>,
             { placement: 'top-center' },
         )
-        navigate(`${endpointConfig.master.clauses.list}`)
+        navigate(`${endpointConfig.setting.clauses.list}`)
     }
 
     const handleDiscard = () => setDiscardConfirmationOpen(true)

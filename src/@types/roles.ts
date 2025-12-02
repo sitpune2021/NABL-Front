@@ -18,6 +18,7 @@ export type Roles = {
     name: string
     description: string
     users: User[]
+    accessRight?: Record<string, string[]>
 }
 
 export type RolesListState = {

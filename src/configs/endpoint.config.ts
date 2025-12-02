@@ -1,4 +1,7 @@
-import { MASTER_PREFIX_PATH } from '@/constants/route.constant'
+import {
+    MASTER_PREFIX_PATH,
+    SETTING_PREFIX_PATH,
+} from '@/constants/route.constant'
 
 export const apiPrefix = '/api'
 
@@ -22,12 +25,6 @@ const endpointConfig = {
             edit: `${MASTER_PREFIX_PATH}/department/edit/:id`,
             view: `${MASTER_PREFIX_PATH}/department/view/:id`,
         },
-        unit: {
-            list: `${MASTER_PREFIX_PATH}/unit/list`,
-            create: `${MASTER_PREFIX_PATH}/unit/create`,
-            edit: `${MASTER_PREFIX_PATH}/unit/edit/:id`,
-            view: `${MASTER_PREFIX_PATH}/unit/view/:id`,
-        },
         signatoryBy: {
             list: `${MASTER_PREFIX_PATH}/signatoryBy/list`,
             create: `${MASTER_PREFIX_PATH}/signatoryBy/create`,
@@ -47,13 +44,6 @@ const endpointConfig = {
             edit: `${MASTER_PREFIX_PATH}/lab/edit/:id`,
             location: `${MASTER_PREFIX_PATH}/lab/location/:id`,
             view: `${MASTER_PREFIX_PATH}/lab/view/:id`,
-        },
-
-        user: {
-            list: `${MASTER_PREFIX_PATH}/user/list`,
-            create: `${MASTER_PREFIX_PATH}/user/create`,
-            edit: `${MASTER_PREFIX_PATH}/user/edit/:id`,
-            view: `${MASTER_PREFIX_PATH}/user/view/:id`,
         },
         subcategory: {
             list: `${MASTER_PREFIX_PATH}/subcategory/list`,
@@ -98,19 +88,6 @@ const endpointConfig = {
             edit: `${MASTER_PREFIX_PATH}/cluster/edit/:id`,
             view: `${MASTER_PREFIX_PATH}/cluster/view/:id`,
         },
-
-        clauses: {
-            list: `${MASTER_PREFIX_PATH}/clauses/list`,
-            create: `${MASTER_PREFIX_PATH}/clauses/create`,
-            edit: `${MASTER_PREFIX_PATH}/clauses/edit/:id`,
-            view: `${MASTER_PREFIX_PATH}/clauses/view/:id`,
-            standardCreate: `${MASTER_PREFIX_PATH}/clauses/standard/create`,
-            standardEdit: `${MASTER_PREFIX_PATH}/clauses/standard/edit/:id`,
-            standardView: `${MASTER_PREFIX_PATH}/clauses/standard/view/:id`,
-        },
-        rolesPermission: {
-            list: `${MASTER_PREFIX_PATH}/roles-permission/list`,
-        },
         instrument: {
             list: `${MASTER_PREFIX_PATH}/instrument/list`,
             create: `${MASTER_PREFIX_PATH}/instrument/create`,
@@ -120,7 +97,31 @@ const endpointConfig = {
     },
     setting: {
         config: {
-            list: `${MASTER_PREFIX_PATH}/config/list`,
+            list: `${SETTING_PREFIX_PATH}/config/list`,
+        },
+        unit: {
+            list: `${SETTING_PREFIX_PATH}/unit/list`,
+            create: `${SETTING_PREFIX_PATH}/unit/create`,
+            edit: `${SETTING_PREFIX_PATH}/unit/edit/:id`,
+            view: `${SETTING_PREFIX_PATH}/unit/view/:id`,
+        },
+        rolesPermission: {
+            list: `${SETTING_PREFIX_PATH}/roles-permission/list`,
+        },
+        user: {
+            list: `${SETTING_PREFIX_PATH}/user/list`,
+            create: `${SETTING_PREFIX_PATH}/user/create`,
+            edit: `${SETTING_PREFIX_PATH}/user/edit/:id`,
+            view: `${SETTING_PREFIX_PATH}/user/view/:id`,
+        },
+        clauses: {
+            list: `${SETTING_PREFIX_PATH}/clauses/list`,
+            create: `${SETTING_PREFIX_PATH}/clauses/create`,
+            edit: `${SETTING_PREFIX_PATH}/clauses/edit/:id`,
+            view: `${SETTING_PREFIX_PATH}/clauses/view/:id`,
+            standardCreate: `${SETTING_PREFIX_PATH}/clauses/standard/create`,
+            standardEdit: `${SETTING_PREFIX_PATH}/clauses/standard/edit/:id`,
+            standardView: `${SETTING_PREFIX_PATH}/clauses/standard/view/:id`,
         },
     },
 }

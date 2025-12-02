@@ -11,6 +11,6 @@ export const actionButtons: ActionButton[] = [
     {
         label: 'Add Standards',
         icon: <TbTemplate className="text-xl" />,
-        path: `${endpointConfig.master.clauses.standardCreate}`,
+        path: `${endpointConfig.setting.clauses.standardCreate}`,
     },
 ]

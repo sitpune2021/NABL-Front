@@ -213,7 +213,7 @@ function generateResolvedHtml(docs: Document) {
 
 // --- Main Component ---
 
-const DocumentList: React.FC = () => {
+const DocumentList = () => {
     const { selectedDocument } = useDocumentListStore((state) => state)
 
     const handleDownload = async () => {

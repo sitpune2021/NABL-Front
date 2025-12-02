@@ -53,7 +53,7 @@ const UnitAddEdit = () => {
             </Notification>,
             { placement: 'top-center' },
         )
-        navigate(`${endpointConfig.master.unit.list}`)
+        navigate(`${endpointConfig.setting.unit.list}`)
     }
 
     const handleConfirmDiscard = () => {
@@ -62,7 +62,7 @@ const UnitAddEdit = () => {
             <Notification type="success">Changes discarded!</Notification>,
             { placement: 'top-center' },
         )
-        navigate(`${endpointConfig.master.unit.list}`)
+        navigate(`${endpointConfig.setting.unit.list}`)
     }
 
     const handleDiscard = () => setDiscardConfirmationOpen(true)
