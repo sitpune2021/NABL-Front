@@ -56,7 +56,7 @@ const UnitListTable = () => {
     } = useUnitList()
 
     const handleEdit = (unit: Unit) => {
-        const path = endpointConfig.master.unit.edit.replace(
+        const path = endpointConfig.setting.unit.edit.replace(
             ':id',
             String(unit.id),
         )
@@ -64,7 +64,7 @@ const UnitListTable = () => {
     }
 
     const handleViewDetails = (unit: Unit) => {
-        const path = endpointConfig.master.unit.view.replace(
+        const path = endpointConfig.setting.unit.view.replace(
             ':id',
             String(unit.id),
         )

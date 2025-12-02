@@ -10,8 +10,6 @@ import useUserList from '../user/List/hooks/useList'
 
 const RolesPermissions = () => {
     const { rolesList, mutate: roleMutate } = useRolesList()
-    console.log(rolesList)
-
     const {
         userList,
         userListTotal,

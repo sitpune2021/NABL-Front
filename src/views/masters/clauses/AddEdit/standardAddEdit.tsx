@@ -135,7 +135,7 @@ const StandardAddEdit = () => {
                     ? standardId
                     : savedStandard.data.id
                 navigate(
-                    `${endpointConfig.master.clauses.create}/${newStandardId}`,
+                    `${endpointConfig.setting.clauses.create}/${newStandardId}`,
                 )
             } catch (error) {
                 console.error('Error saving standard:', error)
@@ -161,7 +161,7 @@ const StandardAddEdit = () => {
             <Notification type="success">Changes discarded!</Notification>,
             { placement: 'top-center' },
         )
-        navigate(`${endpointConfig.master.clauses.list}`)
+        navigate(`${endpointConfig.setting.clauses.list}`)
     }
 
     if (loadingData && !isAdd) {
