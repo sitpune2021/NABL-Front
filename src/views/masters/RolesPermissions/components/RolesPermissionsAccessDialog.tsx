@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useMemo, useState } from 'react'
 import Button from '@/components/ui/Button'
 import Avatar from '@/components/ui/Avatar'
@@ -65,14 +66,16 @@ const RolesPermissionsAccessDialog = ({
     const { accessModules, saveRolesData } = useRolesList()
     const { selectedRole, setRoleDialog, roleDialog } =
         useRolePermissionsStore()
+    const isEdit = roleDialog.type === 'edit'
 
     const {
         handleSubmit,
         formState: { errors },
         control,
+        reset,
     } = useForm<RolesFormSchema>({
         defaultValues: { name: '', description: '' },
-        resolver: zodResolver(validationSchema),
+        resolver: isEdit ? undefined : zodResolver(validationSchema),
     })
 
     const [accessRight, setAccessRight] = useState<Record<string, string[]>>({})
@@ -112,26 +115,23 @@ const RolesPermissionsAccessDialog = ({
     }
 
     const onSubmit = async (values: RolesFormSchema) => {
-        const payload = { ...values, accessRight }
+        const payload = isEdit
+            ? { id: selectedRole, accessRight }
+            : { ...values, accessRight }
+
         setIsSubmitting(true)
         try {
             await saveRolesData(payload)
             toast.push(
                 <Notification type="success">
-                    {roleDialog.type === 'edit'
-                        ? 'Role updated!'
-                        : 'Role created!'}
+                    {isEdit ? 'Role updated!' : 'Role created!'}
                 </Notification>,
-                { placement: 'top-center' },
             )
             handleClose()
-        } catch (error) {
-            console.error(error)
+        } catch (err) {
+            console.error(err)
             toast.push(
                 <Notification type="danger">Error saving role</Notification>,
-                {
-                    placement: 'top-center',
-                },
             )
         } finally {
             setIsSubmitting(false)
@@ -153,9 +153,18 @@ const RolesPermissionsAccessDialog = ({
     }
 
     const currentRole = useMemo(
-        () => roleList.find((role) => role.id === selectedRole),
+        () => roleList.find((role: any) => role.id === selectedRole),
         [selectedRole, roleList],
     )
+
+    useEffect(() => {
+        if (isEdit && currentRole) {
+            reset({
+                name: currentRole.name,
+                description: currentRole.description,
+            })
+        }
+    }, [isEdit, currentRole, reset])
 
     return (
         <Dialog
