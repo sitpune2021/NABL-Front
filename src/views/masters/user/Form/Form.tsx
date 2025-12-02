@@ -66,13 +66,10 @@ const validationSchema = z.object({
                                 .optional(),
                             permissions: z
                                 .record(
-                                    z.union([
-                                        z.string(), // role name
-                                        z.number(),
-                                    ]),
+                                    z.union([z.string(), z.number()]), // role id
                                     z.record(
                                         z.string(), // module id
-                                        z.array(z.string()), // permission types
+                                        z.array(z.string()), // permissions
                                     ),
                                 )
                                 .optional(),

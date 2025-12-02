@@ -5,6 +5,8 @@ import OauthSignIn from './components/OauthSignIn'
 import ActionLink from '@/components/shared/ActionLink'
 import useTimeOutMessage from '@/utils/hooks/useTimeOutMessage'
 import { useThemeStore } from '@/store/themeStore'
+// import axios from 'axios'
+// import navigationConfig from '@/configs/navigation.config'
 
 type SignInProps = {
     signUpUrl?: string
@@ -20,6 +22,20 @@ export const SignInBase = ({
     const [message, setMessage] = useTimeOutMessage()
 
     const mode = useThemeStore((state) => state.mode)
+
+    // const uploadFullNavigationTree = async () => {
+    //     try {
+    //         const response = await axios.post('http://192.168.1.3:8000/api/navigation-items', navigationConfig)
+    //         const savedItem = response.data
+    //         return savedItem
+    //     } catch (error: any) {
+    //         console.error('Failed to send item:', error.response?.data || error.message)
+    //     }
+
+    //     console.log('✅ All navigation items uploaded')
+    // }
+
+    // uploadFullNavigationTree()
 
     return (
         <>

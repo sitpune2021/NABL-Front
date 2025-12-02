@@ -16,7 +16,7 @@ const useDynamicOptions = (config: any) => {
             setLoading(true)
             try {
                 const res = await axios.get(
-                    `http://192.168.1.32:8000/api/${config.table}`,
+                    `http://192.168.1.3:8000/api/${config.table}`,
                 )
                 const rows = Array.isArray(res.data?.data) ? res.data.data : []
                 const extracted = rows

@@ -19,7 +19,7 @@ export default defineConfig({
                 changeOrigin: true,
                 secure: false,
             },
-            '/sanctum': 'http://192.168.1.32:8000',
+            '/sanctum': 'http://192.168.1.3:8000',
         },
         host: true, // equivalent to 0.0.0.0
         port: 5175,

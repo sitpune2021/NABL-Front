@@ -5,7 +5,6 @@ import VerticalMenuContent from '@/components/template/VerticalMenuContent'
 import { useThemeStore } from '@/store/themeStore'
 import { useSessionUser } from '@/store/authStore'
 import { useRouteKeyStore } from '@/store/routeKeyStore'
-// import navigationConfig from '@/configs/navigation.config'
 import appConfig from '@/configs/app.config'
 import { Link } from 'react-router'
 import {
@@ -17,7 +16,6 @@ import {
 } from '@/constants/theme.constant'
 import type { Mode } from '@/@types/theme'
 import useNavigationItemsList from '@/utils/hooks/useNavigationItem'
-// import axios from 'axios'
 
 type SideNavProps = {
     translationSetup?: boolean
@@ -55,20 +53,6 @@ const SideNav = ({
     const userAuthority = useSessionUser((state) => state.user.authority)
 
     const { navigationItems } = useNavigationItemsList()
-
-    // const uploadFullNavigationTree = async () => {
-    //     try {
-    //         const response = await axios.post('http://192.168.1.32:8000/api/navigation-items', navigationConfig)
-    //         const savedItem = response.data
-    //         return savedItem
-    //     } catch (error:any) {
-    //         console.error('Failed to send item:', error.response?.data || error.message)
-    //     }
-
-    //     console.log('✅ All navigation items uploaded')
-    // }
-
-    // uploadFullNavigationTree()
 
     return (
         <div
