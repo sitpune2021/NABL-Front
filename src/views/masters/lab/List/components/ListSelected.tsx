@@ -1,10 +1,6 @@
 import { useState } from 'react'
 import StickyFooter from '@/components/shared/StickyFooter'
 import Button from '@/components/ui/Button'
-import Dialog from '@/components/ui/Dialog'
-import Notification from '@/components/ui/Notification'
-import toast from '@/components/ui/toast'
-import RichTextEditor from '@/components/shared/RichTextEditor'
 import ConfirmDialog from '@/components/shared/ConfirmDialog'
 import { TbChecks } from 'react-icons/tb'
 import useLabList from '../hooks/useList'
@@ -14,8 +10,6 @@ const LabListSelected = () => {
         useLabList()
 
     const [deleteConfirmationOpen, setDeleteConfirmationOpen] = useState(false)
-    const [sendMessageDialogOpen, setSendMessageDialogOpen] = useState(false)
-    const [sendMessageLoading, setSendMessageLoading] = useState(false)
 
     const handleDelete = () => {
         setDeleteConfirmationOpen(true)
@@ -38,19 +32,6 @@ const LabListSelected = () => {
             false,
         )
         setDeleteConfirmationOpen(false)
-    }
-
-    const handleSend = () => {
-        setSendMessageLoading(true)
-        setTimeout(() => {
-            toast.push(
-                <Notification type="success">Message sent!</Notification>,
-                { placement: 'top-center' },
-            )
-            setSendMessageLoading(false)
-            setSendMessageDialogOpen(false)
-            setSelectAllLab([])
-        }, 500)
     }
 
     return (
@@ -91,15 +72,6 @@ const LabListSelected = () => {
                                 >
                                     Delete
                                 </Button>
-                                <Button
-                                    size="sm"
-                                    variant="solid"
-                                    onClick={() =>
-                                        setSendMessageDialogOpen(true)
-                                    }
-                                >
-                                    Message
-                                </Button>
                             </div>
                         </div>
                     </div>
@@ -120,46 +92,6 @@ const LabListSelected = () => {
                     action can&apos;t be undo.{' '}
                 </p>
             </ConfirmDialog>
-            <Dialog
-                isOpen={sendMessageDialogOpen}
-                onRequestClose={() => setSendMessageDialogOpen(false)}
-                onClose={() => setSendMessageDialogOpen(false)}
-            >
-                <h5 className="mb-2">Send Message</h5>
-                <p>Send message to the following categories</p>
-                {/* <Avatar.Group
-                    chained
-                    omittedAvatarTooltip
-                    className="mt-4"
-                    maxCount={4}
-                    omittedAvatarProps={{ size: 30 }}
-                >
-                    {selectedLab.map((lab) => (
-                        <Tooltip key={lab.id} title={lab.name}>
-                            <Avatar size={30} src={lab.img} alt="" />
-                        </Tooltip>
-                    ))}
-                </Avatar.Group> */}
-                <div className="my-4">
-                    <RichTextEditor content={''} />
-                </div>
-                <div className="ltr:justify-end flex items-center gap-2">
-                    <Button
-                        size="sm"
-                        onClick={() => setSendMessageDialogOpen(false)}
-                    >
-                        Cancel
-                    </Button>
-                    <Button
-                        size="sm"
-                        variant="solid"
-                        loading={sendMessageLoading}
-                        onClick={handleSend}
-                    >
-                        Send
-                    </Button>
-                </div>
-            </Dialog>
         </>
     )
 }
