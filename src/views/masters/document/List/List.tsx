@@ -186,47 +186,51 @@ const DocumentList: React.FC = () => {
 
     const handleDownload = async () => {
         if (!selectedDocument || selectedDocument.length === 0) {
-            alert('Please select a document first!');
-            return;
+            alert('Please select a document first!')
+            return
         }
 
-        const A4_WIDTH_PX = 793;
-        const zip = new JSZip();
+        const A4_WIDTH_PX = 793
+        const zip = new JSZip()
 
-        const pxToMm = (px: number, canvasWidthPx: number, pageWidthMm: number) => {
-            return (px * pageWidthMm) / canvasWidthPx;
-        };
+        const pxToMm = (
+            px: number,
+            canvasWidthPx: number,
+            pageWidthMm: number,
+        ) => {
+            return (px * pageWidthMm) / canvasWidthPx
+        }
 
         for (const doc of selectedDocument as Document[]) {
             try {
-                const { header, content, footer } = generateResolvedHtml(doc);
-                const css = doc.editor?.document?.css || '';
+                const { header, content, footer } = generateResolvedHtml(doc)
+                const css = doc.editor?.document?.css || ''
 
                 const createSection = (html: string) => {
-                    const div = document.createElement('div');
+                    const div = document.createElement('div')
                     const overrideCss = `
                         .header-section img{ max-height:60px !important; height:auto !important; width:auto !important; display:inline-block; }
                         .header-section{ min-height:0 !important; height:auto !important; }
                         .footer-section img{ max-height:50px !important; height:auto !important; width:auto !important; }
                         .whiteBackground { padding:0 !important; margin:0 !important; box-sizing:border-box; }
-                    `;
-                    div.innerHTML = `<style>${css}</style><style>${overrideCss}</style>${html}`;
-                    div.style.position = 'absolute';
-                    div.style.left = '-9999px';
-                    div.style.top = '0';
-                    div.style.width = `${A4_WIDTH_PX}px`;
-                    div.style.padding = "0";
-                    div.style.margin = "0";
-                    div.style.background = '#ffffff';
-                    div.style.boxSizing = 'border-box';
-                    div.style.overflow = 'visible';
-                    document.body.appendChild(div);
-                    return div;
-                };
+                    `
+                    div.innerHTML = `<style>${css}</style><style>${overrideCss}</style>${html}`
+                    div.style.position = 'absolute'
+                    div.style.left = '-9999px'
+                    div.style.top = '0'
+                    div.style.width = `${A4_WIDTH_PX}px`
+                    div.style.padding = '0'
+                    div.style.margin = '0'
+                    div.style.background = '#ffffff'
+                    div.style.boxSizing = 'border-box'
+                    div.style.overflow = 'visible'
+                    document.body.appendChild(div)
+                    return div
+                }
 
-                const headerDiv = createSection(header);
-                const footerDiv = createSection(footer);
-                const contentDiv = createSection(content);
+                const headerDiv = createSection(header)
+                const footerDiv = createSection(footer)
+                const contentDiv = createSection(content)
 
                 await new Promise<void>((resolve) => {
                     const check = () => {
@@ -234,14 +238,18 @@ const DocumentList: React.FC = () => {
                             ...headerDiv.querySelectorAll('img'),
                             ...footerDiv.querySelectorAll('img'),
                             ...contentDiv.querySelectorAll('img'),
-                        ];
-                        if (imgs.length === 0) return resolve();
-                        const allLoaded = imgs.every(i => (i as HTMLImageElement).complete && (i as HTMLImageElement).naturalHeight > 0);
-                        if (allLoaded) resolve();
-                        else setTimeout(check, 50);
-                    };
-                    setTimeout(check, 50);
-                });
+                        ]
+                        if (imgs.length === 0) return resolve()
+                        const allLoaded = imgs.every(
+                            (i) =>
+                                (i as HTMLImageElement).complete &&
+                                (i as HTMLImageElement).naturalHeight > 0,
+                        )
+                        if (allLoaded) resolve()
+                        else setTimeout(check, 50)
+                    }
+                    setTimeout(check, 50)
+                })
 
                 const canvasOptions: Partial<html2canvas.Options> = {
                     scale: 1,
@@ -252,58 +260,120 @@ const DocumentList: React.FC = () => {
                     scrollX: 0,
                     scrollY: 0,
                     windowWidth: A4_WIDTH_PX,
-                };
+                }
 
-                const headerHeightPx = headerDiv.offsetHeight;
-                const footerHeightPx = footerDiv.offsetHeight;
-                const contentHeightPx = contentDiv.offsetHeight;
-                const headerCanvas = await html2canvas(headerDiv, { ...canvasOptions, height: headerHeightPx });
+                const headerHeightPx = headerDiv.offsetHeight
+                const footerHeightPx = footerDiv.offsetHeight
+                const contentHeightPx = contentDiv.offsetHeight
+                const headerCanvas = await html2canvas(headerDiv, {
+                    ...canvasOptions,
+                    height: headerHeightPx,
+                })
                 const footerCanvas = await html2canvas(footerDiv, {
                     ...canvasOptions,
                     height: footerHeightPx,
-                });
+                })
 
-                const contentCanvas = await html2canvas(contentDiv, { ...canvasOptions, height: contentHeightPx });
+                const contentCanvas = await html2canvas(contentDiv, {
+                    ...canvasOptions,
+                    height: contentHeightPx,
+                })
 
-                const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
-                const pageWidth = pdf.internal.pageSize.getWidth();
-                const pageHeight = pdf.internal.pageSize.getHeight();
-                const margin = 5;
-                const headerHeightMM = pxToMm(headerCanvas.height, headerCanvas.width, pageWidth);
-                const footerHeightMM = pxToMm(footerCanvas.height, footerCanvas.width, pageWidth);
-                const contentCanvasWidthMM = pageWidth - 2 * margin;
-                const headerHeightToUse = Math.max(6, Math.min(headerHeightMM, pageHeight * 0.4));
-                const footerHeightToUse = Math.max(6, Math.min(footerHeightMM, pageHeight * 0.25));
+                const pdf = new jsPDF({
+                    orientation: 'portrait',
+                    unit: 'mm',
+                    format: 'a4',
+                })
+                const pageWidth = pdf.internal.pageSize.getWidth()
+                const pageHeight = pdf.internal.pageSize.getHeight()
+                const margin = 5
+                const headerHeightMM = pxToMm(
+                    headerCanvas.height,
+                    headerCanvas.width,
+                    pageWidth,
+                )
+                const footerHeightMM = pxToMm(
+                    footerCanvas.height,
+                    footerCanvas.width,
+                    pageWidth,
+                )
+                const contentCanvasWidthMM = pageWidth - 2 * margin
+                const headerHeightToUse = Math.max(
+                    6,
+                    Math.min(headerHeightMM, pageHeight * 0.4),
+                )
+                const footerHeightToUse = Math.max(
+                    6,
+                    Math.min(footerHeightMM, pageHeight * 0.25),
+                )
 
-                const availableHeight = pageHeight - headerHeightToUse - footerHeightToUse - 2 * margin;
+                const availableHeight =
+                    pageHeight -
+                    headerHeightToUse -
+                    footerHeightToUse -
+                    2 * margin
 
-                const headerImg = headerCanvas.toDataURL('image/jpeg', 0.98);
-                const footerImg = footerCanvas.toDataURL('image/jpeg', 0.98);
+                const headerImg = headerCanvas.toDataURL('image/jpeg', 0.98)
+                const footerImg = footerCanvas.toDataURL('image/jpeg', 0.98)
 
-                const totalContentHeightMM = pxToMm(contentCanvas.height, contentCanvas.width, contentCanvasWidthMM);
-                const totalPages = Math.max(1, Math.ceil(totalContentHeightMM / availableHeight));
+                const totalContentHeightMM = pxToMm(
+                    contentCanvas.height,
+                    contentCanvas.width,
+                    contentCanvasWidthMM,
+                )
+                const totalPages = Math.max(
+                    1,
+                    Math.ceil(totalContentHeightMM / availableHeight),
+                )
 
                 for (let pageNum = 0; pageNum < totalPages; pageNum++) {
-                    pdf.addImage(headerImg, 'JPEG', margin, margin, contentCanvasWidthMM, headerHeightToUse);
-                    const cropStartPx = Math.round((pageNum * availableHeight * contentCanvas.width) / contentCanvasWidthMM);
-                    const cropHeightPx = Math.round((availableHeight * contentCanvas.width) / contentCanvasWidthMM);
-                    const actualCropHeightPx = Math.min(cropHeightPx, contentCanvas.height - cropStartPx);
+                    pdf.addImage(
+                        headerImg,
+                        'JPEG',
+                        margin,
+                        margin,
+                        contentCanvasWidthMM,
+                        headerHeightToUse,
+                    )
+                    const cropStartPx = Math.round(
+                        (pageNum * availableHeight * contentCanvas.width) /
+                            contentCanvasWidthMM,
+                    )
+                    const cropHeightPx = Math.round(
+                        (availableHeight * contentCanvas.width) /
+                            contentCanvasWidthMM,
+                    )
+                    const actualCropHeightPx = Math.min(
+                        cropHeightPx,
+                        contentCanvas.height - cropStartPx,
+                    )
 
-                    const croppedCanvas = document.createElement('canvas');
-                    croppedCanvas.width = contentCanvas.width;
-                    croppedCanvas.height = actualCropHeightPx;
+                    const croppedCanvas = document.createElement('canvas')
+                    croppedCanvas.width = contentCanvas.width
+                    croppedCanvas.height = actualCropHeightPx
 
-                    const ctx = croppedCanvas.getContext('2d');
+                    const ctx = croppedCanvas.getContext('2d')
                     ctx?.drawImage(
                         contentCanvas,
-                        0, cropStartPx,
-                        contentCanvas.width, actualCropHeightPx,
-                        0, 0,
-                        contentCanvas.width, actualCropHeightPx
-                    );
+                        0,
+                        cropStartPx,
+                        contentCanvas.width,
+                        actualCropHeightPx,
+                        0,
+                        0,
+                        contentCanvas.width,
+                        actualCropHeightPx,
+                    )
 
-                    const croppedImg = croppedCanvas.toDataURL('image/jpeg', 0.98);
-                    const croppedHeightMM = pxToMm(croppedCanvas.height, contentCanvas.width, contentCanvasWidthMM);
+                    const croppedImg = croppedCanvas.toDataURL(
+                        'image/jpeg',
+                        0.98,
+                    )
+                    const croppedHeightMM = pxToMm(
+                        croppedCanvas.height,
+                        contentCanvas.width,
+                        contentCanvasWidthMM,
+                    )
 
                     pdf.addImage(
                         croppedImg,
@@ -311,8 +381,8 @@ const DocumentList: React.FC = () => {
                         margin,
                         margin + headerHeightToUse,
                         contentCanvasWidthMM,
-                        croppedHeightMM
-                    );
+                        croppedHeightMM,
+                    )
 
                     pdf.addImage(
                         footerImg,
@@ -320,40 +390,39 @@ const DocumentList: React.FC = () => {
                         margin,
                         pageHeight - footerHeightToUse - margin,
                         contentCanvasWidthMM,
-                        footerHeightToUse
-                    );
+                        footerHeightToUse,
+                    )
 
-                    pdf.setFontSize(10);
+                    pdf.setFontSize(10)
                     pdf.text(
                         `Page ${pageNum + 1} of ${totalPages}`,
                         pageWidth / 2,
                         pageHeight - 2,
-                        { align: 'center' }
-                    );
+                        { align: 'center' },
+                    )
 
-                    if (pageNum < totalPages - 1) pdf.addPage();
+                    if (pageNum < totalPages - 1) pdf.addPage()
                 }
 
-                const pdfBlob = pdf.output('blob');
-                zip.file(`${doc.documentName || 'document'}.pdf`, pdfBlob);
+                const pdfBlob = pdf.output('blob')
+                zip.file(`${doc.documentName || 'document'}.pdf`, pdfBlob)
 
-                document.body.removeChild(headerDiv);
-                document.body.removeChild(footerDiv);
-                document.body.removeChild(contentDiv);
-
+                document.body.removeChild(headerDiv)
+                document.body.removeChild(footerDiv)
+                document.body.removeChild(contentDiv)
             } catch (err) {
-                console.error("Failed to generate PDF", err);
+                console.error('Failed to generate PDF', err)
             }
         }
 
-        const zipBlob = await zip.generateAsync({ type: 'blob' });
-        const link = document.createElement('a');
-        link.href = URL.createObjectURL(zipBlob);
-        link.download = 'documents.zip';
-        document.body.appendChild(link);
-        link.click();
-        link.remove();
-    };
+        const zipBlob = await zip.generateAsync({ type: 'blob' })
+        const link = document.createElement('a')
+        link.href = URL.createObjectURL(zipBlob)
+        link.download = 'documents.zip'
+        document.body.appendChild(link)
+        link.click()
+        link.remove()
+    }
 
     return (
         <ListLayout

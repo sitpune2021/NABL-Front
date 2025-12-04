@@ -102,16 +102,18 @@ const ClausesListTable = () => {
                 accessorKey: 'created_at',
                 cell: (props) => {
                     const row = props.row.original
-                    return new Date(row.created_at).toLocaleDateString(
-                        'en-IN',
-                        {
-                            day: '2-digit',
-                            month: '2-digit',
-                            year: 'numeric',
-                            hour: '2-digit',
-                            minute: '2-digit',
-                        },
-                    )
+
+                    const formatted = new Date(
+                        row.created_at,
+                    ).toLocaleDateString('en-IN', {
+                        day: '2-digit',
+                        month: '2-digit',
+                        year: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit',
+                    })
+
+                    return <span className="font-semibold">{formatted}</span>
                 },
             },
             {

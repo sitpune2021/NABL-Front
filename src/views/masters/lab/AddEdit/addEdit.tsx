@@ -8,7 +8,6 @@ import endpointConfig from '@/configs/endpoint.config'
 import useLabList from '../List/hooks/useList'
 import LabForm from '../Form'
 import type { LabFormSchema } from '@/@types/lab'
-import BottomPanel from '@/components/form/bottomPanel'
 
 const LabAddEdit = () => {
     const navigate = useNavigate()
@@ -66,7 +65,6 @@ const LabAddEdit = () => {
         }
     }
 
-    const handleDiscard = () => setDiscardConfirmationOpen(true)
     const handleCancel = () => setDiscardConfirmationOpen(false)
 
     const handleConfirmDiscard = () => {
@@ -114,12 +112,12 @@ const LabAddEdit = () => {
                 readOnly={isView}
                 onFormSubmit={handleFormSubmit}
             >
-                <BottomPanel
+                {/* <BottomPanel
                     isView={isView}
                     isSubmitting={isSubmitting}
                     isEdit={isEdit}
                     onDiscard={handleDiscard}
-                />
+                /> */}
             </LabForm>
 
             <ConfirmDialog

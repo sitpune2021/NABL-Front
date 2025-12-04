@@ -22,6 +22,7 @@ export type User = {
     issuedBy: boolean
     approvedBy: boolean
     signature?: string
+    profileImage?: string
     preparedBy: boolean
     dialCode: string
     status?: string
@@ -74,6 +75,7 @@ export type Fields = {
     preparedBy: boolean
 
     signature?: string
+    profileImage?: string
     userRoles?: Array<UserRole>
 }
 

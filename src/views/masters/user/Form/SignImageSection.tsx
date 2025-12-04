@@ -7,9 +7,9 @@ import { Controller } from 'react-hook-form'
 import { HiOutlineUser } from 'react-icons/hi'
 import { FormSectionBaseProps } from '@/@types/user'
 
-type ProfileImageSectionProps = FormSectionBaseProps
+type SignImageSectionProps = FormSectionBaseProps
 
-const ProfileImage = ({ control }: ProfileImageSectionProps) => {
+const SignImage = ({ control }: SignImageSectionProps) => {
     const beforeUpload = (files: FileList | null) => {
         let valid: string | boolean = true
 
@@ -27,11 +27,11 @@ const ProfileImage = ({ control }: ProfileImageSectionProps) => {
 
     return (
         <Card>
-            <h4 className="mb-6">Image Upload</h4>
+            <h4 className="mb-6">Sign Upload</h4>
             <div className="bg-gray-100 dark:bg-gray-700 rounded-lg text-center p-4">
                 <div className="text-center">
                     <Controller
-                        name="profileImage"
+                        name="signature"
                         control={control}
                         render={({ field }) => (
                             <>
@@ -80,4 +80,4 @@ const ProfileImage = ({ control }: ProfileImageSectionProps) => {
     )
 }
 
-export default ProfileImage
+export default SignImage
