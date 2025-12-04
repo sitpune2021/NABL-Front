@@ -57,7 +57,9 @@ const LocationListTable = () => {
                                 <div className="font-bold heading-text">
                                     {name}
                                 </div>
-                                <div>{identifier}</div>
+                                <div className="font-semibold">
+                                    {identifier}
+                                </div>
                             </div>
                         </div>
                     )

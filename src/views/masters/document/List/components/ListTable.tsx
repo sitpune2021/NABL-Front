@@ -77,14 +77,32 @@ const DocumentListTable = () => {
             {
                 header: 'Document No',
                 accessorKey: 'documentNo',
+                cell: (props) => {
+                    const row = props.row.original
+                    return (
+                        <span className="font-semibold">{row.documentNo}</span>
+                    )
+                },
             },
             {
                 header: 'Document Name',
                 accessorKey: 'documentName',
+                cell: (props) => {
+                    const row = props.row.original
+                    return (
+                        <span className="font-semibold heading-text">
+                            {row.documentName}
+                        </span>
+                    )
+                },
             },
             {
                 header: 'Category',
                 accessorKey: 'category',
+                cell: (props) => {
+                    const row = props.row.original
+                    return <span className="font-semibold">{row.category}</span>
+                },
             },
             {
                 header: 'Status',
