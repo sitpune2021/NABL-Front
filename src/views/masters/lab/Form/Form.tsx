@@ -1,16 +1,18 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { Form } from '@/components/ui/Form'
 import Container from '@/components/shared/Container'
 import BottomStickyBar from '@/components/template/BottomStickyBar'
 import OverviewSection from './OverviewSection'
+import LocationsSection from './LocationsSection'
+import ClausesSection from './ClausesSection'
 import isEmpty from 'lodash/isEmpty'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm, FormProvider } from 'react-hook-form'
 import { z } from 'zod'
-import type { CommonProps } from '@/@types/common'
 import type { LabFormSchema } from '@/@types/lab'
-import LocationsSection from './LocationsSection'
+import Steps from '@/components/ui/Steps'
+import Button from '@/components/ui/Button'
 
 const validationSchema = z.object({
     name: z.string().min(1, { message: 'Name is required' }),
@@ -96,15 +98,13 @@ const validationSchema = z.object({
 type LabFormProps = {
     onFormSubmit: (values: LabFormSchema) => void
     defaultValues?: LabFormSchema
-    newLab?: boolean
     readOnly?: boolean
-} & CommonProps
+}
 
 const LabForm = ({
     onFormSubmit,
     defaultValues,
     readOnly = false,
-    children,
 }: LabFormProps) => {
     const methods = useForm<LabFormSchema>({
         defaultValues,
@@ -112,20 +112,64 @@ const LabForm = ({
     })
 
     const {
-        handleSubmit,
         reset,
         control,
         formState: { errors },
+        handleSubmit,
     } = methods
 
+    const [step, setStep] = useState(0)
+
     useEffect(() => {
-        if (!isEmpty(defaultValues)) {
-            reset(defaultValues)
-        }
+        if (!isEmpty(defaultValues)) reset(defaultValues)
     }, [defaultValues, reset])
 
+    const nextStep = () => {
+        setStep((s) => (s < 2 ? s + 1 : s))
+    }
+
+    const prevStep = () => {
+        setStep((s) => (s > 0 ? s - 1 : s))
+    }
+
     const onSubmit = (values: LabFormSchema) => {
-        onFormSubmit?.(values)
+        if (step === 2) {
+            onFormSubmit(values)
+        }
+    }
+
+    const renderStep = () => {
+        switch (step) {
+            case 0:
+                return (
+                    <OverviewSection
+                        control={control}
+                        errors={errors}
+                        readOnly={readOnly}
+                    />
+                )
+
+            case 1:
+                return (
+                    <LocationsSection
+                        control={control}
+                        errors={errors}
+                        readOnly={readOnly}
+                    />
+                )
+
+            case 2:
+                return (
+                    <ClausesSection
+                        control={control}
+                        errors={errors}
+                        readOnly={readOnly}
+                    />
+                )
+
+            default:
+                return null
+        }
     }
 
     return (
@@ -133,26 +177,45 @@ const LabForm = ({
             <Form
                 className="flex w-full h-full"
                 containerClassName="flex flex-col w-full justify-between"
-                onSubmit={handleSubmit(onSubmit as unknown as any)}
+                onSubmit={handleSubmit(onSubmit)}
             >
                 <Container>
-                    <div className="flex flex-col md:flex-row gap-4">
-                        <div className="gap-4 flex flex-col flex-auto">
-                            <OverviewSection
-                                control={control}
-                                errors={errors}
-                                readOnly={readOnly}
-                            />
-                            <LocationsSection
-                                control={control}
-                                errors={errors}
-                                readOnly={readOnly}
-                            />
-                        </div>
+                    <div className="space-y-6">
+                        <Steps current={step}>
+                            <Steps.Item title="Overview & Contact" />
+                            <Steps.Item title="Locations" />
+                            <Steps.Item title="Clauses" />
+                        </Steps>
+
+                        <div className="w-full">{renderStep()}</div>
                     </div>
                 </Container>
 
-                <BottomStickyBar>{children}</BottomStickyBar>
+                <BottomStickyBar>
+                    <div className="flex justify-end w-full space-x-2">
+                        <Button
+                            type="button"
+                            disabled={step === 0}
+                            onClick={prevStep}
+                        >
+                            Previous
+                        </Button>
+
+                        {step === 2 ? (
+                            <Button type="submit" variant="solid">
+                                Submit
+                            </Button>
+                        ) : (
+                            <Button
+                                type="button"
+                                variant="solid"
+                                onClick={nextStep}
+                            >
+                                Next
+                            </Button>
+                        )}
+                    </div>
+                </BottomStickyBar>
             </Form>
         </FormProvider>
     )
