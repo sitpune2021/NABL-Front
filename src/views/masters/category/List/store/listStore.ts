@@ -26,19 +26,14 @@ export const useCategoryListStore = create<
         set((state) => {
             const prevData = state.selectedCategory
             if (checked) {
-                return { selectedCategory: [...prevData, ...[row]] }
+                return { selectedCategory: [...prevData, row] }
             } else {
-                if (
-                    prevData.some((prevCategory) => row.id === prevCategory.id)
-                ) {
-                    return {
-                        selectedCategory: prevData.filter(
-                            (prevCategory) => prevCategory.id !== row.id,
-                        ),
-                    }
+                return {
+                    selectedCategory: prevData.filter(
+                        (prevCategory) => prevCategory.id !== row.id,
+                    ),
                 }
-                return { selectedCategory: prevData }
             }
         }),
-    setSelectAllCategory: (row) => set(() => ({ selectedCategory: row })),
+    setSelectAllCategory: (rows) => set(() => ({ selectedCategory: rows })),
 }))
