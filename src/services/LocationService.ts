@@ -1,4 +1,4 @@
-import { Fields } from '@/@types/location'
+import { Fields, GetLocationDetailResponse } from '@/@types/location'
 import ApiService from './ApiService'
 import { PrefixFormSchema } from '@/@types/common'
 
@@ -21,7 +21,7 @@ export async function apiLocation(data: Fields) {
 }
 
 export async function apiGetLocationById(id: string) {
-    return ApiService.fetchDataWithAxios<Fields>({
+    return ApiService.fetchDataWithAxios<GetLocationDetailResponse>({
         url: `/location/${id}`,
         method: 'get',
     })

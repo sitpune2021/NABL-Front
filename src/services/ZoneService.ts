@@ -1,4 +1,4 @@
-import { Fields } from '@/@types/zone'
+import { Fields, GetZoneDetailResponse } from '@/@types/zone'
 import ApiService from './ApiService'
 import { PrefixFormSchema } from '@/@types/common'
 
@@ -21,7 +21,7 @@ export async function apiZone(data: Fields) {
 }
 
 export async function apiGetZoneById(id: string) {
-    return ApiService.fetchDataWithAxios<Fields>({
+    return ApiService.fetchDataWithAxios<GetZoneDetailResponse>({
         url: `/zone/${id}`,
         method: 'get',
     })

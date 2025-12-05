@@ -34,8 +34,6 @@ const LocationAddEdit = () => {
             setLoadingData(true)
             getLocationById(locationId)
                 .then((data) => {
-                    console.log('Fetched location data:', data)
-
                     setLocationData(data)
                 })
                 .finally(() => setLoadingData(false))

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import {
     apiDepartment,
     apiGetDepartmentList,
@@ -7,9 +8,13 @@ import {
 import useSWR from 'swr'
 import { useDepartmentListStore } from '../store/listStore'
 import type { TableQueries } from '@/@types/common'
-import { Fields, GetDepartmentListResponse } from '@/@types/department'
+import {
+    Fields,
+    GetDepartmentListResponse,
+    GetDepartmentDetailResponse,
+} from '@/@types/department'
 
-export default function useDepartmentList() {
+export default function useDepartmentList(departmentId?: string) {
     const {
         tableData,
         setTableData,
@@ -25,34 +30,64 @@ export default function useDepartmentList() {
             apiGetDepartmentList<GetDepartmentListResponse, TableQueries>(
                 params,
             ),
-        {
-            revalidateOnFocus: false,
-        },
+        { revalidateOnFocus: false },
     )
-    const saveDepartmentData = async (department: Fields) => {
-        if (department.id) {
-            await apiUpdateDepartment(department.id, department)
-        } else {
-            await apiDepartment(department)
-        }
-        await mutate() // refresh list
+
+    const {
+        data: detailData,
+        error: detailError,
+        isLoading: isDetailLoading,
+        mutate: mutateDetail,
+    } = useSWR<GetDepartmentDetailResponse>(
+        departmentId ? `/api/department/${departmentId}` : null,
+        () => apiGetDepartmentById(departmentId!),
+        { revalidateOnFocus: false },
+    )
+
+    const getDepartmentById = async (id: string) => {
+        const response = await apiGetDepartmentById(id)
+        return response.data || response
     }
 
-    // ✅ Get single department by ID (for edit or view)
-    const getDepartmentById = async (id: string) => {
-        const department = await apiGetDepartmentById(id)
-        return department
+    const saveDepartmentData = async (department: Fields) => {
+        let savedData: any
+        if (department.id) {
+            /* eslint-disable @typescript-eslint/no-unused-vars */
+            const { id, ...departmentWithoutId } = department
+            savedData = await apiUpdateDepartment(
+                department.id,
+                departmentWithoutId,
+            )
+        } else {
+            savedData = await apiDepartment(department)
+        }
+
+        await mutate()
+
+        if (department.id && mutateDetail) {
+            mutateDetail({ data: savedData }, false)
+        }
+
+        return savedData
     }
 
     const departmentList = data?.data || []
-
     const departmentListTotal = data?.total || 0
+
+    const departmentDetail = detailData?.data || {
+        name: '',
+        identifier: '',
+    }
 
     return {
         departmentList,
         departmentListTotal,
         error,
         isLoading,
+        departmentDetail,
+        isDetailLoading,
+        detailError,
+        mutateDetail,
         tableData,
         mutate,
         setTableData,
@@ -60,6 +95,6 @@ export default function useDepartmentList() {
         setSelectedDepartment,
         setSelectAllDepartment,
         saveDepartmentData,
-        getDepartmentById, // ✅ Now defined properly
+        getDepartmentById,
     }
 }
