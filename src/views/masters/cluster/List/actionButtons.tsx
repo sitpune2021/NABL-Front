@@ -4,7 +4,7 @@ import endpointConfig from '@/configs/endpoint.config'
 
 export const actionButtons: ActionButton[] = [
     {
-        label: 'Add new Cluster',
+        label: 'Add New Cluster',
         icon: <TbTemplate className="text-xl" />,
         path: `${endpointConfig.master.cluster.create}`,
     },

@@ -4,7 +4,7 @@ import endpointConfig from '@/configs/endpoint.config'
 
 export const actionButtons: ActionButton[] = [
     {
-        label: 'Add new User',
+        label: 'Add New User',
         icon: <TbTemplate className="text-xl" />,
         path: `${endpointConfig.setting.user.create}`,
     },

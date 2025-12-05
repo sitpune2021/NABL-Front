@@ -98,26 +98,21 @@ const TemplateListTable = () => {
     }
 
     const typeColor: Record<string, string> = {
-        header: 'bg-blue-300 dark:bg-blue-300 text-blue-800 dark:text-blue-800',
+        header: 'bg-blue-300 dark:bg-blue-300 text-black',
 
-        footer: 'bg-green-300 dark:bg-green-300 text-green-800 dark:text-green-800',
+        footer: 'bg-green-300 dark:bg-green-300 text-black',
 
-        draft: 'bg-yellow-300 dark:bg-yellow-300 text-yellow-800 dark:text-yellow-800',
+        draft: 'bg-yellow-300 dark:bg-yellow-300 text-black',
 
-        'draft-header':
-            'bg-amber-300 dark:bg-amber-300 text-amber-800 dark:text-amber-800',
+        'draft-header': 'bg-red-300 dark:bg-red-300 text-black',
 
-        'draft-footer':
-            'bg-purple-300 dark:bg-purple-300 text-purple-800 dark:text-purple-800',
+        'draft-footer': 'bg-purple-300 dark:bg-purple-300 text-black',
 
-        archived:
-            'bg-gray-300 dark:bg-gray-300 text-gray-800 dark:text-gray-800',
+        archived: 'bg-gray-300 dark:bg-gray-300 text-black',
 
-        'archived-header':
-            'bg-gray-300 dark:bg-gray-300 text-gray-800 dark:text-gray-800',
+        'archived-header': 'bg-pink-300 dark:bg-pink-300 text-black',
 
-        'archived-footer':
-            'bg-gray-300 dark:bg-gray-300 text-gray-800 dark:text-gray-800',
+        'archived-footer': 'bg-yellow-300 dark:bg-yellow-300 text-black',
     }
 
     const columns: ColumnDef<Template>[] = useMemo(

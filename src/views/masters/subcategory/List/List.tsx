@@ -7,7 +7,7 @@ import SubCategoryListTable from './components/ListTable'
 const SubCategoryList = () => {
     return (
         <ListLayout
-            title="SubCategory"
+            title="Sub Category"
             ActionTools={actionButtons}
             TableTools={<SubCategoryListTableTools />}
             Table={<SubCategoryListTable />}
