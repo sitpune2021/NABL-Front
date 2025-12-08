@@ -85,19 +85,9 @@ const TemplateListTable = () => {
                 return true
             }
 
-            if (selected.includes('generic') && type === 'generic') {
-                return true
-            }
-
             if (
                 selected.includes('archived-footer') &&
                 type === 'archived-footer'
-            ) {
-                return true
-            }
-            if (
-                selected.includes('archived-generic') &&
-                type === 'archived-generic'
             ) {
                 return true
             }

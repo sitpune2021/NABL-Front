@@ -40,8 +40,6 @@ export type ClauseItem = {
     category: string
     documentName: string
     frequency: string
-    required: boolean
-    timezone: boolean
 }
 
 export type AccordionItem = {
@@ -64,8 +62,6 @@ export type Fields = {
     category?: string
     documentName?: string
     frequency?: string
-    required?: boolean
-    timezone?: boolean
     titles?: string[]
 }
 

@@ -19,15 +19,12 @@ const channelList = [
     'all',
     'header',
     'footer',
-    'generic',
     'draft',
     'draft-header',
     'draft-footer',
-    'draft-generic',
     'archived-all',
     'archived-header',
     'archived-footer',
-    'archived-generic',
 ]
 
 const validationSchema = z.object({

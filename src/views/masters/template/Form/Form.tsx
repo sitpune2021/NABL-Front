@@ -41,6 +41,10 @@ const TemplateForm = ({
     isSubmiting,
     isEdit,
 }: TemplateFormProps) => {
+    const { type } = useParams<{ type: string }>()
+    const [actionDialogOpen, setActionDialogOpen] = useState(false)
+    const draftTimer = useRef<number | null>(null)
+
     const {
         handleSubmit,
         reset,
@@ -54,9 +58,7 @@ const TemplateForm = ({
         },
         resolver: zodResolver(validationSchema),
     })
-    const { type } = useParams<{ type: string }>()
-    const [actionDialogOpen, setActionDialogOpen] = useState(false)
-    const draftTimer = useRef<number | null>(null)
+
     const watchedTemplate = useWatch({ control, name: 'template' })
 
     useEffect(() => {
@@ -185,10 +187,7 @@ const TemplateForm = ({
                         variant="default"
                         onClick={() => {
                             localStorage.removeItem('template-draft')
-                            const form = document.querySelector(
-                                'form',
-                            ) as HTMLFormElement
-                            if (form) form.requestSubmit()
+                            document.querySelector('form')?.requestSubmit()
                             setActionDialogOpen(false)
                             onDialogClose()
                         }}
@@ -200,21 +199,15 @@ const TemplateForm = ({
                     <Button
                         variant="default"
                         onClick={() => {
-                            let draftType = 'draft'
+                            let draftType = ''
 
                             if (type === 'header') draftType = 'draft-header'
                             else if (type === 'footer')
                                 draftType = 'draft-footer'
-                            else if (type === 'template' || type === 'generic')
-                                draftType = 'draft-generic'
+                            else draftType = 'draft-generic'
 
                             setValue('type', draftType)
-
-                            const form = document.querySelector(
-                                'form',
-                            ) as HTMLFormElement
-                            if (form) form.requestSubmit()
-
+                            document.querySelector('form')?.requestSubmit()
                             setActionDialogOpen(false)
                             onDialogClose()
                         }}
@@ -226,11 +219,16 @@ const TemplateForm = ({
                     <Button
                         variant="default"
                         onClick={() => {
-                            setValue('type', 'archived')
-                            const form = document.querySelector(
-                                'form',
-                            ) as HTMLFormElement
-                            if (form) form.requestSubmit()
+                            let archiveType = ''
+
+                            if (type === 'header')
+                                archiveType = 'archived-header'
+                            else if (type === 'footer')
+                                archiveType = 'archived-footer'
+                            else archiveType = 'archived-generic'
+
+                            setValue('type', archiveType)
+                            document.querySelector('form')?.requestSubmit()
                             setActionDialogOpen(false)
                             onDialogClose()
                         }}

@@ -256,10 +256,19 @@ const DepartmentBlock = React.memo(
                     rolesList.find((r: any) => r.id === roleId)?.accessRight ||
                     {}
 
-                // Ensure each module has array of permissions
                 const formatted: Record<string, string[]> = {}
-                Object.entries(roleAccess).forEach(([moduleId, perms]: any) => {
-                    formatted[moduleId] = Array.isArray(perms) ? perms : []
+
+                // FIX → handle nested groups (no crash)
+                Object.values(roleAccess).forEach((group: any) => {
+                    if (typeof group === 'object') {
+                        Object.entries(group).forEach(
+                            ([moduleId, perms]: any) => {
+                                formatted[moduleId] = Array.isArray(perms)
+                                    ? perms
+                                    : []
+                            },
+                        )
+                    }
                 })
 
                 updated[roleId] = formatted
@@ -270,8 +279,9 @@ const DepartmentBlock = React.memo(
                 updated,
                 { shouldDirty: false },
             )
-        }, [roles, setValue, rolesList])
+        }, [roles, rolesList])
 
+        /* ---------------- Checkbox Toggle Logic ---------------- */
         const setPermission = (
             role: string,
             moduleId: string,
@@ -314,8 +324,7 @@ const DepartmentBlock = React.memo(
                                     placeholder="Select Department"
                                     isDisabled={readOnly}
                                     value={departmentOptions.find(
-                                        (o: { value: any }) =>
-                                            o.value === field.value,
+                                        (o: any) => o.value === field.value,
                                     )}
                                     className="rounded-lg border-gray-300 focus:border-blue-500 focus:ring-blue-500"
                                     onChange={(opt) =>
@@ -402,71 +411,81 @@ const PermissionTable = React.memo(
         const modulesList = Object.values(accessModules).flat()
 
         return (
-            <div className="mb-6 border border-gray-300 rounded-lg bg-white shadow-md overflow-hidden">
-                <div className="bg-gradient-to-r from-blue-500 to-indigo-600 px-4 py-3 border-b">
-                    <h5 className="text-md font-semibold text-white">
+            <div className="mb-6 border border-gray-200 bg-white shadow-lg overflow-hidden">
+                <div className="bg-gradient-to-r from-blue-500 to-blue-700 px-6 py-3 border-b border-gray-200">
+                    <h5 className="text-lg font-bold text-white">
                         Permissions for: {role}
                     </h5>
                 </div>
 
-                <table className="min-w-full text-sm">
-                    <thead className="bg-blue-100">
-                        <tr>
-                            <th className="px-4 py-3 text-left font-semibold text-blue-800">
-                                Module
-                            </th>
-                            {permOptions.map((p) => (
-                                <th
-                                    key={p}
-                                    className="px-3 py-3 text-center font-semibold text-blue-800"
-                                >
-                                    {p.replace('-', ' ')}
+                <div className="overflow-x-auto">
+                    <table className="min-w-full text-sm">
+                        <thead className="bg-gradient-to-r from-slate-100 to-slate-200">
+                            <tr>
+                                <th className="px-6 py-2 text-left font-bold text-slate-700 uppercase tracking-wider">
+                                    Module
                                 </th>
-                            ))}
-                        </tr>
-                    </thead>
-
-                    <tbody>
-                        {modulesList.map((mod: any, idx: number) => (
-                            <tr
-                                key={mod.id}
-                                className={`hover:bg-blue-50 transition-colors duration-150 ${
-                                    idx % 2 === 0 ? 'bg-white' : 'bg-gray-50'
-                                }`}
-                            >
-                                <td className="px-4 py-3 border-t font-medium text-gray-800">
-                                    {mod.name}
-                                </td>
-
-                                {permOptions.map((perm) => (
-                                    <td
-                                        key={perm}
-                                        className="text-center border-t px-2 py-3"
+                                {permOptions.map((p) => (
+                                    <th
+                                        key={p}
+                                        className="px-4 py-2 text-center font-bold text-slate-700 uppercase tracking-wider"
                                     >
-                                        {mod.accessor.some(
-                                            (a: any) => a.value === perm,
-                                        ) ? (
-                                            <Checkbox
-                                                checked={permissions?.[
-                                                    mod.id
-                                                ]?.includes(perm)}
-                                                disabled={readOnly}
-                                                className="rounded focus:ring-blue-500"
-                                                onChange={() =>
-                                                    onToggle(role, mod.id, perm)
-                                                }
-                                            />
-                                        ) : (
-                                            <span className="text-gray-400">
-                                                —
-                                            </span>
-                                        )}
-                                    </td>
+                                        {p.replace('-', ' ')}
+                                    </th>
                                 ))}
                             </tr>
-                        ))}
-                    </tbody>
-                </table>
+                        </thead>
+
+                        <tbody className="divide-y divide-gray-200">
+                            {modulesList.map((mod: any, idx: number) => (
+                                <tr
+                                    key={mod.id}
+                                    className={`hover:bg-blue-50 transition-all duration-200 ${
+                                        idx % 2 === 0
+                                            ? 'bg-white'
+                                            : 'bg-gray-50'
+                                    }`}
+                                >
+                                    <td className="px-6 py-2 border-t border-gray-200 font-semibold text-gray-900">
+                                        {mod.name}
+                                    </td>
+
+                                    {permOptions.map((perm) => (
+                                        <td
+                                            key={perm}
+                                            className="text-center border-t border-gray-200 px-4 py-2"
+                                        >
+                                            {mod.accessor.some(
+                                                (a: any) => a.value === perm,
+                                            ) ? (
+                                                <Checkbox
+                                                    checked={Boolean(
+                                                        permissions?.[
+                                                            String(mod.id)
+                                                        ]?.includes(perm),
+                                                    )}
+                                                    disabled={readOnly}
+                                                    className="w-5 h-5 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2"
+                                                    onChange={() =>
+                                                        onToggle(
+                                                            role,
+                                                            String(mod.id),
+                                                            perm,
+                                                        )
+                                                    }
+                                                />
+                                            ) : (
+                                                <span className="text-gray-400 text-xl">
+                                                    —
+                                                </span>
+                                            )}
+                                        </td>
+                                    ))}
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
             </div>
         )
     },

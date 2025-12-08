@@ -22,8 +22,6 @@ const defaultClause = {
     category: '',
     documentName: '',
     frequency: '',
-    required: false,
-    timezone: false,
 }
 
 const mapStandardsToTitleData = (
