@@ -11,6 +11,7 @@ import { z } from 'zod'
 import type { CommonProps } from '@/@types/common'
 import { UserFormSchema } from '@/@types/user'
 import AddressSection from './AddressSection'
+import SignImageSection from './SignImageSection'
 import ProfileImageSection from './ProfileImageSection'
 import AssignPermissionSection from './AssignPermissionSection'
 
@@ -44,6 +45,7 @@ const validationSchema = z.object({
     approvedBy: z.boolean(),
 
     signature: z.string().optional(),
+    profileImage: z.string().optional(),
 
     userRoles: z
         .array(
@@ -153,6 +155,11 @@ const UserForm = (props: UserFormProps) => {
                     </div>
                     <div className="md:w-[370px] gap-4 flex flex-col">
                         <ProfileImageSection
+                            control={control}
+                            errors={errors}
+                            readOnly={readOnly}
+                        />
+                        <SignImageSection
                             control={control}
                             errors={errors}
                             readOnly={readOnly}
