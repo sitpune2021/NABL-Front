@@ -4,12 +4,12 @@ import endpointConfig from '@/configs/endpoint.config'
 
 export const actionButtons: ActionButton[] = [
     {
-        label: 'Add new Header',
+        label: 'Add New Header',
         icon: <TbTemplate className="text-xl" />,
         path: `${endpointConfig.master.template.create}/header`,
     },
     {
-        label: 'Add new Footer',
+        label: 'Add New Footer',
         icon: <TbTemplate className="text-xl" />,
         path: `${endpointConfig.master.template.create}/footer`,
     },

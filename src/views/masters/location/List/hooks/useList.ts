@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import {
     apiLocation,
     apiGetLocationList,
@@ -7,9 +8,13 @@ import {
 import useSWR from 'swr'
 import { useLocationListStore } from '../store/listStore'
 import type { TableQueries } from '@/@types/common'
-import { Fields, GetLocationListResponse } from '@/@types/location'
+import {
+    Fields,
+    GetLocationListResponse,
+    GetLocationDetailResponse,
+} from '@/@types/location'
 
-export default function useLocationList() {
+export default function useLocationList(locationId?: string) {
     const {
         tableData,
         filterData,
@@ -25,34 +30,57 @@ export default function useLocationList() {
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         ([_, params]) =>
             apiGetLocationList<GetLocationListResponse, TableQueries>(params),
-        {
-            revalidateOnFocus: false,
-        },
+        { revalidateOnFocus: false },
     )
+
+    const {
+        data: detailData,
+        error: detailError,
+        isLoading: isDetailLoading,
+        mutate: mutateDetail,
+    } = useSWR<GetLocationDetailResponse>(
+        locationId ? `/api/location/${locationId}` : null,
+        () => apiGetLocationById(locationId!),
+        { revalidateOnFocus: false },
+    )
+
     const saveLocationData = async (location: Fields) => {
+        let savedData: any
+
         if (location.id) {
-            await apiUpdateLocation(location.id, location)
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+            const { id, ...withoutId } = location
+            savedData = await apiUpdateLocation(location.id, withoutId)
         } else {
-            await apiLocation(location)
+            savedData = await apiLocation(location)
         }
-        await mutate() // refresh list
+
+        await mutate()
+        if (location.id && mutateDetail) {
+            mutateDetail({ data: savedData }, false)
+        }
+
+        return savedData
     }
 
-    // ✅ Get single location by ID (for edit or view)
     const getLocationById = async (id: string) => {
-        const location = await apiGetLocationById(id)
-        return location
+        const res = await apiGetLocationById(id)
+        return res.data
     }
 
     const locationList = data?.data || []
-
     const locationListTotal = data?.total || 0
 
+    const locationDetail = detailData?.data
     return {
         locationList,
         locationListTotal,
         error,
         isLoading,
+        locationDetail,
+        isDetailLoading,
+        detailError,
+        mutateDetail,
         tableData,
         filterData,
         mutate,
@@ -62,6 +90,6 @@ export default function useLocationList() {
         setSelectAllLocation,
         setFilterData,
         saveLocationData,
-        getLocationById, // ✅ Now defined properly
+        getLocationById,
     }
 }

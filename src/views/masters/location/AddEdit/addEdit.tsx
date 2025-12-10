@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useState } from 'react'
 import { useParams, useNavigate, useLocation } from 'react-router'
 import Notification from '@/components/ui/Notification'
@@ -34,8 +35,6 @@ const LocationAddEdit = () => {
             setLoadingData(true)
             getLocationById(locationId)
                 .then((data) => {
-                    console.log('Fetched location data:', data)
-
                     setLocationData(data)
                 })
                 .finally(() => setLoadingData(false))
@@ -45,17 +44,44 @@ const LocationAddEdit = () => {
     const handleFormSubmit = async (values: LocationFormSchema) => {
         if (isView) return
         setIsSubmiting(true)
-        const payload = isEdit ? { ...values, id: locationId } : values
-        await saveLocationData(payload)
-        await sleep(800)
-        setIsSubmiting(false)
-        toast.push(
-            <Notification type="success">
-                {isEdit ? 'Location updated!' : 'Location created!'}
-            </Notification>,
-            { placement: 'top-center' },
-        )
-        navigate(`${endpointConfig.master.location.list}`)
+        try {
+            const payload = isEdit ? { ...values, id: locationId } : values
+            await saveLocationData(payload)
+            await sleep(800)
+            setIsSubmiting(false)
+            toast.push(
+                <Notification type="success">
+                    {isEdit ? 'Location updated!' : 'Location created!'}
+                </Notification>,
+                { placement: 'top-center' },
+            )
+            navigate(`${endpointConfig.master.location.list}`)
+        } catch (error: any) {
+            const backendErrors = error?.response?.data?.errors
+
+            if (backendErrors) {
+                Object.entries(backendErrors).forEach(([messages]) => {
+                    const message = Array.isArray(messages)
+                        ? messages[0]
+                        : messages
+                    toast.push(
+                        <Notification type="danger">{message}</Notification>,
+                        { placement: 'top-center' },
+                    )
+                })
+            } else {
+                const errorMessage =
+                    error?.response?.data?.message ||
+                    `Failed to ${isEdit ? 'update' : 'create'} location`
+
+                toast.push(
+                    <Notification type="danger">{errorMessage}</Notification>,
+                    { placement: 'top-center' },
+                )
+            }
+        } finally {
+            setIsSubmiting(false)
+        }
     }
 
     const handleConfirmDiscard = () => {

@@ -4,7 +4,7 @@ import endpointConfig from '@/configs/endpoint.config'
 
 export const actionButtons: ActionButton[] = [
     {
-        label: 'Add new SignatoryBy',
+        label: 'Add New SignatoryBy',
         icon: <TbTemplate className="text-xl" />,
         path: `${endpointConfig.master.signatoryBy.create}`,
     },

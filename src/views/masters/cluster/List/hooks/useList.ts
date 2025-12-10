@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import {
     apiCluster,
     apiGetClusterList,
@@ -7,9 +8,13 @@ import {
 import useSWR from 'swr'
 import { useClusterListStore } from '../store/listStore'
 import type { TableQueries } from '@/@types/common'
-import { Fields, GetClusterListResponse } from '@/@types/cluster'
+import {
+    Fields,
+    GetClusterListResponse,
+    GetClusterDetailResponse,
+} from '@/@types/cluster'
 
-export default function useClusterList() {
+export default function useClusterList(clusterId?: string) {
     const {
         tableData,
         filterData,
@@ -29,30 +34,61 @@ export default function useClusterList() {
             revalidateOnFocus: false,
         },
     )
+
+    const {
+        data: detailData,
+        error: detailError,
+        isLoading: isDetailLoading,
+        mutate: mutateDetail,
+    } = useSWR<GetClusterDetailResponse>(
+        clusterId ? `/api/cluster/${clusterId}` : null,
+        () => apiGetClusterById(clusterId!),
+        { revalidateOnFocus: false },
+    )
+
     const saveClusterData = async (cluster: Fields) => {
+        let savedData: any
+
         if (cluster.id) {
-            await apiUpdateCluster(cluster.id, cluster)
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+            const { id, ...withoutId } = cluster
+            savedData = await apiUpdateCluster(cluster.id, withoutId)
         } else {
-            await apiCluster(cluster)
+            savedData = await apiCluster(cluster)
         }
-        await mutate() // refresh list
+
+        await mutate()
+
+        if (cluster.id && mutateDetail) {
+            mutateDetail({ data: savedData }, false)
+        }
+
+        return savedData
     }
 
-    // ✅ Get single cluster by ID (for edit or view)
     const getClusterById = async (id: string) => {
-        const cluster = await apiGetClusterById(id)
-        return cluster
+        const res = await apiGetClusterById(id)
+        return res.data
     }
 
     const clusterList = data?.data || []
-
     const clusterListTotal = data?.total || 0
+
+    const clusterDetail = detailData?.data || {
+        name: '',
+        zone_id: '',
+        identifier: '',
+    }
 
     return {
         clusterList,
         clusterListTotal,
         error,
         isLoading,
+        clusterDetail,
+        isDetailLoading,
+        detailError,
+        mutateDetail,
         tableData,
         filterData,
         mutate,
@@ -62,6 +98,6 @@ export default function useClusterList() {
         setSelectAllCluster,
         setFilterData,
         saveClusterData,
-        getClusterById, // ✅ Now defined properly
+        getClusterById,
     }
 }

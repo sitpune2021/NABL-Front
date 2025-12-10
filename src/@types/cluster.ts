@@ -6,6 +6,9 @@ export type GetClusterListResponse = {
     data: Cluster[]
     total: number
 }
+export type GetClusterDetailResponse = {
+    data: Fields
+}
 
 export type Filter = {
     purchasedProducts: string

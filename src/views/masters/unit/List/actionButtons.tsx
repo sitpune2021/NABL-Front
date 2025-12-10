@@ -4,7 +4,7 @@ import endpointConfig from '@/configs/endpoint.config'
 
 export const actionButtons: ActionButton[] = [
     {
-        label: 'Add new Unit',
+        label: 'Add New Unit',
         icon: <TbTemplate className="text-xl" />,
         path: `${endpointConfig.setting.unit.create}`,
     },

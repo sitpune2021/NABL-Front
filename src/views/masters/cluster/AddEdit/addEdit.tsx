@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useState } from 'react'
 import { useParams, useNavigate, useLocation } from 'react-router'
 import Notification from '@/components/ui/Notification'
@@ -43,17 +44,44 @@ const ClusterAddEdit = () => {
     const handleFormSubmit = async (values: ClusterFormSchema) => {
         if (isView) return
         setIsSubmiting(true)
-        const payload = isEdit ? { ...values, id: clusterId } : values
-        await saveClusterData(payload)
-        await sleep(800)
-        setIsSubmiting(false)
-        toast.push(
-            <Notification type="success">
-                {isEdit ? 'Cluster updated!' : 'Cluster created!'}
-            </Notification>,
-            { placement: 'top-center' },
-        )
-        navigate(`${endpointConfig.master.cluster.list}`)
+        try {
+            const payload = isEdit ? { ...values, id: clusterId } : values
+            await saveClusterData(payload)
+            await sleep(800)
+            setIsSubmiting(false)
+            toast.push(
+                <Notification type="success">
+                    {isEdit ? 'Cluster updated!' : 'Cluster created!'}
+                </Notification>,
+                { placement: 'top-center' },
+            )
+            navigate(`${endpointConfig.master.cluster.list}`)
+        } catch (error: any) {
+            const backendErrors = error?.response?.data?.errors
+
+            if (backendErrors) {
+                Object.entries(backendErrors).forEach(([messages]) => {
+                    const message = Array.isArray(messages)
+                        ? messages[0]
+                        : messages
+                    toast.push(
+                        <Notification type="danger">{message}</Notification>,
+                        { placement: 'top-center' },
+                    )
+                })
+            } else {
+                const errorMessage =
+                    error?.response?.data?.message ||
+                    `Failed to ${isEdit ? 'update' : 'create'}cluster`
+
+                toast.push(
+                    <Notification type="danger">{errorMessage}</Notification>,
+                    { placement: 'top-center' },
+                )
+            }
+        } finally {
+            setIsSubmiting(false)
+        }
     }
 
     const handleConfirmDiscard = () => {

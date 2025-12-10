@@ -1,4 +1,4 @@
-import { Fields } from '@/@types/cluster'
+import { Fields, GetClusterDetailResponse } from '@/@types/cluster'
 import ApiService from './ApiService'
 import { PrefixFormSchema } from '@/@types/common'
 
@@ -21,7 +21,7 @@ export async function apiCluster(data: Fields) {
 }
 
 export async function apiGetClusterById(id: string) {
-    return ApiService.fetchDataWithAxios<Fields>({
+    return ApiService.fetchDataWithAxios<GetClusterDetailResponse>({
         url: `/cluster/${id}`,
         method: 'get',
     })

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useState } from 'react'
 import { useParams, useNavigate, useLocation } from 'react-router'
 import Notification from '@/components/ui/Notification'
@@ -43,17 +44,44 @@ const UnitAddEdit = () => {
     const handleFormSubmit = async (values: UnitFormSchema) => {
         if (isView) return
         setIsSubmiting(true)
-        const payload = isEdit ? { ...values, id: unitId } : values
-        await saveUnitData(payload)
-        await sleep(800)
-        setIsSubmiting(false)
-        toast.push(
-            <Notification type="success">
-                {isEdit ? 'Unit updated!' : 'Unit created!'}
-            </Notification>,
-            { placement: 'top-center' },
-        )
-        navigate(`${endpointConfig.setting.unit.list}`)
+        try {
+            const payload = isEdit ? { ...values, id: unitId } : values
+            await saveUnitData(payload)
+            await sleep(800)
+            setIsSubmiting(false)
+            toast.push(
+                <Notification type="success">
+                    {isEdit ? 'Unit updated!' : 'Unit created!'}
+                </Notification>,
+                { placement: 'top-center' },
+            )
+            navigate(`${endpointConfig.setting.unit.list}`)
+        } catch (error: any) {
+            const backendErrors = error?.response?.data?.errors
+
+            if (backendErrors) {
+                Object.entries(backendErrors).forEach(([messages]) => {
+                    const message = Array.isArray(messages)
+                        ? messages[0]
+                        : messages
+                    toast.push(
+                        <Notification type="danger">{message}</Notification>,
+                        { placement: 'top-center' },
+                    )
+                })
+            } else {
+                const errorMessage =
+                    error?.response?.data?.message ||
+                    `Failed to ${isEdit ? 'update' : 'create'} unit.`
+
+                toast.push(
+                    <Notification type="danger">{errorMessage}</Notification>,
+                    { placement: 'top-center' },
+                )
+            }
+        } finally {
+            setIsSubmiting(false)
+        }
     }
 
     const handleConfirmDiscard = () => {

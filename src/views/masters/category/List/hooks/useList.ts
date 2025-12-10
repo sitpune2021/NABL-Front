@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import {
     apiCategory,
     apiGetCategoryList,
@@ -7,9 +8,13 @@ import {
 import useSWR from 'swr'
 import { useCategoryListStore } from '../store/listStore'
 import type { TableQueries } from '@/@types/common'
-import type { Fields, GetCategoryListResponse } from '@/@types/category'
+import {
+    Fields,
+    GetCategoryListResponse,
+    GetCategoryDetailResponse,
+} from '@/@types/category'
 
-export default function useCategoryList() {
+export default function useCategoryList(categoryId?: string) {
     const {
         tableData,
         setTableData,
@@ -27,29 +32,57 @@ export default function useCategoryList() {
             revalidateOnFocus: false,
         },
     )
-    const saveCategoryData = async (category: Fields) => {
-        if (category.id) {
-            await apiUpdateCategory(category.id, category)
-        } else {
-            await apiCategory(category)
-        }
-        await mutate() // refresh list
-    }
 
+    const {
+        data: detailData,
+        error: detailError,
+        isLoading: isDetailLoading,
+        mutate: mutateDetail,
+    } = useSWR<GetCategoryDetailResponse>(
+        categoryId ? `/api/category/${categoryId}` : null,
+        () => apiGetCategoryById(categoryId!),
+        { revalidateOnFocus: false },
+    )
     const getCategoryById = async (id: string): Promise<Fields> => {
         const response = await apiGetCategoryById(id)
-        return response
+        return response.data || response
+    }
+
+    const saveCategoryData = async (category: Fields) => {
+        let savedData: any
+        if (category.id) {
+            /* eslint-disable @typescript-eslint/no-unused-vars */
+            const { id, ...categoryWithoutId } = category
+            savedData = await apiUpdateCategory(category.id, categoryWithoutId)
+        } else {
+            savedData = await apiCategory(category)
+        }
+        await mutate()
+
+        if (category.id && mutateDetail) {
+            mutateDetail({ data: savedData }, false)
+        }
+
+        return savedData
     }
 
     const categoryList = data?.data || []
-
     const categoryListTotal = data?.total || 0
+
+    const categoryDetail = detailData?.data || {
+        name: '',
+        identifier: '',
+    }
 
     return {
         categoryList,
         categoryListTotal,
         error,
         isLoading,
+        categoryDetail,
+        isDetailLoading,
+        detailError,
+        mutateDetail,
         tableData,
         mutate,
         setTableData,
@@ -57,6 +90,6 @@ export default function useCategoryList() {
         setSelectedCategory,
         setSelectAllCategory,
         saveCategoryData,
-        getCategoryById, // ✅ Now defined properly
+        getCategoryById,
     }
 }
