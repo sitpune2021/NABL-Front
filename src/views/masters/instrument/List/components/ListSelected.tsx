@@ -39,7 +39,7 @@ const InstrumentListSelected = () => {
         setSelectAllInstrument([])
         mutate(
             {
-                list: newInstrumentList,
+                data: newInstrumentList,
                 total: instrumentListTotal - selectedInstrument.length,
             },
             false,

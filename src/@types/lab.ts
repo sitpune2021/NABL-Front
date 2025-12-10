@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { TableQueries } from './common'
 import type { Control, FieldErrors } from 'react-hook-form'
 
@@ -67,8 +68,8 @@ export type Fields = {
     labType: string
     department: string[] // Kept as string[] based on your provided type, though schema suggests it might be a single string; adjust if needed
     labCode: string
-    emails: { value: string }[]
-    phones: { value: string }[]
+    emails: { type: string; value: string; label: string; is_primary: any }[]
+    phones: { type: string; value: string; label: string; is_primary: any }[]
     address?: string
     location: LocationField[]
 }
@@ -83,4 +84,5 @@ export type FormSectionBaseProps = {
     control: Control<LabFormSchema>
     errors: FieldErrors<LabFormSchema>
     readOnly?: boolean
+    setValue?: any
 }

@@ -463,7 +463,11 @@ export default function GrapesEditor({
                         name="documentId"
                         control={control}
                         render={({ field }) => (
-                            <input type="hidden" {...field} />
+                            <input
+                                type="hidden"
+                                {...field}
+                                value={Number(field.value)} // ensures the value is always a number
+                            />
                         )}
                     />
                 </>

@@ -75,11 +75,11 @@ const InstrumentAddEdit = () => {
                 newInstrument={isAdd}
                 defaultValues={
                     instrumentData ?? {
-                        prefix: '',
-                        full_name: '',
+                        identifier: '',
+                        name: '',
                         short_name: '',
-                        manufacture: '',
-                        serial_number: '',
+                        manufacturer: '',
+                        serial_no: '',
                     }
                 }
                 readOnly={isView}

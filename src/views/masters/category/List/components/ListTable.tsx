@@ -9,14 +9,9 @@ import type { TableQueries } from '@/@types/common'
 import useCategoryList from '../hooks/useList'
 import endpointConfig from '@/configs/endpoint.config'
 import { Category } from '@/@types/category'
+import { ActionButtonTable } from '@/@types/auth'
 
-const ActionColumn = ({
-    onEdit,
-    onViewDetail,
-}: {
-    onEdit: () => void
-    onViewDetail: () => void
-}) => {
+const ActionColumn = ({ onEdit, onViewDetail }: ActionButtonTable) => {
     return (
         <div className="flex items-center gap-3">
             <Tooltip title="Edit">

@@ -15,11 +15,10 @@ export default defineConfig({
     server: {
         proxy: {
             '/api': {
-                target: 'http://192.168.1.3:8000',
+                target: 'http://192.168.1.33:8000',
                 changeOrigin: true,
                 secure: false,
             },
-            '/sanctum': 'http://192.168.1.3:8000',
         },
         host: true, // equivalent to 0.0.0.0
         port: 5175,

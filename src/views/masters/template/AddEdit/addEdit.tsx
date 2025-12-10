@@ -84,6 +84,7 @@ const TemplateAddEdit = () => {
                         name: '',
                         type: type || '',
                         template: { html: '', css: '', json: '' },
+                        status: 'draft',
                     }
                 }
                 readOnly={isView}
@@ -97,6 +98,7 @@ const TemplateAddEdit = () => {
                     isView={isView}
                     isEdit={isEdit}
                     isSubmitting={isSubmiting}
+                    type="button"
                     onDiscard={handleDiscard}
                     onPrimaryClick={() => setDialogIsOpen(true)}
                 />

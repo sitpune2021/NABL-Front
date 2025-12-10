@@ -26,6 +26,8 @@ const validationSchema = z.object({
                     .string()
                     .nonempty({ message: 'Email is required' })
                     .email({ message: 'Invalid email address' }),
+                is_primary: z.boolean().optional(),
+                label: z.enum(['primary', 'alternate']).optional(),
             }),
         )
         .min(1, { message: 'At least one email is required' }),
@@ -33,6 +35,8 @@ const validationSchema = z.object({
         .array(
             z.object({
                 value: z.string().nonempty({ message: 'Phone is required' }),
+                is_primary: z.boolean().optional(),
+                label: z.enum(['primary', 'alternate']).optional(),
             }),
         )
         .min(1, { message: 'At least one phone is required' }),
@@ -40,19 +44,14 @@ const validationSchema = z.object({
     location: z
         .array(
             z.object({
-                zone_name: z.string().nonempty({ message: 'Zone is required' }),
-                cluster_name: z
-                    .string()
-                    .nonempty({ message: 'Cluster is required' }),
-                location_name: z
-                    .string()
-                    .nonempty({ message: 'Location is required' }),
+                zone_name: z.union([z.string(), z.number()]),
+                cluster_name: z.union([z.string(), z.number()]),
+                location_name: z.union([z.string(), z.number()]),
+
                 departments: z
                     .array(
                         z.object({
-                            name: z.string().nonempty({
-                                message: 'Department name is required',
-                            }),
+                            name: z.union([z.string(), z.number()]),
                             instruments: z
                                 .array(z.union([z.string(), z.number()]))
                                 .min(1, {
@@ -71,6 +70,8 @@ const validationSchema = z.object({
                                 .string()
                                 .nonempty({ message: 'Email is required' })
                                 .email({ message: 'Invalid email address' }),
+                            is_primary: z.boolean().optional(),
+                            label: z.enum(['primary', 'alternate']).optional(),
                         }),
                     )
                     .min(1, { message: 'At least one email is required' }),
@@ -80,14 +81,15 @@ const validationSchema = z.object({
                             value: z
                                 .string()
                                 .nonempty({ message: 'Phone is required' }),
+                            is_primary: z.boolean().optional(),
+                            label: z.enum(['primary', 'alternate']).optional(),
                         }),
                     )
                     .min(1, { message: 'At least one phone is required' }),
                 address: z.string().optional(),
-                instruments: z.array(z.union([z.string(), z.number()])).min(1, {
-                    message:
-                        'At least one instrument is required per department',
-                }),
+                instruments: z
+                    .array(z.union([z.string(), z.number()]))
+                    .min(1, { message: 'At least one instrument is required' }),
             }),
         )
         .min(1, { message: 'At least one location is required' }),
@@ -98,6 +100,11 @@ type LabFormProps = {
     defaultValues?: LabFormSchema
     newLab?: boolean
     readOnly?: boolean
+    zoneList: any[]
+    clusterList: any[]
+    locationList: any[]
+    departmentList: any[]
+    instrumentList: any[]
 } & CommonProps
 
 const LabForm = ({
@@ -105,6 +112,11 @@ const LabForm = ({
     defaultValues,
     readOnly = false,
     children,
+    zoneList,
+    clusterList,
+    locationList,
+    departmentList,
+    instrumentList,
 }: LabFormProps) => {
     const methods = useForm<LabFormSchema>({
         defaultValues,
@@ -116,13 +128,14 @@ const LabForm = ({
         reset,
         control,
         formState: { errors },
+        setValue,
     } = methods
 
     useEffect(() => {
         if (!isEmpty(defaultValues)) {
             reset(defaultValues)
         }
-    }, [defaultValues, reset])
+    }, [defaultValues])
 
     const onSubmit = (values: LabFormSchema) => {
         onFormSubmit?.(values)
@@ -142,11 +155,17 @@ const LabForm = ({
                                 control={control}
                                 errors={errors}
                                 readOnly={readOnly}
+                                setValue={setValue}
                             />
                             <LocationsSection
                                 control={control}
                                 errors={errors}
                                 readOnly={readOnly}
+                                zoneList={zoneList}
+                                clusterList={clusterList}
+                                locationList={locationList}
+                                departmentList={departmentList}
+                                instrumentList={instrumentList}
                             />
                         </div>
                     </div>

@@ -1,6 +1,7 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import Input from '@/components/ui/Input'
 import { FormItem } from '@/components/ui/Form'
-import { Controller, useFieldArray } from 'react-hook-form'
+import { Controller, useFieldArray, useWatch } from 'react-hook-form'
 import { Button } from '@/components/ui/Button'
 import { FormSectionBaseProps } from '@/@types/lab'
 import { useEffect } from 'react'
@@ -10,6 +11,7 @@ const ContactPersonalSection = ({
     control,
     errors,
     readOnly = false,
+    setValue,
 }: FormSectionBaseProps) => {
     const {
         fields: emailFields,
@@ -29,11 +31,47 @@ const ContactPersonalSection = ({
         name: 'phones',
     })
 
+    const emailsValues = useWatch({ control, name: 'emails' }) || []
+    const phonesValues = useWatch({ control, name: 'phones' }) || []
+
     // ✅ Ensure at least one email and one phone field exist on mount
     useEffect(() => {
-        if (emailFields.length === 0) appendEmail({ value: '' })
-        if (phoneFields.length === 0) appendPhone({ value: '' })
+        if (emailFields.length === 0)
+            appendEmail({
+                type: 'email',
+                value: '',
+                label: 'alternate',
+                is_primary: false,
+            })
+
+        if (phoneFields.length === 0)
+            appendPhone({
+                type: 'phone',
+                value: '',
+                label: 'alternate',
+                is_primary: false,
+            })
     }, [emailFields.length, phoneFields.length, appendEmail, appendPhone])
+
+    const handlePrimaryChange = (
+        isEmail: boolean,
+        index: number,
+        checked: boolean,
+    ) => {
+        const fieldName = isEmail ? 'emails' : 'phones'
+        const items = isEmail ? emailsValues : phonesValues
+
+        if (!items) return
+
+        const updated = items.map((item: any, i: any) => ({
+            ...item,
+            is_primary: i === index ? checked : false,
+            label:
+                i === index ? (checked ? 'primary' : 'alternate') : 'alternate',
+        }))
+
+        setValue(fieldName, updated, { shouldValidate: true })
+    }
 
     return (
         <>
@@ -47,7 +85,14 @@ const ContactPersonalSection = ({
                                 type="button"
                                 size="xs"
                                 icon={<HiPlus />}
-                                onClick={() => appendEmail({ value: '' })}
+                                onClick={() =>
+                                    appendEmail({
+                                        type: 'email',
+                                        value: '',
+                                        label: 'alternate',
+                                        is_primary: false,
+                                    })
+                                }
                             />
                         )}
                     </div>
@@ -73,14 +118,43 @@ const ContactPersonalSection = ({
                                             />
                                         )}
                                     />
-                                    {!readOnly && emailFields.length > 1 && (
-                                        <Button
-                                            size="xs"
-                                            type="button"
-                                            icon={<HiMinus />}
-                                            onClick={() => removeEmail(index)}
-                                        />
-                                    )}
+                                    <Controller
+                                        name={`emails.${index}.is_primary`}
+                                        control={control}
+                                        render={({ field }) => (
+                                            <input
+                                                type="checkbox"
+                                                checked={field.value}
+                                                disabled={readOnly}
+                                                onChange={(e) =>
+                                                    handlePrimaryChange(
+                                                        true,
+                                                        index,
+                                                        e.target.checked,
+                                                    )
+                                                }
+                                            />
+                                        )}
+                                    />
+                                    <Controller
+                                        name={`emails.${index}.label`}
+                                        control={control}
+                                        render={({ field }) => (
+                                            <Input type="hidden" {...field} />
+                                        )}
+                                    />
+                                    {!readOnly &&
+                                        emailFields.length > 1 &&
+                                        index !== 0 && (
+                                            <Button
+                                                size="xs"
+                                                type="button"
+                                                icon={<HiMinus />}
+                                                onClick={() =>
+                                                    removeEmail(index)
+                                                }
+                                            />
+                                        )}
                                 </div>
                             </FormItem>
                         ))}
@@ -95,7 +169,14 @@ const ContactPersonalSection = ({
                                 type="button"
                                 size="xs"
                                 icon={<HiPlus />}
-                                onClick={() => appendPhone({ value: '' })}
+                                onClick={() =>
+                                    appendPhone({
+                                        type: 'phone',
+                                        value: '',
+                                        label: 'alternate',
+                                        is_primary: false,
+                                    })
+                                }
                             />
                         )}
                     </div>
@@ -121,14 +202,43 @@ const ContactPersonalSection = ({
                                             />
                                         )}
                                     />
-                                    {!readOnly && phoneFields.length > 1 && (
-                                        <Button
-                                            size="xs"
-                                            type="button"
-                                            icon={<HiMinus />}
-                                            onClick={() => removePhone(index)}
-                                        />
-                                    )}
+                                    <Controller
+                                        name={`phones.${index}.is_primary`}
+                                        control={control}
+                                        render={({ field }) => (
+                                            <input
+                                                type="checkbox"
+                                                checked={field.value}
+                                                disabled={readOnly}
+                                                onChange={(e) =>
+                                                    handlePrimaryChange(
+                                                        false,
+                                                        index,
+                                                        e.target.checked,
+                                                    )
+                                                }
+                                            />
+                                        )}
+                                    />
+                                    <Controller
+                                        name={`phones.${index}.label`}
+                                        control={control}
+                                        render={({ field }) => (
+                                            <input type="hidden" {...field} />
+                                        )}
+                                    />
+                                    {!readOnly &&
+                                        phoneFields.length > 1 &&
+                                        index !== 0 && (
+                                            <Button
+                                                size="xs"
+                                                type="button"
+                                                icon={<HiMinus />}
+                                                onClick={() =>
+                                                    removePhone(index)
+                                                }
+                                            />
+                                        )}
                                 </div>
                             </FormItem>
                         ))}

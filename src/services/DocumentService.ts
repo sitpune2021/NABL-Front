@@ -20,7 +20,7 @@ export async function apiDocument(data: Fields) {
 }
 
 export async function apiGetDocumentById(id: string) {
-    return ApiService.fetchDataWithAxios<Fields>({
+    return ApiService.fetchDataWithAxios<GetDocumentResponse>({
         url: `/document/${id}`,
         method: 'get',
     })

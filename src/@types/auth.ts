@@ -54,3 +54,8 @@ export type OauthSignInCallbackPayload = {
     onSignIn: (tokens: Token, user: User) => void
     redirect: () => void
 }
+
+export type ActionButtonTable = {
+    onEdit: () => void
+    onViewDetail: () => void
+}

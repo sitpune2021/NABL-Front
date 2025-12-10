@@ -38,7 +38,7 @@ export default function useCategoryList() {
 
     const getCategoryById = async (id: string): Promise<Fields> => {
         const response = await apiGetCategoryById(id)
-        return response
+        return response.data
     }
 
     const categoryList = data?.data || []
