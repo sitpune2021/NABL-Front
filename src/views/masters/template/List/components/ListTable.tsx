@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import Tooltip from '@/components/ui/Tooltip'
+import ActionColumn from '@/components/form/ActionColumn'
 import Tag from '@/components/ui/Tag'
 import DataTable from '@/components/shared/DataTable'
 import { useNavigate } from 'react-router'
@@ -10,37 +10,6 @@ import type { TableQueries } from '@/@types/common'
 import useTemplateList from '../hooks/useList'
 import endpointConfig from '@/configs/endpoint.config'
 import { Template } from '@/@types/template'
-
-const ActionColumn = ({
-    onEdit,
-    onViewDetail,
-}: {
-    onEdit: () => void
-    onViewDetail: () => void
-}) => {
-    return (
-        <div className="flex items-center gap-3">
-            <Tooltip title="Edit">
-                <div
-                    className="text-xl cursor-pointer select-none font-semibold"
-                    role="button"
-                    onClick={onEdit}
-                >
-                    <TbPencil />
-                </div>
-            </Tooltip>
-            <Tooltip title="View">
-                <div
-                    className="text-xl cursor-pointer select-none font-semibold"
-                    role="button"
-                    onClick={onViewDetail}
-                >
-                    <TbEye />
-                </div>
-            </Tooltip>
-        </div>
-    )
-}
 
 const TemplateListTable = () => {
     const navigate = useNavigate()
@@ -129,26 +98,21 @@ const TemplateListTable = () => {
     }
 
     const typeColor: Record<string, string> = {
-        header: 'bg-blue-300 dark:bg-blue-300 text-blue-800 dark:text-blue-800',
+        header: 'bg-blue-300 dark:bg-blue-300 text-black',
 
-        footer: 'bg-green-300 dark:bg-green-300 text-green-800 dark:text-green-800',
+        footer: 'bg-green-300 dark:bg-green-300 text-black',
 
-        draft: 'bg-yellow-300 dark:bg-yellow-300 text-yellow-800 dark:text-yellow-800',
+        draft: 'bg-yellow-300 dark:bg-yellow-300 text-black',
 
-        'draft-header':
-            'bg-amber-300 dark:bg-amber-300 text-amber-800 dark:text-amber-800',
+        'draft-header': 'bg-red-300 dark:bg-red-300 text-black',
 
-        'draft-footer':
-            'bg-purple-300 dark:bg-purple-300 text-purple-800 dark:text-purple-800',
+        'draft-footer': 'bg-purple-300 dark:bg-purple-300 text-black',
 
-        archived:
-            'bg-gray-300 dark:bg-gray-300 text-gray-800 dark:text-gray-800',
+        archived: 'bg-gray-300 dark:bg-gray-300 text-black',
 
-        'archived-header':
-            'bg-gray-300 dark:bg-gray-300 text-gray-800 dark:text-gray-800',
+        'archived-header': 'bg-pink-300 dark:bg-pink-300 text-black',
 
-        'archived-footer':
-            'bg-gray-300 dark:bg-gray-300 text-gray-800 dark:text-gray-800',
+        'archived-footer': 'bg-yellow-300 dark:bg-yellow-300 text-black',
     }
 
     const columns: ColumnDef<Template>[] = useMemo(
@@ -199,10 +163,19 @@ const TemplateListTable = () => {
                 id: 'action',
                 cell: (props) => (
                     <ActionColumn
-                        onEdit={() => handleEdit(props.row.original)}
-                        onViewDetail={() =>
-                            handleViewDetails(props.row.original)
-                        }
+                        buttons={[
+                            {
+                                icon: <TbPencil />,
+                                tooltip: 'Edit',
+                                onClick: () => handleEdit(props.row.original),
+                            },
+                            {
+                                icon: <TbEye />,
+                                tooltip: 'View',
+                                onClick: () =>
+                                    handleViewDetails(props.row.original),
+                            },
+                        ]}
                     />
                 ),
             },

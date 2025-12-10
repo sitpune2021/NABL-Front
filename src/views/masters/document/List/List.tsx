@@ -1,7 +1,7 @@
 import React from 'react'
 import JSZip from 'jszip'
 import jsPDF from 'jspdf'
-import html2canvas from 'html2canvas'
+import html2canvas, { type Options as HTML2CanvasOptions } from 'html2canvas'
 import ListLayout from '@/components/layouts/ListLayout'
 import DocumentListTableTools from './components/ListTableTools'
 import DocumentListSelected from './components/ListSelected'
@@ -251,7 +251,7 @@ const DocumentList: React.FC = () => {
                     setTimeout(check, 50)
                 })
 
-                const canvasOptions: Partial<html2canvas.Options> = {
+                const canvasOptions: Partial<HTML2CanvasOptions> = {
                     scale: 1,
                     useCORS: true,
                     allowTaint: true,

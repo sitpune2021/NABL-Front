@@ -4,7 +4,7 @@ import endpointConfig from '@/configs/endpoint.config'
 
 export const actionButtons: ActionButton[] = [
     {
-        label: 'Add new Instrument',
+        label: 'Add New Instrument',
         icon: <TbTemplate className="text-xl" />,
         path: `${endpointConfig.master.instrument.create}`,
     },

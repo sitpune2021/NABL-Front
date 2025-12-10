@@ -13,7 +13,7 @@ const OverviewSection = ({
 }: OverviewSectionProps) => {
     return (
         <Card>
-            <h4 className="mb-6">Overview</h4>
+            <h4 className="mb-6">Category</h4>
             <div className="grid md:grid-cols-2 gap-4">
                 <FormItem
                     label="Name"

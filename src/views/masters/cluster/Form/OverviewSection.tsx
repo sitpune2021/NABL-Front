@@ -26,7 +26,7 @@ const OverviewSection = ({
 
     return (
         <Card>
-            <h4 className="mb-6">Overview</h4>
+            <h4 className="mb-6">Cluster</h4>
             <div className="grid md:grid-cols-2 gap-4">
                 {/* Zone Field */}
                 <FormItem

@@ -7,6 +7,10 @@ export type GetCategoryListResponse = {
     total?: number
 }
 
+export interface GetCategoryDetailResponse {
+    data: Fields
+}
+
 export type Category = {
     id: string
     name: string
