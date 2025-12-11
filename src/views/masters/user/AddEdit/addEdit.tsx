@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useState } from 'react'
 import { useParams, useNavigate, useLocation } from 'react-router'
 import Notification from '@/components/ui/Notification'
@@ -43,26 +44,52 @@ const UserAddEdit = () => {
     const handleFormSubmit = async (values: UserFormSchema) => {
         if (isView) return
         setIsSubmiting(true)
+        try {
+            const payload = {
+                ...values,
+                dialCode: values.dialCode || '+91',
+                id: isEdit ? userId : undefined,
+            }
 
-        const payload = {
-            ...values,
-            dialCode: values.dialCode || '+91',
-            id: isEdit ? userId : undefined,
-        }
+            const result = await saveUserData(payload)
+            await sleep(800)
+            setIsSubmiting(false)
 
-        const result = await saveUserData(payload)
-        await sleep(800)
-        setIsSubmiting(false)
+            toast.push(
+                <Notification type={result.success ? 'success' : 'danger'}>
+                    {result.message}
+                </Notification>,
+                { placement: 'top-center' },
+            )
 
-        toast.push(
-            <Notification type={result.success ? 'success' : 'danger'}>
-                {result.message}
-            </Notification>,
-            { placement: 'top-center' },
-        )
+            if (result.success) {
+                navigate(endpointConfig.setting.user.list)
+            }
+        } catch (error: any) {
+            const backendErrors = error?.response?.data?.errors
 
-        if (result.success) {
-            navigate(endpointConfig.setting.user.list)
+            if (backendErrors) {
+                Object.entries(backendErrors).forEach(([messages]) => {
+                    const message = Array.isArray(messages)
+                        ? messages[0]
+                        : messages
+                    toast.push(
+                        <Notification type="danger">{message}</Notification>,
+                        { placement: 'top-center' },
+                    )
+                })
+            } else {
+                const errorMessage =
+                    error?.response?.data?.message ||
+                    `Failed to ${isEdit ? 'update' : 'create'} unit.`
+
+                toast.push(
+                    <Notification type="danger">{errorMessage}</Notification>,
+                    { placement: 'top-center' },
+                )
+            }
+        } finally {
+            setIsSubmiting(false)
         }
     }
 

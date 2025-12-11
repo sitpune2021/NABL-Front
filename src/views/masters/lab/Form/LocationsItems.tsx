@@ -1,22 +1,28 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect } from 'react'
-import { Controller, useFieldArray, useFormContext } from 'react-hook-form'
+import {
+    Controller,
+    useFieldArray,
+    useFormContext,
+    useWatch,
+} from 'react-hook-form'
 import Card from '@/components/ui/Card'
 import Input from '@/components/ui/Input'
 import { FormItem } from '@/components/ui/Form'
 import { Button, Select } from '@/components/ui'
 import { HiPlus, HiMinus } from 'react-icons/hi'
 import { FormSectionBaseProps } from '@/@types/lab'
-import useZoneList from '../../zone/List/hooks/useList'
-import useClusterList from '../../cluster/List/hooks/useList'
-import useLocationList from '../../location/List/hooks/useList'
-import useDepartmentList from '../../department/List/hooks/useList'
-import useInstrumentList from '../../instrument/List/hooks/useList'
 
 export type FormSectionBasePropsTwo = {
     index: number
     item: any
-} & FormSectionBaseProps
+} & FormSectionBaseProps & {
+        zoneList: any[]
+        clusterList: any[]
+        locationList: any[]
+        departmentList: any[]
+        instrumentList: any[]
+    }
 
 const LocationsItems = ({
     control,
@@ -24,90 +30,96 @@ const LocationsItems = ({
     readOnly = false,
     index,
     item,
+    zoneList,
+    clusterList,
+    locationList,
+    departmentList,
+    instrumentList,
 }: FormSectionBasePropsTwo) => {
     const { setValue, watch } = useFormContext()
-    const { zoneList } = useZoneList()
-    const { clusterList } = useClusterList()
-    const { locationList } = useLocationList()
-    const { departmentList } = useDepartmentList()
-    const { instrumentList } = useInstrumentList()
 
     const selectedZone = watch(`location.${index}.zone_name`)
     const selectedCluster = watch(`location.${index}.cluster_name`)
     const selectedLocationName = watch(`location.${index}.location_name`)
 
     const filteredClusters = clusterList.filter(
-        (c) => c.zone_name === selectedZone,
+        (c) => c.zone_id === selectedZone,
     )
     const filteredLocations = locationList.filter(
-        (l) => l.cluster_name === selectedCluster,
+        (l) => l.cluster_id === selectedCluster,
     )
 
-    // --- Auto prefix numbering logic ---
     useEffect(() => {
         const locationMatch = filteredLocations.find(
-            (l) => l.location_name === selectedLocationName,
+            (l) => l.id === selectedLocationName,
         )
 
         if (locationMatch) {
-            const basePrefix = `LOC-${locationMatch.prefix}` // e.g., LOC-ES-GS-ST
+            const basePrefix = `LOC-${locationMatch.identifier}`
             const allLocations = watch('location') || []
 
-            // Collect all prefixes that start with the same base
             const similar = allLocations
                 .map((loc: any) => loc?.prefix)
                 .filter((p: string) => p && p.startsWith(basePrefix))
 
-            // Generate next number (NN)
             const nextNum = (similar.length + 1).toString().padStart(2, '0')
             const finalPrefix = `${basePrefix}-${nextNum}`
 
-            // Set prefix only if it’s empty or doesn’t match pattern
             const currentPrefix = watch(`location.${index}.prefix`)
             if (!currentPrefix || !currentPrefix.startsWith(basePrefix)) {
                 setValue(`location.${index}.prefix`, finalPrefix)
             }
         } else {
-            // Clear prefix if location is cleared
             setValue(`location.${index}.prefix`, '')
         }
-    }, [selectedLocationName, selectedCluster, selectedZone, filteredLocations])
+    }, [selectedLocationName, selectedCluster, selectedZone])
 
-    // --- Departments ---
     const {
         fields: departmentFields,
-        append: appendDepartment,
+        append: addDepartment,
         remove: removeDepartment,
-    } = useFieldArray({
-        control,
-        name: `location.${index}.departments`,
-    })
+    } = useFieldArray({ control, name: `location.${index}.departments` })
 
-    // --- Emails ---
     const {
         fields: emailFields,
-        append: appendEmail,
+        append: addEmail,
         remove: removeEmail,
-    } = useFieldArray({
-        control,
-        name: `location.${index}.emails`,
-    })
+    } = useFieldArray({ control, name: `location.${index}.emails` })
 
-    // --- Phones ---
     const {
         fields: phoneFields,
-        append: appendPhone,
+        append: addPhone,
         remove: removePhone,
-    } = useFieldArray({
-        control,
-        name: `location.${index}.phones`,
-    })
+    } = useFieldArray({ control, name: `location.${index}.phones` })
+
+    const emailsValues =
+        useWatch({ control, name: `location.${index}.emails` }) || []
+    const phonesValues =
+        useWatch({ control, name: `location.${index}.phones` }) || []
+
+    const handlePrimaryChange = (
+        isEmail: boolean,
+        index: number,
+        checked: boolean,
+    ) => {
+        const fieldName = isEmail ? 'emails' : 'phones'
+        const items = isEmail ? emailsValues : phonesValues
+
+        if (!items) return
+
+        const updated = items.map((item: any, i: any) => ({
+            ...item,
+            is_primary: i === index ? checked : false,
+            label:
+                i === index ? (checked ? 'primary' : 'alternate') : 'alternate',
+        }))
+
+        setValue(fieldName, updated, { shouldValidate: true })
+    }
 
     return (
         <Card key={item.id} className="mt-4">
-            {/* --- Zone / Cluster / Location / Prefix --- */}
             <div className="grid md:grid-cols-4 gap-4 p-3 mb-3">
-                {/* Zone */}
                 <FormItem
                     label="Zone"
                     invalid={!!errors.location?.[index]?.zone_name}
@@ -120,14 +132,14 @@ const LocationsItems = ({
                             <Select
                                 placeholder="Select Zone"
                                 options={zoneList.map((z) => ({
-                                    label: z.zone_name,
-                                    value: z.zone_name,
+                                    label: z.name,
+                                    value: z.id,
                                 }))}
                                 value={
                                     zoneList
                                         .map((z) => ({
-                                            label: z.zone_name,
-                                            value: z.zone_name,
+                                            label: z.name,
+                                            value: z.id,
                                         }))
                                         .find((o) => o.value === field.value) ||
                                     null
@@ -151,7 +163,6 @@ const LocationsItems = ({
                     />
                 </FormItem>
 
-                {/* Cluster */}
                 <FormItem
                     label="Cluster"
                     invalid={!!errors.location?.[index]?.cluster_name}
@@ -164,25 +175,21 @@ const LocationsItems = ({
                         control={control}
                         render={({ field }) => (
                             <Select
-                                placeholder={
-                                    selectedZone
-                                        ? 'Select Cluster'
-                                        : 'Select Zone first'
-                                }
+                                placeholder="Select Cluster"
+                                isDisabled={readOnly || !selectedZone}
                                 options={filteredClusters.map((c) => ({
-                                    label: c.cluster_name,
-                                    value: c.cluster_name,
+                                    label: c.name,
+                                    value: c.id,
                                 }))}
                                 value={
                                     filteredClusters
                                         .map((c) => ({
-                                            label: c.cluster_name,
-                                            value: c.cluster_name,
+                                            label: c.name,
+                                            value: c.id,
                                         }))
                                         .find((o) => o.value === field.value) ||
                                     null
                                 }
-                                isDisabled={readOnly || !selectedZone}
                                 onChange={(selected) => {
                                     field.onChange(selected?.value || '')
                                     setValue(
@@ -197,7 +204,6 @@ const LocationsItems = ({
                     />
                 </FormItem>
 
-                {/* Location */}
                 <FormItem
                     label="Location"
                     invalid={!!errors.location?.[index]?.location_name}
@@ -210,25 +216,21 @@ const LocationsItems = ({
                         control={control}
                         render={({ field }) => (
                             <Select
-                                placeholder={
-                                    selectedCluster
-                                        ? 'Select Location'
-                                        : 'Select Cluster first'
-                                }
+                                placeholder="Select Location"
                                 options={filteredLocations.map((l) => ({
-                                    label: l.location_name,
-                                    value: l.location_name,
+                                    label: l.name,
+                                    value: l.id,
                                 }))}
                                 value={
                                     filteredLocations
                                         .map((l) => ({
-                                            label: l.location_name,
-                                            value: l.location_name,
+                                            label: l.name,
+                                            value: l.id,
                                         }))
                                         .find((o) => o.value === field.value) ||
                                     null
                                 }
-                                isDisabled={readOnly || !selectedCluster}
+                                isDisabled={!selectedCluster || readOnly}
                                 onChange={(selected) => {
                                     field.onChange(selected?.value || '')
                                     const locationMatch =
@@ -287,13 +289,7 @@ const LocationsItems = ({
                     <Controller
                         name={`location.${index}.prefix`}
                         control={control}
-                        render={({ field }) => (
-                            <Input
-                                {...field}
-                                placeholder="LOC-"
-                                readOnly={true}
-                            />
-                        )}
+                        render={({ field }) => <Input {...field} readOnly />}
                     />
                 </FormItem>
 
@@ -312,12 +308,12 @@ const LocationsItems = ({
                                 isMulti
                                 placeholder="Select Instruments"
                                 options={instrumentList.map((i) => ({
-                                    label: i.full_name,
+                                    label: i.name,
                                     value: i.id,
                                 }))}
                                 value={instrumentList
                                     .map((i) => ({
-                                        label: i.full_name,
+                                        label: i.name,
                                         value: i.id,
                                     }))
                                     .filter((opt) =>
@@ -335,30 +331,24 @@ const LocationsItems = ({
                 </FormItem>
             </div>
 
-            {/* --- Departments --- */}
             <div className="mt-4">
-                <div className="flex items-center justify-between gap-2 mb-2">
+                <div className="flex justify-between mb-2">
                     <h5>Departments</h5>
                     {!readOnly && (
                         <Button
-                            type="button"
                             size="xs"
                             onClick={() =>
-                                appendDepartment({ name: '', instruments: [] })
+                                addDepartment({ name: '', instruments: [] })
                             }
                         >
-                            + Add Department
+                            + Add
                         </Button>
                     )}
                 </div>
 
-                {departmentFields.map((deptItem, deptIndex) => (
-                    <div
-                        key={deptItem.id}
-                        className="border border-blue-200  shadow-sm p-3 mb-2 rounded"
-                    >
+                {departmentFields.map((dept, deptIndex) => (
+                    <div key={dept.id} className="border p-3 mb-2 rounded">
                         <div className="grid md:grid-cols-2 gap-4">
-                            {/* Department */}
                             <FormItem
                                 label="Department"
                                 invalid={
@@ -377,18 +367,17 @@ const LocationsItems = ({
                                     control={control}
                                     render={({ field }) => (
                                         <Select
-                                            placeholder="Select Department"
                                             options={departmentList.map(
                                                 (d) => ({
                                                     label: d.name,
-                                                    value: d.name,
+                                                    value: d.id,
                                                 }),
                                             )}
                                             value={
                                                 departmentList
                                                     .map((d) => ({
                                                         label: d.name,
-                                                        value: d.name,
+                                                        value: d.id,
                                                     }))
                                                     .find(
                                                         (o) =>
@@ -411,35 +400,22 @@ const LocationsItems = ({
                                 />
                             </FormItem>
 
-                            <FormItem
-                                label="Department Level Instruments"
-                                invalid={
-                                    !!errors.location?.[index]?.departments?.[
-                                        deptIndex
-                                    ]?.instruments
-                                }
-                                errorMessage={
-                                    errors.location?.[index]?.departments?.[
-                                        deptIndex
-                                    ]?.instruments?.message
-                                }
-                            >
+                            <FormItem label="Department Instruments">
                                 <Controller
                                     name={`location.${index}.departments.${deptIndex}.instruments`}
                                     control={control}
                                     render={({ field }) => (
                                         <Select
                                             isMulti
-                                            placeholder="Select Instruments"
                                             options={instrumentList.map(
                                                 (i) => ({
-                                                    label: i.full_name,
+                                                    label: i.name,
                                                     value: i.id,
                                                 }),
                                             )}
                                             value={instrumentList
                                                 .map((i) => ({
-                                                    label: i.full_name,
+                                                    label: i.name,
                                                     value: i.id,
                                                 }))
                                                 .filter((opt) =>
@@ -468,146 +444,159 @@ const LocationsItems = ({
                                 className="mt-2"
                                 onClick={() => removeDepartment(deptIndex)}
                             >
-                                -
+                                Remove
                             </Button>
                         )}
                     </div>
                 ))}
             </div>
 
-            {/* --- Contact Person --- */}
             <div className="mt-6">
                 <h4 className="mb-6">Contact Person</h4>
 
                 <div className="grid md:grid-cols-2 gap-6">
                     {/* Emails */}
                     <div>
-                        <div className="flex items-center justify-between gap-2 mb-4">
-                            <label className="form-label">Emails</label>
+                        <div className="flex justify-between mb-4">
+                            <label>Emails</label>
                             {!readOnly && (
                                 <Button
                                     type="button"
                                     size="xs"
-                                    icon={<HiPlus />}
-                                    onClick={() => appendEmail({ value: '' })}
-                                />
+                                    onClick={() => addEmail({ value: '' })}
+                                >
+                                    <HiPlus />
+                                </Button>
                             )}
                         </div>
 
-                        <div className="space-y-4">
-                            {emailFields.map((field, emailIndex) => (
-                                <FormItem
-                                    key={field.id}
-                                    invalid={
-                                        !!errors.location?.[index]?.emails?.[
-                                            emailIndex
-                                        ]?.value
-                                    }
-                                    errorMessage={
-                                        errors.location?.[index]?.emails?.[
-                                            emailIndex
-                                        ]?.value?.message
-                                    }
-                                >
-                                    <div className="flex items-center gap-2">
-                                        <Controller
-                                            name={`location.${index}.emails.${emailIndex}.value`}
-                                            control={control}
-                                            render={({ field }) => (
-                                                <Input
-                                                    {...field}
-                                                    placeholder={`Email ${emailIndex + 1}`}
-                                                    readOnly={readOnly}
-                                                    className="flex-1"
-                                                />
-                                            )}
-                                        />
-                                        {!readOnly &&
-                                            emailFields.length > 1 && (
-                                                <Button
-                                                    size="xs"
-                                                    type="button"
-                                                    icon={<HiMinus />}
-                                                    onClick={() =>
-                                                        removeEmail(emailIndex)
-                                                    }
-                                                />
-                                            )}
-                                    </div>
-                                </FormItem>
-                            ))}
-                        </div>
+                        {emailFields.map((email, emailIndex) => (
+                            <FormItem key={email.id}>
+                                <div className="flex gap-2">
+                                    <Controller
+                                        name={`location.${index}.emails.${emailIndex}.value`}
+                                        control={control}
+                                        render={({ field }) => (
+                                            <Input
+                                                {...field}
+                                                readOnly={readOnly}
+                                            />
+                                        )}
+                                    />
+                                    <Controller
+                                        name={`location.${index}.emails.${emailIndex}.is_primary`}
+                                        control={control}
+                                        render={({ field }) => (
+                                            <input
+                                                type="checkbox"
+                                                checked={field.value}
+                                                disabled={readOnly}
+                                                onChange={(e) =>
+                                                    handlePrimaryChange(
+                                                        true,
+                                                        index,
+                                                        e.target.checked,
+                                                    )
+                                                }
+                                            />
+                                        )}
+                                    />
+                                    <Controller
+                                        name={`location.${index}.emails.${emailIndex}.label`}
+                                        control={control}
+                                        render={({ field }) => (
+                                            <Input type="hidden" {...field} />
+                                        )}
+                                    />
+                                    {!readOnly && emailFields.length > 1 && (
+                                        <Button
+                                            size="xs"
+                                            type="button"
+                                            onClick={() =>
+                                                removeEmail(emailIndex)
+                                            }
+                                        >
+                                            <HiMinus />
+                                        </Button>
+                                    )}
+                                </div>
+                            </FormItem>
+                        ))}
                     </div>
 
                     {/* Phones */}
                     <div>
-                        <div className="flex items-center justify-between gap-2 mb-4">
-                            <label className="form-label">Phones</label>
+                        <div className="flex justify-between mb-4">
+                            <label>Phones</label>
                             {!readOnly && (
                                 <Button
                                     type="button"
                                     size="xs"
-                                    icon={<HiPlus />}
-                                    onClick={() => appendPhone({ value: '' })}
-                                />
+                                    onClick={() => addPhone({ value: '' })}
+                                >
+                                    <HiPlus />
+                                </Button>
                             )}
                         </div>
 
-                        <div className="space-y-4">
-                            {phoneFields.map((field, phoneIndex) => (
-                                <FormItem
-                                    key={field.id}
-                                    invalid={
-                                        !!errors.location?.[index]?.phones?.[
-                                            phoneIndex
-                                        ]?.value
-                                    }
-                                    errorMessage={
-                                        errors.location?.[index]?.phones?.[
-                                            phoneIndex
-                                        ]?.value?.message
-                                    }
-                                >
-                                    <div className="flex items-center gap-2">
-                                        <Controller
-                                            name={`location.${index}.phones.${phoneIndex}.value`}
-                                            control={control}
-                                            render={({ field }) => (
-                                                <Input
-                                                    {...field}
-                                                    placeholder={`Phone ${phoneIndex + 1}`}
-                                                    readOnly={readOnly}
-                                                    className="flex-1"
-                                                />
-                                            )}
-                                        />
-                                        {!readOnly &&
-                                            phoneFields.length > 1 && (
-                                                <Button
-                                                    size="xs"
-                                                    type="button"
-                                                    icon={<HiMinus />}
-                                                    onClick={() =>
-                                                        removePhone(phoneIndex)
-                                                    }
-                                                />
-                                            )}
-                                    </div>
-                                </FormItem>
-                            ))}
-                        </div>
+                        {phoneFields.map((phone, phoneIndex) => (
+                            <FormItem key={phone.id}>
+                                <div className="flex gap-2">
+                                    <Controller
+                                        name={`location.${index}.phones.${phoneIndex}.value`}
+                                        control={control}
+                                        render={({ field }) => (
+                                            <Input
+                                                {...field}
+                                                readOnly={readOnly}
+                                            />
+                                        )}
+                                    />
+                                    <Controller
+                                        name={`location.${index}.phones.${phoneIndex}.is_primary`}
+                                        control={control}
+                                        render={({ field }) => (
+                                            <input
+                                                type="checkbox"
+                                                checked={field.value}
+                                                disabled={readOnly}
+                                                onChange={(e) =>
+                                                    handlePrimaryChange(
+                                                        false,
+                                                        index,
+                                                        e.target.checked,
+                                                    )
+                                                }
+                                            />
+                                        )}
+                                    />
+                                    <Controller
+                                        name={`location.${index}.phones.${phoneIndex}.label`}
+                                        control={control}
+                                        render={({ field }) => (
+                                            <input type="hidden" {...field} />
+                                        )}
+                                    />
+                                    {!readOnly && phoneFields.length > 1 && (
+                                        <Button
+                                            type="button"
+                                            size="xs"
+                                            onClick={() =>
+                                                removePhone(phoneIndex)
+                                            }
+                                        >
+                                            <HiMinus />
+                                        </Button>
+                                    )}
+                                </div>
+                            </FormItem>
+                        ))}
                     </div>
                 </div>
 
                 {/* Address */}
                 <div className="mt-6">
-                    <FormItem
-                        label="Address"
-                        invalid={!!errors.location?.[index]?.address}
-                        errorMessage={
-                            errors.location?.[index]?.address?.message
-                        }
-                    >
+                    <FormItem label="Address">
                         <Controller
                             name={`location.${index}.address`}
                             control={control}
@@ -615,7 +604,6 @@ const LocationsItems = ({
                                 <Input
                                     {...field}
                                     textArea
-                                    placeholder="Address"
                                     readOnly={readOnly}
                                 />
                             )}

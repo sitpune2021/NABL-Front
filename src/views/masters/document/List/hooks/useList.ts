@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import {
     apiDocument,
     apiGetDocumentList,
@@ -61,8 +62,8 @@ export default function useDocumentList() {
     }
 
     const getDocumentEditortById = async (id: string) => {
-        const document = await apiGetDocumentEditortById(id)
-        return document
+        const document: any = await apiGetDocumentEditortById(id)
+        return document.data
     }
 
     const documentList = data?.data || []

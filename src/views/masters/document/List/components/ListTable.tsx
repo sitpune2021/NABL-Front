@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import Tooltip from '@/components/ui/Tooltip'
+import ActionColumn from '@/components/form/ActionColumn'
 import DataTable from '@/components/shared/DataTable'
 import { useNavigate } from 'react-router'
 import cloneDeep from 'lodash/cloneDeep'
@@ -15,72 +15,6 @@ import type { TableQueries } from '@/@types/common'
 import useDocumentList from '../hooks/useList'
 import endpointConfig from '@/configs/endpoint.config'
 import { Document } from '@/@types/document'
-
-const ActionColumn = ({
-    onEdit,
-    onViewDetail,
-    onEditorViewDetail,
-    onEditorDetail,
-    onDataEntryForm,
-}: {
-    onEdit: () => void
-    onViewDetail: () => void
-    onEditorViewDetail: () => void
-    onEditorDetail: () => void
-    onDataEntryForm: () => void
-}) => {
-    return (
-        <div className="flex items-center gap-3">
-            <Tooltip title="Edit">
-                <div
-                    className={`text-xl cursor-pointer select-none font-semibold`}
-                    role="button"
-                    onClick={onEdit}
-                >
-                    <TbEdit />
-                </div>
-            </Tooltip>
-            <Tooltip title="View">
-                <div
-                    className={`text-xl cursor-pointer select-none font-semibold`}
-                    role="button"
-                    onClick={onViewDetail}
-                >
-                    <TbEye />
-                </div>
-            </Tooltip>
-            <Tooltip title="Document Veiw">
-                <div
-                    className={`text-xl cursor-pointer select-none font-semibold`}
-                    role="button"
-                    onClick={onEditorViewDetail}
-                >
-                    <TbFileText />
-                </div>
-            </Tooltip>
-
-            <Tooltip title="Document Edit">
-                <div
-                    className={`text-xl cursor-pointer select-none font-semibold`}
-                    role="button"
-                    onClick={onEditorDetail}
-                >
-                    <TbFilePencil />
-                </div>
-            </Tooltip>
-
-            <Tooltip title="Data Entry Form">
-                <div
-                    className={`text-xl cursor-pointer select-none font-semibold`}
-                    role="button"
-                    onClick={onDataEntryForm}
-                >
-                    <TbBrandSentry />
-                </div>
-            </Tooltip>
-        </div>
-    )
-}
 
 const DocumentListTable = () => {
     const navigate = useNavigate()
@@ -194,19 +128,37 @@ const DocumentListTable = () => {
                 id: 'action',
                 cell: (props) => (
                     <ActionColumn
-                        onEdit={() => handleEdit(props.row.original)}
-                        onViewDetail={() =>
-                            handleViewDetails(props.row.original)
-                        }
-                        onEditorViewDetail={() =>
-                            handleEditorViewDetails(props.row.original)
-                        }
-                        onEditorDetail={() =>
-                            handleEditorDetails(props.row.original)
-                        }
-                        onDataEntryForm={() =>
-                            handleDataEntryForm(props.row.original)
-                        }
+                        buttons={[
+                            {
+                                icon: <TbEdit />,
+                                tooltip: 'Edit',
+                                onClick: () => handleEdit(props.row.original),
+                            },
+                            {
+                                icon: <TbEye />,
+                                tooltip: 'View',
+                                onClick: () =>
+                                    handleViewDetails(props.row.original),
+                            },
+                            {
+                                icon: <TbFileText />,
+                                tooltip: 'Document View',
+                                onClick: () =>
+                                    handleEditorViewDetails(props.row.original),
+                            },
+                            {
+                                icon: <TbFilePencil />,
+                                tooltip: 'Document Edit',
+                                onClick: () =>
+                                    handleEditorDetails(props.row.original),
+                            },
+                            {
+                                icon: <TbBrandSentry />,
+                                tooltip: 'Data Entry Form',
+                                onClick: () =>
+                                    handleDataEntryForm(props.row.original),
+                            },
+                        ]}
                     />
                 ),
             },

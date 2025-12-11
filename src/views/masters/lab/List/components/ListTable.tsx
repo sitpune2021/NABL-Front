@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import Tooltip from '@/components/ui/Tooltip'
+import ActionColumn from '@/components/form/ActionColumn'
 import DataTable from '@/components/shared/DataTable'
 import { useNavigate } from 'react-router'
 import cloneDeep from 'lodash/cloneDeep'
@@ -9,48 +9,6 @@ import type { TableQueries } from '@/@types/common'
 import useLabList from '../hooks/useList'
 import endpointConfig from '@/configs/endpoint.config'
 import { Lab } from '@/@types/lab'
-
-const ActionColumn = ({
-    onEdit,
-    onViewDetail,
-    onLocation,
-}: {
-    onEdit: () => void
-    onViewDetail: () => void
-    onLocation: () => void
-}) => {
-    return (
-        <div className="flex items-center gap-3">
-            <Tooltip title="Edit">
-                <div
-                    className={`text-xl cursor-pointer select-none font-semibold`}
-                    role="button"
-                    onClick={onEdit}
-                >
-                    <TbPencil />
-                </div>
-            </Tooltip>
-            <Tooltip title="View">
-                <div
-                    className={`text-xl cursor-pointer select-none font-semibold`}
-                    role="button"
-                    onClick={onViewDetail}
-                >
-                    <TbEye />
-                </div>
-            </Tooltip>
-            <Tooltip title="location">
-                <div
-                    className={`text-xl cursor-pointer select-none font-semibold`}
-                    role="button"
-                    onClick={onLocation}
-                >
-                    <TbLocationBolt />
-                </div>
-            </Tooltip>
-        </div>
-    )
-}
 
 const LabListTable = () => {
     const navigate = useNavigate()
@@ -123,11 +81,25 @@ const LabListTable = () => {
                 id: 'action',
                 cell: (props) => (
                     <ActionColumn
-                        onEdit={() => handleEdit(props.row.original)}
-                        onLocation={() => handleLocation(props.row.original)}
-                        onViewDetail={() =>
-                            handleViewDetails(props.row.original)
-                        }
+                        buttons={[
+                            {
+                                icon: <TbPencil />,
+                                tooltip: 'Edit',
+                                onClick: () => handleEdit(props.row.original),
+                            },
+                            {
+                                icon: <TbEye />,
+                                tooltip: 'View',
+                                onClick: () =>
+                                    handleViewDetails(props.row.original),
+                            },
+                            {
+                                icon: <TbLocationBolt />,
+                                tooltip: 'Location',
+                                onClick: () =>
+                                    handleLocation(props.row.original),
+                            },
+                        ]}
                     />
                 ),
             },

@@ -4,7 +4,7 @@ import endpointConfig from '@/configs/endpoint.config'
 
 export const actionButtons: ActionButton[] = [
     {
-        label: 'Add new Lab',
+        label: 'Add New Lab',
         icon: <TbTemplate className="text-xl" />,
         path: `${endpointConfig.master.lab.create}`,
     },

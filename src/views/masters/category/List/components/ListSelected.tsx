@@ -1,10 +1,6 @@
 import { useState } from 'react'
 import StickyFooter from '@/components/shared/StickyFooter'
 import Button from '@/components/ui/Button'
-import Dialog from '@/components/ui/Dialog'
-import Notification from '@/components/ui/Notification'
-import toast from '@/components/ui/toast'
-import RichTextEditor from '@/components/shared/RichTextEditor'
 import ConfirmDialog from '@/components/shared/ConfirmDialog'
 import { TbChecks } from 'react-icons/tb'
 import useCategoryList from '../hooks/useList'
@@ -19,9 +15,6 @@ const CategoryListSelected = () => {
     } = useCategoryList()
 
     const [deleteConfirmationOpen, setDeleteConfirmationOpen] = useState(false)
-    const [sendMessageDialogOpen, setSendMessageDialogOpen] = useState(false)
-    const [sendMessageLoading, setSendMessageLoading] = useState(false)
-
     const handleDelete = () => {
         setDeleteConfirmationOpen(true)
     }
@@ -46,20 +39,6 @@ const CategoryListSelected = () => {
         )
         setDeleteConfirmationOpen(false)
     }
-
-    const handleSend = () => {
-        setSendMessageLoading(true)
-        setTimeout(() => {
-            toast.push(
-                <Notification type="success">Message sent!</Notification>,
-                { placement: 'top-center' },
-            )
-            setSendMessageLoading(false)
-            setSendMessageDialogOpen(false)
-            setSelectAllCategory([])
-        }, 500)
-    }
-
     return (
         <>
             {selectedCategory.length > 0 && (
@@ -99,15 +78,6 @@ const CategoryListSelected = () => {
                                 >
                                     Delete
                                 </Button>
-                                <Button
-                                    size="sm"
-                                    variant="solid"
-                                    onClick={() =>
-                                        setSendMessageDialogOpen(true)
-                                    }
-                                >
-                                    Message
-                                </Button>
                             </div>
                         </div>
                     </div>
@@ -128,46 +98,6 @@ const CategoryListSelected = () => {
                     action can&apos;t be undo.{' '}
                 </p>
             </ConfirmDialog>
-            <Dialog
-                isOpen={sendMessageDialogOpen}
-                onRequestClose={() => setSendMessageDialogOpen(false)}
-                onClose={() => setSendMessageDialogOpen(false)}
-            >
-                <h5 className="mb-2">Send Message</h5>
-                <p>Send message to the following categories</p>
-                {/* <Avatar.Group
-                    chained
-                    omittedAvatarTooltip
-                    className="mt-4"
-                    maxCount={4}
-                    omittedAvatarProps={{ size: 30 }}
-                >
-                    {selectedCategory.map((category) => (
-                        <Tooltip key={category.id} title={category.name}>
-                            <Avatar size={30} src={category.img} alt="" />
-                        </Tooltip>
-                    ))}
-                </Avatar.Group> */}
-                <div className="my-4">
-                    <RichTextEditor content={''} />
-                </div>
-                <div className="ltr:justify-end flex items-center gap-2">
-                    <Button
-                        size="sm"
-                        onClick={() => setSendMessageDialogOpen(false)}
-                    >
-                        Cancel
-                    </Button>
-                    <Button
-                        size="sm"
-                        variant="solid"
-                        loading={sendMessageLoading}
-                        onClick={handleSend}
-                    >
-                        Send
-                    </Button>
-                </div>
-            </Dialog>
         </>
     )
 }

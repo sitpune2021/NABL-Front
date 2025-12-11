@@ -4,7 +4,7 @@ import endpointConfig from '@/configs/endpoint.config'
 
 export const actionButtons: ActionButton[] = [
     {
-        label: 'Add new SubCategory',
+        label: 'Add New Sub Category',
         icon: <TbTemplate className="text-xl" />,
         path: `${endpointConfig.master.subcategory.create}`,
     },

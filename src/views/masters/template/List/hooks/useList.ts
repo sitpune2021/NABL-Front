@@ -32,7 +32,7 @@ export default function useTemplateList() {
 
     // ⭐ FINAL FIXED FILTER LOGIC
     const filteredList = useMemo(() => {
-        const list = data?.list || []
+        const list = data?.data || []
         const selected = filterData.purchaseChannel || []
 
         if (!selected.length) return list
@@ -72,7 +72,8 @@ export default function useTemplateList() {
     }
 
     const getTemplateById = async (id: string) => {
-        return await apiGetTemplateById(id)
+        const { data } = await apiGetTemplateById(id)
+        return data
     }
 
     return {

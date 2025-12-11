@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useState } from 'react'
 import { useParams, useNavigate, useLocation } from 'react-router'
 import Notification from '@/components/ui/Notification'
@@ -40,17 +41,44 @@ const InstrumentAddEdit = () => {
     const handleFormSubmit = async (values: InstrumentFormSchema) => {
         if (isView) return
         setIsSubmiting(true)
-        const payload = isEdit ? { ...values, id: instrumentId } : values
-        await saveInstrumentData(payload)
-        await sleep(800)
-        setIsSubmiting(false)
-        toast.push(
-            <Notification type="success">
-                {isEdit ? 'Instrument updated!' : 'Instrument created!'}
-            </Notification>,
-            { placement: 'top-center' },
-        )
-        navigate(`${endpointConfig.master.instrument.list}`)
+        try {
+            const payload = isEdit ? { ...values, id: instrumentId } : values
+            await saveInstrumentData(payload)
+            await sleep(800)
+            setIsSubmiting(false)
+            toast.push(
+                <Notification type="success">
+                    {isEdit ? 'Instrument updated!' : 'Instrument created!'}
+                </Notification>,
+                { placement: 'top-center' },
+            )
+            navigate(`${endpointConfig.master.instrument.list}`)
+        } catch (error: any) {
+            const backendErrors = error?.response?.data?.errors
+
+            if (backendErrors) {
+                Object.entries(backendErrors).forEach(([messages]) => {
+                    const message = Array.isArray(messages)
+                        ? messages[0]
+                        : messages
+                    toast.push(
+                        <Notification type="danger">{message}</Notification>,
+                        { placement: 'top-center' },
+                    )
+                })
+            } else {
+                const errorMessage =
+                    error?.response?.data?.message ||
+                    `Failed to ${isEdit ? 'update' : 'create'} instrument`
+
+                toast.push(
+                    <Notification type="danger">{errorMessage}</Notification>,
+                    { placement: 'top-center' },
+                )
+            }
+        } finally {
+            setIsSubmiting(false)
+        }
     }
 
     const handleConfirmDiscard = () => {
@@ -75,11 +103,11 @@ const InstrumentAddEdit = () => {
                 newInstrument={isAdd}
                 defaultValues={
                     instrumentData ?? {
-                        prefix: '',
-                        full_name: '',
+                        identifier: '',
+                        name: '',
                         short_name: '',
-                        manufacture: '',
-                        serial_number: '',
+                        manufacturer: '',
+                        serial_no: '',
                     }
                 }
                 readOnly={isView}

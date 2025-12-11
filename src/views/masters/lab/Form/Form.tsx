@@ -1,18 +1,16 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useState, useEffect } from 'react'
+import { useEffect } from 'react'
 import { Form } from '@/components/ui/Form'
 import Container from '@/components/shared/Container'
 import BottomStickyBar from '@/components/template/BottomStickyBar'
 import OverviewSection from './OverviewSection'
-import LocationsSection from './LocationsSection'
-import ClausesSection from './ClausesSection'
 import isEmpty from 'lodash/isEmpty'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm, FormProvider } from 'react-hook-form'
 import { z } from 'zod'
+import type { CommonProps } from '@/@types/common'
 import type { LabFormSchema } from '@/@types/lab'
-import Steps from '@/components/ui/Steps'
-import Button from '@/components/ui/Button'
+import LocationsSection from './LocationsSection'
 
 const validationSchema = z.object({
     name: z.string().min(1, { message: 'Name is required' }),
@@ -28,6 +26,8 @@ const validationSchema = z.object({
                     .string()
                     .nonempty({ message: 'Email is required' })
                     .email({ message: 'Invalid email address' }),
+                is_primary: z.boolean().optional(),
+                label: z.enum(['primary', 'alternate']).optional(),
             }),
         )
         .min(1, { message: 'At least one email is required' }),
@@ -35,6 +35,8 @@ const validationSchema = z.object({
         .array(
             z.object({
                 value: z.string().nonempty({ message: 'Phone is required' }),
+                is_primary: z.boolean().optional(),
+                label: z.enum(['primary', 'alternate']).optional(),
             }),
         )
         .min(1, { message: 'At least one phone is required' }),
@@ -42,19 +44,14 @@ const validationSchema = z.object({
     location: z
         .array(
             z.object({
-                zone_name: z.string().nonempty({ message: 'Zone is required' }),
-                cluster_name: z
-                    .string()
-                    .nonempty({ message: 'Cluster is required' }),
-                location_name: z
-                    .string()
-                    .nonempty({ message: 'Location is required' }),
+                zone_name: z.union([z.string(), z.number()]),
+                cluster_name: z.union([z.string(), z.number()]),
+                location_name: z.union([z.string(), z.number()]),
+
                 departments: z
                     .array(
                         z.object({
-                            name: z.string().nonempty({
-                                message: 'Department name is required',
-                            }),
+                            name: z.union([z.string(), z.number()]),
                             instruments: z
                                 .array(z.union([z.string(), z.number()]))
                                 .min(1, {
@@ -73,6 +70,8 @@ const validationSchema = z.object({
                                 .string()
                                 .nonempty({ message: 'Email is required' })
                                 .email({ message: 'Invalid email address' }),
+                            is_primary: z.boolean().optional(),
+                            label: z.enum(['primary', 'alternate']).optional(),
                         }),
                     )
                     .min(1, { message: 'At least one email is required' }),
@@ -82,14 +81,15 @@ const validationSchema = z.object({
                             value: z
                                 .string()
                                 .nonempty({ message: 'Phone is required' }),
+                            is_primary: z.boolean().optional(),
+                            label: z.enum(['primary', 'alternate']).optional(),
                         }),
                     )
                     .min(1, { message: 'At least one phone is required' }),
                 address: z.string().optional(),
-                instruments: z.array(z.union([z.string(), z.number()])).min(1, {
-                    message:
-                        'At least one instrument is required per department',
-                }),
+                instruments: z
+                    .array(z.union([z.string(), z.number()]))
+                    .min(1, { message: 'At least one instrument is required' }),
             }),
         )
         .min(1, { message: 'At least one location is required' }),
@@ -98,13 +98,25 @@ const validationSchema = z.object({
 type LabFormProps = {
     onFormSubmit: (values: LabFormSchema) => void
     defaultValues?: LabFormSchema
+    newLab?: boolean
     readOnly?: boolean
-}
+    zoneList: any[]
+    clusterList: any[]
+    locationList: any[]
+    departmentList: any[]
+    instrumentList: any[]
+} & CommonProps
 
 const LabForm = ({
     onFormSubmit,
     defaultValues,
     readOnly = false,
+    children,
+    zoneList,
+    clusterList,
+    locationList,
+    departmentList,
+    instrumentList,
 }: LabFormProps) => {
     const methods = useForm<LabFormSchema>({
         defaultValues,
@@ -112,64 +124,21 @@ const LabForm = ({
     })
 
     const {
+        handleSubmit,
         reset,
         control,
         formState: { errors },
-        handleSubmit,
+        setValue,
     } = methods
 
-    const [step, setStep] = useState(0)
-
     useEffect(() => {
-        if (!isEmpty(defaultValues)) reset(defaultValues)
-    }, [defaultValues, reset])
-
-    const nextStep = () => {
-        setStep((s) => (s < 2 ? s + 1 : s))
-    }
-
-    const prevStep = () => {
-        setStep((s) => (s > 0 ? s - 1 : s))
-    }
+        if (!isEmpty(defaultValues)) {
+            reset(defaultValues)
+        }
+    }, [defaultValues])
 
     const onSubmit = (values: LabFormSchema) => {
-        if (step === 2) {
-            onFormSubmit(values)
-        }
-    }
-
-    const renderStep = () => {
-        switch (step) {
-            case 0:
-                return (
-                    <OverviewSection
-                        control={control}
-                        errors={errors}
-                        readOnly={readOnly}
-                    />
-                )
-
-            case 1:
-                return (
-                    <LocationsSection
-                        control={control}
-                        errors={errors}
-                        readOnly={readOnly}
-                    />
-                )
-
-            case 2:
-                return (
-                    <ClausesSection
-                        control={control}
-                        errors={errors}
-                        readOnly={readOnly}
-                    />
-                )
-
-            default:
-                return null
-        }
+        onFormSubmit?.(values)
     }
 
     return (
@@ -177,45 +146,32 @@ const LabForm = ({
             <Form
                 className="flex w-full h-full"
                 containerClassName="flex flex-col w-full justify-between"
-                onSubmit={handleSubmit(onSubmit)}
+                onSubmit={handleSubmit(onSubmit as unknown as any)}
             >
                 <Container>
-                    <div className="space-y-6">
-                        <Steps current={step}>
-                            <Steps.Item title="Overview & Contact" />
-                            <Steps.Item title="Locations" />
-                            <Steps.Item title="Clauses" />
-                        </Steps>
-
-                        <div className="w-full">{renderStep()}</div>
+                    <div className="flex flex-col md:flex-row gap-4">
+                        <div className="gap-4 flex flex-col flex-auto">
+                            <OverviewSection
+                                control={control}
+                                errors={errors}
+                                readOnly={readOnly}
+                                setValue={setValue}
+                            />
+                            <LocationsSection
+                                control={control}
+                                errors={errors}
+                                readOnly={readOnly}
+                                zoneList={zoneList}
+                                clusterList={clusterList}
+                                locationList={locationList}
+                                departmentList={departmentList}
+                                instrumentList={instrumentList}
+                            />
+                        </div>
                     </div>
                 </Container>
 
-                <BottomStickyBar>
-                    <div className="flex justify-end w-full space-x-2">
-                        <Button
-                            type="button"
-                            disabled={step === 0}
-                            onClick={prevStep}
-                        >
-                            Previous
-                        </Button>
-
-                        {step === 2 ? (
-                            <Button type="submit" variant="solid">
-                                Submit
-                            </Button>
-                        ) : (
-                            <Button
-                                type="button"
-                                variant="solid"
-                                onClick={nextStep}
-                            >
-                                Next
-                            </Button>
-                        )}
-                    </div>
-                </BottomStickyBar>
+                <BottomStickyBar>{children}</BottomStickyBar>
             </Form>
         </FormProvider>
     )

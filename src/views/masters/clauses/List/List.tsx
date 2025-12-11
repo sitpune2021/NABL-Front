@@ -7,7 +7,7 @@ import ClausesListTable from './components/ListTable'
 const ClausesList = () => {
     return (
         <ListLayout
-            title="Clauses"
+            title="Standards"
             ActionTools={actionButtons}
             TableTools={<ClausesListTableTools />}
             Table={<ClausesListTable />}

@@ -8,6 +8,10 @@ export type GetLocationListResponse = {
     total: number
 }
 
+export type GetLocationDetailResponse = {
+    data: Location
+}
+
 export type Filter = {
     purchasedProducts: string
     purchaseChannel: Array<string>

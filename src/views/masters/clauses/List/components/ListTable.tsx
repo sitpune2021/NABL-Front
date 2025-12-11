@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import Tooltip from '@/components/ui/Tooltip'
+import ActionColumn from '@/components/form/ActionColumn'
 import DataTable from '@/components/shared/DataTable'
 import { useNavigate } from 'react-router'
 import cloneDeep from 'lodash/cloneDeep'
@@ -11,43 +11,6 @@ import endpointConfig from '@/configs/endpoint.config'
 import { Clauses } from '@/@types/clauses'
 import Tag from '@/components/ui/Tag'
 
-const ActionColumn = ({
-    onEdit,
-    onViewDetail,
-    status,
-}: {
-    onEdit: () => void
-    onViewDetail: () => void
-    status: string
-}) => {
-    return (
-        <div className="flex items-center gap-3">
-            {/* Edit button - only for active clauses */}
-            {status === 'active' && (
-                <Tooltip title="Edit">
-                    <div
-                        className={`text-xl cursor-pointer select-none font-semibold`}
-                        role="button"
-                        onClick={onEdit}
-                    >
-                        <TbPencil />
-                    </div>
-                </Tooltip>
-            )}
-
-            {/*  View button - always visible */}
-            <Tooltip title="View">
-                <div
-                    className={`text-xl cursor-pointer select-none font-semibold`}
-                    role="button"
-                    onClick={onViewDetail}
-                >
-                    <TbEye />
-                </div>
-            </Tooltip>
-        </div>
-    )
-}
 const ClausesListTable = () => {
     const navigate = useNavigate()
 
@@ -138,9 +101,20 @@ const ClausesListTable = () => {
                     const row = props.row.original
                     return (
                         <ActionColumn
-                            status={row.status}
-                            onEdit={() => handleEdit(row)}
-                            onViewDetail={() => handleViewDetails(row)}
+                            buttons={[
+                                {
+                                    icon: <TbPencil />,
+                                    tooltip: 'Edit',
+                                    onClick: () => handleEdit(row),
+                                    show: row.status === 'active',
+                                },
+                                {
+                                    icon: <TbEye />,
+                                    tooltip: 'View',
+                                    onClick: () => handleViewDetails(row),
+                                    show: true,
+                                },
+                            ]}
                         />
                     )
                 },

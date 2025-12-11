@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import Tooltip from '@/components/ui/Tooltip'
+import ActionColumn from '@/components/form/ActionColumn'
 import DataTable from '@/components/shared/DataTable'
 import Avatar from '@/components/ui/Avatar'
 import { useNavigate } from 'react-router'
@@ -10,51 +10,6 @@ import type { TableQueries } from '@/@types/common'
 import useUserList from '../hooks/useList'
 import endpointConfig from '@/configs/endpoint.config'
 import { User } from '@/@types/user'
-
-// const NameColumn = ({ row }: { row: User }) => {
-//     return (
-//         <div className="flex items-center">
-//             <Avatar size={40} shape="circle" src={row.profileImage} />
-//             <Link
-//                 className={`hover:text-primary ml-2 rtl:mr-2 font-semibold text-gray-900 dark:text-gray-100`}
-//                 to={`/concepts/customers/customer-details/${row.id}`}
-//             >
-//                 {row.name}
-//             </Link>
-//         </div>
-//     )
-// }
-
-const ActionColumn = ({
-    onEdit,
-    onViewDetail,
-}: {
-    onEdit: () => void
-    onViewDetail: () => void
-}) => {
-    return (
-        <div className="flex items-center gap-3">
-            <Tooltip title="Edit">
-                <div
-                    className={`text-xl cursor-pointer select-none font-semibold`}
-                    role="button"
-                    onClick={onEdit}
-                >
-                    <TbPencil />
-                </div>
-            </Tooltip>
-            <Tooltip title="View">
-                <div
-                    className={`text-xl cursor-pointer select-none font-semibold`}
-                    role="button"
-                    onClick={onViewDetail}
-                >
-                    <TbEye />
-                </div>
-            </Tooltip>
-        </div>
-    )
-}
 
 const UserListTable = () => {
     const navigate = useNavigate()
@@ -177,15 +132,24 @@ const UserListTable = () => {
                 },
             },
             {
-                header: 'Action',
+                header: '',
                 accessorKey: 'action',
                 id: 'action',
                 cell: (props) => (
                     <ActionColumn
-                        onEdit={() => handleEdit(props.row.original)}
-                        onViewDetail={() =>
-                            handleViewDetails(props.row.original)
-                        }
+                        buttons={[
+                            {
+                                icon: <TbPencil />,
+                                tooltip: 'Edit',
+                                onClick: () => handleEdit(props.row.original),
+                            },
+                            {
+                                icon: <TbEye />,
+                                tooltip: 'View',
+                                onClick: () =>
+                                    handleViewDetails(props.row.original),
+                            },
+                        ]}
                     />
                 ),
             },

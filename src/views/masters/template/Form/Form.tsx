@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from 'react'
+import { useEffect, useRef } from 'react'
 import { Form, FormItem } from '@/components/ui/Form'
 import Container from '@/components/shared/Container'
 import BottomStickyBar from '@/components/template/BottomStickyBar'
@@ -26,9 +26,12 @@ type TemplateFormProps = {
 } & CommonProps
 
 const validationSchema = z.object({
-    name: z.string().min(1, { message: 'name required' }),
+    name: z.string().min(1, { message: 'Name required' }),
     type: z.string().min(1, { message: 'type required' }),
     template: z.any(),
+    status: z.any().optional(),
+    change_type: z.string().optional(),
+    message: z.string().optional(),
 })
 
 const TemplateForm = ({
@@ -41,17 +44,12 @@ const TemplateForm = ({
     isSubmiting,
     isEdit,
 }: TemplateFormProps) => {
-    const { type } = useParams<{ type: string }>()
-    const [actionDialogOpen, setActionDialogOpen] = useState(false)
-    const draftTimer = useRef<number | null>(null)
-
     const {
         handleSubmit,
         reset,
         formState: { errors },
         control,
         setValue,
-        trigger,
     } = useForm<TemplateFormSchema>({
         defaultValues: {
             ...defaultValues,
@@ -59,34 +57,32 @@ const TemplateForm = ({
         resolver: zodResolver(validationSchema),
     })
 
+    const { type } = useParams<{ type: string }>()
+    const draftTimer = useRef<number | null>(null)
     const watchedTemplate = useWatch({ control, name: 'template' })
 
     useEffect(() => {
-        if (!defaultValues) return
+        if (isEdit) return
 
         const draft = localStorage.getItem('template-draft')
-
         if (draft) {
             try {
-                const parsed = JSON.parse(draft)
-                setValue('template', parsed)
-            } catch {
-                console.warn('Invalid draft found')
+                setValue('template', JSON.parse(draft))
+            } catch (error) {
+                console.error('Failed to parse draft from localStorage', error)
             }
         }
-    }, [])
+    }, [isEdit, setValue])
 
     useEffect(() => {
         if (!isEmpty(defaultValues)) reset(defaultValues)
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [JSON.stringify(defaultValues)])
+    }, [defaultValues, reset])
 
     useEffect(() => {
+        if (isEdit) return
         if (!watchedTemplate) return
 
-        if (draftTimer.current) {
-            clearTimeout(draftTimer.current)
-        }
+        if (draftTimer.current) clearTimeout(draftTimer.current)
 
         draftTimer.current = window.setTimeout(() => {
             localStorage.setItem(
@@ -98,20 +94,19 @@ const TemplateForm = ({
         return () => {
             if (draftTimer.current) clearTimeout(draftTimer.current)
         }
-    }, [watchedTemplate])
+    }, [watchedTemplate, isEdit])
 
-    const onSubmit = (values: TemplateFormSchema) => onFormSubmit?.(values)
-
-    const validateAndOpenActionModal = async () => {
-        const valid = await trigger('name')
-        if (valid) setActionDialogOpen(true)
+    const onSubmit = (values: TemplateFormSchema) => {
+        onFormSubmit(values)
+        if (!isEdit) localStorage.removeItem('template-draft')
+        onDialogClose()
     }
 
     return (
         <>
             <Form
-                className="flex w-full h-full  px-4 sm:px-8"
-                containerClassName="flex flex-col w-full justify-between  w-full h-full"
+                className="flex w-full h-full px-4 sm:px-8"
+                containerClassName="flex flex-col w-full justify-between h-full"
                 onSubmit={handleSubmit(onSubmit)}
             >
                 <Container>
@@ -128,13 +123,20 @@ const TemplateForm = ({
                 <BottomStickyBar>{children}</BottomStickyBar>
             </Form>
             <Dialog isOpen={dialogIsOpen} closable={false}>
-                <h5 className="mb-4">Template Name</h5>
+                <h5 className="mb-4">
+                    {isEdit ? 'Update Template' : 'Create Template'}
+                </h5>
                 <Controller
                     name="type"
                     control={control}
                     render={({ field }) => (
                         <input type="hidden" {...field} value={type || ''} />
                     )}
+                />
+                <Controller
+                    name="status"
+                    control={control}
+                    render={({ field }) => <input type="hidden" {...field} />}
                 />
                 <FormItem
                     label="Name"
@@ -155,93 +157,89 @@ const TemplateForm = ({
                         )}
                     />
                 </FormItem>
-                <div className="text-right mt-6">
-                    <Button
-                        className="ltr:mr-2 rtl:ml-2"
-                        variant="plain"
-                        onClick={onDialogClose}
-                    >
+                {isEdit && (
+                    <>
+                        <FormItem
+                            label="Change Type"
+                            invalid={Boolean(errors.change_type)}
+                            errorMessage={errors.change_type?.message}
+                        >
+                            <Controller
+                                name="change_type"
+                                control={control}
+                                rules={{ required: 'Change type is required' }}
+                                render={({ field }) => (
+                                    <select
+                                        {...field}
+                                        className="border rounded-md px-3 py-2 w-full"
+                                    >
+                                        <option value="">
+                                            Select Change Type
+                                        </option>
+                                        <option value="minor">Minor</option>
+                                        <option value="major">Major</option>
+                                    </select>
+                                )}
+                            />
+                        </FormItem>
+
+                        <FormItem label="Message">
+                            <Controller
+                                name="message"
+                                control={control}
+                                render={({ field }) => (
+                                    <Input placeholder="Message" {...field} />
+                                )}
+                            />
+                        </FormItem>
+                    </>
+                )}
+
+                <div className="flex justify-end mt-6 gap-2">
+                    <Button variant="plain" onClick={onDialogClose}>
                         Cancel
                     </Button>
-                    <Button
-                        variant="solid"
-                        type="button"
-                        loading={isSubmiting}
-                        onClick={validateAndOpenActionModal}
-                    >
-                        {isEdit ? 'Update' : 'Create'}
-                    </Button>
-                </div>
-            </Dialog>
 
-            <Dialog
-                isOpen={actionDialogOpen}
-                className="max-w-[300px]"
-                onClose={() => setActionDialogOpen(false)}
-            >
-                <h5 className="mb-4">Select Action</h5>
+                    {!isEdit && (
+                        <>
+                            <Button
+                                variant="solid"
+                                type="button"
+                                loading={isSubmiting}
+                                onClick={() => {
+                                    setValue('status', 'published')
+                                    handleSubmit(onSubmit)()
+                                }}
+                            >
+                                Save
+                            </Button>
 
-                <div className="flex flex-col gap-3">
-                    {/* Normal Save*/}
-                    <Button
-                        variant="default"
-                        onClick={() => {
-                            localStorage.removeItem('template-draft')
-                            document.querySelector('form')?.requestSubmit()
-                            setActionDialogOpen(false)
-                            onDialogClose()
-                        }}
-                    >
-                        Save
-                    </Button>
+                            <Button
+                                variant="solid"
+                                type="button"
+                                loading={isSubmiting}
+                                onClick={() => {
+                                    setValue('status', 'draft')
+                                    handleSubmit(onSubmit)()
+                                }}
+                            >
+                                Save as Draft
+                            </Button>
+                        </>
+                    )}
 
-                    {/* Save as Draft */}
-                    <Button
-                        variant="default"
-                        onClick={() => {
-                            let draftType = ''
-
-                            if (type === 'header') draftType = 'draft-header'
-                            else if (type === 'footer')
-                                draftType = 'draft-footer'
-                            else draftType = 'draft-generic'
-
-                            setValue('type', draftType)
-                            document.querySelector('form')?.requestSubmit()
-                            setActionDialogOpen(false)
-                            onDialogClose()
-                        }}
-                    >
-                        Save as Draft
-                    </Button>
-
-                    {/* Archive */}
-                    <Button
-                        variant="default"
-                        onClick={() => {
-                            let archiveType = ''
-
-                            if (type === 'header')
-                                archiveType = 'archived-header'
-                            else if (type === 'footer')
-                                archiveType = 'archived-footer'
-                            else archiveType = 'archived-generic'
-
-                            setValue('type', archiveType)
-                            document.querySelector('form')?.requestSubmit()
-                            setActionDialogOpen(false)
-                            onDialogClose()
-                        }}
-                    >
-                        Archive
-                    </Button>
-
-                    <Button
-                        variant="default"
-                        onClick={() => setActionDialogOpen(false)}
-                    >
-                        Cancel
-                    </Button>
+                    {isEdit && (
+                        <Button
+                            variant="solid"
+                            type="button"
+                            loading={isSubmiting}
+                            onClick={() => {
+                                handleSubmit(onSubmit)()
+                            }}
+                        >
+                            Update
+                        </Button>
+                    )}
                 </div>
             </Dialog>
         </>

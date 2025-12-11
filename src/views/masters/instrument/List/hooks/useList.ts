@@ -43,7 +43,7 @@ export default function useInstrumentList() {
     // ✅ Get single instrument by ID (for edit or view)
     const getInstrumentById = async (id: string) => {
         const instrument = await apiGetInstrumentById(id)
-        return instrument
+        return instrument.data
     }
 
     const instrumentList = data?.data || []

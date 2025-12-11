@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useState } from 'react'
 import { useParams, useNavigate, useLocation } from 'react-router'
 import Notification from '@/components/ui/Notification'
@@ -44,18 +45,45 @@ const TemplateAddEdit = () => {
     const handleFormSubmit = async (values: TemplateFormSchema) => {
         if (isView) return
         setIsSubmiting(true)
-        const payload = isEdit ? { ...values, id: templateId } : values
-        await saveTemplateData(payload)
-        await sleep(800)
-        setIsSubmiting(false)
-        setDialogIsOpen(false) // Close dialog after submit
-        toast.push(
-            <Notification type="success">
-                {isEdit ? 'Template updated!' : 'Template created!'}
-            </Notification>,
-            { placement: 'top-center' },
-        )
-        navigate(`${endpointConfig.master.template.list}`)
+        try {
+            const payload = isEdit ? { ...values, id: templateId } : values
+            await saveTemplateData(payload)
+            await sleep(800)
+            setIsSubmiting(false)
+            setDialogIsOpen(false) // Close dialog after submit
+            toast.push(
+                <Notification type="success">
+                    {isEdit ? 'Template updated!' : 'Template created!'}
+                </Notification>,
+                { placement: 'top-center' },
+            )
+            navigate(`${endpointConfig.master.template.list}`)
+        } catch (error: any) {
+            const backendErrors = error?.response?.data?.errors
+
+            if (backendErrors) {
+                Object.entries(backendErrors).forEach(([messages]) => {
+                    const message = Array.isArray(messages)
+                        ? messages[0]
+                        : messages
+                    toast.push(
+                        <Notification type="danger">{message}</Notification>,
+                        { placement: 'top-center' },
+                    )
+                })
+            } else {
+                const errorMessage =
+                    error?.response?.data?.message ||
+                    `Failed to ${isEdit ? 'update' : 'create'} template.`
+
+                toast.push(
+                    <Notification type="danger">{errorMessage}</Notification>,
+                    { placement: 'top-center' },
+                )
+            }
+        } finally {
+            setIsSubmiting(false)
+        }
     }
 
     const handleConfirmDiscard = () => {
@@ -84,6 +112,7 @@ const TemplateAddEdit = () => {
                         name: '',
                         type: type || '',
                         template: { html: '', css: '', json: '' },
+                        status: 'draft',
                     }
                 }
                 readOnly={isView}
@@ -97,6 +126,7 @@ const TemplateAddEdit = () => {
                     isView={isView}
                     isEdit={isEdit}
                     isSubmitting={isSubmiting}
+                    type="button"
                     onDiscard={handleDiscard}
                     onPrimaryClick={() => setDialogIsOpen(true)}
                 />

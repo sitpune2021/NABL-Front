@@ -4,7 +4,6 @@ import { FormItem } from '@/components/ui/Form'
 import { Controller, useWatch } from 'react-hook-form'
 import { FormSectionBaseProps } from '@/@types/location'
 import { Select } from '@/components/ui'
-import { useState, useMemo } from 'react'
 import useZoneList from '../../zone/List/hooks/useList'
 import useClusterList from '../../cluster/List/hooks/useList'
 
@@ -16,7 +15,6 @@ const OverviewSection = ({
     readOnly,
 }: OverviewSectionProps) => {
     const { zoneList } = useZoneList()
-    const [selectedZone, setSelectedZone] = useState<string>('')
     const { clusterList } = useClusterList()
 
     const zoneOptions = zoneList.map((zone) => ({
@@ -24,12 +22,7 @@ const OverviewSection = ({
         value: zone.id,
     }))
 
-    const filteredClusters = useMemo(() => {
-        if (!selectedZone) return []
-        return clusterList.filter((cluster) => cluster.zone_id === selectedZone)
-    }, [selectedZone, clusterList])
-
-    const clusterOptions = filteredClusters.map((cluster) => ({
+    const clusterOptions = clusterList.map((cluster) => ({
         label: cluster.name,
         value: cluster.id,
         prefix: cluster.identifier,
@@ -43,7 +36,7 @@ const OverviewSection = ({
 
     return (
         <Card>
-            <h4 className="mb-6">Overview</h4>
+            <h4 className="mb-6">Location</h4>
             <div className="grid md:grid-cols-2 gap-4">
                 <FormItem
                     label="Zone"
@@ -63,15 +56,16 @@ const OverviewSection = ({
                                     ) || null
                                 }
                                 isDisabled={readOnly}
-                                onChange={(selected) => {
-                                    const value = selected ? selected.value : ''
-                                    field.onChange(value)
-                                    setSelectedZone(value)
-                                }}
+                                onChange={(selected) =>
+                                    field.onChange(
+                                        selected ? selected.value : '',
+                                    )
+                                }
                             />
                         )}
                     />
                 </FormItem>
+
                 <FormItem
                     label="Cluster"
                     invalid={Boolean(errors.cluster_id)}
@@ -82,18 +76,14 @@ const OverviewSection = ({
                         control={control}
                         render={({ field }) => (
                             <Select
-                                placeholder={
-                                    selectedZone
-                                        ? 'Select Cluster'
-                                        : 'Select Zone first'
-                                }
+                                placeholder="Select Cluster"
                                 options={clusterOptions}
                                 value={
                                     clusterOptions.find(
                                         (o) => o.value === field.value,
                                     ) || null
                                 }
-                                isDisabled={readOnly || !selectedZone}
+                                isDisabled={readOnly}
                                 onChange={(selected) =>
                                     field.onChange(
                                         selected ? selected.value : '',

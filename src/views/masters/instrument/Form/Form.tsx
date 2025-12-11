@@ -18,11 +18,11 @@ type InstrumentFormProps = {
 } & CommonProps
 
 const validationSchema = z.object({
-    full_name: z.string().min(1, { message: 'Full Name is required' }),
+    name: z.string().min(1, { message: 'Name is required' }),
     short_name: z.string().min(1, { message: 'Short Name is required' }),
-    manufacture: z.string().min(1, { message: 'Manufacturer is required' }),
-    serial_number: z.string().min(1, { message: 'Serial Number is required' }),
-    prefix: z
+    manufacturer: z.string().min(1, { message: 'Manufacturer is required' }),
+    serial_no: z.string().min(1, { message: 'Serial Number is required' }),
+    identifier: z
         .string()
         .min(1, { message: 'Prefix is required' })
         .max(4, { message: 'Prefix must be at most 4 characters' })

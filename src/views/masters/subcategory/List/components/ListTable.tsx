@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import Tooltip from '@/components/ui/Tooltip'
+import ActionColumn from '@/components/form/ActionColumn'
 import DataTable from '@/components/shared/DataTable'
 import { useNavigate } from 'react-router'
 import cloneDeep from 'lodash/cloneDeep'
@@ -9,37 +9,6 @@ import type { TableQueries } from '@/@types/common'
 import useSubCategoryList from '../hooks/useList'
 import endpointConfig from '@/configs/endpoint.config'
 import { SubCategory } from '@/@types/subcategory'
-
-const ActionColumn = ({
-    onEdit,
-    onViewDetail,
-}: {
-    onEdit: () => void
-    onViewDetail: () => void
-}) => {
-    return (
-        <div className="flex items-center gap-3">
-            <Tooltip title="Edit">
-                <div
-                    className={`text-xl cursor-pointer select-none font-semibold`}
-                    role="button"
-                    onClick={onEdit}
-                >
-                    <TbPencil />
-                </div>
-            </Tooltip>
-            <Tooltip title="View">
-                <div
-                    className={`text-xl cursor-pointer select-none font-semibold`}
-                    role="button"
-                    onClick={onViewDetail}
-                >
-                    <TbEye />
-                </div>
-            </Tooltip>
-        </div>
-    )
-}
 
 const SubCategoryListTable = () => {
     const navigate = useNavigate()
@@ -117,10 +86,19 @@ const SubCategoryListTable = () => {
                 id: 'action',
                 cell: (props) => (
                     <ActionColumn
-                        onEdit={() => handleEdit(props.row.original)}
-                        onViewDetail={() =>
-                            handleViewDetails(props.row.original)
-                        }
+                        buttons={[
+                            {
+                                icon: <TbPencil />,
+                                tooltip: 'Edit',
+                                onClick: () => handleEdit(props.row.original),
+                            },
+                            {
+                                icon: <TbEye />,
+                                tooltip: 'View',
+                                onClick: () =>
+                                    handleViewDetails(props.row.original),
+                            },
+                        ]}
                     />
                 ),
             },

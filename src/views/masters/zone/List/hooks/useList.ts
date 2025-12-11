@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import {
     apiZone,
     apiGetZoneList,
@@ -7,9 +8,13 @@ import {
 import useSWR from 'swr'
 import { useZoneListStore } from '../store/listStore'
 import type { TableQueries } from '@/@types/common'
-import { Fields, GetZoneListResponse } from '@/@types/zone'
+import {
+    Fields,
+    GetZoneListResponse,
+    GetZoneDetailResponse,
+} from '@/@types/zone'
 
-export default function useZoneList() {
+export default function useZoneList(zoneId?: string) {
     const {
         tableData,
         setTableData,
@@ -23,34 +28,59 @@ export default function useZoneList() {
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         ([_, params]) =>
             apiGetZoneList<GetZoneListResponse, TableQueries>(params),
-        {
-            revalidateOnFocus: false,
-        },
     )
-    const saveZoneData = async (zone: Fields) => {
-        if (zone.id) {
-            await apiUpdateZone(zone.id, zone)
-        } else {
-            await apiZone(zone)
-        }
-        await mutate() // refresh list
+
+    const {
+        data: detailData,
+        error: detailError,
+        isLoading: isDetailLoading,
+        mutate: mutateDetail,
+    } = useSWR<GetZoneDetailResponse>(
+        zoneId ? `/api/zone/${zoneId}` : null,
+        () => apiGetZoneById(zoneId!),
+        { revalidateOnFocus: false },
+    )
+
+    const getZoneById = async (id: string) => {
+        const response = await apiGetZoneById(id)
+        return response.data || response
     }
 
-    // ✅ Get single zone by ID (for edit or view)
-    const getZoneById = async (id: string) => {
-        const zone = await apiGetZoneById(id)
-        return zone
+    const saveZoneData = async (zone: Fields) => {
+        let savedData: any
+        if (zone.id) {
+            /* eslint-disable @typescript-eslint/no-unused-vars */
+            const { id, ...zoneWithoutId } = zone
+            savedData = await apiUpdateZone(zone.id, zoneWithoutId)
+        } else {
+            savedData = await apiZone(zone)
+        }
+        await mutate()
+
+        if (zone.id && mutateDetail) {
+            mutateDetail({ data: savedData }, false)
+        }
+
+        return savedData
     }
 
     const zoneList = data?.data || []
-
     const zoneListTotal = data?.total || 0
+
+    const zoneDetail = detailData?.data || {
+        name: '',
+        identifier: '',
+    }
 
     return {
         zoneList,
         zoneListTotal,
         error,
         isLoading,
+        zoneDetail,
+        isDetailLoading,
+        detailError,
+        mutateDetail,
         tableData,
         mutate,
         setTableData,
@@ -58,6 +88,6 @@ export default function useZoneList() {
         setSelectedZone,
         setSelectAllZone,
         saveZoneData,
-        getZoneById, // ✅ Now defined properly
+        getZoneById,
     }
 }

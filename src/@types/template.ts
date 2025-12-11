@@ -3,8 +3,12 @@ import { TableQueries } from './common'
 import type { Control, FieldErrors } from 'react-hook-form'
 
 export type GetTemplateListResponse = {
-    list: Template[]
+    data: Template[]
     total: number
+}
+
+export type GetTemplateDetailResponse = {
+    data: Template
 }
 
 export type Filter = {
@@ -47,6 +51,9 @@ export type Fields = {
         /* eslint-disable @typescript-eslint/no-explicit-any */
         json: any
     }
+    status?: string
+    change_type?: string
+    message?: string
 }
 
 export type TagsFields = {
