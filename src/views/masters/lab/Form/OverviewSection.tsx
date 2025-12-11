@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import Card from '@/components/ui/Card'
 import Input from '@/components/ui/Input'
 import { FormItem } from '@/components/ui/Form'
@@ -6,6 +7,7 @@ import { FormSectionBaseProps } from '@/@types/lab'
 import ContactPersonalSection from './ContactPersonalSection'
 
 type OverviewSectionProps = FormSectionBaseProps & {
+    setValue?: any
     existingLabCodes?: string[] // Note: Not used in this component; consider using for custom validation (e.g., uniqueness check) if needed
 }
 
@@ -13,6 +15,7 @@ const OverviewSection = ({
     control,
     errors,
     readOnly = false,
+    setValue,
 }: OverviewSectionProps) => {
     return (
         <Card>
@@ -82,6 +85,7 @@ const OverviewSection = ({
                     control={control}
                     errors={errors}
                     readOnly={readOnly}
+                    setValue={setValue}
                 />
             </div>
         </Card>

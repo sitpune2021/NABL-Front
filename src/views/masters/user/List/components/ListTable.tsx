@@ -132,7 +132,7 @@ const UserListTable = () => {
                 },
             },
             {
-                header: 'Action',
+                header: '',
                 accessorKey: 'action',
                 id: 'action',
                 cell: (props) => (

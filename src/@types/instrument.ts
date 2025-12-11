@@ -1,10 +1,14 @@
-import { PrefixFEntity, TableQueries } from './common'
+import { IdentifierEntity, TableQueries } from './common'
 
 import type { Control, FieldErrors } from 'react-hook-form'
 
 export type GetInstrumentListResponse = {
     data: Instrument[]
     total?: number
+}
+
+export type GetnstrumentDetailResponse = {
+    data: Instrument
 }
 
 export type Filter = {
@@ -14,11 +18,11 @@ export type Filter = {
 
 export type Instrument = {
     id: string
-    full_name: string
+    name: string
     short_name: string
-    manufacture: string
-    serial_number: string
-} & PrefixFEntity
+    manufacturer: string
+    serial_no: string
+} & IdentifierEntity
 
 export type InstrumentListState = {
     tableData: TableQueries
@@ -35,11 +39,11 @@ export type InstrumentListAction = {
 
 export type Fields = {
     id?: string
-    full_name: string
+    name: string
     short_name: string
-    manufacture: string
-    serial_number: string
-} & PrefixFEntity
+    manufacturer: string
+    serial_no: string
+} & IdentifierEntity
 
 export type TagsFields = {
     tags: Array<{ value: string; label: string }>

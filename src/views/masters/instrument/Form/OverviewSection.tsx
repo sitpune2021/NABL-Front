@@ -18,18 +18,18 @@ const OverviewSection = ({
             <div className="grid md:grid-cols-2 gap-4">
                 <FormItem
                     label="Full Name"
-                    invalid={Boolean(errors.full_name)}
-                    errorMessage={errors.full_name?.message}
+                    invalid={Boolean(errors.name)}
+                    errorMessage={errors.name?.message}
                 >
                     <Controller
-                        name="full_name"
+                        name="name"
                         control={control}
                         render={({ field }) => (
                             <Input
                                 type="text"
                                 autoComplete="off"
                                 readOnly={readOnly}
-                                placeholder="Enter Full Name"
+                                placeholder="Enter Name"
                                 {...field}
                             />
                         )}
@@ -58,11 +58,11 @@ const OverviewSection = ({
 
                 <FormItem
                     label="Make (Manufacturer)"
-                    invalid={Boolean(errors.manufacture)}
-                    errorMessage={errors.manufacture?.message}
+                    invalid={Boolean(errors.manufacturer)}
+                    errorMessage={errors.manufacturer?.message}
                 >
                     <Controller
-                        name="manufacture"
+                        name="manufacturer"
                         control={control}
                         render={({ field }) => (
                             <Input
@@ -78,11 +78,11 @@ const OverviewSection = ({
 
                 <FormItem
                     label="Serial Number"
-                    invalid={Boolean(errors.serial_number)}
-                    errorMessage={errors.serial_number?.message}
+                    invalid={Boolean(errors.serial_no)}
+                    errorMessage={errors.serial_no?.message}
                 >
                     <Controller
-                        name="serial_number"
+                        name="serial_no"
                         control={control}
                         render={({ field }) => (
                             <Input
@@ -98,11 +98,11 @@ const OverviewSection = ({
 
                 <FormItem
                     label="Prefix"
-                    invalid={Boolean(errors.prefix)}
-                    errorMessage={errors.prefix?.message}
+                    invalid={Boolean(errors.identifier)}
+                    errorMessage={errors.identifier?.message}
                 >
                     <Controller
-                        name="prefix"
+                        name="identifier"
                         control={control}
                         render={({ field }) => (
                             <Input

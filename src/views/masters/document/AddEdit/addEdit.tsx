@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useEffect, useState, useMemo, useCallback } from 'react'
+import { useEffect, useState, useMemo, useCallback, useRef } from 'react'
 import { useParams, useNavigate, useLocation } from 'react-router'
 import Notification from '@/components/ui/Notification'
 import toast from '@/components/ui/toast'
@@ -8,11 +8,14 @@ import sleep from '@/utils/sleep'
 import endpointConfig from '@/configs/endpoint.config'
 import useDocumentList from '../List/hooks/useList'
 import DocumentForm from '../Form'
-import type { DocumentFormSchema, FrequencyConfig } from '@/@types/document'
+import {
+    categorizeThDetails,
+    type DocumentFormSchema,
+    type FrequencyConfig,
+} from '@/@types/document'
 import { defaultDocumentValues } from '@/constants/intial-doc.constant'
 import { apiGetDocumentEditortById } from '@/services/DocumentService'
 import FrequencyPopup from '../Form/FrequencyPopup'
-import { categorizeThDetails } from '../Form/Form'
 import DynamicFormWrapper from '../Form/DynamicWrapper'
 import BottomPanel from '@/components/form/bottomPanel'
 
@@ -50,34 +53,65 @@ const DocumentAddEdit = () => {
     const isEditor = pathParts.includes('editor')
     const isDataEntry = pathParts.includes('data-entry')
 
+    // useEffect(() => {
+    //     if (documentId) {
+    //         const fetchData = async () => {
+    //             try {
+    //                 setLoadingData(true)
+    //                 const data = isEditor
+    //                     ? isEdit
+    //                         ? await apiGetDocumentEditortById(documentId)
+    //                         : isView
+    //                           ? await apiGetDocumentEditortById(documentId)
+    //                           : await getDocumentById(documentId)
+    //                     : await getDocumentById(documentId)
+    //                 setDocumentData(data)
+    //             } catch (err) {
+    //                 console.error('Failed to load document:', err)
+    //                 toast.push(
+    //                     <Notification type="danger">
+    //                         Failed to load document data.
+    //                     </Notification>,
+    //                     { placement: 'top-center' },
+    //                 )
+    //             } finally {
+    //                 setLoadingData(false)
+    //             }
+    //         }
+    //         fetchData()
+    //     }
+    // }, [documentId])
+
+    const didFetchRef = useRef(false)
+
     useEffect(() => {
-        if (documentId) {
-            const fetchData = async () => {
-                try {
-                    setLoadingData(true)
-                    const data = isEditor
-                        ? isEdit
-                            ? await apiGetDocumentEditortById(documentId)
-                            : isView
-                              ? await apiGetDocumentEditortById(documentId)
-                              : await getDocumentById(documentId)
+        if (!documentId || didFetchRef.current) return
+
+        didFetchRef.current = true
+
+        const fetchData = async () => {
+            setLoadingData(true)
+            try {
+                const data: any =
+                    isEditor && (isEdit || isView)
+                        ? await apiGetDocumentEditortById(documentId)
                         : await getDocumentById(documentId)
-                    setDocumentData(data)
-                } catch (err) {
-                    console.error('Failed to load document:', err)
-                    toast.push(
-                        <Notification type="danger">
-                            Failed to load document data.
-                        </Notification>,
-                        { placement: 'top-center' },
-                    )
-                } finally {
-                    setLoadingData(false)
-                }
+                setDocumentData(data.data)
+            } catch (err) {
+                console.error('Failed to load document:', err)
+                toast.push(
+                    <Notification type="danger">
+                        Failed to load document data.
+                    </Notification>,
+                    { placement: 'top-center' },
+                )
+            } finally {
+                setLoadingData(false)
             }
-            fetchData()
         }
-    }, [documentId])
+
+        fetchData()
+    }, [documentId, isEditor, isEdit, isView])
 
     const defaultValues = useMemo(
         () => documentData ?? defaultDocumentValues,

@@ -151,8 +151,15 @@ const TemplateListTable = () => {
                 },
             },
             {
-                header: 'Action',
-                accessorKey: 'action',
+                header: 'Version',
+                accessorKey: 'current_version',
+            },
+            {
+                header: 'Version Count',
+                accessorKey: 'versions_count',
+            },
+            {
+                header: '',
                 id: 'action',
                 cell: (props) => (
                     <ActionColumn

@@ -10,6 +10,7 @@ type BottomPanelProps = {
     isEditor?: boolean
     onPrimaryClick?: () => void
     onDiscard?: () => void
+    type?: 'button' | 'submit' | 'reset'
 }
 
 const BottomPanel: React.FC<BottomPanelProps> = ({
@@ -19,6 +20,7 @@ const BottomPanel: React.FC<BottomPanelProps> = ({
     isEditor = false,
     onPrimaryClick = () => {},
     onDiscard,
+    type = 'submit',
 }) => {
     const handleBack = () => {
         history.back()
@@ -52,7 +54,7 @@ const BottomPanel: React.FC<BottomPanelProps> = ({
                         </Button>
                         <Button
                             variant="solid"
-                            type="submit"
+                            type={type}
                             loading={isSubmitting}
                             onClick={onPrimaryClick}
                         >

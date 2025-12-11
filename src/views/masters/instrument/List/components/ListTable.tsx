@@ -48,16 +48,16 @@ const InstrumentListTable = () => {
             },
             {
                 header: 'Name',
-                accessorKey: 'full_name',
+                accessorKey: 'name',
                 cell: (props) => {
-                    const { full_name, prefix } = props.row.original
+                    const { name, identifier } = props.row.original
                     return (
                         <div className="flex items-center gap-2">
                             <div>
                                 <div className="font-bold heading-text">
-                                    {full_name}
+                                    {name}
                                 </div>
-                                <div>{prefix}</div>
+                                <div>{identifier}</div>
                             </div>
                         </div>
                     )

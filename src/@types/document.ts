@@ -2,6 +2,7 @@
 import { TableQueries } from './common'
 
 import type { Control, FieldErrors, UseFormSetValue } from 'react-hook-form'
+import { z } from 'zod'
 
 export type FrequencyType =
     | 'Daily'
@@ -174,6 +175,7 @@ export type EditorFormSchema = {
     document: {
         html: string
         css: string
+        json: any
     }
 }
 
@@ -196,4 +198,182 @@ export type DocumentResolved = Document & {
     type?: string
     email?: string
     phone?: string
+}
+
+export interface ThDetail {
+    headerText: string
+    traits: Trait[]
+}
+
+export interface TextBlockDetail {
+    componentType: 'text-block'
+    tagName: string
+    headerText: string
+    content: string
+    mode: 'dynamic' | 'static'
+    traits: Trait[]
+}
+
+export interface CategorizedDetails {
+    daily: (ThDetail | TextBlockDetail)[]
+    oneTime: TextBlockDetail[]
+}
+
+export function categorizeThDetails(components: any): CategorizedDetails {
+    const daily: any[] = []
+    const oneTime: any[] = []
+
+    const extractTraits = (comp: any): Trait[] =>
+        (comp.get?.('traits') || comp.traits || []).map((t: any) => ({
+            name: t.get?.('name') ?? t.name,
+            value:
+                t.get?.('value') ??
+                t.attributes?.value ??
+                t.attributes?.default ??
+                t.default ??
+                '',
+        }))
+
+    const extractHeaderText = (comp: any): string => {
+        const inner = comp.components?.() || comp.components || []
+        const child = inner.find(
+            (c: any) =>
+                ['span'].includes(c.get?.('tagName') || c.tagName) ||
+                ['text'].includes(c.get?.('type') || c.type),
+        )
+        return (
+            child?.get?.('content') ??
+            child?.view?.el?.innerText ??
+            child?.content ??
+            ''
+        ).trim()
+    }
+
+    const traverse = (components: any): any[] => {
+        const models = components?.models || components || []
+        const result: any[] = []
+
+        for (const comp of models) {
+            const tag = comp.get?.('tagName') || comp.tagName
+            const type = comp.get?.('type') || comp.type
+            const inner = comp.components?.() || comp.components || []
+
+            if (tag === 'th') {
+                result.push({
+                    headerText: extractHeaderText(comp),
+                    traits: extractTraits(comp),
+                })
+            }
+
+            if (type === 'text-block') {
+                const traits = extractTraits(comp)
+                const traitMap = Object.fromEntries(
+                    traits.map((t) => [t.name, t.value]),
+                )
+                const mode = traitMap.mode ?? 'static'
+
+                if (mode === 'dynamic') {
+                    result.push({
+                        componentType: 'text-block',
+                        tagName: tag || 'p',
+                        headerText: traitMap.label?.trim() || '',
+                        content: (
+                            comp.get?.('content') ||
+                            comp.content ||
+                            ''
+                        ).trim(),
+                        traits,
+                        mode: 'dynamic',
+                    })
+                }
+            }
+
+            if (inner.length) result.push(...traverse(inner))
+        }
+
+        return result
+    }
+
+    const all = traverse(components)
+
+    all.forEach((item) =>
+        item.componentType === 'text-block' && item.mode === 'dynamic'
+            ? oneTime.push(item)
+            : daily.push(item),
+    )
+
+    return { daily, oneTime }
+}
+
+export const documentFormSchema = z.object({
+    labName: z.string().min(1, 'Lab Name is required'),
+    location: z.string().optional(),
+    department: z.array(z.union([z.string(), z.number()])).optional(),
+    header: z.union([z.string(), z.number()]).optional(),
+    footer: z.union([z.string(), z.number()]).optional(),
+    category: z.string().optional(),
+    documentName: z.string().min(1, 'Document Name is required'),
+    documentNo: z.string().optional(),
+    issuedNo: z.string().optional(),
+    amendmentNo: z.string().optional(),
+    copyNo: z.string().optional(),
+    date: z.string().optional(),
+    preparedByDate: z.string().optional(),
+    time: z.string().optional(),
+    preparedBy: z.string().optional(),
+    quantityPrepared: z
+        .union([z.string(), z.number()])
+        .optional()
+        .refine((val) => !val || Number(val) >= 0, {
+            message: 'Quantity must be a positive number',
+        }),
+    approvedBy: z.string().optional(),
+    issuedBy: z.string().optional(),
+    issueDate: z.string().min(1, 'Issue Date is required'),
+    amendmentDate: z.string().optional(),
+    effectiveDate: z.string().min(1, 'Effective Date is required'),
+    frequency: z.string().optional(),
+    duration: z.string().optional(),
+    durationUnit: z.string().optional(),
+    durationValue: z.string().optional(),
+    prefix: z.string().optional(),
+    status: z.enum(['Controlled', 'Uncontrolled']).optional(),
+})
+
+export const editorSchema = z.object({
+    documentId: z.string().min(1, 'Document ID is required'),
+    document: z.any(),
+})
+
+export type DocumentFormValidationSchema = z.infer<typeof documentFormSchema>
+export type EditorFormValidationSchema = z.infer<typeof editorSchema>
+
+// types.ts
+export type Option = { value: string; label: string }
+
+export type FormFieldType =
+    | 'text'
+    | 'number'
+    | 'select'
+    | 'multiSelect'
+    | 'date'
+    | 'time'
+    | 'header'
+    | 'footer'
+
+export interface FormFieldConfig {
+    name: string
+    label: string
+    type: FormFieldType
+    minDate?: any
+    placeholder?: string
+    options?: Option[]
+    readOnly?: boolean
+    condition?: (values: any) => boolean // conditional rendering
+    customRender?: (
+        field: any,
+        formValues: any,
+        extraProps?: any,
+    ) => JSX.Element
+    onChange?: (value: any) => void
 }
