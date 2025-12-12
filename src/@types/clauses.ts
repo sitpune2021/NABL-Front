@@ -40,8 +40,6 @@ export type ClauseItem = {
     category: string
     documentName: string
     frequency: string
-    required: boolean
-    timezone: boolean
 }
 
 export type AccordionItem = {
@@ -52,21 +50,16 @@ export type AccordionItem = {
 }
 
 export type TitleSpecificData = {
-    titleKey: string
-    title: string
-    notes: string[]
+    notes: string
     clauses: ClauseItem[]
+    id: string
+    parentId?: string
 }
 
 export type Fields = {
     id?: string
-    titleSpecificData: TitleSpecificData[]
-    category?: string
-    documentName?: string
-    frequency?: string
-    required?: boolean
-    timezone?: boolean
-    titles?: string[]
+    Standard_id: string
+    clause_documents: TitleSpecificData[]
 }
 
 export type TagsFields = {
@@ -81,4 +74,10 @@ export type FormSectionBaseProps = {
     readOnly?: boolean
     setValue: any
     getValues: any
+}
+
+export type OverviewSectionProps = FormSectionBaseProps & {
+    setValue: any
+    getValues: any
+    accordionData: any[]
 }

@@ -3,7 +3,12 @@ import { TableQueries } from './common'
 import type { Control, FieldErrors } from 'react-hook-form'
 
 export type GetLabListResponse = {
-    list: Lab[]
+    data: Lab[]
+    total: number
+}
+
+export type GetLabDetailResponse = {
+    data: Lab
     total: number
 }
 
@@ -14,22 +19,13 @@ export type Filter = {
 
 export type Lab = {
     id: string
-    prefix: string
     name: string
     labType: string
     labCode: string
-    shortName: string
-    zone_name: string | null
-    cluster_name: string | null
-    location_name: string | null
-    instruments: (string | number)[]
-    departments: {
-        name: string
-        instruments: (string | number)[]
-    }[]
-    emails: { value: string }[]
-    phones: { value: string }[]
+    emails: { value: string; label: string; is_primary: any }[]
+    phones: { value: string; label: string; is_primary: any }[]
     address?: string
+    locations: LocationField[]
 }
 
 export type LabListState = {
@@ -66,7 +62,6 @@ export type Fields = {
     id?: string
     name: string
     labType: string
-    department: string[] // Kept as string[] based on your provided type, though schema suggests it might be a single string; adjust if needed
     labCode: string
     emails: { type: string; value: string; label: string; is_primary: any }[]
     phones: { type: string; value: string; label: string; is_primary: any }[]

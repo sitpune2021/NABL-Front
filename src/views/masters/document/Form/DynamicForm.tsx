@@ -289,10 +289,6 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                                                 }
                                                 disabled={readOnly}
                                                 onChange={(checked) => {
-                                                    console.log(
-                                                        'Checkbox changed to:',
-                                                        checked,
-                                                    )
                                                     field.onChange(
                                                         checked
                                                             ? 'create'
