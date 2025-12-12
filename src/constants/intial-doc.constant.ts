@@ -4,6 +4,7 @@ export const defaultDocumentValues: DocumentFormSchema = {
     labName: '',
     location: '',
     department: [],
+    mode: 'create',
     category: '',
     documentName: '',
     documentNo: '',
