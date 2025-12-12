@@ -1,10 +1,8 @@
-import { useEffect, useRef } from 'react'
 import { Form, FormItem } from '@/components/ui/Form'
 import Container from '@/components/shared/Container'
 import BottomStickyBar from '@/components/template/BottomStickyBar'
-import isEmpty from 'lodash/isEmpty'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useForm, Controller, useWatch } from 'react-hook-form'
+import { useForm, Controller } from 'react-hook-form'
 import { z } from 'zod'
 import type { CommonProps } from '@/@types/common'
 import { TemplateFormSchema } from '@/@types/template'
@@ -44,9 +42,9 @@ const TemplateForm = ({
     isSubmiting,
     isEdit,
 }: TemplateFormProps) => {
+    const { type } = useParams<{ type: string }>()
     const {
         handleSubmit,
-        reset,
         formState: { errors },
         control,
         setValue,
@@ -57,48 +55,8 @@ const TemplateForm = ({
         resolver: zodResolver(validationSchema),
     })
 
-    const { type } = useParams<{ type: string }>()
-    const draftTimer = useRef<number | null>(null)
-    const watchedTemplate = useWatch({ control, name: 'template' })
-
-    useEffect(() => {
-        if (isEdit) return
-
-        const draft = localStorage.getItem('template-draft')
-        if (draft) {
-            try {
-                setValue('template', JSON.parse(draft))
-            } catch (error) {
-                console.error('Failed to parse draft from localStorage', error)
-            }
-        }
-    }, [isEdit, setValue])
-
-    useEffect(() => {
-        if (!isEmpty(defaultValues)) reset(defaultValues)
-    }, [defaultValues, reset])
-
-    useEffect(() => {
-        if (isEdit) return
-        if (!watchedTemplate) return
-
-        if (draftTimer.current) clearTimeout(draftTimer.current)
-
-        draftTimer.current = window.setTimeout(() => {
-            localStorage.setItem(
-                'template-draft',
-                JSON.stringify(watchedTemplate),
-            )
-        }, 2000)
-
-        return () => {
-            if (draftTimer.current) clearTimeout(draftTimer.current)
-        }
-    }, [watchedTemplate, isEdit])
-
     const onSubmit = (values: TemplateFormSchema) => {
         onFormSubmit(values)
-        if (!isEdit) localStorage.removeItem('template-draft')
         onDialogClose()
     }
 
@@ -196,7 +154,11 @@ const TemplateForm = ({
                 )}
 
                 <div className="flex justify-end mt-6 gap-2">
-                    <Button variant="plain" onClick={onDialogClose}>
+                    <Button
+                        variant="plain"
+                        type="button"
+                        onClick={onDialogClose}
+                    >
                         Cancel
                     </Button>
 

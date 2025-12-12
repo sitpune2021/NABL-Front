@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { memo, useCallback } from 'react'
+import { memo, useCallback, useMemo } from 'react'
 import { Controller } from 'react-hook-form'
 import { Card, Checkbox, FormItem, Input, Select } from '@/components/ui'
 import StandardRecursiveSection from './StandardRecursiveSection'
@@ -15,7 +15,7 @@ interface StandardCardProps {
     depth?: number
 }
 
-const StandardCard: React.FC<StandardCardProps> = ({
+const StandardCard = ({
     index,
     standard,
     errors,
@@ -23,68 +23,125 @@ const StandardCard: React.FC<StandardCardProps> = ({
     control,
     watchedStandards,
     baseName = 'standards',
-}) => {
+}: StandardCardProps) => {
     const path = `${baseName}.${index}` as const
-    const current = watchedStandards?.[index]
+    const current = watchedStandards?.[index] || {}
 
     const getError = useCallback(
-        (fieldPath: string) =>
-            fieldPath
-                .split('.')
-                .reduce<
-                    Record<string, any> | undefined
-                >((acc, key) => acc?.[key], errors),
+        (p: string) => p.split('.').reduce((acc, key) => acc?.[key], errors),
         [errors],
     )
 
-    const getTitleLabel = (depth: number) => {
-        if (depth === 0) return 'Clause Title'
-        const repeatSub = 'Sub '.repeat(depth)
-        return `${repeatSub}Clause Title`.trim()
+    const titleLabel = useMemo(() => {
+        if (!standard.depth) return 'Clause Title'
+        return `${'Sub '.repeat(standard.depth)}Clause Title`
+    }, [standard.depth])
+
+    const toRoman = (num: number): string => {
+        const romans: [number, string][] = [
+            [1000, 'M'],
+            [900, 'CM'],
+            [500, 'D'],
+            [400, 'CD'],
+            [100, 'C'],
+            [90, 'XC'],
+            [50, 'L'],
+            [40, 'XL'],
+            [10, 'X'],
+            [9, 'IX'],
+            [5, 'V'],
+            [4, 'IV'],
+            [1, 'I'],
+        ]
+        let result = ''
+        for (const [value, symbol] of romans) {
+            while (num >= value) {
+                result += symbol
+                num -= value
+            }
+        }
+        return result
     }
 
-    const getNumberedTitle = () => {
-        const title = current?.title || 'Untitled'
-        const numberingType = current?.numberingType
-        if (!numberingType || numberingType === 'none') {
-            return title
-        }
-        // Count previous items with the same numbering type
+    const getNumberingValue = (type: string, index: number, watched: any[]) => {
+        if (!type || type === 'none') return ''
+
         const count =
-            watchedStandards
+            watched
                 ?.slice(0, index)
-                .filter((item: any) => item?.numberingType === numberingType)
-                .length || 0
-        let prefix = ''
-        if (numberingType === 'numerical') {
-            prefix = `${count + 1}. `
-        } else if (numberingType === 'alphabetical') {
-            prefix = `${String.fromCharCode(97 + count)}. ` // a, b, c, ...
+                ?.filter((x: any) => x?.numberingType === type)?.length ?? 0
+
+        const number = count + 1
+
+        switch (type) {
+            case 'numerical':
+                return `${number}`
+
+            case 'alphabetical-lower':
+                return `${String.fromCharCode(97 + count)}`
+
+            case 'alphabetical-upper':
+                return String.fromCharCode(65 + count)
+
+            case 'roman-lower':
+                return `${toRoman(number).toLowerCase()}`
+
+            case 'roman-upper':
+                return `${toRoman(number)}`
+
+            case 'dot':
+                return '•'
+
+            default:
+                return ''
         }
-        return `${prefix}${title}`
     }
 
-    const options = [
-        {
-            value: 'none',
-            label: 'None',
-        },
-        {
-            value: 'numerical',
-            label: 'Numerical',
-        },
-        {
-            value: 'alphabetical',
-            label: 'Alphabetical',
-        },
-    ]
+    const numberingValue = useMemo(() => {
+        return getNumberingValue(
+            current?.numberingType,
+            index,
+            watchedStandards,
+        )
+    }, [current?.numberingType, watchedStandards, index])
+
+    const numberedTitle = useMemo(() => {
+        const title = current?.title || ''
+        return `${numberingValue} ${title}`.trim()
+    }, [numberingValue, current?.title])
+
+    /** SELECT OPTIONS */
+    const numberingOptions = useMemo(
+        () => [
+            { value: 'none', label: 'None' },
+            { value: 'numerical', label: '1, 2, 3' },
+            { value: 'alphabetical-lower', label: 'a, b, c' },
+            { value: 'alphabetical-upper', label: 'A, B, C' },
+            { value: 'roman-lower', label: 'i, ii, iii' },
+            { value: 'roman-upper', label: 'I, II, III' },
+            { value: 'dot', label: '• Bullet / Dot' },
+        ],
+        [],
+    )
 
     return (
         <Card key={standard.id} className="mt-3">
-            <h5>{getNumberedTitle()}</h5>
+            <Controller
+                name={`${path}.numberingValue`}
+                control={control}
+                defaultValue={standard.numberingValue || ''}
+                render={({ field }) => {
+                    if (field.value !== numberingValue) {
+                        field.onChange(numberingValue)
+                    }
+                    return null
+                }}
+            />
+
+            <h5>{numberedTitle}</h5>
 
             <FormItem
-                label={getTitleLabel(standard.depth ?? 0)}
+                label={titleLabel}
                 invalid={!!getError(`${path}.title`)}
                 errorMessage={getError(`${path}.title`)?.message}
             >
@@ -124,21 +181,6 @@ const StandardCard: React.FC<StandardCardProps> = ({
             </FormItem>
 
             <div className="flex flex-wrap gap-6 mb-4">
-                <FormItem label="Number">
-                    <Controller
-                        name={`${path}.number`}
-                        control={control}
-                        defaultValue={standard.number ?? false}
-                        render={({ field }) => (
-                            <Checkbox
-                                checked={!!field.value}
-                                disabled={readOnly}
-                                onChange={field.onChange}
-                            />
-                        )}
-                    />
-                </FormItem>
-
                 <FormItem label="Note">
                     <Controller
                         name={`${path}.note`}
@@ -158,18 +200,16 @@ const StandardCard: React.FC<StandardCardProps> = ({
                     <Controller
                         name={`${path}.numberingType`}
                         control={control}
-                        defaultValue={standard.numberingType || 'none'} // Changed default to 'none' so numbering starts only when selected
+                        defaultValue={standard.numberingType || 'none'}
                         render={({ field }) => (
                             <Select
                                 {...field}
-                                value={options.filter(
-                                    (option) => option.value === field.value,
+                                value={numberingOptions.filter(
+                                    (op) => op.value === field.value,
                                 )}
-                                options={options}
+                                options={numberingOptions}
                                 placeholder="Select Numbering"
-                                onChange={(option) =>
-                                    field.onChange(option?.value)
-                                }
+                                onChange={(opt) => field.onChange(opt?.value)}
                             />
                         )}
                     />
@@ -216,9 +256,10 @@ const StandardCard: React.FC<StandardCardProps> = ({
             {current?.children?.length > 0 && (
                 <StandardRecursiveSection
                     control={control}
-                    name={`${path}.children` as `standards.${number}.children`}
+                    name={`${path}.children` as any}
                     errors={errors}
                     readOnly={readOnly}
+                    depth={(standard.depth || 0) + 1}
                 />
             )}
         </Card>

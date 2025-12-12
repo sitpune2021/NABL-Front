@@ -1,12 +1,11 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useEffect, useRef, useCallback } from 'react'
+import { useEffect, useRef, useCallback, memo } from 'react'
 import { useFieldArray, useWatch, Control, FieldErrors } from 'react-hook-form'
 import { HiPlus } from 'react-icons/hi'
 import Button from '@/components/ui/Button'
 import StandardCard from './StandardCard'
 import type { FormValues } from './StandardForm'
 
-// Type-safe paths for useFieldArray
 type StandardFieldPath =
     | 'standards'
     | `standards.${number}`
@@ -29,12 +28,14 @@ const createDefaultStandard = (depth = 0) => ({
     isChild: false,
     count: 0,
     children: [],
+    numberingValue: '',
+    numberingType: 'none',
     depth,
 })
 
 const StandardRecursiveSection = ({
     control,
-    name = 'standards' as StandardFieldPath,
+    name,
     errors,
     readOnly,
     isRoot = false,
@@ -46,44 +47,43 @@ const StandardRecursiveSection = ({
         keyName: 'reactId',
     })
 
-    const watchedStandards = useWatch({ control, name, defaultValue: [] })
-    const hasAppended = useRef(false)
+    const watched = useWatch({ control, name })
+    const initialized = useRef(false)
 
-    // Add default root standard if empty
     useEffect(() => {
-        if (isRoot && !hasAppended.current && fields.length === 0) {
+        if (isRoot && !initialized.current && fields.length === 0) {
             append(createDefaultStandard(depth))
-            hasAppended.current = true
+            initialized.current = true
         }
     }, [isRoot, fields.length, append, depth])
 
-    // Update children automatically based on count
     useEffect(() => {
-        watchedStandards?.forEach((standard: any, index: number) => {
-            if (!standard?.isChild) return
+        watched?.forEach((item: any, i: number) => {
+            if (!item?.isChild) return
 
-            const currentChildren = standard.children || []
-            const targetCount = standard.count || 0
+            const children = item.children || []
+            const needed = item.count || 0
 
-            if (targetCount > currentChildren.length) {
-                const extra = Array.from(
-                    { length: targetCount - currentChildren.length },
-                    () => createDefaultStandard((standard.depth || 0) + 1),
-                )
-                update(index, {
-                    ...standard,
-                    children: [...currentChildren, ...extra],
-                })
-            } else if (targetCount < currentChildren.length) {
-                update(index, {
-                    ...standard,
-                    children: currentChildren.slice(0, targetCount),
-                })
-            }
+            if (needed === children.length) return
+
+            const baseDepth = (item.depth || 0) + 1
+
+            const nextChildren =
+                needed > children.length
+                    ? [
+                          ...children,
+                          ...Array.from(
+                              { length: needed - children.length },
+                              () => createDefaultStandard(baseDepth),
+                          ),
+                      ]
+                    : children.slice(0, needed)
+
+            update(i, { ...item, children: nextChildren })
         })
-    }, [watchedStandards, update])
+    }, [watched, update])
 
-    const handleAddSection = useCallback(() => {
+    const handleAdd = useCallback(() => {
         append(createDefaultStandard(depth))
     }, [append, depth])
 
@@ -95,7 +95,7 @@ const StandardRecursiveSection = ({
                     type="button"
                     disabled={readOnly}
                     className="sticky top-[68px] z-40 left-[1366px]"
-                    onClick={handleAddSection}
+                    onClick={handleAdd}
                 >
                     <HiPlus className="text-lg" />
                 </Button>
@@ -109,7 +109,7 @@ const StandardRecursiveSection = ({
                     errors={errors}
                     readOnly={readOnly}
                     control={control}
-                    watchedStandards={watchedStandards}
+                    watchedStandards={watched}
                     baseName={name}
                     depth={depth}
                 />
@@ -118,4 +118,4 @@ const StandardRecursiveSection = ({
     )
 }
 
-export default StandardRecursiveSection
+export default memo(StandardRecursiveSection)

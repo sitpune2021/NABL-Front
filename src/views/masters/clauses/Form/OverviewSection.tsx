@@ -4,27 +4,20 @@ import Card from '@/components/ui/Card'
 import { FormItem } from '@/components/ui/Form'
 import Input from '@/components/ui/Input'
 import Button from '@/components/ui/Button'
-import { FormSectionBaseProps, TitleSpecificData } from '@/@types/clauses'
+import { OverviewSectionProps } from '@/@types/clauses'
 import { Controller } from 'react-hook-form'
 import Select from '@/components/ui/Select'
 import Menu from '@/components/ui/Menu'
 import { HiPlus } from 'react-icons/hi'
 import { TbTrash } from 'react-icons/tb'
-import type { MouseEvent } from 'react'
 import useCategoryList from '../../category/List/hooks/useList'
 import useDocumentList from '../../document/List/hooks/useList'
+import type { MouseEvent } from 'react'
 
 const autoFrequencyFromDocument = (docName: string, documentOptions: any[]) => {
     const doc = documentOptions.find((d) => d.value === docName)
     return doc?.frequency || ''
 }
-
-type OverviewSectionProps = FormSectionBaseProps & {
-    setValue: any
-    getValues: any
-    accordionData: any[]
-}
-
 const defaultClause = {
     category: '',
     documentName: '',
@@ -41,14 +34,15 @@ const OverviewSection = ({
 }: OverviewSectionProps) => {
     const { categoryList } = useCategoryList()
     const { documentList } = useDocumentList()
+    console.log(errors, 'clause errors')
 
     const documentOptions = useMemo(
         () =>
             documentList.map((document: any) => ({
-                value: document.documentName,
+                value: document.id,
                 label: document.documentName,
                 category: document.category,
-                frequency: document.frequency, // MUST BE HERE
+                frequency: document.frequency,
             })),
         [documentList],
     )
@@ -58,480 +52,258 @@ const OverviewSection = ({
         label: `${category.name.toUpperCase()} - ${category.identifier}`,
     }))
 
-    const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set())
-
-    const getFilteredDocumentOptions = (selectedCategory: string) => {
-        if (!selectedCategory) {
-            return documentOptions
-        }
-        return documentOptions.filter(
-            (doc: any) => doc.category === selectedCategory,
-        )
-    }
+    const [expandedItems, setExpandedItems] = useState<Set<number>>(new Set())
 
     useEffect(() => {
-        const getAllKeys = (items: any[], parentKey = ''): string[] => {
-            let keys: string[] = []
-            items.forEach((item, idx) => {
-                const key = `${parentKey}${idx}-${item.title}`
-
-                keys.push(key)
-
-                if (item.note) {
-                    const requiredKey = `${key}-required`
-                    keys.push(requiredKey)
-                }
-
-                if (item.children && item.children.length > 0) {
-                    keys = [...keys, ...getAllKeys(item.children, key + '-')]
+        const collectIds = (items: any[]): number[] => {
+            let ids: number[] = []
+            items.forEach((i) => {
+                ids.push(i.id)
+                if (i.children?.length > 0) {
+                    ids = [...ids, ...collectIds(i.children)]
                 }
             })
-            return keys
+            return ids
         }
 
-        const allKeys = getAllKeys(accordionData)
+        const allKeys = collectIds(accordionData)
         setExpandedItems(new Set(allKeys))
     }, [])
 
     const handleToggle = (expanded: boolean, e: MouseEvent<HTMLDivElement>) => {
-        const key = (e.currentTarget as any)?.dataset?.key as string
-        if (!key) return
+        const id = Number((e.currentTarget as any)?.dataset?.id)
+        if (!id) return
         setExpandedItems((prev) => {
-            const newSet = new Set(prev)
-            expanded ? newSet.add(key) : newSet.delete(key)
-            return newSet
+            const set = new Set(prev)
+            expanded ? set.add(id) : set.delete(id)
+            return set
         })
     }
 
-    const isExpanded = (key: string) => expandedItems.has(key)
+    const isExpanded = (id: number) => expandedItems.has(id)
 
-    const findTitleIndex = (titleKey: string): number => {
-        const currentData = getValues('titleSpecificData') || []
-
-        return currentData.findIndex(
-            (item: TitleSpecificData) => item.titleKey === titleKey,
-        )
+    const findDocIndex = (id: number): number => {
+        const docs = getValues('clause_documents') || []
+        return docs.findIndex((d: any) => d.id === id)
     }
 
-    const handleAddNote = (titleKey: string) => {
-        const currentData = getValues('titleSpecificData') || []
-        const titleIndex = findTitleIndex(titleKey)
-        if (titleIndex === -1) return
-
-        const newData = [...currentData]
-        newData[titleIndex].notes = [...newData[titleIndex].notes, '']
-        setValue('titleSpecificData', newData)
+    const handleNoteChange = (id: number, value: string) => {
+        const docs = [...getValues('clause_documents')]
+        const idx = findDocIndex(id)
+        if (idx === -1) return
+        docs[idx].notes = value
+        setValue('clause_documents', docs)
     }
 
-    const handleRemoveNote = (titleKey: string, index: number) => {
-        const currentData = getValues('titleSpecificData') || []
-        const titleIndex = findTitleIndex(titleKey)
-        if (titleIndex === -1) return
-
-        const newData = [...currentData]
-        if (newData[titleIndex].notes.length > 1) {
-            newData[titleIndex].notes = newData[titleIndex].notes.filter(
-                (_: string, i: number) => i !== index,
-            )
-            setValue('titleSpecificData', newData)
-        }
+    const handleAddClause = (id: number) => {
+        const docs = [...getValues('clause_documents')]
+        const idx = findDocIndex(id)
+        if (idx === -1) return
+        docs[idx].clauses.push({ ...defaultClause })
+        setValue('clause_documents', docs)
     }
 
-    const handleNoteChange = (
-        titleKey: string,
-        index: number,
-        value: string,
-    ) => {
-        const currentData = getValues('titleSpecificData') || []
-        const titleIndex = findTitleIndex(titleKey)
-        if (titleIndex === -1) return
+    const handleRemoveClause = (id: number, index: number) => {
+        const docs = [...getValues('clause_documents')]
+        const idx = findDocIndex(id)
+        if (idx === -1) return
 
-        const newData = [...currentData]
-        newData[titleIndex].notes[index] = value
-        setValue('titleSpecificData', newData)
-    }
-
-    const handleAddClause = (titleKey: string) => {
-        const currentData = getValues('titleSpecificData') || []
-        const titleIndex = findTitleIndex(titleKey)
-        if (titleIndex === -1) return
-
-        const newData = [...currentData]
-        newData[titleIndex].clauses = [
-            ...newData[titleIndex].clauses,
-            { ...defaultClause },
-        ]
-        setValue('titleSpecificData', newData)
-    }
-
-    const handleRemoveClause = (titleKey: string, index: number) => {
-        const currentData = getValues('titleSpecificData') || []
-        const titleIndex = findTitleIndex(titleKey)
-        if (titleIndex === -1) return
-
-        const newData = [...currentData]
-        if (newData[titleIndex].clauses.length > 1) {
-            newData[titleIndex].clauses = newData[titleIndex].clauses.filter(
-                (_: any, i: number) => i !== index,
-            )
-            setValue('titleSpecificData', newData)
+        if (docs[idx].clauses.length > 1) {
+            docs[idx].clauses.splice(index, 1)
+            setValue('clause_documents', docs)
         }
     }
 
     const handleClauseFieldChange = (
-        titleKey: string,
-        clauseIndex: number,
+        id: number,
+        cIdx: number,
         field: string,
         value: any,
     ) => {
-        const currentData = getValues('titleSpecificData') || []
-        const titleIndex = findTitleIndex(titleKey)
-        if (titleIndex === -1) return
+        const docs = [...getValues('clause_documents')]
+        const idx = findDocIndex(id)
+        if (idx === -1) return
 
-        const newData = [...currentData]
-        const currentClause = newData[titleIndex].clauses[clauseIndex]
+        const clause = docs[idx].clauses[cIdx]
 
-        // ✅ AUTO APPLY FREQUENCY BASED ON DOCUMENT
         if (field === 'documentName') {
             const autoFreq = autoFrequencyFromDocument(value, documentOptions)
-
-            newData[titleIndex].clauses[clauseIndex] = {
-                ...currentClause,
+            docs[idx].clauses[cIdx] = {
+                ...clause,
                 documentName: value,
                 frequency: autoFreq,
             }
-
-            setValue('titleSpecificData', newData)
-            return
-        }
-
-        // Clear document + frequency when category changes
-        if (field === 'category' && value !== currentClause.category) {
-            newData[titleIndex].clauses[clauseIndex] = {
-                ...currentClause,
+        } else if (field === 'category') {
+            docs[idx].clauses[cIdx] = {
+                ...clause,
                 category: value,
                 documentName: '',
                 frequency: '',
             }
         } else {
-            newData[titleIndex].clauses[clauseIndex] = {
-                ...currentClause,
-                [field]: value,
-            }
+            docs[idx].clauses[cIdx][field] = value
         }
 
-        setValue('titleSpecificData', newData)
+        setValue('clause_documents', docs)
     }
 
-    const renderRequiredSection = (titleKey: string) => {
-        const titleIndex = findTitleIndex(titleKey)
-        if (titleIndex === -1) return null
+    const renderRequiredSection = (id: number) => {
+        const idx = findDocIndex(id)
+        if (idx === -1) return null
 
         return (
-            <Menu.MenuCollapse
-                eventKey={`${titleKey}-required`}
-                label="Required"
-                expanded={isExpanded(`${titleKey}-required`)}
-                data-key={`${titleKey}-required`}
-                onToggle={handleToggle}
-            >
-                <div className="p-4 space-y-6 overflow-visible">
-                    {/* Title-specific Notes */}
-                    <Controller
-                        name={`titleSpecificData.${titleIndex}.notes`}
-                        control={control}
-                        render={({ field }) => (
-                            <div>
-                                <h4 className="text-lg font-semibold mb-4 text-gray-700">
-                                    Notes
-                                </h4>
-                                {(field.value || ['']).map(
-                                    (note: string, idx: number) => (
-                                        <div
-                                            key={idx}
-                                            className="flex items-start gap-3 mb-4"
-                                        >
-                                            <div className="flex-1">
-                                                <FormItem
-                                                    label={`Note ${idx + 1}`}
-                                                    invalid={Boolean(
-                                                        errors
-                                                            .titleSpecificData?.[
-                                                            titleIndex
-                                                        ]?.notes?.[idx],
-                                                    )}
-                                                    errorMessage={
-                                                        errors
-                                                            .titleSpecificData?.[
-                                                            titleIndex
-                                                        ]?.notes?.[idx]?.message
-                                                    }
-                                                >
-                                                    <Input
-                                                        textArea
-                                                        rows={3}
-                                                        value={note}
-                                                        placeholder="Write your note..."
-                                                        readOnly={readOnly}
-                                                        onChange={(e) =>
-                                                            handleNoteChange(
-                                                                titleKey,
-                                                                idx,
-                                                                e.target.value,
-                                                            )
-                                                        }
-                                                    />
-                                                </FormItem>
-                                            </div>
+            <>
+                <Controller
+                    name={`clause_documents.${idx}.notes`}
+                    control={control}
+                    render={({ field }) => (
+                        <FormItem>
+                            <Input
+                                textArea
+                                className="mt-4"
+                                rows={3}
+                                value={field.value}
+                                placeholder="Write your note..."
+                                readOnly={readOnly}
+                                onChange={(e) =>
+                                    handleNoteChange(id, e.target.value)
+                                }
+                            />
+                        </FormItem>
+                    )}
+                />
 
-                                            {!readOnly && (
-                                                <div className="flex flex-col gap-2 mt-8">
-                                                    {idx ===
-                                                        (field.value?.length ||
-                                                            1) -
-                                                            1 && (
-                                                        <Button
-                                                            size="sm"
-                                                            icon={<HiPlus />}
-                                                            variant="solid"
-                                                            className="bg-green-500 hover:bg-green-600"
-                                                            onClick={() =>
-                                                                handleAddNote(
-                                                                    titleKey,
-                                                                )
-                                                            }
-                                                        />
-                                                    )}
-                                                    {(field.value?.length ||
-                                                        1) > 1 && (
-                                                        <Button
-                                                            size="sm"
-                                                            icon={<TbTrash />}
-                                                            variant="solid"
-                                                            className="bg-red-500 hover:bg-red-600"
-                                                            onClick={() =>
-                                                                handleRemoveNote(
-                                                                    titleKey,
-                                                                    idx,
-                                                                )
-                                                            }
-                                                        />
-                                                    )}
-                                                </div>
-                                            )}
-                                        </div>
-                                    ),
+                <Controller
+                    name={`clause_documents.${idx}.clauses`}
+                    control={control}
+                    render={({ field }) => (
+                        <>
+                            <div className="flex justify-between items-center mt-4">
+                                <h4>Assigning Documents To The Clause</h4>
+                                {!readOnly && (
+                                    <Button
+                                        type="button"
+                                        size="sm"
+                                        icon={<HiPlus />}
+                                        variant="solid"
+                                        className="bg-green-500 hover:bg-green-600"
+                                        onClick={() => handleAddClause(id)}
+                                    />
                                 )}
                             </div>
-                        )}
-                    />
 
-                    {/* Title-specific Clauses */}
-                    <Controller
-                        name={`titleSpecificData.${titleIndex}.clauses`}
-                        control={control}
-                        render={({ field }) => (
-                            <div>
-                                <h4 className="text-lg font-semibold mb-4 text-gray-700">
-                                    Clauses
-                                </h4>
-                                {(field.value || [defaultClause]).map(
-                                    (clause: any, idx: number) => {
-                                        const filteredDocumentOptions =
-                                            getFilteredDocumentOptions(
-                                                clause.category,
-                                            )
+                            {field.value.map((clause: any, cIdx: number) => {
+                                const filteredDocs = clause.category
+                                    ? documentOptions.filter(
+                                          (d) => d.category === clause.category,
+                                      )
+                                    : documentOptions
 
-                                        return (
-                                            <div
-                                                key={idx}
-                                                className="flex items-center gap-3 mb-4"
-                                            >
-                                                <div className="grid grid-cols-6 gap-3 flex-1">
-                                                    <FormItem
-                                                        label="Category"
-                                                        invalid={Boolean(
-                                                            errors
-                                                                .titleSpecificData?.[
-                                                                titleIndex
-                                                            ]?.clauses?.[idx]
-                                                                ?.category,
-                                                        )}
-                                                        errorMessage={
-                                                            errors
-                                                                .titleSpecificData?.[
-                                                                titleIndex
-                                                            ]?.clauses?.[idx]
-                                                                ?.category
-                                                                ?.message
-                                                        }
-                                                    >
-                                                        <Select
-                                                            value={
-                                                                categoryOptions.find(
-                                                                    (o: {
-                                                                        value: any
-                                                                    }) =>
-                                                                        o.value ===
-                                                                        clause.category,
-                                                                ) || null
-                                                            }
-                                                            options={
-                                                                categoryOptions
-                                                            }
-                                                            placeholder="Select.."
-                                                            isDisabled={
-                                                                readOnly
-                                                            }
-                                                            menuPortalTarget={
-                                                                document.body
-                                                            }
-                                                            menuPosition="fixed"
-                                                            onChange={(val) =>
-                                                                handleClauseFieldChange(
-                                                                    titleKey,
-                                                                    idx,
-                                                                    'category',
-                                                                    val?.value ??
-                                                                        '',
-                                                                )
-                                                            }
-                                                        />
-                                                    </FormItem>
-
-                                                    {/* DOCUMENT NAME */}
-                                                    <FormItem label="Document Name">
-                                                        <Select
-                                                            value={
-                                                                filteredDocumentOptions.find(
-                                                                    (o) =>
-                                                                        o.value ===
-                                                                        clause.documentName,
-                                                                ) || null
-                                                            }
-                                                            options={
-                                                                filteredDocumentOptions
-                                                            }
-                                                            placeholder="Select..."
-                                                            isDisabled={
-                                                                readOnly ||
-                                                                !clause.category
-                                                            }
-                                                            menuPortalTarget={
-                                                                document.body
-                                                            }
-                                                            menuPosition="fixed"
-                                                            onChange={(val) =>
-                                                                handleClauseFieldChange(
-                                                                    titleKey,
-                                                                    idx,
-                                                                    'documentName',
-                                                                    val?.value ??
-                                                                        '',
-                                                                )
-                                                            }
-                                                        />
-                                                    </FormItem>
-
-                                                    {/* ⭐ NEW FREQUENCY READ-ONLY FIELD ⭐ */}
-                                                    <FormItem label="Frequency">
-                                                        <Input
-                                                            readOnly
-                                                            value={
-                                                                clause.frequency
-                                                            }
-                                                            placeholder="Auto Frequency"
-                                                            className="bg-gray-100 cursor-not-allowed"
-                                                        />
-                                                    </FormItem>
-                                                </div>
-
-                                                {!readOnly && (
-                                                    <div className="flex flex-col gap-2 mt-6">
-                                                        {idx ===
-                                                            (field.value
-                                                                ?.length || 1) -
-                                                                1 && (
-                                                            <Button
-                                                                size="sm"
-                                                                icon={
-                                                                    <HiPlus />
-                                                                }
-                                                                variant="solid"
-                                                                className="bg-green-500 hover:bg-green-600"
-                                                                onClick={() =>
-                                                                    handleAddClause(
-                                                                        titleKey,
-                                                                    )
-                                                                }
-                                                            />
-                                                        )}
-                                                        {(field.value?.length ||
-                                                            1) > 1 && (
-                                                            <Button
-                                                                size="sm"
-                                                                icon={
-                                                                    <TbTrash />
-                                                                }
-                                                                variant="solid"
-                                                                className="bg-red-500 hover:bg-red-600"
-                                                                onClick={() =>
-                                                                    handleRemoveClause(
-                                                                        titleKey,
-                                                                        idx,
-                                                                    )
-                                                                }
-                                                            />
-                                                        )}
-                                                    </div>
+                                return (
+                                    <div
+                                        key={cIdx}
+                                        className={`grid grid-cols-4 gap-3 p-4 ${cIdx != 0 ? 'pt-0' : 'mt-4'} `}
+                                    >
+                                        <FormItem label="Category">
+                                            <Select
+                                                value={categoryOptions.find(
+                                                    (o) =>
+                                                        o.value ===
+                                                        clause.category,
                                                 )}
-                                            </div>
-                                        )
-                                    },
-                                )}
-                            </div>
-                        )}
-                    />
-                </div>
-            </Menu.MenuCollapse>
+                                                options={categoryOptions}
+                                                isDisabled={readOnly}
+                                                onChange={(v) =>
+                                                    handleClauseFieldChange(
+                                                        id,
+                                                        cIdx,
+                                                        'category',
+                                                        v?.value,
+                                                    )
+                                                }
+                                            />
+                                        </FormItem>
+
+                                        <FormItem label="Document Name">
+                                            <Select
+                                                value={filteredDocs.find(
+                                                    (d) =>
+                                                        d.value ===
+                                                        clause.documentName,
+                                                )}
+                                                options={filteredDocs}
+                                                isDisabled={
+                                                    readOnly || !clause.category
+                                                }
+                                                onChange={(v) =>
+                                                    handleClauseFieldChange(
+                                                        id,
+                                                        cIdx,
+                                                        'documentName',
+                                                        v?.value,
+                                                    )
+                                                }
+                                            />
+                                        </FormItem>
+
+                                        <FormItem label="Frequency">
+                                            <Input
+                                                readOnly
+                                                value={clause.frequency}
+                                                placeholder="Auto Frequency"
+                                            />
+                                        </FormItem>
+
+                                        {!readOnly &&
+                                            field.value.length > 1 && (
+                                                <Button
+                                                    type="button"
+                                                    variant="solid"
+                                                    size="sm"
+                                                    icon={<TbTrash />}
+                                                    className="bg-red-500  hover:bg-red-600"
+                                                    onClick={() =>
+                                                        handleRemoveClause(
+                                                            id,
+                                                            cIdx,
+                                                        )
+                                                    }
+                                                />
+                                            )}
+                                    </div>
+                                )
+                            })}
+                        </>
+                    )}
+                />
+            </>
         )
     }
 
-    const renderAccordion = (items: any[], parentKey = '') => {
-        return items.map((item, idx) => {
-            const key = `${parentKey}${idx}-${item.title}`
-            return (
-                <Menu.MenuCollapse
-                    key={key}
-                    eventKey={key}
-                    label={`${item.number}   ${item.title}`}
-                    expanded={isExpanded(key)}
-                    data-key={key}
-                    onToggle={handleToggle}
-                >
-                    <Card className="ml-0">
-                        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                            <p className="text-blue-800 text-sm leading-relaxed whitespace-pre-line">
-                                {item.message}
-                            </p>
-                        </div>
+    const renderAccordion = (items: any[]) =>
+        items.map((item) => (
+            <Menu.MenuCollapse
+                key={item.id}
+                eventKey={item.id}
+                expanded={isExpanded(item.id)}
+                label={`${item.numbering_value} ${item.title}`}
+                data-id={item.id}
+                onToggle={handleToggle}
+            >
+                <div className="bg-blue-50 border border-blue-200 p-4 mt-4 rounded-lg">
+                    <p className="text-blue-800 text-sm leading-relaxed whitespace-pre-line">
+                        {item.message}
+                    </p>
+                </div>
 
-                        {/* Pass titleKey instead of eventKey */}
-                        {item.note && renderRequiredSection(key)}
+                {item.note && renderRequiredSection(item.id)}
 
-                        {item.children && item.children.length > 0 && (
-                            <div>
-                                {renderAccordion(item.children, key + '-')}
-                            </div>
-                        )}
-                    </Card>
-                </Menu.MenuCollapse>
-            )
-        })
-    }
+                {item.children?.length > 0 && renderAccordion(item.children)}
+            </Menu.MenuCollapse>
+        ))
 
     return (
-        <Card className="p-6">
+        <Card>
             <Menu>{renderAccordion(accordionData)}</Menu>
         </Card>
     )
