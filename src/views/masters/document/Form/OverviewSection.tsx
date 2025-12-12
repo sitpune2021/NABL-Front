@@ -130,6 +130,7 @@ const OverviewSection = ({
     const effectiveDate = useWatch({ control, name: 'effectiveDate' })
     const durationValue = useWatch({ control, name: 'durationValue' })
     const durationUnit = useWatch({ control, name: 'durationUnit' })
+    const mode = useWatch({ control, name: 'mode' })
 
     const [notificationDate, setNotificationDate] = useState<string | null>(
         null,
@@ -219,6 +220,21 @@ const OverviewSection = ({
         return 0
     }
 
+    const fieldsDisabledWhenModeOff = [
+        'header',
+        'footer',
+        'issuedNo',
+        'issuedBy',
+        'issueDate',
+        'copyNo',
+        'preparedByDate',
+        'quantityPrepared',
+        'approvedBy',
+        'preparedBy',
+    ]
+
+    const modeType = mode === 'create' ? 'create' : 'upload'
+
     const documentFields: FormFieldConfig[] = [
         {
             name: 'labName',
@@ -251,12 +267,14 @@ const OverviewSection = ({
             label: 'Header',
             type: 'header',
             options: availableHeaders,
+            condition: (values) => values.mode === 'create',
         },
         {
             name: 'footer',
             label: 'Footer',
             type: 'footer',
             options: availableFooters,
+            condition: (values) => values.mode === 'create',
         },
         {
             name: 'documentName',
@@ -272,16 +290,24 @@ const OverviewSection = ({
             placeholder: 'Document No',
         },
         {
+            name: 'mode',
+            label: `Document Mode: ${modeType}`,
+            type: 'checkbox',
+            placeholder: 'Checked = create Mode | Unchecked = upload Mode',
+        },
+        {
             name: 'issuedNo',
             label: 'Issued No',
             type: 'text',
             placeholder: 'Enter Issued No',
+            condition: (values) => values.mode === 'create',
         },
         {
             name: 'issuedBy',
             label: 'Issued By',
             type: 'select',
             options: issuedByOptions,
+            condition: (values) => values.mode === 'create',
         },
         {
             name: 'issueDate',
@@ -289,12 +315,14 @@ const OverviewSection = ({
             type: 'date',
             minDate: new Date(),
             placeholder: 'Select Issue Date',
+            condition: (values) => values.mode === 'create',
         },
         {
             name: 'copyNo',
             label: 'Copy No',
             type: 'text',
             placeholder: 'Enter Copy No',
+            condition: (values) => values.mode === 'create',
         },
         {
             name: 'date',
@@ -313,24 +341,28 @@ const OverviewSection = ({
             label: 'Prepared By',
             type: 'select',
             options: preparedByOptions,
+            condition: (values) => values.mode === 'create',
         },
         {
             name: 'preparedByDate',
             label: 'Prepared By Date',
             type: 'date',
             placeholder: 'Select Prepared By Date',
+            condition: (values) => values.mode === 'create',
         },
         {
             name: 'quantityPrepared',
             label: 'Quantity Prepared',
             type: 'number',
             placeholder: 'Quantity Prepared',
+            condition: (values) => values.mode === 'create',
         },
         {
             name: 'approvedBy',
             label: 'Approved By',
             type: 'select',
             options: approvedByOptions,
+            condition: (values) => values.mode === 'create',
         },
         {
             name: 'amendmentNo',
@@ -412,11 +444,14 @@ const OverviewSection = ({
                 errors={errors}
                 fields={documentFields}
                 formValues={formValues} // <-- fix here
+                readOnly={readOnly}
+                fieldsDisabledWhenModeOff={fieldsDisabledWhenModeOff}
                 extraProps={{
                     selectedHeaderHtml,
                     setSelectedHeaderHtml,
                     selectedFooterHtml,
                     setSelectedFooterHtml,
+                    modeEnabled: mode,
                 }}
             />
 
