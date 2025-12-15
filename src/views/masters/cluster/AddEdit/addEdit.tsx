@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { useParams, useNavigate, useLocation } from 'react-router'
 import Notification from '@/components/ui/Notification'
 import toast from '@/components/ui/toast'
@@ -14,38 +14,24 @@ import BottomPanel from '@/components/form/bottomPanel'
 const ClusterAddEdit = () => {
     const navigate = useNavigate()
     const location = useLocation()
-    const { id: clusterId } = useParams()
-    const { saveClusterData, getClusterById } = useClusterList()
+    const { id } = useParams()
+    const { saveClusterData, clusterDetail, isLoading, isDetailLoading } =
+        useClusterList(id)
 
     const [discardConfirmationOpen, setDiscardConfirmationOpen] =
         useState(false)
     const [isSubmiting, setIsSubmiting] = useState(false)
-    const [clusterData, setClusterData] = useState<ClusterFormSchema | null>(
-        null,
-    )
-    const [loadingData, setLoadingData] = useState(false)
 
     const isEdit = location.pathname.includes('/edit')
     const isView = location.pathname.includes('/view')
     const isAdd = location.pathname.includes('/create')
-
-    // Load existing cluster data in edit or view mode
-    useEffect(() => {
-        if (!isAdd && clusterId) {
-            setLoadingData(true)
-            getClusterById(clusterId)
-                .then((data) => {
-                    setClusterData(data)
-                })
-                .finally(() => setLoadingData(false))
-        }
-    }, [clusterId, isAdd])
+    const loading = isAdd ? isLoading : isDetailLoading
 
     const handleFormSubmit = async (values: ClusterFormSchema) => {
         if (isView) return
         setIsSubmiting(true)
         try {
-            const payload = isEdit ? { ...values, id: clusterId } : values
+            const payload = isEdit ? { ...values, id } : values
             await saveClusterData(payload)
             await sleep(800)
             setIsSubmiting(false)
@@ -96,7 +82,7 @@ const ClusterAddEdit = () => {
     const handleDiscard = () => setDiscardConfirmationOpen(true)
     const handleCancel = () => setDiscardConfirmationOpen(false)
 
-    if (loadingData && !isAdd) {
+    if (loading && !isAdd) {
         return <p className="p-4">Loading cluster data...</p>
     }
 
@@ -105,7 +91,7 @@ const ClusterAddEdit = () => {
             <ClusterForm
                 newCluster={isAdd}
                 defaultValues={
-                    clusterData ?? {
+                    clusterDetail ?? {
                         zone_id: '',
                         name: '',
                         identifier: '',

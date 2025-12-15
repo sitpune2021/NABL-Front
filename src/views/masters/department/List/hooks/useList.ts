@@ -44,11 +44,6 @@ export default function useDepartmentList(departmentId?: string) {
         { revalidateOnFocus: false },
     )
 
-    const getDepartmentById = async (id: string) => {
-        const response = await apiGetDepartmentById(id)
-        return response.data || response
-    }
-
     const saveDepartmentData = async (department: Fields) => {
         let savedData: any
         if (department.id) {
@@ -95,6 +90,5 @@ export default function useDepartmentList(departmentId?: string) {
         setSelectedDepartment,
         setSelectAllDepartment,
         saveDepartmentData,
-        getDepartmentById,
     }
 }

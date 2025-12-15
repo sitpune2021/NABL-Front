@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { useParams, useNavigate, useLocation } from 'react-router'
 import Notification from '@/components/ui/Notification'
 import toast from '@/components/ui/toast'
@@ -14,38 +14,25 @@ import BottomPanel from '@/components/form/bottomPanel'
 const ClausesAddEdit = () => {
     const navigate = useNavigate()
     const location = useLocation()
-    const { id: clausesId } = useParams()
-    const { saveClausesData, getClausesById } = useClausesList()
+    const { id } = useParams()
+    const { saveClausesData, clausesDetail, isLoading, isDetailLoading } =
+        useClausesList(id)
 
     const [discardConfirmationOpen, setDiscardConfirmationOpen] =
         useState(false)
     const [isSubmiting, setIsSubmiting] = useState(false)
-    const [clausesData, setClausesData] = useState<ClausesFormSchema | null>(
-        null,
-    )
-    const [loadingData, setLoadingData] = useState(false)
 
     const isEdit = location.pathname.includes('/edit')
     const isView = location.pathname.includes('/view')
     const isAdd = location.pathname.includes('/create')
 
-    useEffect(() => {
-        if (!isAdd && clausesId) {
-            setLoadingData(true)
-            getClausesById(clausesId)
-                .then((data) => {
-                    console.log('Fetched clauses data:', data)
-                    setClausesData(data)
-                })
-                .finally(() => setLoadingData(false))
-        }
-    }, [clausesId, isAdd])
+    const loading = isAdd ? isLoading : isDetailLoading
 
     const handleFormSubmit = async (values: ClausesFormSchema) => {
         if (isView) return
         setIsSubmiting(true)
         try {
-            const payload = isEdit ? { ...values, id: clausesId } : values
+            const payload = isEdit ? { ...values, id } : values
 
             await saveClausesData(payload)
             await sleep(800)
@@ -97,7 +84,7 @@ const ClausesAddEdit = () => {
     const handleDiscard = () => setDiscardConfirmationOpen(true)
     const handleCancel = () => setDiscardConfirmationOpen(false)
 
-    if (loadingData && !isAdd) {
+    if (loading && !isAdd) {
         return <p className="p-4">Loading clauses data...</p>
     }
 
@@ -105,7 +92,7 @@ const ClausesAddEdit = () => {
         <>
             <ClausesForm
                 newClauses={isAdd}
-                defaultValues={clausesData || undefined}
+                defaultValues={clausesDetail || undefined}
                 readOnly={isView}
                 onFormSubmit={handleFormSubmit}
             >

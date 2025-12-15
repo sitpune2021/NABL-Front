@@ -41,11 +41,6 @@ export default function useZoneList(zoneId?: string) {
         { revalidateOnFocus: false },
     )
 
-    const getZoneById = async (id: string) => {
-        const response = await apiGetZoneById(id)
-        return response.data || response
-    }
-
     const saveZoneData = async (zone: Fields) => {
         let savedData: any
         if (zone.id) {
@@ -88,6 +83,5 @@ export default function useZoneList(zoneId?: string) {
         setSelectedZone,
         setSelectAllZone,
         saveZoneData,
-        getZoneById,
     }
 }

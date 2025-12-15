@@ -7,9 +7,13 @@ import {
 import useSWR from 'swr'
 import { useClausesListStore } from '../store/listStore'
 import type { TableQueries } from '@/@types/common'
-import { Fields, GetClausesListResponse } from '@/@types/clauses'
+import {
+    Fields,
+    GetClausesListResponse,
+    GetClausesDetailResponse,
+} from '@/@types/clauses'
 
-export default function useClausesList() {
+export default function useClausesList(clausesId?: string) {
     const {
         tableData,
         filterData,
@@ -26,6 +30,16 @@ export default function useClausesList() {
             apiGetClausesList<GetClausesListResponse, TableQueries>(params),
         { revalidateOnFocus: false },
     )
+    const {
+        data: detailData,
+        error: detailError,
+        isLoading: isDetailLoading,
+        mutate: mutateDetail,
+    } = useSWR<GetClausesDetailResponse>(
+        clausesId ? `/api/clauses/${clausesId}` : null,
+        () => apiGetClausesById(clausesId!),
+        { revalidateOnFocus: false },
+    )
 
     const saveClausesData = async (clauses: Fields) => {
         if (clauses.id) {
@@ -36,13 +50,9 @@ export default function useClausesList() {
         await mutate()
     }
 
-    const getClausesById = async (id: string) => {
-        const clauses = await apiGetClausesById(id)
-        return clauses
-    }
-
-    const clausesList = data?.list || []
+    const clausesList = data?.data || []
     const clausesListTotal = data?.total || 0
+    const clausesDetail = detailData?.data || {}
 
     return {
         clausesList,
@@ -58,6 +68,9 @@ export default function useClausesList() {
         setSelectAllClauses,
         setFilterData,
         saveClausesData,
-        getClausesById,
+        clausesDetail,
+        detailError,
+        isDetailLoading,
+        mutateDetail,
     }
 }

@@ -1,4 +1,4 @@
-import { Fields } from '@/@types/clauses'
+import { Fields, GetClausesDetailResponse } from '@/@types/clauses'
 import ApiService from './ApiService'
 
 export async function apiGetClausesList<T, U extends Record<string, unknown>>(
@@ -27,7 +27,7 @@ export async function apiCreateClauses(data: Fields) {
 }
 
 export async function apiGetClausesById(id: string) {
-    return ApiService.fetchDataWithAxios<Fields>({
+    return ApiService.fetchDataWithAxios<GetClausesDetailResponse>({
         url: `/clauses/${id}`,
         method: 'get',
     })

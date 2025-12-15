@@ -3,8 +3,11 @@ import { TableQueries } from './common'
 import type { Control, FieldErrors } from 'react-hook-form'
 
 export type GetClausesListResponse = {
-    list: Clauses[]
+    data: Clauses[]
     total: number
+}
+export type GetClausesDetailResponse = {
+    data: Clauses
 }
 
 export type Filter = {

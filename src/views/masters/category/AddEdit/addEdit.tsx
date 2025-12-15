@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { useParams, useNavigate, useLocation } from 'react-router'
 import Notification from '@/components/ui/Notification'
 import toast from '@/components/ui/toast'
@@ -13,35 +13,24 @@ import BottomPanel from '@/components/form/bottomPanel'
 const CategoryAddEdit = () => {
     const navigate = useNavigate()
     const location = useLocation()
-    const { id: categoryId } = useParams()
-    const { saveCategoryData, getCategoryById } = useCategoryList()
+    const { id } = useParams()
+    const { saveCategoryData, categoryDetail, isLoading, isDetailLoading } =
+        useCategoryList(id)
 
     const [discardConfirmationOpen, setDiscardConfirmationOpen] =
         useState(false)
     const [isSubmiting, setIsSubmiting] = useState(false)
-    const [categoryData, setCategoryData] = useState<CategoryFormSchema>()
-    const [loadingData, setLoadingData] = useState(false)
 
     const isEdit = location.pathname.includes('/edit')
     const isView = location.pathname.includes('/view')
     const isAdd = location.pathname.includes('/create')
-
-    useEffect(() => {
-        if (!isAdd && categoryId) {
-            setLoadingData(true)
-            getCategoryById(categoryId)
-                .then((data) => {
-                    setCategoryData(data)
-                })
-                .finally(() => setLoadingData(false))
-        }
-    }, [categoryId, isAdd])
+    const loading = isAdd ? isLoading : isDetailLoading
 
     const handleFormSubmit = async (values: CategoryFormSchema) => {
         if (isView) return
         setIsSubmiting(true)
         try {
-            const payload = isEdit ? { ...values, id: categoryId } : values
+            const payload = isEdit ? { ...values, id } : values
             await saveCategoryData(payload)
             await sleep(800)
             toast.push(
@@ -91,7 +80,7 @@ const CategoryAddEdit = () => {
     const handleDiscard = () => setDiscardConfirmationOpen(true)
     const handleCancel = () => setDiscardConfirmationOpen(false)
 
-    if (loadingData && !isAdd) {
+    if (loading && !isAdd) {
         return <p className="p-4">Loading category data...</p>
     }
 
@@ -100,7 +89,7 @@ const CategoryAddEdit = () => {
             <CategoryForm
                 newCategory={isAdd}
                 defaultValues={
-                    categoryData ?? {
+                    categoryDetail ?? {
                         name: '',
                         identifier: '',
                     }

@@ -7,9 +7,13 @@ import {
 import useSWR from 'swr'
 import { useUnitListStore } from '../store/listStore'
 import type { TableQueries } from '@/@types/common'
-import { Fields, GetUnitListResponse } from '@/@types/unit'
+import {
+    Fields,
+    GetUnitDetailResponse,
+    GetUnitListResponse,
+} from '@/@types/unit'
 
-export default function useUnitList() {
+export default function useUnitList(unitId?: string) {
     const {
         tableData,
         filterData,
@@ -29,6 +33,18 @@ export default function useUnitList() {
             revalidateOnFocus: false,
         },
     )
+
+    const {
+        data: detailData,
+        error: detailError,
+        isLoading: isDetailLoading,
+        mutate: mutateDetail,
+    } = useSWR<GetUnitDetailResponse>(
+        unitId ? `/api/unit/${unitId}` : null,
+        () => apiGetUnitById(unitId!),
+        { revalidateOnFocus: false },
+    )
+
     const saveUnitData = async (unit: Fields) => {
         if (unit.id) {
             await apiUpdateUnit(unit.id, unit)
@@ -38,15 +54,14 @@ export default function useUnitList() {
         await mutate() // refresh list
     }
 
-    // ✅ Get single unit by ID (for edit or view)
-    const getUnitById = async (id: string) => {
-        const unit = await apiGetUnitById(id)
-        return unit
-    }
-
-    const unitList = data?.list || []
+    const unitList = data?.data || []
 
     const unitListTotal = data?.total || 0
+
+    const unitDetail = detailData?.data || {
+        id: '',
+        name: '',
+    }
 
     return {
         unitList,
@@ -62,6 +77,9 @@ export default function useUnitList() {
         setSelectAllUnit,
         setFilterData,
         saveUnitData,
-        getUnitById, // ✅ Now defined properly
+        unitDetail,
+        detailError,
+        isDetailLoading,
+        mutateDetail,
     }
 }

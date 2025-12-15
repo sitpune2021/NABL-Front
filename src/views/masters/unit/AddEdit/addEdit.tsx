@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { useParams, useNavigate, useLocation } from 'react-router'
 import Notification from '@/components/ui/Notification'
 import toast from '@/components/ui/toast'
@@ -14,38 +14,25 @@ import BottomPanel from '@/components/form/bottomPanel'
 const UnitAddEdit = () => {
     const navigate = useNavigate()
     const location = useLocation()
-    const { id: unitId } = useParams()
-    const { saveUnitData, getUnitById, unitList } = useUnitList()
+    const { id } = useParams()
+    const { saveUnitData, unitDetail, isLoading, isDetailLoading } =
+        useUnitList(id)
+
     const [discardConfirmationOpen, setDiscardConfirmationOpen] =
         useState(false)
     const [isSubmiting, setIsSubmiting] = useState(false)
-    const [unitData, setUnitData] = useState<UnitFormSchema | null>(null)
-    const [loadingData, setLoadingData] = useState(false)
 
     const isEdit = location.pathname.includes('/edit')
     const isView = location.pathname.includes('/view')
     const isAdd = location.pathname.includes('/create')
 
-    const existingUnitNames = unitList
-        .filter((unit) => !isEdit || unit.id !== unitId)
-        .map((unit) => unit.name)
-
-    useEffect(() => {
-        if (!isAdd && unitId) {
-            setLoadingData(true)
-            getUnitById(unitId)
-                .then((data) => {
-                    setUnitData(data)
-                })
-                .finally(() => setLoadingData(false))
-        }
-    }, [unitId, isAdd])
+    const loading = isAdd ? isLoading : isDetailLoading
 
     const handleFormSubmit = async (values: UnitFormSchema) => {
         if (isView) return
         setIsSubmiting(true)
         try {
-            const payload = isEdit ? { ...values, id: unitId } : values
+            const payload = isEdit ? { ...values, id } : values
             await saveUnitData(payload)
             await sleep(800)
             setIsSubmiting(false)
@@ -96,7 +83,7 @@ const UnitAddEdit = () => {
     const handleDiscard = () => setDiscardConfirmationOpen(true)
     const handleCancel = () => setDiscardConfirmationOpen(false)
 
-    if (loadingData && !isAdd) {
+    if (loading && !isAdd) {
         return <p className="p-4">Loading unit data...</p>
     }
 
@@ -104,9 +91,8 @@ const UnitAddEdit = () => {
         <>
             <UnitForm
                 newUnit={isAdd}
-                defaultValues={unitData ?? { name: '' }}
+                defaultValues={unitDetail ?? { name: '' }}
                 readOnly={isView}
-                existingUnits={existingUnitNames}
                 onFormSubmit={handleFormSubmit}
             >
                 <BottomPanel

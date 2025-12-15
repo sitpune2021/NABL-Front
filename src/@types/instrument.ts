@@ -7,7 +7,7 @@ export type GetInstrumentListResponse = {
     total?: number
 }
 
-export type GetnstrumentDetailResponse = {
+export type GetInstrumentDetailResponse = {
     data: Instrument
 }
 
@@ -38,7 +38,7 @@ export type InstrumentListAction = {
 }
 
 export type Fields = {
-    id?: string
+    id?: string | undefined
     name: string
     short_name: string
     manufacturer: string

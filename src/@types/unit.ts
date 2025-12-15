@@ -3,8 +3,11 @@ import { TableQueries } from './common'
 import type { Control, FieldErrors } from 'react-hook-form'
 
 export type GetUnitListResponse = {
-    list: Unit[]
+    data: Unit[]
     total: number
+}
+export interface GetUnitDetailResponse {
+    data: Fields
 }
 
 export type Filter = {

@@ -8,9 +8,13 @@ import useSWR from 'swr'
 import { useTemplateListStore } from '../store/listStore'
 import { useMemo } from 'react'
 import type { TableQueries } from '@/@types/common'
-import { Fields, GetTemplateListResponse } from '@/@types/template'
+import {
+    Fields,
+    GetTemplateListResponse,
+    GetTemplateDetailResponse,
+} from '@/@types/template'
 
-export default function useTemplateList() {
+export default function useTemplateList(templateId?: string) {
     const {
         tableData,
         filterData,
@@ -28,6 +32,17 @@ export default function useTemplateList() {
         {
             revalidateOnFocus: false,
         },
+    )
+
+    const {
+        data: detailData,
+        error: detailError,
+        isLoading: isDetailLoading,
+        mutate: mutateDetail,
+    } = useSWR<GetTemplateDetailResponse>(
+        templateId ? `/api/template/${templateId}` : null,
+        () => apiGetTemplateById(templateId!),
+        { revalidateOnFocus: false },
     )
 
     // ⭐ FINAL FIXED FILTER LOGIC
@@ -71,10 +86,7 @@ export default function useTemplateList() {
         await mutate()
     }
 
-    const getTemplateById = async (id: string) => {
-        const { data } = await apiGetTemplateById(id)
-        return data
-    }
+    const templateDetail = detailData?.data
 
     return {
         templateList: filteredList,
@@ -90,6 +102,9 @@ export default function useTemplateList() {
         setSelectAllTemplate,
         setFilterData,
         saveTemplateData,
-        getTemplateById,
+        templateDetail,
+        isDetailLoading,
+        mutateDetail,
+        detailError,
     }
 }

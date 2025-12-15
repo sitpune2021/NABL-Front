@@ -7,7 +7,7 @@ mock.onGet(`/api/unit`).reply(() => {
     const raw = localStorage.getItem(UNIT_KEY)
     const Data = raw ? (JSON.parse(raw) as Unit[]) : []
     const response = {
-        list: Data,
+        data: Data,
         total: Data.length,
     }
 

@@ -66,11 +66,6 @@ export default function useClusterList(clusterId?: string) {
         return savedData
     }
 
-    const getClusterById = async (id: string) => {
-        const res = await apiGetClusterById(id)
-        return res.data
-    }
-
     const clusterList = data?.data || []
     const clusterListTotal = data?.total || 0
 
@@ -98,6 +93,5 @@ export default function useClusterList(clusterId?: string) {
         setSelectAllCluster,
         setFilterData,
         saveClusterData,
-        getClusterById,
     }
 }

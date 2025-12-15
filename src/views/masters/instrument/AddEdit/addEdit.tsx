@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { useParams, useNavigate, useLocation } from 'react-router'
 import Notification from '@/components/ui/Notification'
 import toast from '@/components/ui/toast'
@@ -14,35 +14,24 @@ import BottomPanel from '@/components/form/bottomPanel'
 const InstrumentAddEdit = () => {
     const navigate = useNavigate()
     const location = useLocation()
-    const { id: instrumentId } = useParams()
-    const { saveInstrumentData, getInstrumentById } = useInstrumentList()
+    const { id } = useParams()
+    const { saveInstrumentData, instrumentDetail, isLoading, isDetailLoading } =
+        useInstrumentList(id)
 
     const [discardConfirmationOpen, setDiscardConfirmationOpen] =
         useState(false)
     const [isSubmiting, setIsSubmiting] = useState(false)
-    const [instrumentData, setInstrumentData] = useState<InstrumentFormSchema>()
-    const [loadingData, setLoadingData] = useState(false)
 
     const isEdit = location.pathname.includes('/edit')
     const isView = location.pathname.includes('/view')
     const isAdd = location.pathname.includes('/create')
-
-    useEffect(() => {
-        if (!isAdd && instrumentId) {
-            setLoadingData(true)
-            getInstrumentById(instrumentId)
-                .then((data) => {
-                    setInstrumentData(data)
-                })
-                .finally(() => setLoadingData(false))
-        }
-    }, [instrumentId, isAdd])
+    const loading = isAdd ? isLoading : isDetailLoading
 
     const handleFormSubmit = async (values: InstrumentFormSchema) => {
         if (isView) return
         setIsSubmiting(true)
         try {
-            const payload = isEdit ? { ...values, id: instrumentId } : values
+            const payload = isEdit ? { ...values, id } : values
             await saveInstrumentData(payload)
             await sleep(800)
             setIsSubmiting(false)
@@ -93,7 +82,7 @@ const InstrumentAddEdit = () => {
     const handleDiscard = () => setDiscardConfirmationOpen(true)
     const handleCancel = () => setDiscardConfirmationOpen(false)
 
-    if (loadingData && !isAdd) {
+    if (loading && !isAdd) {
         return <p className="p-4">Loading instrument data...</p>
     }
 
@@ -102,7 +91,7 @@ const InstrumentAddEdit = () => {
             <InstrumentForm
                 newInstrument={isAdd}
                 defaultValues={
-                    instrumentData ?? {
+                    instrumentDetail ?? {
                         identifier: '',
                         name: '',
                         short_name: '',

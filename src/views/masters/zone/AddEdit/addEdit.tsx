@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { useParams, useNavigate, useLocation } from 'react-router'
 import Notification from '@/components/ui/Notification'
 import toast from '@/components/ui/toast'
@@ -14,38 +14,24 @@ import BottomPanel from '@/components/form/bottomPanel'
 const ZoneAddEdit = () => {
     const navigate = useNavigate()
     const location = useLocation()
-    const { id: zoneId } = useParams()
-    const { saveZoneData, getZoneById } = useZoneList()
+    const { id } = useParams()
+    const { saveZoneData, zoneDetail, isLoading, isDetailLoading } =
+        useZoneList(id)
 
     const [discardConfirmationOpen, setDiscardConfirmationOpen] =
         useState(false)
     const [isSubmiting, setIsSubmiting] = useState(false)
-    const [zoneData, setZoneData] = useState<ZoneFormSchema | null>(null)
-    const [loadingData, setLoadingData] = useState(false)
 
     const isEdit = location.pathname.includes('/edit')
     const isView = location.pathname.includes('/view')
     const isAdd = location.pathname.includes('/create')
-
-    // Load existing zone data in edit or view mode
-    useEffect(() => {
-        if (!isAdd && zoneId) {
-            setLoadingData(true)
-            getZoneById(zoneId)
-                .then((data) => {
-                    console.log('Fetched zone data:', data)
-
-                    setZoneData(data)
-                })
-                .finally(() => setLoadingData(false))
-        }
-    }, [zoneId, isAdd])
+    const loading = isAdd ? isLoading : isDetailLoading
 
     const handleFormSubmit = async (values: ZoneFormSchema) => {
         if (isView) return
         setIsSubmiting(true)
         try {
-            const payload = isEdit ? { ...values, id: zoneId } : values
+            const payload = isEdit ? { ...values, id } : values
             await saveZoneData(payload)
             await sleep(800)
             setIsSubmiting(false)
@@ -96,7 +82,7 @@ const ZoneAddEdit = () => {
     const handleDiscard = () => setDiscardConfirmationOpen(true)
     const handleCancel = () => setDiscardConfirmationOpen(false)
 
-    if (loadingData && !isAdd) {
+    if (loading && !isAdd) {
         return <p className="p-4">Loading zone data...</p>
     }
 
@@ -104,7 +90,7 @@ const ZoneAddEdit = () => {
         <>
             <ZoneForm
                 newZone={isAdd}
-                defaultValues={zoneData ?? { name: '', identifier: '' }}
+                defaultValues={zoneDetail ?? { name: '', identifier: '' }}
                 readOnly={isView}
                 onFormSubmit={handleFormSubmit}
             >

@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { useParams, useNavigate, useLocation } from 'react-router'
 import Notification from '@/components/ui/Notification'
 import toast from '@/components/ui/toast'
@@ -14,39 +14,27 @@ import BottomPanel from '@/components/form/bottomPanel'
 const TemplateAddEdit = () => {
     const navigate = useNavigate()
     const location = useLocation()
-    const { id: templateId, type } = useParams()
-    const { saveTemplateData, getTemplateById } = useTemplateList()
+    const { id, type } = useParams()
+    const { saveTemplateData, templateDetail, isLoading, isDetailLoading } =
+        useTemplateList(id)
 
     const [discardConfirmationOpen, setDiscardConfirmationOpen] =
         useState(false)
     const [isSubmiting, setIsSubmiting] = useState(false)
-    const [templateData, setTemplateData] = useState<TemplateFormSchema | null>(
-        null,
-    )
-    const [loadingData, setLoadingData] = useState(false)
-
-    const [dialogIsOpen, setDialogIsOpen] = useState(false)
 
     const isEdit = location.pathname.includes('/edit')
     const isView = location.pathname.includes('/view')
     const isAdd = location.pathname.includes('/create')
 
-    useEffect(() => {
-        if (!isAdd && templateId) {
-            setLoadingData(true)
-            getTemplateById(templateId)
-                .then((data) => {
-                    setTemplateData(data)
-                })
-                .finally(() => setLoadingData(false))
-        }
-    }, [templateId, isAdd])
+    const loading = isAdd ? isLoading : isDetailLoading
+
+    const [dialogIsOpen, setDialogIsOpen] = useState(false)
 
     const handleFormSubmit = async (values: TemplateFormSchema) => {
         if (isView) return
         setIsSubmiting(true)
         try {
-            const payload = isEdit ? { ...values, id: templateId } : values
+            const payload = isEdit ? { ...values, id } : values
             await saveTemplateData(payload)
             await sleep(800)
             setIsSubmiting(false)
@@ -99,7 +87,7 @@ const TemplateAddEdit = () => {
     const handleCancel = () => setDiscardConfirmationOpen(false)
     const onDialogClose = () => setDialogIsOpen(false)
 
-    if (loadingData && !isAdd) {
+    if (loading && !isAdd) {
         return <p className="p-4">Loading template data...</p>
     }
 
@@ -108,7 +96,7 @@ const TemplateAddEdit = () => {
             <TemplateForm
                 newTemplate={isAdd}
                 defaultValues={
-                    templateData ?? {
+                    templateDetail ?? {
                         name: '',
                         type: type || '',
                         template: { html: '', css: '', json: '' },

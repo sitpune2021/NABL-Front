@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { useParams, useNavigate, useLocation } from 'react-router'
 import Notification from '@/components/ui/Notification'
 import toast from '@/components/ui/toast'
@@ -13,36 +13,25 @@ import BottomPanel from '@/components/form/bottomPanel'
 const DepartmentAddEdit = () => {
     const navigate = useNavigate()
     const location = useLocation()
-    const { id: departmentId } = useParams()
-    const { saveDepartmentData, getDepartmentById } = useDepartmentList()
+    const { id } = useParams()
+    const { saveDepartmentData, departmentDetail, isLoading, isDetailLoading } =
+        useDepartmentList(id)
 
     const [discardConfirmationOpen, setDiscardConfirmationOpen] =
         useState(false)
     const [isSubmiting, setIsSubmiting] = useState(false)
-    const [departmentData, setDepartmentData] =
-        useState<DepartmentFormSchema | null>(null)
-    const [loadingData, setLoadingData] = useState(false)
 
     const isEdit = location.pathname.includes('/edit')
     const isView = location.pathname.includes('/view')
     const isAdd = location.pathname.includes('/create')
 
-    useEffect(() => {
-        if (!isAdd && departmentId) {
-            setLoadingData(true)
-            getDepartmentById(departmentId)
-                .then((data) => {
-                    setDepartmentData(data)
-                })
-                .finally(() => setLoadingData(false))
-        }
-    }, [departmentId, isAdd])
+    const loading = isAdd ? isLoading : isDetailLoading
 
     const handleFormSubmit = async (values: DepartmentFormSchema) => {
         if (isView) return
         setIsSubmiting(true)
         try {
-            const payload = isEdit ? { ...values, id: departmentId } : values
+            const payload = isEdit ? { ...values, id: id } : values
             await saveDepartmentData(payload)
             await sleep(800)
             setIsSubmiting(false)
@@ -93,7 +82,7 @@ const DepartmentAddEdit = () => {
     const handleDiscard = () => setDiscardConfirmationOpen(true)
     const handleCancel = () => setDiscardConfirmationOpen(false)
 
-    if (loadingData && !isAdd) {
+    if (loading && !isAdd) {
         return <p className="p-4">Loading department data...</p>
     }
 
@@ -102,7 +91,7 @@ const DepartmentAddEdit = () => {
             <DepartmentForm
                 newDepartment={isAdd}
                 defaultValues={
-                    departmentData ?? {
+                    departmentDetail ?? {
                         name: '',
                         identifier: '',
                     }

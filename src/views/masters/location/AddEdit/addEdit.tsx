@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { useParams, useNavigate, useLocation } from 'react-router'
 import Notification from '@/components/ui/Notification'
 import toast from '@/components/ui/toast'
@@ -14,38 +14,24 @@ import BottomPanel from '@/components/form/bottomPanel'
 const LocationAddEdit = () => {
     const navigate = useNavigate()
     const location = useLocation()
-    const { id: locationId } = useParams()
-    const { saveLocationData, getLocationById } = useLocationList()
+    const { id } = useParams()
+    const { saveLocationData, locationDetail, isLoading, isDetailLoading } =
+        useLocationList(id)
 
     const [discardConfirmationOpen, setDiscardConfirmationOpen] =
         useState(false)
     const [isSubmiting, setIsSubmiting] = useState(false)
-    const [locationData, setLocationData] = useState<LocationFormSchema | null>(
-        null,
-    )
-    const [loadingData, setLoadingData] = useState(false)
 
     const isEdit = location.pathname.includes('/edit')
     const isView = location.pathname.includes('/view')
     const isAdd = location.pathname.includes('/create')
-
-    // Load existing location data in edit or view mode
-    useEffect(() => {
-        if (!isAdd && locationId) {
-            setLoadingData(true)
-            getLocationById(locationId)
-                .then((data) => {
-                    setLocationData(data)
-                })
-                .finally(() => setLoadingData(false))
-        }
-    }, [locationId, isAdd])
+    const loading = isAdd ? isLoading : isDetailLoading
 
     const handleFormSubmit = async (values: LocationFormSchema) => {
         if (isView) return
         setIsSubmiting(true)
         try {
-            const payload = isEdit ? { ...values, id: locationId } : values
+            const payload = isEdit ? { ...values, id } : values
             await saveLocationData(payload)
             await sleep(800)
             setIsSubmiting(false)
@@ -96,7 +82,7 @@ const LocationAddEdit = () => {
     const handleDiscard = () => setDiscardConfirmationOpen(true)
     const handleCancel = () => setDiscardConfirmationOpen(false)
 
-    if (loadingData && !isAdd) {
+    if (loading && !isAdd) {
         return <p className="p-4">Loading location data...</p>
     }
 
@@ -105,7 +91,7 @@ const LocationAddEdit = () => {
             <LocationForm
                 newLocation={isAdd}
                 defaultValues={
-                    locationData ?? {
+                    locationDetail ?? {
                         name: '',
                         zone_id: '',
                         cluster_id: '',

@@ -7,9 +7,13 @@ import {
 import useSWR from 'swr'
 import { useInstrumentListStore } from '../store/listStore'
 import type { TableQueries } from '@/@types/common'
-import type { Fields, GetInstrumentListResponse } from '@/@types/instrument'
+import type {
+    Fields,
+    GetInstrumentListResponse,
+    GetInstrumentDetailResponse,
+} from '@/@types/instrument'
 
-export default function useInstrumentList() {
+export default function useInstrumentList(instrumentId?: string) {
     const {
         tableData,
         filterData,
@@ -31,6 +35,17 @@ export default function useInstrumentList() {
             revalidateOnFocus: false,
         },
     )
+    const {
+        data: detailData,
+        error: detailError,
+        isLoading: isDetailLoading,
+        mutate: mutateDetail,
+    } = useSWR<GetInstrumentDetailResponse>(
+        instrumentId ? `/api/instrument/${instrumentId}` : null,
+        () => apiGetInstrumentById(instrumentId!),
+        { revalidateOnFocus: false },
+    )
+
     const saveInstrumentData = async (instrument: Fields) => {
         if (instrument.id) {
             await apiUpdateInstrument(instrument.id, instrument)
@@ -40,15 +55,17 @@ export default function useInstrumentList() {
         await mutate() // refresh list
     }
 
-    // ✅ Get single instrument by ID (for edit or view)
-    const getInstrumentById = async (id: string) => {
-        const instrument = await apiGetInstrumentById(id)
-        return instrument.data
-    }
-
     const instrumentList = data?.data || []
 
     const instrumentListTotal = data?.total || 0
+
+    const instrumentDetail = detailData?.data || {
+        identifier: '',
+        name: '',
+        short_name: '',
+        manufacturer: '',
+        serial_no: '',
+    }
 
     return {
         instrumentList,
@@ -64,6 +81,9 @@ export default function useInstrumentList() {
         setSelectAllInstrument,
         setFilterData,
         saveInstrumentData,
-        getInstrumentById, // ✅ Now defined properly
+        instrumentDetail,
+        detailError,
+        isDetailLoading,
+        mutateDetail,
     }
 }

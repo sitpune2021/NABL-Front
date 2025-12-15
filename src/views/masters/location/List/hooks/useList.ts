@@ -63,11 +63,6 @@ export default function useLocationList(locationId?: string) {
         return savedData
     }
 
-    const getLocationById = async (id: string) => {
-        const res = await apiGetLocationById(id)
-        return res.data
-    }
-
     const locationList = data?.data || []
     const locationListTotal = data?.total || 0
 
@@ -90,6 +85,5 @@ export default function useLocationList(locationId?: string) {
         setSelectAllLocation,
         setFilterData,
         saveLocationData,
-        getLocationById,
     }
 }

@@ -43,10 +43,6 @@ export default function useCategoryList(categoryId?: string) {
         () => apiGetCategoryById(categoryId!),
         { revalidateOnFocus: false },
     )
-    const getCategoryById = async (id: string): Promise<Fields> => {
-        const response = await apiGetCategoryById(id)
-        return response.data || response
-    }
 
     const saveCategoryData = async (category: Fields) => {
         let savedData: any
@@ -90,6 +86,5 @@ export default function useCategoryList(categoryId?: string) {
         setSelectedCategory,
         setSelectAllCategory,
         saveCategoryData,
-        getCategoryById,
     }
 }
