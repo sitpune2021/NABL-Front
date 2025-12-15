@@ -14,7 +14,7 @@ import useDepartmentList from '../../department/List/hooks/useList'
 import useInstrumentList from '../../instrument/List/hooks/useList'
 
 import LabForm from '../Form'
-import type { LabFormSchema } from '@/@types/lab'
+import type { Lab, LabFormSchema } from '@/@types/lab'
 import BottomPanel from '@/components/form/bottomPanel'
 
 const LabAddEdit = () => {
@@ -31,7 +31,7 @@ const LabAddEdit = () => {
     const [discardConfirmationOpen, setDiscardConfirmationOpen] =
         useState(false)
     const [isSubmitting, setIsSubmitting] = useState(false)
-    const [labData, setLabData] = useState<LabFormSchema | null>(null)
+    const [labData, setLabData] = useState<Lab | null>(null)
     const [loadingData, setLoadingData] = useState(false)
 
     const mode = useMemo(() => {
@@ -80,13 +80,27 @@ const LabAddEdit = () => {
             )
 
             navigate(endpointConfig.master.lab.list)
-        } catch {
-            toast.push(
-                <Notification type="danger">
-                    Failed to {isEdit ? 'update' : 'create'} lab
-                </Notification>,
-                { placement: 'top-center' },
-            )
+        } catch (error: any) {
+            const backendErrors = error?.response?.data?.errors
+            if (backendErrors) {
+                Object.entries(backendErrors).forEach(([messages]) => {
+                    const message = Array.isArray(messages)
+                        ? messages[0]
+                        : messages
+                    toast.push(
+                        <Notification type="danger">{message}</Notification>,
+                        { placement: 'top-center' },
+                    )
+                })
+            } else {
+                const errorMessage =
+                    error?.response?.data?.message ||
+                    `Failed to ${isEdit ? 'update' : 'create'}department`
+                toast.push(
+                    <Notification type="danger">{errorMessage}</Notification>,
+                    { placement: 'top-center' },
+                )
+            }
         } finally {
             setIsSubmitting(false)
         }

@@ -43,7 +43,7 @@ const ClausesAddEdit = () => {
                 </Notification>,
                 { placement: 'top-center' },
             )
-            navigate(`${endpointConfig.setting.clauses.list}`)
+            navigate(endpointConfig.setting.clauses.list)
         } catch (error: any) {
             const backendErrors = error?.response?.data?.errors
 
@@ -78,7 +78,7 @@ const ClausesAddEdit = () => {
             <Notification type="success">Changes discarded!</Notification>,
             { placement: 'top-center' },
         )
-        navigate(`${endpointConfig.setting.clauses.list}`)
+        navigate(endpointConfig.setting.clauses.list)
     }
 
     const handleDiscard = () => setDiscardConfirmationOpen(true)

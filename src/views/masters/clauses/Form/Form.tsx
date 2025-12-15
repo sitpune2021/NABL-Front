@@ -10,6 +10,7 @@ import type { CommonProps } from '@/@types/common'
 import { ClausesFormSchema, TitleSpecificData } from '@/@types/clauses'
 import { apiGetStandardById } from '@/services/StandardService'
 import { useParams } from 'react-router'
+import { Card } from '@/components/ui'
 
 type ClausesFormProps = {
     onFormSubmit: (values: ClausesFormSchema) => void
@@ -24,25 +25,23 @@ const defaultClause = {
     frequency: '',
 }
 
-const mapStandardsToTitleData = (
+const mapStandardsToClauseDocumentsData = (
     standards: any[],
-    parentKey = '',
 ): TitleSpecificData[] => {
     const result: TitleSpecificData[] = []
-    standards.forEach((item, idx) => {
-        const key = `${parentKey}${idx}-${item.title}`
 
+    standards.forEach((item) => {
         if (item.note) {
             result.push({
-                titleKey: key,
-                notes: [''],
+                id: item.id,
+                parentId: item.parent_id,
+                notes: '',
                 clauses: [{ ...defaultClause }],
-                title: '',
             })
         }
 
-        if (item.children && item.children.length > 0) {
-            result.push(...mapStandardsToTitleData(item.children, key + '-'))
+        if (item.children?.length > 0) {
+            result.push(...mapStandardsToClauseDocumentsData(item.children))
         }
     })
     return result
@@ -54,6 +53,7 @@ const ClausesForm = ({
     readOnly = false,
     children,
 }: ClausesFormProps) => {
+    const { id: standardId } = useParams()
     const {
         handleSubmit,
         reset,
@@ -63,35 +63,31 @@ const ClausesForm = ({
         getValues,
     } = useForm<ClausesFormSchema>({
         defaultValues: {
-            titleSpecificData: [],
+            Standard_id: standardId,
+            clause_documents: [],
         },
     })
-    const { id: standardId } = useParams()
 
     const [accordionData, setAccordionData] = useState<any[]>([])
+    const [name, setName] = useState<any>('')
 
     useEffect(() => {
         const fetchData = async () => {
-            console.log('ClausesForm - defaultValues:', defaultValues)
-
-            if (!isEmpty(defaultValues?.titleSpecificData)) {
-                console.log('ClausesForm - Using existing titleSpecificData')
+            if (!isEmpty(defaultValues?.clause_documents)) {
                 reset(defaultValues)
                 return
             }
 
-            if (!standardId) {
-                console.warn(
-                    'ClausesForm - standardId is undefined, skipping fetch',
-                )
-                return
-            }
+            if (!standardId) return
 
             try {
                 const data: any = await apiGetStandardById(standardId)
-                setAccordionData(data.standards)
-                const mappedTitleData = mapStandardsToTitleData(data.standards)
-                reset({ titleSpecificData: mappedTitleData })
+                setName(data.name)
+                setAccordionData(data.clauses)
+                const mappedData = mapStandardsToClauseDocumentsData(
+                    data.clauses,
+                )
+                reset({ clause_documents: mappedData })
             } catch (err) {
                 console.error('Failed to fetch standard:', err)
             }
@@ -102,25 +98,21 @@ const ClausesForm = ({
     }, [JSON.stringify(defaultValues), reset, standardId])
 
     const onSubmit = (values: ClausesFormSchema) => {
-        const cleanedData: ClausesFormSchema = {
+        const cleanedData = {
             ...values,
-            titleSpecificData: values.titleSpecificData
-                .map((titleData) => ({
-                    ...titleData,
-                    notes: titleData.notes.filter((note) => note.trim() !== ''),
-                    clauses: titleData.clauses.filter(
-                        (clause) =>
-                            clause.category.trim() !== '' ||
-                            clause.documentName.trim() !== '' ||
-                            clause.frequency.trim() !== '',
+            clause_documents: values.clause_documents
+                .map((doc) => ({
+                    ...doc,
+                    clauses: doc.clauses.filter(
+                        (c) =>
+                            c.category.trim() !== '' ||
+                            c.documentName.trim() !== '' ||
+                            c.frequency.trim() !== '',
                     ),
                 }))
-                .filter(
-                    (titleData) =>
-                        titleData.notes.length > 0 ||
-                        titleData.clauses.length > 0,
-                ),
+                .filter((doc) => doc.clauses.length > 0),
         }
+
         onFormSubmit?.(cleanedData)
     }
 
@@ -133,13 +125,16 @@ const ClausesForm = ({
             <Container>
                 <div className="flex flex-col md:flex-row gap-4">
                     <div className="gap-4 flex flex-col flex-auto">
+                        <Card>
+                            <h4 className="text-lg font-semibold">{name}</h4>
+                        </Card>
                         <OverviewSection
                             control={control}
                             errors={errors}
                             readOnly={readOnly}
                             setValue={setValue}
                             getValues={getValues}
-                            accordionData={accordionData} // ✅ correct reference
+                            accordionData={accordionData}
                         />
                     </div>
                 </div>

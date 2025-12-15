@@ -41,15 +41,15 @@ export default function useLabList() {
     // ✅ Get single lab by ID (for edit or view)
     const getLabById = async (id: string) => {
         const lab = await apiGetLabById(id)
-        return lab
+        return lab.data
     }
 
     const getLocationsByLabId = async (id: string) => {
         const lab = await apiGetLabById(id)
-        return lab.location
+        return lab.data.locations
     }
 
-    const labList = data?.list || []
+    const labList = data?.data || []
 
     const labListTotal = data?.total || 0
 

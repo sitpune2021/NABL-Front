@@ -1,4 +1,4 @@
-import { Fields } from '@/@types/lab'
+import { Fields, GetLabDetailResponse } from '@/@types/lab'
 import ApiService from './ApiService'
 
 export async function apiGetLabList<T, U extends Record<string, unknown>>(
@@ -20,7 +20,7 @@ export async function apiLab(data: Fields) {
 }
 
 export async function apiGetLabById(id: string) {
-    return ApiService.fetchDataWithAxios<Fields>({
+    return ApiService.fetchDataWithAxios<GetLabDetailResponse>({
         url: `/lab/${id}`,
         method: 'get',
     })

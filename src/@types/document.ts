@@ -75,6 +75,7 @@ export type Filter = {
 
 export type Document = {
     id?: string
+    mode: string
     labName: string
     location?: string
     department?: string
@@ -128,6 +129,7 @@ export type DocumentListAction = {
 
 export type Fields = {
     id?: string
+    mode: string
     labName: string
     location?: string
     department?: string[]
@@ -306,6 +308,7 @@ export function categorizeThDetails(components: any): CategorizedDetails {
 }
 
 export const documentFormSchema = z.object({
+    mode: z.string().optional(),
     labName: z.string().min(1, 'Lab Name is required'),
     location: z.string().optional(),
     department: z.array(z.union([z.string(), z.number()])).optional(),
@@ -329,7 +332,7 @@ export const documentFormSchema = z.object({
         }),
     approvedBy: z.string().optional(),
     issuedBy: z.string().optional(),
-    issueDate: z.string().min(1, 'Issue Date is required'),
+    issueDate: z.string().optional(),
     amendmentDate: z.string().optional(),
     effectiveDate: z.string().min(1, 'Effective Date is required'),
     frequency: z.string().optional(),
@@ -360,6 +363,7 @@ export type FormFieldType =
     | 'time'
     | 'header'
     | 'footer'
+    | 'checkbox'
 
 export interface FormFieldConfig {
     name: string

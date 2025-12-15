@@ -53,35 +53,6 @@ const DocumentAddEdit = () => {
     const isEditor = pathParts.includes('editor')
     const isDataEntry = pathParts.includes('data-entry')
 
-    // useEffect(() => {
-    //     if (documentId) {
-    //         const fetchData = async () => {
-    //             try {
-    //                 setLoadingData(true)
-    //                 const data = isEditor
-    //                     ? isEdit
-    //                         ? await apiGetDocumentEditortById(documentId)
-    //                         : isView
-    //                           ? await apiGetDocumentEditortById(documentId)
-    //                           : await getDocumentById(documentId)
-    //                     : await getDocumentById(documentId)
-    //                 setDocumentData(data)
-    //             } catch (err) {
-    //                 console.error('Failed to load document:', err)
-    //                 toast.push(
-    //                     <Notification type="danger">
-    //                         Failed to load document data.
-    //                     </Notification>,
-    //                     { placement: 'top-center' },
-    //                 )
-    //             } finally {
-    //                 setLoadingData(false)
-    //             }
-    //         }
-    //         fetchData()
-    //     }
-    // }, [documentId])
-
     const didFetchRef = useRef(false)
 
     useEffect(() => {
@@ -96,7 +67,7 @@ const DocumentAddEdit = () => {
                     isEditor && (isEdit || isView)
                         ? await apiGetDocumentEditortById(documentId)
                         : await getDocumentById(documentId)
-                setDocumentData(data.data)
+                setDocumentData(normalizeSavedDocument(data.data))
             } catch (err) {
                 console.error('Failed to load document:', err)
                 toast.push(
@@ -118,12 +89,48 @@ const DocumentAddEdit = () => {
         [documentData],
     )
 
+    const normalizeSavedDocument = useCallback((doc: any) => {
+        if (!doc) return doc
+
+        const department = Array.isArray(doc.department)
+            ? doc.department
+            : doc.department
+              ? [String(doc.department)]
+              : undefined
+
+        const rawJson = doc.editor?.document?.json ?? doc.document?.json
+        let parsedJson: any = rawJson
+        if (typeof rawJson === 'string') {
+            try {
+                parsedJson = JSON.parse(rawJson)
+            } catch {
+                parsedJson = rawJson
+            }
+        }
+
+        const document = {
+            html: doc.editor?.document?.html ?? doc.document?.html ?? '',
+            css: doc.editor?.document?.css ?? doc.document?.css ?? '',
+            js: doc.editor?.document?.js ?? doc.document?.js ?? '',
+            json: parsedJson,
+        }
+
+        const normalized = {
+            ...doc,
+            department,
+            document,
+        }
+
+        return normalized as DocumentFormSchema
+    }, [])
+
     const performSubmission = async (
         values: DocumentFormSchema,
         isEditorMode: boolean,
     ) => {
         try {
             setIsSubmitting(true)
+            const isUploadMode = values.mode === 'upload'
             if (isEditorMode) {
                 const payload = isEdit ? { ...values, id: documentId } : values
                 await saveDocumentEditorData(payload)
@@ -148,13 +155,31 @@ const DocumentAddEdit = () => {
                     </Notification>,
                     { placement: 'top-center' },
                 )
-                const path = isEdit
-                    ? buildPath(endpointConfig.master.document.editorEdit, {
-                          docId: documentId ?? '',
-                          id: savedDoc.id ?? '',
-                      })
-                    : `${endpointConfig.master.document.editor}/${savedDoc.id}`
-                navigate(path)
+
+                if (!isEdit && isUploadMode) {
+                    if (!values.dataEntrySchedule) {
+                        const normalized = normalizeSavedDocument(savedDoc)
+                        setDocumentData(normalized)
+                        setTriates(
+                            categorizeThDetails(normalized.document?.json),
+                        )
+                        setPendingSubmission({
+                            values: normalized,
+                            isEditor: false,
+                        })
+                        setIsFrequencyPopupOpen(true)
+                    } else {
+                        navigate(endpointConfig.master.document.list)
+                    }
+                } else {
+                    const path = isEdit
+                        ? buildPath(endpointConfig.master.document.editorEdit, {
+                              docId: documentId ?? '',
+                              id: savedDoc.id ?? '',
+                          })
+                        : `${endpointConfig.master.document.editor}/${savedDoc.id}`
+                    navigate(path)
+                }
             }
         } catch (error) {
             console.error('Save failed:', error)
@@ -172,6 +197,12 @@ const DocumentAddEdit = () => {
     const handleFormSubmit = useCallback(
         async (values: DocumentFormSchema) => {
             if (isView) return
+            if (values.mode === 'upload' && !isEditor) {
+                setTriates(categorizeThDetails(values.document?.json))
+                setPendingSubmission({ values, isEditor: false })
+                setIsFrequencyPopupOpen(true)
+                return
+            }
 
             if (isEditor && !isEdit && !values.dataEntrySchedule) {
                 setTriates(categorizeThDetails(values.document?.json))

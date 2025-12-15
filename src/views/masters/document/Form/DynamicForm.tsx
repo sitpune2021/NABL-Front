@@ -4,7 +4,7 @@ import { FormItem } from '@/components/ui/Form'
 import { Controller, Control } from 'react-hook-form'
 import DatePicker from '@/components/ui/DatePicker'
 import { FormFieldConfig } from '@/@types/document'
-import { Input, Select } from '@/components/ui'
+import { Input, Select, Checkbox } from '@/components/ui'
 import TimeInput from '@/components/ui/TimeInput'
 
 interface DynamicFormProps {
@@ -14,6 +14,7 @@ interface DynamicFormProps {
     readOnly?: boolean
     formValues?: any
     extraProps?: any
+    fieldsDisabledWhenModeOff?: string[]
 }
 
 const wrapWithStyle = (html: string, css: string) => `
@@ -54,6 +55,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
     readOnly,
     formValues = {},
     extraProps,
+    fieldsDisabledWhenModeOff = [],
 }) => {
     return (
         <div className="grid md:grid-cols-2 gap-4">
@@ -69,13 +71,12 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                     onChange,
                     minDate,
                 } = fieldConfig
-                console.log(
-                    condition,
-                    condition && !condition(formValues),
-                    formValues,
-                )
 
                 if (condition && !condition(formValues)) return null
+
+                const isDisabledByMode =
+                    fieldsDisabledWhenModeOff.includes(name) &&
+                    formValues.mode === 'upload'
 
                 return (
                     <FormItem
@@ -102,6 +103,11 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                                             <Input
                                                 type={type}
                                                 placeholder={placeholder}
+                                                disabled={
+                                                    isDisabledByMode ||
+                                                    readOnly ||
+                                                    fieldConfig.readOnly
+                                                }
                                                 readOnly={
                                                     readOnly ||
                                                     fieldConfig.readOnly
@@ -122,7 +128,9 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                                                     ) || null
                                                 }
                                                 options={options}
-                                                isDisabled={readOnly}
+                                                isDisabled={
+                                                    isDisabledByMode || readOnly
+                                                }
                                                 onChange={(option) => {
                                                     field.onChange(
                                                         option?.value,
@@ -167,6 +175,9 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                                                         : null
                                                 }
                                                 minDate={minDate}
+                                                disabled={
+                                                    isDisabledByMode || readOnly
+                                                }
                                                 onChange={(date) =>
                                                     field.onChange(
                                                         date?.toISOString(),
@@ -186,11 +197,16 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                                                 onChange={(
                                                     date: Date | null,
                                                 ) => {
-                                                    field.onChange(
-                                                        date
-                                                            ? date.toISOString()
-                                                            : undefined,
-                                                    )
+                                                    if (
+                                                        !isDisabledByMode &&
+                                                        !readOnly
+                                                    ) {
+                                                        field.onChange(
+                                                            date
+                                                                ? date.toISOString()
+                                                                : undefined,
+                                                        )
+                                                    }
                                                 }}
                                             />
                                         )
@@ -217,7 +233,10 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                                                     }
                                                     options={options}
                                                     placeholder={`-- Select ${label} --`}
-                                                    isDisabled={readOnly}
+                                                    isDisabled={
+                                                        isDisabledByMode ||
+                                                        readOnly
+                                                    }
                                                     onChange={(option: any) => {
                                                         field.onChange(
                                                             option?.value || '',
@@ -259,6 +278,30 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                                             </>
                                         )
                                     }
+                                    case 'checkbox':
+                                        return (
+                                            <Checkbox
+                                                checked={
+                                                    field.value === 'create'
+                                                }
+                                                defaultChecked={
+                                                    field.value === 'create'
+                                                }
+                                                disabled={readOnly}
+                                                onChange={(checked) => {
+                                                    field.onChange(
+                                                        checked
+                                                            ? 'create'
+                                                            : 'upload',
+                                                    )
+                                                    onChange?.(
+                                                        checked
+                                                            ? 'create'
+                                                            : 'upload',
+                                                    )
+                                                }}
+                                            />
+                                        )
 
                                     default:
                                         return <div>Unsupported field type</div>

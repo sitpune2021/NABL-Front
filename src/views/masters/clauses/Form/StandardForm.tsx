@@ -27,8 +27,8 @@ const createStandardSchema = (): z.ZodType<any> =>
             isChild: z.boolean(),
             count: z.number().min(0, { message: 'Count must be 0 or greater' }),
             children: z.array(z.lazy(createStandardSchema)).optional(),
-            number: z.boolean().optional(),
-            numberingType: z.union([z.number(), z.string()]).optional(),
+            numberingType: z.union([z.number(), z.string()]),
+            numberingValue: z.union([z.number(), z.string()]),
         })
         .superRefine((data, ctx) => {
             if (
@@ -60,44 +60,43 @@ const StandardForm = ({
     children,
 }: StandardFormProps) => {
     const mergedDefaults = useMemo<FormValues>(() => {
+        const baseStandard = {
+            title: '',
+            message: '',
+            note: true,
+            isChild: false,
+            count: 0,
+            children: [],
+            numberingType: 'none',
+            numberingValue: '',
+            depth: 0,
+        }
+
         const normalizedStandards = Array.isArray(defaultValues.standards)
-            ? (defaultValues.standards as any[])
+            ? defaultValues.standards
             : defaultValues.standards
-              ? [defaultValues.standards as any]
-              : [
-                    {
-                        title: '',
-                        message: '',
-                        note: true,
-                        isChild: false,
-                        count: 0,
-                        children: [],
-                        numberingType: 'numerical',
-                        number: true,
-                    },
-                ]
+              ? [defaultValues.standards]
+              : [baseStandard]
 
         return {
             uuid: defaultValues.uuid ?? '',
             name: defaultValues.name ?? '',
-            standards: normalizedStandards,
+            standards: normalizedStandards as any,
         }
     }, [defaultValues])
 
-    const {
-        handleSubmit,
-        formState: { errors },
-        control,
-    } = useForm<FormValues>({
+    const form = useForm<FormValues>({
         defaultValues: mergedDefaults,
         resolver: zodResolver(validationSchema),
-        mode: 'onBlur',
     })
+    const {
+        handleSubmit,
+        control,
+        formState: { errors },
+    } = form
 
     const onSubmit = useCallback(
-        (values: FormValues) => {
-            onFormSubmit(values)
-        },
+        (values: FormValues) => onFormSubmit(values),
         [onFormSubmit],
     )
 
@@ -109,7 +108,7 @@ const StandardForm = ({
         >
             <Container>
                 <div className="flex flex-col md:flex-row gap-4">
-                    <div className="gap-4 flex flex-col flex-auto">
+                    <div className="flex flex-col flex-auto gap-6">
                         <StandardSection
                             control={control}
                             errors={errors}
