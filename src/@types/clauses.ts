@@ -1,6 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { TableQueries } from './common'
 import type { Control, FieldErrors } from 'react-hook-form'
+import { Document } from './document'
+import { Category } from './category'
 
 export type GetClausesListResponse = {
     list: Clauses[]
@@ -37,9 +39,12 @@ export type ClausesListAction = {
 }
 
 export type ClauseItem = {
-    category: string
-    documentName: string
-    frequency: string
+    category_id: string
+    document: {
+        id: string
+        version_id: string
+        version: string
+    }
 }
 
 export type AccordionItem = {
@@ -51,7 +56,7 @@ export type AccordionItem = {
 
 export type TitleSpecificData = {
     notes: string
-    clauses: ClauseItem[]
+    clause_documents_tagging: ClauseItem[]
     id: string
     parentId?: string
 }
@@ -59,7 +64,7 @@ export type TitleSpecificData = {
 export type Fields = {
     id?: string
     Standard_id: string
-    clause_documents: TitleSpecificData[]
+    standard_clauses: TitleSpecificData[]
 }
 
 export type TagsFields = {
@@ -72,12 +77,10 @@ export type FormSectionBaseProps = {
     control: Control<ClausesFormSchema>
     errors: FieldErrors<ClausesFormSchema>
     readOnly?: boolean
-    setValue: any
-    getValues: any
 }
 
 export type OverviewSectionProps = FormSectionBaseProps & {
-    setValue: any
-    getValues: any
     accordionData: any[]
+    documentList: Document[]
+    categoryList: Category[]
 }

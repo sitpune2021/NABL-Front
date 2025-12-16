@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { useParams, useNavigate, useLocation } from 'react-router'
 import Notification from '@/components/ui/Notification'
 import toast from '@/components/ui/toast'
@@ -10,42 +10,32 @@ import useClausesList from '../List/hooks/useList'
 import ClausesForm from '../Form'
 import { ClausesFormSchema } from '@/@types/clauses'
 import BottomPanel from '@/components/form/bottomPanel'
+import useStandardList from '../List/hooks/useStandardList'
+import useCategoryList from '../../category/List/hooks/useList'
+import useDocumentList from '../../document/List/hooks/useList'
 
 const ClausesAddEdit = () => {
     const navigate = useNavigate()
     const location = useLocation()
-    const { id: clausesId } = useParams()
-    const { saveClausesData, getClausesById } = useClausesList()
+    const { id } = useParams()
+    const { saveClausesData, clausesDetail } = useClausesList()
+    const { standardDetail, isDetailLoading } = useStandardList(id)
+    const { categoryList } = useCategoryList()
+    const { documentList } = useDocumentList()
 
     const [discardConfirmationOpen, setDiscardConfirmationOpen] =
         useState(false)
     const [isSubmiting, setIsSubmiting] = useState(false)
-    const [clausesData, setClausesData] = useState<ClausesFormSchema | null>(
-        null,
-    )
-    const [loadingData, setLoadingData] = useState(false)
 
     const isEdit = location.pathname.includes('/edit')
     const isView = location.pathname.includes('/view')
     const isAdd = location.pathname.includes('/create')
 
-    useEffect(() => {
-        if (!isAdd && clausesId) {
-            setLoadingData(true)
-            getClausesById(clausesId)
-                .then((data) => {
-                    console.log('Fetched clauses data:', data)
-                    setClausesData(data)
-                })
-                .finally(() => setLoadingData(false))
-        }
-    }, [clausesId, isAdd])
-
     const handleFormSubmit = async (values: ClausesFormSchema) => {
         if (isView) return
         setIsSubmiting(true)
         try {
-            const payload = isEdit ? { ...values, id: clausesId } : values
+            const payload = isEdit ? { ...values, id } : values
 
             await saveClausesData(payload)
             await sleep(800)
@@ -97,7 +87,7 @@ const ClausesAddEdit = () => {
     const handleDiscard = () => setDiscardConfirmationOpen(true)
     const handleCancel = () => setDiscardConfirmationOpen(false)
 
-    if (loadingData && !isAdd) {
+    if (isDetailLoading) {
         return <p className="p-4">Loading clauses data...</p>
     }
 
@@ -105,8 +95,11 @@ const ClausesAddEdit = () => {
         <>
             <ClausesForm
                 newClauses={isAdd}
-                defaultValues={clausesData || undefined}
+                defaultValues={clausesDetail ?? undefined}
                 readOnly={isView}
+                standardDetail={standardDetail}
+                categoryList={categoryList}
+                documentList={documentList}
                 onFormSubmit={handleFormSubmit}
             >
                 <BottomPanel

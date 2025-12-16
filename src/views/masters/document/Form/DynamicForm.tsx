@@ -14,7 +14,6 @@ interface DynamicFormProps {
     readOnly?: boolean
     formValues?: any
     extraProps?: any
-    fieldsDisabledWhenModeOff?: string[]
 }
 
 const wrapWithStyle = (html: string, css: string) => `
@@ -55,264 +54,209 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
     readOnly,
     formValues = {},
     extraProps,
-    fieldsDisabledWhenModeOff = [],
 }) => {
-    return (
-        <div className="grid md:grid-cols-2 gap-4">
-            {fields.map((fieldConfig) => {
-                const {
-                    name,
-                    label,
-                    type,
-                    placeholder,
-                    options,
-                    condition,
-                    customRender,
-                    onChange,
-                    minDate,
-                } = fieldConfig
+    return fields.map((fieldConfig) => {
+        const {
+            name,
+            label,
+            type,
+            placeholder,
+            options,
+            condition,
+            customRender,
+            onChange,
+            minDate,
+            defaultValue,
+        } = fieldConfig
 
-                if (condition && !condition(formValues)) return null
+        if (condition && !condition(formValues)) return null
 
-                const isDisabledByMode =
-                    fieldsDisabledWhenModeOff.includes(name) &&
-                    formValues.mode === 'upload'
+        return (
+            <FormItem
+                key={name}
+                label={label}
+                invalid={Boolean(errors[name])}
+                errorMessage={errors[name]?.message}
+            >
+                <Controller
+                    name={name}
+                    control={control}
+                    defaultValue={defaultValue || ''}
+                    render={({ field }) => {
+                        if (customRender)
+                            return customRender(field, formValues, extraProps)
 
-                return (
-                    <FormItem
-                        key={name}
-                        label={label}
-                        invalid={Boolean(errors[name])}
-                        errorMessage={errors[name]?.message}
-                    >
-                        <Controller
-                            name={name}
-                            control={control}
-                            render={({ field }) => {
-                                if (customRender)
-                                    return customRender(
-                                        field,
-                                        formValues,
-                                        extraProps,
-                                    )
+                        switch (type) {
+                            case 'text':
+                            case 'number':
+                                return (
+                                    <Input
+                                        type={type}
+                                        placeholder={placeholder}
+                                        disabled={
+                                            readOnly || fieldConfig.readOnly
+                                        }
+                                        readOnly={
+                                            readOnly || fieldConfig.readOnly
+                                        }
+                                        {...field}
+                                    />
+                                )
 
-                                switch (type) {
-                                    case 'text':
-                                    case 'number':
-                                        return (
-                                            <Input
-                                                type={type}
-                                                placeholder={placeholder}
-                                                disabled={
-                                                    isDisabledByMode ||
-                                                    readOnly ||
-                                                    fieldConfig.readOnly
-                                                }
-                                                readOnly={
-                                                    readOnly ||
-                                                    fieldConfig.readOnly
-                                                }
-                                                {...field}
-                                            />
-                                        )
+                            case 'select':
+                                return (
+                                    <Select
+                                        {...field}
+                                        value={
+                                            options?.find(
+                                                (o) => o.value === field.value,
+                                            ) || null
+                                        }
+                                        options={options}
+                                        isDisabled={readOnly}
+                                        onChange={(option) => {
+                                            field.onChange(option?.value)
+                                            onChange?.(option)
+                                        }}
+                                    />
+                                )
 
-                                    case 'select':
-                                        return (
-                                            <Select
-                                                {...field}
-                                                value={
-                                                    options?.find(
-                                                        (o) =>
-                                                            o.value ===
-                                                            field.value,
-                                                    ) || null
-                                                }
-                                                options={options}
-                                                isDisabled={
-                                                    isDisabledByMode || readOnly
-                                                }
-                                                onChange={(option) => {
-                                                    field.onChange(
-                                                        option?.value,
-                                                    )
-                                                    onChange?.(option)
+                            case 'multiSelect':
+                                return (
+                                    <Select
+                                        {...field}
+                                        isMulti
+                                        value={
+                                            options?.filter((o) =>
+                                                field.value?.includes(o.value),
+                                            ) || []
+                                        }
+                                        options={options}
+                                        isDisabled={readOnly}
+                                        onChange={(selectedOptions) => {
+                                            const values = selectedOptions?.map(
+                                                (o: any) => o.value,
+                                            )
+                                            field.onChange(values)
+                                            onChange?.(selectedOptions)
+                                        }}
+                                    />
+                                )
+
+                            case 'date':
+                                return (
+                                    <DatePicker
+                                        placeholder={placeholder}
+                                        value={
+                                            field.value
+                                                ? new Date(field.value)
+                                                : null
+                                        }
+                                        openPickerOnClear={true}
+                                        minDate={minDate}
+                                        disabled={readOnly}
+                                        onChange={(date) =>
+                                            field.onChange(date?.toISOString())
+                                        }
+                                    />
+                                )
+
+                            case 'time':
+                                return (
+                                    <TimeInput
+                                        value={
+                                            field.value
+                                                ? new Date(field.value)
+                                                : null
+                                        }
+                                        onChange={(date: Date | null) => {
+                                            if (!readOnly) {
+                                                field.onChange(
+                                                    date
+                                                        ? date.toISOString()
+                                                        : undefined,
+                                                )
+                                            }
+                                        }}
+                                    />
+                                )
+                            case 'header':
+                            case 'footer': {
+                                const isHeader = type === 'header'
+                                const selectedHtmlState = isHeader
+                                    ? extraProps?.selectedHeaderHtml
+                                    : extraProps?.selectedFooterHtml
+                                const setSelectedHtmlState = isHeader
+                                    ? extraProps?.setSelectedHeaderHtml
+                                    : extraProps?.setSelectedFooterHtml
+
+                                const selectedOption = options?.find(
+                                    (o: any) =>
+                                        o.value === field.value?.template_id,
+                                )
+
+                                return (
+                                    <>
+                                        <Select
+                                            value={selectedOption || null}
+                                            options={options}
+                                            placeholder={`-- Select ${label} --`}
+                                            isDisabled={readOnly}
+                                            onChange={(option: any) => {
+                                                field.onChange({
+                                                    template_id: option?.value,
+                                                    type: option?.type,
+                                                    current_version:
+                                                        option?.current_version,
+                                                })
+
+                                                const html = option?.html || ''
+                                                const css = option?.css || ''
+                                                setSelectedHtmlState?.(
+                                                    html
+                                                        ? wrapWithStyle(
+                                                              html,
+                                                              css,
+                                                          )
+                                                        : '',
+                                                )
+                                            }}
+                                        />
+
+                                        {field.value && selectedHtmlState && (
+                                            <iframe
+                                                style={{
+                                                    width: '100%',
+                                                    height: '150px',
+                                                    border: '1px solid #ddd',
+                                                    marginTop: '8px',
+                                                    borderRadius: '6px',
+                                                    background: '#fff',
                                                 }}
+                                                srcDoc={selectedHtmlState}
+                                                title={`${label} Preview`}
                                             />
-                                        )
+                                        )}
+                                    </>
+                                )
+                            }
+                            case 'checkbox':
+                                return (
+                                    <Checkbox
+                                        disabled={readOnly}
+                                        checked={!!field.value}
+                                        onChange={field.onChange}
+                                    />
+                                )
 
-                                    case 'multiSelect':
-                                        return (
-                                            <Select
-                                                {...field}
-                                                isMulti
-                                                value={
-                                                    options?.filter((o) =>
-                                                        field.value?.includes(
-                                                            o.value,
-                                                        ),
-                                                    ) || []
-                                                }
-                                                options={options}
-                                                isDisabled={readOnly}
-                                                onChange={(selectedOptions) => {
-                                                    const values =
-                                                        selectedOptions?.map(
-                                                            (o: any) => o.value,
-                                                        )
-                                                    field.onChange(values)
-                                                    onChange?.(selectedOptions)
-                                                }}
-                                            />
-                                        )
-
-                                    case 'date':
-                                        return (
-                                            <DatePicker
-                                                placeholder={placeholder}
-                                                value={
-                                                    field.value
-                                                        ? new Date(field.value)
-                                                        : null
-                                                }
-                                                minDate={minDate}
-                                                disabled={
-                                                    isDisabledByMode || readOnly
-                                                }
-                                                onChange={(date) =>
-                                                    field.onChange(
-                                                        date?.toISOString(),
-                                                    )
-                                                }
-                                            />
-                                        )
-
-                                    case 'time':
-                                        return (
-                                            <TimeInput
-                                                value={
-                                                    field.value
-                                                        ? new Date(field.value)
-                                                        : null
-                                                }
-                                                onChange={(
-                                                    date: Date | null,
-                                                ) => {
-                                                    if (
-                                                        !isDisabledByMode &&
-                                                        !readOnly
-                                                    ) {
-                                                        field.onChange(
-                                                            date
-                                                                ? date.toISOString()
-                                                                : undefined,
-                                                        )
-                                                    }
-                                                }}
-                                            />
-                                        )
-                                    case 'header':
-                                    case 'footer': {
-                                        const isHeader = type === 'header'
-                                        const selectedHtmlState = isHeader
-                                            ? extraProps?.selectedHeaderHtml
-                                            : extraProps?.selectedFooterHtml
-                                        const setSelectedHtmlState = isHeader
-                                            ? extraProps?.setSelectedHeaderHtml
-                                            : extraProps?.setSelectedFooterHtml
-
-                                        const selectedOption = options?.find(
-                                            (o: any) => o.value === field.value,
-                                        )
-
-                                        return (
-                                            <>
-                                                <Select
-                                                    {...field}
-                                                    value={
-                                                        selectedOption || null
-                                                    }
-                                                    options={options}
-                                                    placeholder={`-- Select ${label} --`}
-                                                    isDisabled={
-                                                        isDisabledByMode ||
-                                                        readOnly
-                                                    }
-                                                    onChange={(option: any) => {
-                                                        field.onChange(
-                                                            option?.value || '',
-                                                        )
-                                                        const html =
-                                                            option?.html || ''
-                                                        const css =
-                                                            option?.css || ''
-                                                        setSelectedHtmlState?.(
-                                                            html
-                                                                ? wrapWithStyle(
-                                                                      html,
-                                                                      css,
-                                                                  )
-                                                                : '',
-                                                        )
-                                                    }}
-                                                />
-                                                {field.value &&
-                                                    selectedHtmlState && (
-                                                        <iframe
-                                                            style={{
-                                                                width: '100%',
-                                                                height: '150px',
-                                                                border: '1px solid #ddd',
-                                                                marginTop:
-                                                                    '8px',
-                                                                borderRadius:
-                                                                    '6px',
-                                                                background:
-                                                                    '#fff',
-                                                            }}
-                                                            srcDoc={
-                                                                selectedHtmlState
-                                                            }
-                                                            title={`${label} Preview`}
-                                                        />
-                                                    )}
-                                            </>
-                                        )
-                                    }
-                                    case 'checkbox':
-                                        return (
-                                            <Checkbox
-                                                checked={
-                                                    field.value === 'create'
-                                                }
-                                                defaultChecked={
-                                                    field.value === 'create'
-                                                }
-                                                disabled={readOnly}
-                                                onChange={(checked) => {
-                                                    field.onChange(
-                                                        checked
-                                                            ? 'create'
-                                                            : 'upload',
-                                                    )
-                                                    onChange?.(
-                                                        checked
-                                                            ? 'create'
-                                                            : 'upload',
-                                                    )
-                                                }}
-                                            />
-                                        )
-
-                                    default:
-                                        return <div>Unsupported field type</div>
-                                }
-                            }}
-                        />
-                    </FormItem>
-                )
-            })}
-        </div>
-    )
+                            default:
+                                return <div>Unsupported field type</div>
+                        }
+                    }}
+                />
+            </FormItem>
+        )
+    })
 }
 
 export default DynamicForm

@@ -62,9 +62,10 @@ const DocumentListTable = () => {
     }
 
     const handleDataEntryForm = (document: Document) => {
-        const path = endpointConfig.master.document.dataEntry
-            .replace(':docId', String(document.id))
-            .replace(':id', String(document.editor?.id))
+        const path = endpointConfig.master.document.dataEntry.replace(
+            ':id',
+            String(document.id),
+        )
         navigate(path)
     }
 
@@ -74,34 +75,38 @@ const DocumentListTable = () => {
                 header: 'Id',
                 accessorKey: 'id',
             },
-            {
-                header: 'Document No',
-                accessorKey: 'documentNo',
-                cell: (props) => {
-                    const row = props.row.original
-                    return (
-                        <span className="font-semibold">{row.documentNo}</span>
-                    )
-                },
-            },
+            // {
+            //     header: 'Document No',
+            //     accessorKey: 'number',
+            //     cell: (props) => {
+            //         const row = props.row.original
+            //         return (
+            //             <span className="font-semibold">{row.number}</span>
+            //         )
+            //     },
+            // },
             {
                 header: 'Document Name',
-                accessorKey: 'documentName',
+                accessorKey: 'name',
                 cell: (props) => {
                     const row = props.row.original
                     return (
                         <span className="font-semibold heading-text">
-                            {row.documentName}
+                            {row.name}
                         </span>
                     )
                 },
             },
             {
                 header: 'Category',
-                accessorKey: 'category',
+                accessorKey: 'category_id',
                 cell: (props) => {
                     const row = props.row.original
-                    return <span className="font-semibold">{row.category}</span>
+                    return (
+                        <span className="font-semibold">
+                            {row.category.name}
+                        </span>
+                    )
                 },
             },
             {

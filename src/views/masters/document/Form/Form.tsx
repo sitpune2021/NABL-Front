@@ -1,73 +1,163 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import { useState } from 'react'
+import { Form } from '@/components/ui/Form'
 import Container from '@/components/shared/Container'
 import BottomStickyBar from '@/components/template/BottomStickyBar'
+import { Button } from '@/components/ui'
 import GrapesEditor from './GrapesEditor'
 import OverviewSection from './OverviewSection'
-import { Form } from '@/components/ui/Form'
+import FrequencyPopup from './FrequencyPopup'
 import { useDocumentForm } from '../List/hooks/useDocumentForm'
+import PageContainer from '@/components/template/PageContainer'
+import useCategoryList from '../../category/List/hooks/useList'
+import useDepartmentList from '../../department/List/hooks/useList'
+import useTemplateList from '../../template/List/hooks/useList'
 import { DocumentFormSchema, EditorFormSchema } from '@/@types/document'
-import { CommonProps } from '@/@types/common'
 
 type DocumentFormProps = {
     onFormSubmit: (values: DocumentFormSchema & EditorFormSchema) => void
-    defaultValues?: Partial<DocumentFormSchema> & Partial<EditorFormSchema>
-    newDocument?: boolean
+    defaultValues?: Partial<DocumentFormSchema>
     readOnly?: boolean
-    isEditor?: boolean
-    documentData?: DocumentFormSchema | null
     isEdit?: boolean
-} & CommonProps
+}
 
 export default function DocumentForm({
     onFormSubmit,
     defaultValues = {},
     readOnly = false,
-    isEditor = false,
     isEdit = false,
-    documentData,
-    children,
 }: DocumentFormProps) {
-    const methods = useDocumentForm({
-        defaultValues,
-        isEditor,
-        isEdit,
-    })
+    const [step, setStep] = useState(0)
+    const [showFrequencyPopup, setShowFrequencyPopup] = useState(false)
 
-    const { handleSubmit, formState, control, setValue } = methods
+    const { categoryList } = useCategoryList()
+    const { departmentList } = useDepartmentList()
+    const { templateList, getTemplateById } = useTemplateList()
+    const { handleSubmit, formState, control, setValue, trigger, getValues } =
+        useDocumentForm({ defaultValues })
     const { errors } = formState
+
+    const goNext = async () => {
+        if (step === 0) {
+            const valid = await trigger([
+                'mode',
+                'category_id',
+                'department',
+                'number',
+                'name',
+                'status',
+                'header',
+                'footer',
+                'copy_no',
+                'quantity_prepared',
+                'workflow_state',
+                'step_type',
+                'performed_by',
+                'performed_date',
+                'effective_date',
+                'review_frequency',
+            ])
+            if (!valid) return
+
+            getValues('mode') === 'create'
+                ? setStep(1)
+                : setShowFrequencyPopup(true)
+        } else if (step === 1) {
+            setShowFrequencyPopup(true)
+        }
+    }
+
+    const goPrev = () => setStep((prev) => Math.max(prev - 1, 0))
+    const handlePopupClose = () => setShowFrequencyPopup(false)
+    console.log(errors)
+
+    const handleFrequencyConfirm = async () => {
+        // 🔥 Trigger full form validation
+        const isValid = await trigger()
+        if (!isValid) {
+            return
+        }
+        setShowFrequencyPopup(false)
+        handleSubmit(onFormSubmit as any)()
+    }
 
     return (
         <Form
             className="flex w-full h-full"
             containerClassName="flex flex-col w-full justify-between"
-            onSubmit={handleSubmit(onFormSubmit as any)}
         >
             <Container>
                 <div className="flex flex-col md:flex-row gap-4">
-                    <div
-                        className={`flex flex-col flex-auto gap-4 ${isEditor ? 'items-center' : ''}`}
-                    >
-                        {isEditor ? (
-                            <GrapesEditor
-                                control={control}
-                                errors={errors}
-                                readOnly={readOnly}
-                                setValue={setValue}
-                                documentData={documentData}
-                                isEdit={isEdit}
-                            />
-                        ) : (
-                            <OverviewSection
-                                control={control}
-                                errors={errors}
-                                readOnly={readOnly}
-                                setValue={setValue}
-                            />
-                        )}
-                    </div>
+                    {step === 0 && (
+                        <OverviewSection
+                            control={control}
+                            errors={errors}
+                            readOnly={readOnly}
+                            setValue={setValue}
+                            categoryList={categoryList}
+                            departmentList={departmentList}
+                            templateList={templateList}
+                        />
+                    )}
+
+                    {step === 1 && getValues('mode') === 'create' && (
+                        <div className="flex flex-col flex-auto gap-4">
+                            <PageContainer
+                                pageContainerType="gutterless"
+                                pageBackgroundType="plain"
+                                footer={false}
+                                layout="blank"
+                            >
+                                <GrapesEditor
+                                    control={control}
+                                    errors={errors}
+                                    readOnly={readOnly}
+                                    setValue={setValue}
+                                    isEdit={isEdit}
+                                    getTemplateById={getTemplateById}
+                                />
+                            </PageContainer>
+                        </div>
+                    )}
+
+                    {showFrequencyPopup && (
+                        <FrequencyPopup
+                            isOpen={showFrequencyPopup}
+                            control={control}
+                            errors={errors}
+                            readOnly={readOnly}
+                            setValue={setValue}
+                            onClose={handlePopupClose}
+                            onConfirm={handleFrequencyConfirm}
+                        />
+                    )}
                 </div>
             </Container>
-            <BottomStickyBar>{children}</BottomStickyBar>
+
+            {!showFrequencyPopup && (
+                <BottomStickyBar>
+                    <Button
+                        type="button"
+                        disabled={step === 0}
+                        onClick={goPrev}
+                    >
+                        Previous
+                    </Button>
+                    {step < 1 ? (
+                        <Button type="button" variant="solid" onClick={goNext}>
+                            Next
+                        </Button>
+                    ) : (
+                        <Button
+                            type="button"
+                            variant="solid"
+                            onClick={() => setShowFrequencyPopup(true)}
+                        >
+                            Submit
+                        </Button>
+                    )}
+                </BottomStickyBar>
+            )}
         </Form>
     )
 }

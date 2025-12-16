@@ -7,9 +7,13 @@ import {
 import useSWR from 'swr'
 import { useStandardListStore } from '../store/listStandardStore'
 import type { TableQueries } from '@/@types/common'
-import { Fields, GetStandardListResponse } from '@/@types/standard'
+import {
+    Fields,
+    GetStandardListResponse,
+    GetStandardResponse,
+} from '@/@types/standard'
 
-export default function useStandardList() {
+export default function useStandardList(Id?: string) {
     const {
         tableData,
         filterData,
@@ -27,6 +31,17 @@ export default function useStandardList() {
         { revalidateOnFocus: false },
     )
 
+    const {
+        data: detailData,
+        error: detailError,
+        isLoading: isDetailLoading,
+        mutate: mutateDetail,
+    } = useSWR<GetStandardResponse>(
+        Id ? `/standard/${Id}` : null,
+        () => apiGetStandardById(Id!),
+        { revalidateOnFocus: false },
+    )
+
     const saveStandardData = async (standard: Fields) => {
         let savedStandard: Fields
         if (standard.id) {
@@ -40,13 +55,12 @@ export default function useStandardList() {
         return savedStandard
     }
 
-    const getStandardById = async (id: string) => {
-        const standard = await apiGetStandardById(id)
-        return standard
-    }
-
     const standardList = data?.list || []
     const standardListTotal = data?.total || 0
+    const standardDetail = detailData || {
+        name: '',
+        clauses: [],
+    }
 
     return {
         standardList,
@@ -62,6 +76,9 @@ export default function useStandardList() {
         setSelectAllStandard,
         setFilterData,
         saveStandardData,
-        getStandardById,
+        standardDetail,
+        detailError,
+        isDetailLoading,
+        mutateDetail,
     }
 }

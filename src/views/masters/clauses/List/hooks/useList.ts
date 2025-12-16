@@ -43,6 +43,7 @@ export default function useClausesList() {
 
     const clausesList = data?.list || []
     const clausesListTotal = data?.total || 0
+    const clausesDetail = data?.list[0] || {}
 
     return {
         clausesList,
@@ -59,5 +60,6 @@ export default function useClausesList() {
         setFilterData,
         saveClausesData,
         getClausesById,
+        clausesDetail,
     }
 }

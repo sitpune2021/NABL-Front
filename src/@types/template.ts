@@ -20,6 +20,7 @@ export type Template = {
     id: string
     name: string
     type: string
+    current_version: string
     template: {
         html: string | undefined
         css: string | undefined

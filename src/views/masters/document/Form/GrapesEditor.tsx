@@ -2,50 +2,33 @@
 import { useEffect, useRef, useState } from 'react'
 import grapesjs from 'grapesjs'
 import 'grapesjs/dist/css/grapes.min.css'
-import { Controller, UseFormSetValue, Control } from 'react-hook-form'
+import { Controller, useWatch } from 'react-hook-form'
 import debounce from 'lodash/debounce'
 
 import {
     addCustomBlocks,
     addDynamicFields,
 } from '../../template/Form/BlockManager'
-import useTemplateList from '../../template/List/hooks/useList'
-import { DocumentFormSchema } from '@/@types/document'
+import { GrapesEditorProps, Template } from '@/@types/document'
 import IframeContent from './IframeContent'
-
-interface GrapesEditorProps {
-    control: Control<any>
-    errors: any
-    readOnly: boolean
-    setValue: UseFormSetValue<any>
-    documentData?: DocumentFormSchema | null
-    isEdit?: boolean
-}
-
-interface TemplatePart {
-    html: string | undefined
-    json: any | undefined
-    css: string | undefined
-}
-
-interface Template {
-    header: TemplatePart
-    footer: TemplatePart
-    section?: TemplatePart
-}
+import {
+    extractMediaQueryStyles,
+    lockTree,
+    resolveFieldValue,
+} from '@/utils/resolveFieldValue'
 
 export default function GrapesEditor({
     control,
     setValue,
-    documentData,
     isEdit = false,
     readOnly = false,
+    getTemplateById,
 }: GrapesEditorProps) {
+    const documentData = useWatch({ control }) || {}
+
     const containerRef = useRef<HTMLDivElement | null>(null)
     const editorRef = useRef<any | null>(null)
     const [isEditorReady, setIsEditorReady] = useState(false)
-
-    const { getTemplateById } = useTemplateList()
 
     const [template, setTemplate] = useState<Template>({
         header: { html: '', json: '', css: '' },
@@ -53,33 +36,38 @@ export default function GrapesEditor({
         section: { html: '', json: '', css: '' },
     })
 
-    // 1. Load templates (header/footer and section for edit)
+    // Load templates (header/footer/section)
+    const prevTemplateIdsRef = useRef<{ header?: number; footer?: number }>({})
+
     useEffect(() => {
         const loadTemplates = async () => {
             if (!documentData) return
+            const headerId = documentData.header?.template_id
+            const footerId = documentData.footer?.template_id
+
+            if (
+                prevTemplateIdsRef.current.header === headerId &&
+                prevTemplateIdsRef.current.footer === footerId
+            ) {
+                return
+            }
+
+            prevTemplateIdsRef.current = { header: headerId, footer: footerId }
 
             try {
                 const [header, footer] = await Promise.all([
-                    documentData.header
-                        ? getTemplateById(documentData.header)
-                        : null,
-                    documentData.footer
-                        ? getTemplateById(documentData.footer)
-                        : null,
+                    headerId
+                        ? getTemplateById(headerId)
+                        : Promise.resolve(null),
+                    footerId
+                        ? getTemplateById(footerId)
+                        : Promise.resolve(null),
                 ])
 
                 setTemplate({
-                    header: header?.template || {
-                        html: '',
-                        json: '',
-                        css: '',
-                    },
-                    footer: footer?.template || {
-                        html: '',
-                        json: '',
-                        css: '',
-                    },
-                    section: documentData.document || {
+                    header: header?.template || { html: '', json: '', css: '' },
+                    footer: footer?.template || { html: '', json: '', css: '' },
+                    section: documentData.editor_schema || {
                         html: '',
                         json: '',
                         css: '',
@@ -91,12 +79,12 @@ export default function GrapesEditor({
         }
 
         loadTemplates()
-    }, [documentData])
+    }, [documentData, getTemplateById])
 
-    // 2. Initialize GrapesJS editor once
+    // Initialize GrapesJS editor once
     useEffect(() => {
-        if (readOnly) return
-        if (!containerRef.current || editorRef.current) return
+        // Do not initialize in readOnly mode or if already initialized
+        if (readOnly || editorRef.current || !containerRef.current) return
 
         const editor = grapesjs.init({
             container: containerRef.current,
@@ -111,6 +99,7 @@ export default function GrapesEditor({
             },
         })
 
+        // Non-editable component type
         editor.DomComponents.addType('non-editable', {
             isComponent: (el) => el.classList?.contains('non-editable'),
             model: {
@@ -131,18 +120,19 @@ export default function GrapesEditor({
         addDynamicFields(editor)
 
         const handleChange = debounce(() => {
-            setValue('document', {
+            setValue('editor_schema', {
                 html: editor.getHtml(),
                 css: editor.getCss(),
                 json: editor.getComponents(),
             })
-        }, 1000)
+        }, 500)
 
         editor.on('change', handleChange)
 
         editorRef.current = editor
         setIsEditorReady(true)
 
+        // Cleanup only once
         return () => {
             editor.off('change', handleChange)
             handleChange.cancel?.()
@@ -150,53 +140,37 @@ export default function GrapesEditor({
             editorRef.current = null
             setIsEditorReady(false)
         }
-    }, [setValue, readOnly])
+    }, [readOnly, setValue])
 
-    // 3. Insert templates after both editor is ready AND templates are loaded
-    const lockTree = (component: any) => {
-        component.set({
-            editable: false,
-            selectable: false,
-            draggable: false,
-            droppable: false,
-            removable: false,
-            copyable: false,
-            hoverable: false,
-            highlightable: false,
-        })
-
-        component.components().forEach((child: any) => {
-            lockTree(child)
-        })
-    }
-
+    // Insert templates into editor
     useEffect(() => {
         if (readOnly) return
 
         const editor = editorRef.current
         if (!editor || !isEditorReady) return
+
         const { header, footer, section } = template
-        const containsHeader = JSON.stringify(section?.json || '').includes(
-            'header-section',
-        )
-        const containsFooter = JSON.stringify(section?.json || '').includes(
-            'footer-section',
-        )
+
+        const wrapper = editor.getWrapper()
+
+        // Only add editable-section if it doesn't exist
+        if (!wrapper.find('.editable-section').length) {
+            editor.addComponents(`<div class="editable-section"></div>`)
+        }
 
         const insertJSON = (json: any, className: string, css?: string) => {
+            if (wrapper.find(`.${className}`).length) return // already exists
             try {
                 // Create wrapper
                 editor.addComponents(
                     `<div class="${className} non-editable"></div>`,
                 )
 
-                const wrapper = editor.getWrapper().find(`.${className}`)[0]
-                if (!wrapper) return
+                const container = wrapper.find(`.${className}`)[0]
+                if (!container) return
 
-                wrapper.append(json)
-
-                // Lock wrapper + children
-                lockTree(wrapper)
+                container.append(json)
+                lockTree(container)
 
                 if (css) editor.addStyle(css)
             } catch (err) {
@@ -206,27 +180,21 @@ export default function GrapesEditor({
 
         if (isEdit) {
             if (section?.json) editor.setComponents(section.json)
-
             if (section?.css) editor.addStyle(section.css)
 
-            if (!containsHeader && header.json) {
+            if (header.json)
                 insertJSON(header.json, 'header-section', header.css)
-            }
-
-            if (!containsFooter && footer.json) {
+            if (footer.json)
                 insertJSON(footer.json, 'footer-section', footer.css)
-            }
 
             return
         }
 
         if (header.json) insertJSON(header.json, 'header-section', header.css)
-
-        editor.addComponents(`<div class="editable-section"></div>`)
-
         if (footer.json) insertJSON(footer.json, 'footer-section', footer.css)
     }, [template, isEditorReady, isEdit, readOnly])
 
+    // Parse content for read-only
     const parsedContent = { header: '', content: '', footer: '' }
 
     if (readOnly && template.section?.html) {
@@ -236,29 +204,21 @@ export default function GrapesEditor({
                 template.section.html,
                 'text/html',
             )
-            const resolveForElement = (el: Element) => {
+
+            doc.querySelectorAll('[data-field]').forEach((el) => {
                 const field = el.getAttribute('data-field')
                 if (!field) return
-                const options: { [key: string]: string } = {}
+                const options: Record<string, string> = {}
                 Array.from(el.attributes).forEach((attr) => {
-                    console.log(attr.name)
-
                     if (
-                        attr.name !== 'data-field' &&
-                        attr.name !== 'data-value' &&
-                        attr.name !== 'id'
+                        !['data-field', 'data-value', 'id'].includes(attr.name)
                     ) {
-                        const optionKey = attr.name.replace(/-/g, '')
-                        options[optionKey] = attr.value
+                        options[attr.name.replace(/-/g, '')] = attr.value
                     }
                 })
                 const value = resolveFieldValue(field, documentData, options)
-                if (value) {
-                    el.textContent = value
-                }
-            }
-
-            doc.querySelectorAll('[data-field]').forEach(resolveForElement)
+                if (value) el.textContent = value
+            })
 
             const headerEl = doc.querySelector('.header-section')
             if (headerEl) {
@@ -278,154 +238,6 @@ export default function GrapesEditor({
         }
     }
 
-    function formatDate(dateStr: string, format: string): string {
-        const date = new Date(dateStr)
-        if (isNaN(date.getTime())) return dateStr // Invalid date, return as-is
-
-        const day = String(date.getDate()).padStart(2, '0')
-        const month = String(date.getMonth() + 1).padStart(2, '0') // Months are 0-indexed
-        const year = String(date.getFullYear())
-
-        return format
-            .replace(/dd/g, day)
-            .replace(/MM/g, month)
-            .replace(/yyyy/g, year)
-    }
-
-    function resolveFieldValue(
-        key: string,
-        data: any,
-        options: { [key: string]: string } = {},
-    ): string {
-        if (!data) return ''
-
-        switch (key) {
-            case 'date': {
-                const dateType = options.datetype || 'issueDate'
-                let dateValue: string
-                switch (dateType) {
-                    case 'issueDate':
-                        dateValue = data.issueDate || ''
-                        break
-                    case 'amendmentDate':
-                        dateValue = data.amendmentDate || ''
-                        break
-                    case 'effectiveDate':
-                        dateValue = data.effectiveDate || ''
-                        break
-                    default:
-                        dateValue = data.genericDate || ''
-                        break
-                }
-                if (options.format && dateValue) {
-                    return formatDate(dateValue, options.format)
-                }
-                return dateValue
-            }
-            case 'number': {
-                const numberType = options.numbertype || 'documentNo'
-                switch (numberType) {
-                    case 'documentNo':
-                        return data.documentNo || ''
-                    case 'issuedNo':
-                        return data.issuedNo || ''
-                    case 'copyNo':
-                        return data.copyNo || ''
-                    case 'amendmentNo':
-                        return data.amendmentNo || ''
-                    default:
-                        return ''
-                }
-            }
-            case 'person':
-            case 'designation':
-            case 'signatory': {
-                const personRole =
-                    options.personrole ||
-                    options.persondesignation ||
-                    options.personsignatory ||
-                    'preparedBy'
-
-                switch (personRole) {
-                    case 'preparedBy':
-                        return data.preparedBy || ''
-                    case 'approvedBy':
-                        return data.approvedBy || ''
-                    case 'issuedBy':
-                        return data.issuedBy || ''
-                    case 'user':
-                        return data.user || ''
-                    default:
-                        return ''
-                }
-            }
-            case 'category': {
-                const categoryLevel = options.categorylevel || 'category'
-                return categoryLevel === 'subcategory'
-                    ? data.subcategory || ''
-                    : data.category || ''
-            }
-            case 'department':
-                return Array.isArray(data.department)
-                    ? data.department.join(', ')
-                    : data.department || ''
-            case 'userDetails': {
-                const userDetailType = options.userdetailtype || 'name'
-                switch (userDetailType) {
-                    case 'name':
-                        return data.name || ''
-                    case 'role':
-                        return data.role || ''
-                    case 'type':
-                        return data.type || ''
-                    case 'location':
-                        return data.location || ''
-                    case 'email':
-                        return data.email || ''
-                    case 'phone':
-                        return data.phone || ''
-                    default:
-                        return ''
-                }
-            }
-            case 'name': {
-                const nameType = options.nametype || 'lab'
-                switch (nameType) {
-                    case 'lab':
-                        return data.labName || ''
-                    case 'document':
-                        return data.documentName || ''
-                    case 'user':
-                        return data.userName || ''
-                    default:
-                        return ''
-                }
-            }
-            default:
-                return data[key] || ''
-        }
-    }
-
-    function extractMediaQueryStyles(css: string, mediaQuery: string) {
-        if (!css) return ''
-
-        const regex = new RegExp(
-            `@media\\s*\\(${mediaQuery}\\)\\s*{([\\s\\S]*?)}\\s*}`,
-            'g',
-        )
-
-        let extractedStyles = ''
-        let match
-
-        while ((match = regex.exec(css)) !== null) {
-            extractedStyles += match[1].trim() + '\n'
-        }
-
-        const cleanedCss = css.replace(regex, '').trim()
-
-        return cleanedCss + '\n' + extractedStyles
-    }
-
     const updatedCss = extractMediaQueryStyles(
         template.section?.css || '',
         'max-width: 210mm',
@@ -434,31 +246,23 @@ export default function GrapesEditor({
     return (
         <>
             {readOnly ? (
-                <div
-                    style={{
-                        width: '220mm',
-                        height: '300mm',
-                    }}
-                >
+                <div style={{ width: '220mm', height: '300mm' }}>
                     <IframeContent
                         parsedContent={parsedContent}
                         updatedCss={updatedCss}
                     />
                 </div>
             ) : (
-                <>
-                    <div className="flex h-full w-full">
-                        <div
-                            id="blocks"
-                            className="flex-none w-[15%] h-full overflow-auto bg-gray-100 border-r"
-                        />
-                        <div
-                            ref={containerRef}
-                            id="gjs"
-                            className="flex-1 h-full"
-                        />
-                    </div>
-
+                <div className="flex h-full w-full">
+                    <div
+                        id="blocks"
+                        className="flex-none w-[15%] h-full overflow-auto bg-gray-100 border-r"
+                    />
+                    <div
+                        ref={containerRef}
+                        id="gjs"
+                        className="flex-1 h-full"
+                    />
                     <Controller
                         name="documentId"
                         control={control}
@@ -466,11 +270,11 @@ export default function GrapesEditor({
                             <input
                                 type="hidden"
                                 {...field}
-                                value={Number(field.value)} // ensures the value is always a number
+                                value={Number(field.value) || 0}
                             />
                         )}
                     />
-                </>
+                </div>
             )}
         </>
     )

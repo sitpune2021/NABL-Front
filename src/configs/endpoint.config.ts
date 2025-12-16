@@ -59,7 +59,7 @@ const endpointConfig = {
             edit: `${MASTER_PREFIX_PATH}/document/edit/:id`,
             view: `${MASTER_PREFIX_PATH}/document/view/:id`,
             editorview: `${MASTER_PREFIX_PATH}/document/view/:docId/editor/:id`,
-            dataEntry: `${MASTER_PREFIX_PATH}/document/view/:docId/editor/:id/data-entry`,
+            dataEntry: `${MASTER_PREFIX_PATH}/document/view/:id/data-entry`,
         },
         template: {
             list: `${MASTER_PREFIX_PATH}/template/list`,

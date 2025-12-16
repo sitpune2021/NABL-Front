@@ -1,4 +1,4 @@
-import { Fields } from '@/@types/standard'
+import { Fields, GetStandardResponse } from '@/@types/standard'
 import ApiService from './ApiService'
 
 export async function apiGetStandardList<T, U extends Record<string, unknown>>(
@@ -27,7 +27,7 @@ export async function apiCreateStandard(data: Fields) {
 }
 
 export async function apiGetStandardById(id: string) {
-    return ApiService.fetchDataWithAxios<Fields>({
+    return ApiService.fetchDataWithAxios<GetStandardResponse>({
         url: `/standard/${id}`,
         method: 'get',
     })

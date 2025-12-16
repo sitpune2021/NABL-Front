@@ -3,55 +3,33 @@ import { useEffect, useMemo, useState } from 'react'
 import Card from '@/components/ui/Card'
 import Input from '@/components/ui/Input'
 import { useWatch } from 'react-hook-form'
-import { FormFieldConfig, FormSectionBaseProps } from '@/@types/document'
-import useCategoryList from '../../category/List/hooks/useList'
-import useDepartmentList from '../../department/List/hooks/useList'
+import {
+    DepartmentOption,
+    FormFieldConfig,
+    FormSectionBaseProps,
+    TemplateOption,
+} from '@/@types/document'
 import { Category } from '@/@types/category'
-import useTemplateList from '../../template/List/hooks/useList'
-import useUserList from '../../user/List/hooks/useList'
-import { User } from '@/@types/user'
 import DynamicForm from './DynamicForm'
-
-type OverviewSectionProps = FormSectionBaseProps
-type TemplateOption = {
-    value: string
-    label: string
-    html: string
-    css: string
-}
-
-type DepartmentOption = {
-    label: string
-    value: string
-}
+import { Checkbox } from '@/components/ui'
+import { useSessionUser } from '@/store/authStore'
+import { generateDocumentNo } from '@/utils/resolveFieldValue'
 
 const OverviewSection = ({
     control,
     errors,
     readOnly,
     setValue,
-}: OverviewSectionProps) => {
-    const { categoryList } = useCategoryList()
-    const { departmentList } = useDepartmentList()
-    const { templateList } = useTemplateList()
-    const { userList } = useUserList()
+    categoryList,
+    templateList,
+    departmentList,
+}: FormSectionBaseProps) => {
+    const { username } = useSessionUser((state) => state.user)
 
     const options = categoryList.map((category: Category) => ({
-        value: category.name,
+        value: category.id,
         label: `${category.name.toUpperCase()} - ${category.identifier}`,
     }))
-
-    const getUserOptions = (users: User[], roleKey: keyof User) =>
-        users
-            .filter((user) => user[roleKey])
-            .map((user) => ({
-                value: user.name,
-                label: user.name.toUpperCase(),
-            }))
-
-    const preparedByOptions = getUserOptions(userList, 'preparedBy')
-    const issuedByOptions = getUserOptions(userList, 'issuedBy')
-    const approvedByOptions = getUserOptions(userList, 'approvedBy')
 
     const departmentOptions = departmentList.map((dept) => ({
         value: dept.id,
@@ -66,36 +44,28 @@ const OverviewSection = ({
         DepartmentOption[]
     >([])
     const [counter] = useState(1)
-    const generateDocumentNo = (
-        categoryOption: { value: string; label: string } | null,
-        departmentOptions: { value: string; label: string }[],
-    ) => {
-        if (!categoryOption) return ''
 
-        const categoryPrefix = categoryOption.label.split(' - ')[1]
-
-        let docPrefix = categoryPrefix
-
-        if (departmentOptions.length === 1) {
-            // Only one department selected → include its prefix
-            const deptPrefix = departmentOptions[0].label.split(' - ')[1]
-            docPrefix = `${deptPrefix}-${categoryPrefix}`
-        }
-
-        // Multiple departments or none → only category prefix used
-        return `${docPrefix}-${counter}`
-    }
     const handleCategoryChange = (
         option: { value: string; label: string } | null,
     ) => {
         setSelectedCategory(option)
-        const newDocNo = generateDocumentNo(option, selectedDepartments)
-        setValue('documentNo', newDocNo)
+        const newDocNo = generateDocumentNo(
+            option,
+            selectedDepartments,
+            categoryList,
+            counter,
+        )
+        setValue('number', newDocNo)
     }
     const handleDepartmentChange = (options: DepartmentOption[]) => {
         setSelectedDepartments(options || [])
-        const newDocNo = generateDocumentNo(selectedCategory, options || [])
-        setValue('documentNo', newDocNo)
+        const newDocNo = generateDocumentNo(
+            selectedCategory,
+            options || [],
+            categoryList,
+            counter,
+        )
+        setValue('number', newDocNo)
     }
     const [selectedHeaderHtml, setSelectedHeaderHtml] = useState<string>('')
     const [selectedFooterHtml, setSelectedFooterHtml] = useState<string>('')
@@ -106,7 +76,9 @@ const OverviewSection = ({
                 ?.filter((t) => t.type === 'header')
                 .map((t) => ({
                     value: t.id,
-                    label: t.name || t.id,
+                    type: t.type,
+                    current_version: t.current_version,
+                    label: t.name,
                     html: t.template?.html || '',
                     css: t.template?.css || '',
                 })) || []
@@ -119,17 +91,19 @@ const OverviewSection = ({
                 ?.filter((t) => t.type === 'footer')
                 .map((t) => ({
                     value: t.id,
-                    label: t.name || t.id,
+                    type: t.type,
+                    current_version: t.current_version,
+                    label: t.name,
                     html: t.template?.html || '',
                     css: t.template?.css || '',
                 })) || []
         )
     }, [templateList])
 
-    const frequency = useWatch({ control, name: 'frequency' })
-    const effectiveDate = useWatch({ control, name: 'effectiveDate' })
-    const durationValue = useWatch({ control, name: 'durationValue' })
-    const durationUnit = useWatch({ control, name: 'durationUnit' })
+    const reviewFrequency = useWatch({ control, name: 'review_frequency' })
+    const effectiveDate = useWatch({ control, name: 'effective_date' })
+    const notification_value = useWatch({ control, name: 'notification_value' })
+    const notification_unit = useWatch({ control, name: 'notification_unit' })
     const mode = useWatch({ control, name: 'mode' })
 
     const [notificationDate, setNotificationDate] = useState<string | null>(
@@ -145,18 +119,11 @@ const OverviewSection = ({
     }
 
     useEffect(() => {
-        setValue('durationValue', undefined)
-        setValue('durationUnit', undefined)
-        setNotificationDate(null)
-        setNextDate(null)
-    }, [frequency, setValue])
-
-    useEffect(() => {
-        if (frequency === 'Weekly') {
+        if (reviewFrequency === 'Weekly') {
             setUnitOptions([{ value: 'Day', label: 'Day' }])
-        } else if (frequency === 'Monthly') {
+        } else if (reviewFrequency === 'Monthly') {
             setUnitOptions([{ value: 'Day', label: 'Day' }])
-        } else if (frequency === 'Yearly') {
+        } else if (reviewFrequency === 'Yearly') {
             setUnitOptions([
                 { value: 'Day', label: 'Day' },
                 { value: 'Month', label: 'Month' },
@@ -164,10 +131,10 @@ const OverviewSection = ({
         } else {
             setUnitOptions([])
         }
-    }, [frequency])
+    }, [reviewFrequency])
 
     useEffect(() => {
-        if (!effectiveDate || !frequency) {
+        if (!effectiveDate || !reviewFrequency) {
             setNextDate(null)
             return
         }
@@ -175,16 +142,16 @@ const OverviewSection = ({
         const start = new Date(effectiveDate)
         let next = new Date(start)
 
-        if (frequency === 'Weekly') {
+        if (reviewFrequency === 'Weekly') {
             next.setDate(start.getDate() + 7)
-        } else if (frequency === 'Monthly') {
+        } else if (reviewFrequency === 'Monthly') {
             const nextMonth = start.getMonth() + 1
             const lastDay = getLastDayOfMonth(start.getFullYear(), nextMonth)
             const target = new Date(start)
             target.setMonth(nextMonth)
             if (target.getMonth() !== nextMonth % 12) next = lastDay
             else next = target
-        } else if (frequency === 'Yearly') {
+        } else if (reviewFrequency === 'Yearly') {
             const nextYear = start.getFullYear() + 1
             const sameMonth = start.getMonth()
             const lastDayNextMonth = getLastDayOfMonth(nextYear, sameMonth)
@@ -194,59 +161,40 @@ const OverviewSection = ({
         }
 
         setNextDate(next.toDateString())
-    }, [effectiveDate, frequency])
+    }, [effectiveDate, reviewFrequency])
 
     useEffect(() => {
-        if (!nextDate || !durationValue || !durationUnit) {
+        if (!nextDate || !notification_value || !notification_unit) {
             setNotificationDate(null)
             return
         }
 
         const next = new Date(nextDate)
         const notify = new Date(next)
-        const val = Number(durationValue)
+        const val = Number(notification_value)
 
-        if (durationUnit === 'Day') notify.setDate(next.getDate() - val)
-        if (durationUnit === 'Month') notify.setMonth(next.getMonth() - val)
+        if (notification_unit === 'Day') notify.setDate(next.getDate() - val)
+        if (notification_unit === 'Month')
+            notify.setMonth(next.getMonth() - val)
 
         setNotificationDate(notify.toDateString())
-    }, [nextDate, durationValue, durationUnit])
+    }, [nextDate, notification_value, notification_unit])
 
     const getMaxValue = (frequency: any) => {
         if (frequency === 'Weekly') return 6
         if (frequency === 'Monthly') return 28
-        if (frequency === 'Yearly' && durationUnit === 'Day') return 28
-        if (frequency === 'Yearly' && durationUnit === 'Month') return 11
+        if (frequency === 'Yearly' && notification_unit === 'Day') return 28
+        if (frequency === 'Yearly' && notification_unit === 'Month') return 11
         return 0
     }
 
-    const fieldsDisabledWhenModeOff = [
-        'header',
-        'footer',
-        'issuedNo',
-        'issuedBy',
-        'issueDate',
-        'copyNo',
-        'preparedByDate',
-        'quantityPrepared',
-        'approvedBy',
-        'preparedBy',
-    ]
-
-    const modeType = mode === 'create' ? 'create' : 'upload'
-
-    const documentFields: FormFieldConfig[] = [
+    const documentFieldOne: FormFieldConfig[] = [
         {
-            name: 'labName',
-            label: 'Lab Name',
-            type: 'text',
-            placeholder: 'Enter Lab Name',
-        },
-        {
-            name: 'location',
-            label: 'Location',
-            type: 'text',
-            placeholder: 'Enter Location',
+            name: 'category_id',
+            label: 'Category',
+            type: 'select',
+            options,
+            onChange: handleCategoryChange,
         },
         {
             name: 'department',
@@ -256,134 +204,113 @@ const OverviewSection = ({
             onChange: handleDepartmentChange,
         },
         {
-            name: 'category',
-            label: 'Category',
-            type: 'select',
-            options,
-            onChange: handleCategoryChange,
-        },
-        {
-            name: 'header',
-            label: 'Header',
-            type: 'header',
-            options: availableHeaders,
-            condition: (values) => values.mode === 'create',
-        },
-        {
-            name: 'footer',
-            label: 'Footer',
-            type: 'footer',
-            options: availableFooters,
-            condition: (values) => values.mode === 'create',
-        },
-        {
-            name: 'documentName',
-            label: 'Document Name',
-            type: 'text',
-            placeholder: 'Enter Document Name',
-        },
-        {
-            name: 'documentNo',
+            name: 'number',
             label: 'Document No',
             type: 'text',
             readOnly: true,
             placeholder: 'Document No',
         },
         {
-            name: 'mode',
-            label: `Document Mode: ${modeType}`,
-            type: 'checkbox',
-            placeholder: 'Checked = create Mode | Unchecked = upload Mode',
-        },
-        {
-            name: 'issuedNo',
-            label: 'Issued No',
+            name: 'name',
+            label: 'Document Name',
             type: 'text',
-            placeholder: 'Enter Issued No',
-            condition: (values) => values.mode === 'create',
+            placeholder: 'Enter Document Name',
         },
         {
-            name: 'issuedBy',
-            label: 'Issued By',
+            name: 'status',
+            label: 'Status',
             type: 'select',
-            options: issuedByOptions,
-            condition: (values) => values.mode === 'create',
+            defaultValue: 'controlled',
+            options: [
+                { value: 'controlled', label: 'Controlled' },
+                { value: 'uncontrolled', label: 'Uncontrolled' },
+            ],
         },
         {
-            name: 'issueDate',
-            label: 'Issue Date',
-            type: 'date',
-            minDate: new Date(),
-            placeholder: 'Select Issue Date',
-            condition: (values) => values.mode === 'create',
+            name: 'mode',
+            label: `Document Mode ${mode === 'create' ? '(Create)' : '(Upload)'}`,
+            type: 'checkbox',
+            defaultValue: 'create',
+            customRender: (field) => (
+                <Checkbox
+                    disabled={readOnly}
+                    checked={field.value === 'create'} // <-- show correct toggle
+                    onChange={(checked) => {
+                        field.onChange(checked ? 'create' : 'upload')
+                    }}
+                />
+            ),
+        },
+    ]
+
+    const documentFieldTwo: FormFieldConfig[] = [
+        {
+            name: 'header',
+            label: 'Header',
+            type: 'header',
+            options: availableHeaders,
         },
         {
-            name: 'copyNo',
+            name: 'footer',
+            label: 'Footer',
+            type: 'footer',
+            options: availableFooters,
+        },
+        {
+            name: 'copy_no',
             label: 'Copy No',
             type: 'text',
             placeholder: 'Enter Copy No',
-            condition: (values) => values.mode === 'create',
         },
         {
-            name: 'date',
-            label: 'Date',
-            type: 'date',
-            placeholder: 'Select Date',
-        },
-        {
-            name: 'time',
-            label: 'Time',
-            type: 'time',
-            placeholder: 'Select Time',
-        },
-        {
-            name: 'preparedBy',
-            label: 'Prepared By',
-            type: 'select',
-            options: preparedByOptions,
-            condition: (values) => values.mode === 'create',
-        },
-        {
-            name: 'preparedByDate',
-            label: 'Prepared By Date',
-            type: 'date',
-            placeholder: 'Select Prepared By Date',
-            condition: (values) => values.mode === 'create',
-        },
-        {
-            name: 'quantityPrepared',
+            name: 'quantity_prepared',
             label: 'Quantity Prepared',
             type: 'number',
             placeholder: 'Quantity Prepared',
-            condition: (values) => values.mode === 'create',
         },
+    ]
+
+    const documentFieldThree: FormFieldConfig[] = [
         {
-            name: 'approvedBy',
-            label: 'Approved By',
-            type: 'select',
-            options: approvedByOptions,
-            condition: (values) => values.mode === 'create',
-        },
-        {
-            name: 'amendmentNo',
-            label: 'Amendment No',
+            name: 'workflow_state',
+            label: 'Workflow State',
             type: 'text',
-            placeholder: 'Enter Amendment No',
+            readOnly: true,
+            defaultValue: 'prepared',
         },
         {
-            name: 'amendmentDate',
-            label: 'Amendment Date',
+            name: 'step_type',
+            label: 'Step',
+            type: 'text',
+            readOnly: true,
+            defaultValue: 'prepared',
+        },
+        {
+            name: 'performed_by',
+            label: 'prepared By',
+            type: 'text',
+            readOnly: true,
+            defaultValue: username,
+        },
+        {
+            name: 'performed_date',
+            label: 'prepared Date',
             type: 'date',
-            placeholder: 'Select Amendment Date',
+            readOnly: true,
+            defaultValue: new Date(),
+            minDate: new Date(),
         },
+    ]
+
+    const documentFieldFour: FormFieldConfig[] = [
         {
-            name: 'effectiveDate',
+            name: 'effective_date',
             label: 'Effective Date',
             type: 'date',
             placeholder: 'Select Effective Date',
         },
         {
-            name: 'frequency',
+            name: 'review_frequency',
             label: 'Review Frequency',
             type: 'select',
             options: [
@@ -393,30 +320,31 @@ const OverviewSection = ({
             ],
         },
         {
-            name: 'durationUnit',
-            label: 'Duration Unit',
+            name: 'notification_unit',
+            label: 'Notification Duration Unit',
             type: 'select',
             options: unitOptions,
-            condition: (values) => !!values.frequency,
+            condition: (values) => !!values.review_frequency,
         },
         {
-            name: 'durationValue',
+            name: 'notification_value',
             label: 'Duration Value',
             type: 'number',
             placeholder: 'Enter value',
-            condition: (values) => !!values.frequency,
+            condition: (values) => !!values.review_frequency,
             customRender: (field, formValues) => (
                 <Input
                     type="number"
                     min={1}
-                    max={getMaxValue(formValues.frequency)}
+                    max={getMaxValue(formValues.review_frequency)}
                     value={field.value || ''}
-                    disabled={!formValues.durationUnit || readOnly}
+                    disabled={!formValues.notification_unit || readOnly}
                     onChange={(e) => {
                         const val = e.target.value
                         if (
-                            !getMaxValue(formValues.frequency) ||
-                            Number(val) <= getMaxValue(formValues.frequency)
+                            !getMaxValue(formValues.review_frequency) ||
+                            Number(val) <=
+                                getMaxValue(formValues.review_frequency)
                         ) {
                             field.onChange(val)
                         }
@@ -424,61 +352,113 @@ const OverviewSection = ({
                 />
             ),
         },
-        {
-            name: 'status',
-            label: 'Status',
-            type: 'select',
-            options: [
-                { value: 'Controlled', label: 'Controlled' },
-                { value: 'Uncontrolled', label: 'Uncontrolled' },
-            ],
-        },
     ]
+
     const formValues = useWatch({ control })
 
     return (
-        <Card>
-            <h4 className="mb-6">Document Creation</h4>
-            <DynamicForm
-                control={control}
-                errors={errors}
-                fields={documentFields}
-                formValues={formValues} // <-- fix here
-                readOnly={readOnly}
-                fieldsDisabledWhenModeOff={fieldsDisabledWhenModeOff}
-                extraProps={{
-                    selectedHeaderHtml,
-                    setSelectedHeaderHtml,
-                    selectedFooterHtml,
-                    setSelectedFooterHtml,
-                    modeEnabled: mode,
-                }}
-            />
-
-            {(nextDate || notificationDate) && (
-                <div className="mt-4 p-4 rounded-2xl border border-blue-200 bg-gradient-to-br from-blue-50 to-green-50 shadow-sm">
-                    <div className="space-y-2 ml-2">
-                        {nextDate && (
-                            <div className="flex items-center text-green-700 gap-2">
-                                <span className="text-lg">✅</span>
-                                <span>
-                                    <b>Next Review Date:</b> {nextDate}
-                                </span>
-                            </div>
-                        )}
-
-                        {notificationDate && (
-                            <div className="flex items-center text-blue-700 gap-2">
-                                <span className="text-lg">🔔</span>
-                                <span>
-                                    <b>Notification Date:</b> {notificationDate}
-                                </span>
-                            </div>
-                        )}
+        <>
+            <div className="gap-4 flex flex-col flex-auto">
+                <Card>
+                    <h4 className="mb-6">Overview</h4>
+                    <div className="grid md:grid-cols-2 gap-4">
+                        <DynamicForm
+                            control={control}
+                            errors={errors}
+                            fields={documentFieldOne}
+                            formValues={formValues} // <-- fix here
+                            readOnly={readOnly}
+                            extraProps={{
+                                selectedHeaderHtml,
+                                setSelectedHeaderHtml,
+                                selectedFooterHtml,
+                                setSelectedFooterHtml,
+                            }}
+                        />
                     </div>
-                </div>
-            )}
-        </Card>
+                </Card>
+                {mode == 'create' && (
+                    <Card>
+                        <h4 className="mb-6">Mode Create Fields</h4>
+                        <div className="grid md:grid-cols-2 gap-4">
+                            <DynamicForm
+                                control={control}
+                                errors={errors}
+                                fields={documentFieldTwo}
+                                formValues={formValues} // <-- fix here
+                                readOnly={readOnly}
+                                extraProps={{
+                                    selectedHeaderHtml,
+                                    setSelectedHeaderHtml,
+                                    selectedFooterHtml,
+                                    setSelectedFooterHtml,
+                                }}
+                            />
+                        </div>
+                    </Card>
+                )}
+            </div>
+            <div className="md:w-[370px] gap-4 flex flex-col">
+                <Card>
+                    <h4 className="mb-6">Review Schedual</h4>
+                    <div className="grid md:grid-cols-2 gap-4">
+                        <DynamicForm
+                            control={control}
+                            errors={errors}
+                            fields={documentFieldThree}
+                            formValues={formValues} // <-- fix here
+                            readOnly={readOnly}
+                            extraProps={{
+                                selectedHeaderHtml,
+                                setSelectedHeaderHtml,
+                                selectedFooterHtml,
+                                setSelectedFooterHtml,
+                            }}
+                        />
+                    </div>
+                    <div className="grid md:grid-cols-1 gap-4">
+                        <DynamicForm
+                            control={control}
+                            errors={errors}
+                            fields={documentFieldFour}
+                            formValues={formValues} // <-- fix here
+                            readOnly={readOnly}
+                            extraProps={{
+                                selectedHeaderHtml,
+                                setSelectedHeaderHtml,
+                                selectedFooterHtml,
+                                setSelectedFooterHtml,
+                            }}
+                        />
+                    </div>
+
+                    {(nextDate || notificationDate) && (
+                        <div className="mt-4 p-4 rounded-2xl border border-blue-200 bg-gradient-to-br from-blue-50 to-green-50 shadow-sm">
+                            <div className="space-y-2 ml-2">
+                                {nextDate && (
+                                    <div className="flex items-center text-green-700 gap-2">
+                                        <span className="text-lg">✅</span>
+                                        <span>
+                                            <b>Next Review Date:</b> {nextDate}
+                                        </span>
+                                    </div>
+                                )}
+
+                                {notificationDate && (
+                                    <div className="flex items-center text-blue-700 gap-2">
+                                        <span className="text-lg">🔔</span>
+                                        <span>
+                                            <b>Notification Date:</b>{' '}
+                                            {notificationDate}
+                                        </span>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    )}
+                </Card>
+            </div>
+        </>
     )
 }
 

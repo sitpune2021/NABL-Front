@@ -11,9 +11,14 @@ import {
 import useSWR from 'swr'
 import { useDocumentListStore } from '../store/listStore'
 import type { TableQueries } from '@/@types/common'
-import { Fields, GetDocumentListResponse } from '@/@types/document'
+import {
+    Fields,
+    GetDocumentListResponse,
+    GetDocumentResponse,
+} from '@/@types/document'
+import { defaultDocumentValues } from '@/constants/intial-doc.constant'
 
-export default function useDocumentList() {
+export default function useDocumentList(documentId?: string) {
     const {
         tableData,
         filterData,
@@ -33,6 +38,18 @@ export default function useDocumentList() {
             revalidateOnFocus: false,
         },
     )
+
+    const {
+        data: detailData,
+        error: detailError,
+        isLoading: isDetailLoading,
+        mutate: mutateDetail,
+    } = useSWR<GetDocumentResponse>(
+        documentId ? `/api/document/${documentId}` : null,
+        () => apiGetDocumentById(documentId!),
+        { revalidateOnFocus: false },
+    )
+
     const saveDocumentData = async (document: Fields) => {
         let response
         if (document.id) {
@@ -55,18 +72,13 @@ export default function useDocumentList() {
         return response
     }
 
-    // ✅ Get single document by ID (for edit or view)
-    const getDocumentById = async (id: string) => {
-        const document = await apiGetDocumentById(id)
-        return document
-    }
-
     const getDocumentEditortById = async (id: string) => {
         const document: any = await apiGetDocumentEditortById(id)
         return document.data
     }
 
     const documentList = data?.data || []
+    const documentDetail = detailData?.data || defaultDocumentValues
 
     const documentListTotal = data?.total || 0
 
@@ -84,7 +96,10 @@ export default function useDocumentList() {
         setSelectAllDocument,
         setFilterData,
         saveDocumentData,
-        getDocumentById, // ✅ Now defined properly
+        documentDetail,
+        detailError,
+        isDetailLoading,
+        mutateDetail,
         saveDocumentEditorData,
         getDocumentEditortById,
     }

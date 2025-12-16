@@ -16,7 +16,7 @@ const useDynamicOptions = (config: any) => {
             setLoading(true)
             try {
                 const res = await axios.get(
-                    `http://192.168.1.33:8000/api/${config.table}`,
+                    `http://192.168.1.26:8000/api/${config.table}`,
                 )
                 const rows = Array.isArray(res.data?.data) ? res.data.data : []
                 const extracted = rows
@@ -50,6 +50,8 @@ const DynamicFormWrapper = ({
     } = useForm({
         defaultValues: documentData?.defaultValues || {},
     })
+
+    console.log(documentData.form_fields)
 
     const onSubmit = (data: any) => console.log('FORM DATA:', data)
 
@@ -127,12 +129,16 @@ const DynamicFormWrapper = ({
                                 )
 
                             case 'number':
+                                console.log(field)
+
                                 return (
                                     <Input
                                         {...field}
                                         type="number"
                                         placeholder={`Enter ${label}`}
                                         readOnly={readOnly}
+                                        min={config.min}
+                                        max={config.max}
                                     />
                                 )
 
@@ -148,7 +154,7 @@ const DynamicFormWrapper = ({
                                     />
                                 )
 
-                            case 'checkbox':
+                            case 'radio':
                                 return (
                                     <Checkbox.Group
                                         className="flex flex-col gap-2 mt-2"
@@ -240,21 +246,21 @@ const DynamicFormWrapper = ({
                         <Card>
                             <div className="mb-4">
                                 <h4 className="text-xl font-semibold">
-                                    Document Name : {documentData.documentName}
+                                    Document Name : {documentData.name}
                                 </h4>
                                 <p className="text-sm text-gray-600">
-                                    Document No : {documentData.documentNo}
+                                    Document No : {documentData.number}
                                 </p>
-                                <p className="text-sm text-gray-600">
+                                {/* <p className="text-sm text-gray-600">
                                     Lab Name : {documentData.labName}
-                                </p>
-                                <p className="text-sm text-gray-600">
+                                </p> */}
+                                {/* <p className="text-sm text-gray-600">
                                     Location : {documentData.location}
-                                </p>
+                                </p> */}
                             </div>
 
                             <div className="grid md:grid-cols-2 gap-6">
-                                {Object.entries(documentData.settings).map(
+                                {Object.entries(documentData.form_fields).map(
                                     ([name, config]) => (
                                         <div key={name}>
                                             {renderField(name, config)}
