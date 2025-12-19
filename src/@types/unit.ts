@@ -1,15 +1,13 @@
 import { TableQueries } from './common'
 
-import type { Control, FieldErrors } from 'react-hook-form'
-
 export type GetUnitListResponse = {
-    list: Unit[]
+    data: Unit[]
     total: number
 }
 
-export type Filter = {
-    purchasedProducts: string
-    purchaseChannel: Array<string>
+export type GetUnitDetailResponse = {
+    data: Unit
+    total: number
 }
 
 export type Unit = {
@@ -19,15 +17,15 @@ export type Unit = {
 
 export type UnitListState = {
     tableData: TableQueries
-    filterData: Filter
-    selectedUnit: Partial<Unit>[]
+    selected: Unit[]
 }
 
-export type UnitListAction = {
-    setFilterData: (payload: Filter) => void
-    setTableData: (payload: TableQueries) => void
-    setSelectedUnit: (checked: boolean, customer: Unit) => void
-    setSelectAllUnit: (customer: Unit[]) => void
+export type UnitListActions = {
+    updateTable: (payload: Partial<TableQueries>) => void
+    toggleRow: (checked: boolean, row: Unit) => void
+    setAll: (rows: Unit[]) => void
+    clearSelection: () => void
+    resetQuery: () => void
 }
 
 export type Fields = {
@@ -37,12 +35,4 @@ export type Fields = {
 
 export type TagsFields = {
     tags: Array<{ value: string; label: string }>
-}
-
-export type UnitFormSchema = Fields
-
-export type FormSectionBaseProps = {
-    control: Control<UnitFormSchema>
-    errors: FieldErrors<UnitFormSchema>
-    readOnly?: boolean
 }

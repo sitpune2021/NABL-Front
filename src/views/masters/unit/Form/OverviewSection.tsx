@@ -1,45 +1,33 @@
 import Card from '@/components/ui/Card'
 import Input from '@/components/ui/Input'
 import { FormItem } from '@/components/ui/Form'
-import { Controller } from 'react-hook-form'
-import { FormSectionBaseProps } from '@/@types/unit'
+import { useFormContext } from 'react-hook-form'
+import { UnitFormSchema } from '@/schemas/unit.schema'
 
-type OverviewSectionProps = FormSectionBaseProps & {
-    hasDuplicate?: boolean
+type OverviewSectionProps = {
+    readOnly?: boolean
+    loading?: boolean
 }
-
-const OverviewSection = ({
-    control,
-    errors,
-    readOnly,
-    hasDuplicate = false,
-}: OverviewSectionProps) => {
+const OverviewSection = ({ readOnly, loading }: OverviewSectionProps) => {
+    const {
+        register,
+        formState: { errors },
+    } = useFormContext<UnitFormSchema>()
     return (
         <Card>
             <h4 className="mb-6">Unit</h4>
             <div className="grid md:grid-cols-2 gap-4">
                 <FormItem
                     label="Name"
-                    invalid={Boolean(errors.name) || hasDuplicate}
-                    errorMessage={
-                        hasDuplicate
-                            ? 'This unit name already exists with different case'
-                            : errors.name?.message
-                    }
+                    invalid={!!errors.name}
+                    errorMessage={errors.name?.message}
                 >
-                    <Controller
-                        name="name"
-                        control={control}
-                        render={({ field }) => (
-                            <Input
-                                type="text"
-                                autoComplete="off"
-                                readOnly={readOnly}
-                                placeholder="Unit Name"
-                                {...field}
-                                className={hasDuplicate ? 'border-warning' : ''}
-                            />
-                        )}
+                    <Input
+                        type="text"
+                        autoComplete="off"
+                        placeholder="Enter Name"
+                        disabled={readOnly || loading}
+                        {...register('name')}
                     />
                 </FormItem>
             </div>

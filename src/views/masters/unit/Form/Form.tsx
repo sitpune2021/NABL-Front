@@ -1,145 +1,68 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo } from 'react'
 import { Form } from '@/components/ui/Form'
 import Container from '@/components/shared/Container'
 import BottomStickyBar from '@/components/template/BottomStickyBar'
 import OverviewSection from './OverviewSection'
-import isEmpty from 'lodash/isEmpty'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useForm } from 'react-hook-form'
-import { z } from 'zod'
+import { FormProvider, useForm } from 'react-hook-form'
 import type { CommonProps } from '@/@types/common'
-import { UnitFormSchema } from '@/@types/unit'
-import ConfirmDialog from '@/components/shared/ConfirmDialog'
+import { UnitFormSchema, unitSchema } from '@/schemas/unit.schema'
+import { EMPTY_VALUES } from '@/constants/unit.constant'
 
 type UnitFormProps = {
     onFormSubmit: (values: UnitFormSchema) => void
     defaultValues?: UnitFormSchema
-    newUnit?: boolean
     readOnly?: boolean
-    existingUnits?: string[]
+    loading?: boolean
 } & CommonProps
 
-const validationSchema = z.object({
-    name: z.string().min(1, { message: 'Name is required' }),
-})
+const UnitForm = ({
+    onFormSubmit,
+    defaultValues,
+    readOnly = false,
+    loading = false,
+    children,
+}: UnitFormProps) => {
+    const memoizedDefaults = useMemo(
+        () => defaultValues ?? EMPTY_VALUES,
+        [defaultValues],
+    )
 
-const UnitForm = (props: UnitFormProps) => {
-    const {
-        onFormSubmit,
-        defaultValues,
-        readOnly = false,
-        children,
-        existingUnits = [],
-    } = props
-
-    const {
-        handleSubmit,
-        reset,
-        formState: { errors },
-        control,
-        watch,
-        trigger,
-    } = useForm<UnitFormSchema>({
-        defaultValues: defaultValues,
-        resolver: zodResolver(validationSchema),
+    const methods = useForm<UnitFormSchema>({
+        resolver: zodResolver(unitSchema),
+        defaultValues: memoizedDefaults,
+        mode: 'onSubmit',
+        reValidateMode: 'onChange',
     })
 
-    const [confirmDialogOpen, setConfirmDialogOpen] = useState(false)
-    const [pendingSubmitData, setPendingSubmitData] =
-        useState<UnitFormSchema | null>(null)
-    const [justSubmitted, setJustSubmitted] = useState(false)
-
-    const nameValue = watch('name')
-
-    const checkDuplicate = (name: string): boolean => {
-        if (!name) return false
-        return existingUnits.some(
-            (existingName) => existingName.toLowerCase() === name.toLowerCase(),
-        )
-    }
-
-    const hasDuplicate =
-        !justSubmitted &&
-        checkDuplicate(nameValue) &&
-        nameValue.trim().length > 0 &&
-        nameValue !== defaultValues?.name
+    const { handleSubmit, reset } = methods
 
     useEffect(() => {
-        if (!isEmpty(defaultValues)) {
+        if (defaultValues) {
             reset(defaultValues)
         }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [JSON.stringify(defaultValues)])
-
-    const handleConfirmSubmit = () => {
-        if (pendingSubmitData) {
-            setConfirmDialogOpen(false)
-            onFormSubmit?.(pendingSubmitData)
-            setPendingSubmitData(null)
-        }
-    }
-
-    const handleCancelSubmit = () => {
-        setConfirmDialogOpen(false)
-        setPendingSubmitData(null)
-    }
-
-    const onSubmit = async (values: UnitFormSchema) => {
-        const isValid = await trigger()
-        if (!isValid) return
-
-        setJustSubmitted(true)
-
-        if (checkDuplicate(values.name)) {
-            setPendingSubmitData(values)
-            setConfirmDialogOpen(true)
-        } else {
-            onFormSubmit?.(values)
-        }
-
-        setTimeout(() => setJustSubmitted(false), 1000)
-    }
+    }, [defaultValues, reset])
 
     return (
-        <>
+        <FormProvider {...methods}>
             <Form
                 className="flex w-full h-full"
                 containerClassName="flex flex-col w-full justify-between"
-                onSubmit={handleSubmit(onSubmit)}
+                onSubmit={handleSubmit(onFormSubmit)}
             >
                 <Container>
                     <div className="flex flex-col md:flex-row gap-4">
                         <div className="gap-4 flex flex-col flex-auto">
                             <OverviewSection
-                                control={control}
-                                errors={errors}
                                 readOnly={readOnly}
-                                hasDuplicate={
-                                    hasDuplicate &&
-                                    nameValue !== defaultValues?.name
-                                }
+                                loading={loading}
                             />
                         </div>
                     </div>
                 </Container>
                 <BottomStickyBar>{children}</BottomStickyBar>
             </Form>
-
-            <ConfirmDialog
-                isOpen={confirmDialogOpen}
-                type="warning"
-                title="Duplicate Unit Name"
-                onClose={handleCancelSubmit}
-                onRequestClose={handleCancelSubmit}
-                onCancel={handleCancelSubmit}
-                onConfirm={handleConfirmSubmit}
-            >
-                <p>
-                    This unit name already exists in the system with different
-                    case. Are you sure you want to add it anyway?
-                </p>
-            </ConfirmDialog>
-        </>
+        </FormProvider>
     )
 }
 

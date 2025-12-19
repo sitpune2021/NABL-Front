@@ -75,7 +75,7 @@ const DepartmentListSelected = () => {
             <ConfirmDialog
                 isOpen={isDeleteOpen}
                 type="danger"
-                title="Remove categories"
+                title="Remove departments"
                 onClose={handleCancel}
                 onRequestClose={handleCancel}
                 onCancel={handleCancel}
@@ -83,7 +83,7 @@ const DepartmentListSelected = () => {
             >
                 <p>
                     {' '}
-                    Are you sure you want to remove these categories? This
+                    Are you sure you want to remove these departments? This
                     action can&apos;t be undo.{' '}
                 </p>
             </ConfirmDialog>
