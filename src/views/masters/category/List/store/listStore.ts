@@ -1,39 +1,62 @@
 import { create } from 'zustand'
+import { persist } from 'zustand/middleware'
 import type { TableQueries } from '@/@types/common'
-import { CategoryListAction, CategoryListState } from '@/@types/category'
+import type { Category } from '@/@types/category'
+
+type CategoryListState = {
+    tableData: TableQueries
+    selected: Category[]
+}
+
+type CategoryListActions = {
+    updateTable: (payload: Partial<TableQueries>) => void
+    toggleRow: (checked: boolean, row: Category) => void
+    setAll: (rows: Category[]) => void
+    clearSelection: () => void
+    resetQuery: () => void
+}
 
 export const initialTableData: TableQueries = {
     pageIndex: 1,
     pageSize: 10,
     query: '',
-    sort: {
-        order: '',
-        key: '',
-    },
-}
-
-const initialState: CategoryListState = {
-    tableData: initialTableData,
-    selectedCategory: [],
+    sort: { key: '', order: '' },
 }
 
 export const useCategoryListStore = create<
-    CategoryListState & CategoryListAction
->((set) => ({
-    ...initialState,
-    setTableData: (payload) => set(() => ({ tableData: payload })),
-    setSelectedCategory: (checked, row) =>
-        set((state) => {
-            const prevData = state.selectedCategory
-            if (checked) {
-                return { selectedCategory: [...prevData, row] }
-            } else {
-                return {
-                    selectedCategory: prevData.filter(
-                        (prevCategory) => prevCategory.id !== row.id,
-                    ),
-                }
-            }
+    CategoryListState & CategoryListActions
+>()(
+    persist(
+        (set) => ({
+            tableData: initialTableData,
+            selected: [],
+
+            updateTable: (payload) =>
+                set((state) => ({
+                    tableData: { ...state.tableData, ...payload },
+                })),
+
+            toggleRow: (checked, row) =>
+                set((state) => ({
+                    selected: checked
+                        ? [...state.selected, row]
+                        : state.selected.filter((r) => r.id !== row.id),
+                })),
+
+            setAll: (rows) => set({ selected: rows }),
+
+            clearSelection: () => set({ selected: [] }),
+
+            resetQuery: () =>
+                set((state) => ({
+                    tableData: { ...state.tableData, query: '', pageIndex: 1 },
+                })),
         }),
-    setSelectAllCategory: (rows) => set(() => ({ selectedCategory: rows })),
-}))
+        {
+            name: 'category-table',
+            partialize: (state) => ({
+                tableData: { ...state.tableData, query: '' }, // persist only page/sort, not query
+            }),
+        },
+    ),
+)

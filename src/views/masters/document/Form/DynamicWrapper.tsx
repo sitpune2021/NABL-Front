@@ -4,6 +4,8 @@ import { Card, Checkbox, Form, FormItem, Input, Select } from '@/components/ui'
 import { useForm, Controller } from 'react-hook-form'
 import { useEffect, useState } from 'react'
 import axios from 'axios'
+import BottomPanel from '@/components/form/bottomPanel'
+import { useSessionUser } from '@/store/authStore'
 
 const useDynamicOptions = (config: any) => {
     const [options, setOptions] = useState<any[]>([])
@@ -50,10 +52,18 @@ const DynamicFormWrapper = ({
     } = useForm({
         defaultValues: documentData?.defaultValues || {},
     })
+    const { lab } = useSessionUser((state) => state.user)
+    const onSubmit = (data: any) => {
+        const existing = localStorage.getItem('formData')
+        const parsed = existing ? JSON.parse(existing) : {}
 
-    console.log(documentData.form_fields)
+        const updatedData = {
+            ...parsed,
+            ...data,
+        }
 
-    const onSubmit = (data: any) => console.log('FORM DATA:', data)
+        localStorage.setItem('formData', JSON.stringify(updatedData))
+    }
 
     if (!isDataEntry) return null
 
@@ -129,8 +139,6 @@ const DynamicFormWrapper = ({
                                 )
 
                             case 'number':
-                                console.log(field)
-
                                 return (
                                     <Input
                                         {...field}
@@ -155,6 +163,7 @@ const DynamicFormWrapper = ({
                                 )
 
                             case 'radio':
+                            case 'checkbox':
                                 return (
                                     <Checkbox.Group
                                         className="flex flex-col gap-2 mt-2"
@@ -272,6 +281,14 @@ const DynamicFormWrapper = ({
                     </div>
                 </div>
             </Container>
+            {lab ? (
+                <BottomPanel
+                    isView={false}
+                    isSubmitting={false}
+                    isEdit={false}
+                    onDiscard={() => {}}
+                />
+            ) : null}
         </Form>
     )
 }

@@ -43,7 +43,7 @@ export default function useClausesList() {
 
     const clausesList = data?.list || []
     const clausesListTotal = data?.total || 0
-    const clausesDetail = data?.list[0] || {}
+    const clausesDetail = undefined
 
     return {
         clausesList,

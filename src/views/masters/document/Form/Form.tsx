@@ -9,7 +9,7 @@ import OverviewSection from './OverviewSection'
 import FrequencyPopup from './FrequencyPopup'
 import { useDocumentForm } from '../List/hooks/useDocumentForm'
 import PageContainer from '@/components/template/PageContainer'
-import useCategoryList from '../../category/List/hooks/useList'
+import { useCategoryList } from '../../category/List/hooks/useList'
 import useDepartmentList from '../../department/List/hooks/useList'
 import useTemplateList from '../../template/List/hooks/useList'
 import { DocumentFormSchema, EditorFormSchema } from '@/@types/document'
@@ -19,6 +19,7 @@ type DocumentFormProps = {
     defaultValues?: Partial<DocumentFormSchema>
     readOnly?: boolean
     isEdit?: boolean
+    isForEditor?: boolean
 }
 
 export default function DocumentForm({
@@ -26,6 +27,7 @@ export default function DocumentForm({
     defaultValues = {},
     readOnly = false,
     isEdit = false,
+    isForEditor,
 }: DocumentFormProps) {
     const [step, setStep] = useState(0)
     const [showFrequencyPopup, setShowFrequencyPopup] = useState(false)
@@ -69,7 +71,6 @@ export default function DocumentForm({
 
     const goPrev = () => setStep((prev) => Math.max(prev - 1, 0))
     const handlePopupClose = () => setShowFrequencyPopup(false)
-    console.log(errors)
 
     const handleFrequencyConfirm = async () => {
         // 🔥 Trigger full form validation
@@ -79,6 +80,19 @@ export default function DocumentForm({
         }
         setShowFrequencyPopup(false)
         handleSubmit(onFormSubmit as any)()
+    }
+
+    if (isForEditor && readOnly) {
+        return (
+            <GrapesEditor
+                control={control}
+                errors={errors}
+                readOnly={readOnly}
+                setValue={setValue}
+                isEdit={isEdit}
+                getTemplateById={getTemplateById}
+            />
+        )
     }
 
     return (

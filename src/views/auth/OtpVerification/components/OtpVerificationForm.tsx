@@ -41,6 +41,7 @@ const OtpVerificationForm = (props: OtpVerificationFormProps) => {
         setSubmitting(true)
         try {
             /** simulate api call with sleep */
+            otp
             await sleep(1000)
             setSubmitting(false)
             setOtpVerified?.('OTP verified!')
@@ -50,8 +51,6 @@ const OtpVerificationForm = (props: OtpVerificationFormProps) => {
             )
             setSubmitting(false)
         }
-
-        console.log('otp', otp)
         setSubmitting(false)
     }
 

@@ -1,14 +1,13 @@
-import { useMemo } from 'react'
-import ActionColumn from '@/components/form/ActionColumn'
+import { useCallback, useMemo } from 'react'
 import DataTable from '@/components/shared/DataTable'
 import { useNavigate } from 'react-router'
 import cloneDeep from 'lodash/cloneDeep'
-import { TbPencil, TbEye, TbLocationBolt } from 'react-icons/tb'
-import type { OnSortParam, ColumnDef, Row } from '@/components/shared/DataTable'
+import type { OnSortParam, Row } from '@/components/shared/DataTable'
 import type { TableQueries } from '@/@types/common'
 import useLabList from '../hooks/useList'
 import endpointConfig from '@/configs/endpoint.config'
 import { Lab } from '@/@types/lab'
+import { buildLabColumns } from '@/columns/lab.columns'
 
 const LabListTable = () => {
     const navigate = useNavigate()
@@ -24,88 +23,43 @@ const LabListTable = () => {
         selectedLab,
     } = useLabList()
 
-    const handleEdit = (lab: Lab) => {
-        const path = endpointConfig.master.lab.edit.replace(
-            ':id',
-            String(lab.id),
-        )
-        navigate(path)
-    }
+    const navigateTo = useCallback((path: string) => navigate(path), [navigate])
 
-    const handleLocation = (lab: Lab) => {
-        const path = endpointConfig.master.lab.location.replace(
-            ':id',
-            String(lab.id),
-        )
-        navigate(path)
-    }
+    const handleEdit = useCallback(
+        (lab: Lab) =>
+            navigateTo(
+                endpointConfig.client.lab.edit.replace(':id', String(lab.id)),
+            ),
+        [navigateTo],
+    )
 
-    const handleViewDetails = (lab: Lab) => {
-        const path = endpointConfig.master.lab.view.replace(
-            ':id',
-            String(lab.id),
-        )
-        navigate(path)
-    }
+    const handleView = useCallback(
+        (lab: Lab) =>
+            navigateTo(
+                endpointConfig.client.lab.view.replace(':id', String(lab.id)),
+            ),
+        [navigateTo],
+    )
 
-    const columns: ColumnDef<Lab>[] = useMemo(
-        () => [
-            {
-                header: 'Id',
-                accessorKey: 'id',
-            },
-            {
-                header: 'Name',
-                accessorKey: 'name',
-                cell: (props) => {
-                    const { name, labType } = props.row.original
-                    return (
-                        <div className="flex items-center gap-2">
-                            <div>
-                                <div className="font-bold heading-text">
-                                    {name}
-                                </div>
-                                <div>{labType}</div>
-                            </div>
-                        </div>
-                    )
-                },
-            },
-            {
-                header: 'Lab Code',
-                accessorKey: 'labCode',
-            },
-            {
-                header: 'Action',
-                accessorKey: 'action',
-                id: 'action',
-                cell: (props) => (
-                    <ActionColumn
-                        buttons={[
-                            {
-                                icon: <TbPencil />,
-                                tooltip: 'Edit',
-                                onClick: () => handleEdit(props.row.original),
-                            },
-                            {
-                                icon: <TbEye />,
-                                tooltip: 'View',
-                                onClick: () =>
-                                    handleViewDetails(props.row.original),
-                            },
-                            {
-                                icon: <TbLocationBolt />,
-                                tooltip: 'Location',
-                                onClick: () =>
-                                    handleLocation(props.row.original),
-                            },
-                        ]}
-                    />
+    const handleLocation = useCallback(
+        (lab: Lab) =>
+            navigateTo(
+                endpointConfig.client.lab.location.replace(
+                    ':id',
+                    String(lab.id),
                 ),
-            },
-        ],
+            ),
+        [navigateTo],
+    )
 
-        [],
+    const columns = useMemo(
+        () =>
+            buildLabColumns({
+                onEdit: handleEdit,
+                onView: handleView,
+                onLocation: handleLocation,
+            }),
+        [handleEdit, handleView],
     )
 
     const handleSetTableData = (data: TableQueries) => {

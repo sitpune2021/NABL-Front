@@ -28,8 +28,6 @@ export async function apiGetSignatoryOnById(id: string) {
 }
 
 export async function apiUpdateSignatoryOn(id: string, data: Fields) {
-    console.log('Updating signatoryOn with ID:', id, 'and data:', data) // Debug log;
-
     return ApiService.fetchDataWithAxios<Fields>({
         url: `/signatoryOn/${id}`,
         method: 'put',

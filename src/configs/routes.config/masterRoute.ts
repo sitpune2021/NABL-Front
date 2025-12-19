@@ -28,6 +28,30 @@ const masterRoute: Routes = [
         authority: [],
     },
     {
+        key: 'masters.subcategory.list',
+        path: `${endpointConfig.master.subcategory.list}`,
+        component: lazy(() => import('@/views/masters/subcategory/List')),
+        authority: [],
+    },
+    {
+        key: 'masters.subcategory.list',
+        path: `${endpointConfig.master.subcategory.create}`,
+        component: lazy(() => import('@/views/masters/subcategory/AddEdit')),
+        authority: [],
+    },
+    {
+        key: 'masters.subcategory.list',
+        path: endpointConfig.master.subcategory.edit,
+        component: lazy(() => import('@/views/masters/subcategory/AddEdit')),
+        authority: [],
+    },
+    {
+        key: 'masters.subcategory.list',
+        path: endpointConfig.master.subcategory.view,
+        component: lazy(() => import('@/views/masters/subcategory/AddEdit')),
+        authority: [],
+    },
+    {
         key: 'masters.department.list',
         path: `${endpointConfig.master.department.list}`,
         component: lazy(() => import('@/views/masters/department/List')),
@@ -52,168 +76,29 @@ const masterRoute: Routes = [
         authority: [],
     },
     {
-        key: 'settings.unit.list',
-        path: `${endpointConfig.setting.unit.list}`,
+        key: 'masters.unit.list',
+        path: `${endpointConfig.master.unit.list}`,
         component: lazy(() => import('@/views/masters/unit/List')),
         authority: [],
     },
     {
-        key: 'settings.unit.list',
-        path: `${endpointConfig.setting.unit.create}`,
+        key: 'masters.unit.list',
+        path: `${endpointConfig.master.unit.create}`,
         component: lazy(() => import('@/views/masters/unit/AddEdit')),
         authority: [],
     },
     {
-        key: 'settings.unit.list',
-        path: endpointConfig.setting.unit.edit,
+        key: 'masters.unit.list',
+        path: endpointConfig.master.unit.edit,
         component: lazy(() => import('@/views/masters/unit/AddEdit')),
         authority: [],
     },
     {
-        key: 'settings.unit.list',
-        path: endpointConfig.setting.unit.view,
+        key: 'masters.unit.list',
+        path: endpointConfig.master.unit.view,
         component: lazy(() => import('@/views/masters/unit/AddEdit')),
         authority: [],
     },
-    {
-        key: 'masters.signatoryBy.list',
-        path: `${endpointConfig.master.signatoryBy.list}`,
-        component: lazy(() => import('@/views/masters/signatoryBy/List')),
-        authority: [],
-    },
-    {
-        key: 'masters.signatoryBy.list',
-        path: `${endpointConfig.master.signatoryBy.create}`,
-        component: lazy(() => import('@/views/masters/signatoryBy/AddEdit')),
-        authority: [],
-    },
-    {
-        key: 'masters.signatoryBy.list',
-        path: endpointConfig.master.signatoryBy.edit,
-        component: lazy(() => import('@/views/masters/signatoryBy/AddEdit')),
-        authority: [],
-    },
-    {
-        key: 'masters.signatoryBy.list',
-        path: endpointConfig.master.signatoryBy.view,
-        component: lazy(() => import('@/views/masters/signatoryBy/AddEdit')),
-        authority: [],
-    },
-    {
-        key: 'masters.signatoryOn.list',
-        path: `${endpointConfig.master.signatoryOn.list}`,
-        component: lazy(() => import('@/views/masters/signatoryOn/List')),
-        authority: [],
-    },
-    {
-        key: 'masters.signatoryOn.list',
-        path: `${endpointConfig.master.signatoryOn.create}`,
-        component: lazy(() => import('@/views/masters/signatoryOn/AddEdit')),
-        authority: [],
-    },
-    {
-        key: 'masters.signatoryOn.list',
-        path: endpointConfig.master.signatoryOn.edit,
-        component: lazy(() => import('@/views/masters/signatoryOn/AddEdit')),
-        authority: [],
-    },
-    {
-        key: 'masters.signatoryOn.list',
-        path: endpointConfig.master.signatoryOn.view,
-        component: lazy(() => import('@/views/masters/signatoryOn/AddEdit')),
-        authority: [],
-    },
-    // lab
-    {
-        key: 'masters.lab.list',
-        path: `${endpointConfig.master.lab.list}`,
-        component: lazy(() => import('@/views/masters/lab/List')),
-        authority: [],
-    },
-    {
-        key: 'masters.lab.list',
-        path: `${endpointConfig.master.lab.create}`,
-        component: lazy(() => import('@/views/masters/lab/AddEdit')),
-        authority: [],
-    },
-    {
-        key: 'masters.lab.list',
-        path: endpointConfig.master.lab.edit,
-        component: lazy(() => import('@/views/masters/lab/AddEdit')),
-        authority: [],
-    },
-    {
-        key: 'masters.lab.list',
-        path: endpointConfig.master.lab.location,
-        component: lazy(() => import('@/views/masters/lab/List')),
-        authority: [],
-    },
-    {
-        key: 'masters.lab.list',
-        path: endpointConfig.master.lab.view,
-        component: lazy(() => import('@/views/masters/lab/AddEdit')),
-        authority: [],
-    },
-    // user
-    {
-        key: 'settings.user.list',
-        path: `${endpointConfig.setting.user.list}`,
-        component: lazy(() => import('@/views/masters/user/List')),
-        authority: [],
-    },
-    {
-        key: 'settings.user.list',
-        path: `${endpointConfig.setting.user.create}`,
-        component: lazy(() => import('@/views/masters/user/AddEdit')),
-        authority: [],
-        meta: {
-            header: {
-                title: 'Create Users',
-                description:
-                    'Manage Users details, track Users, and update Users easily.',
-                contained: true,
-            },
-            footer: false,
-        },
-    },
-    {
-        key: 'settings.user.list',
-        path: endpointConfig.setting.user.edit,
-        component: lazy(() => import('@/views/masters/user/AddEdit')),
-        authority: [],
-    },
-    {
-        key: 'settings.user.list',
-        path: endpointConfig.setting.user.view,
-        component: lazy(() => import('@/views/masters/user/AddEdit')),
-        authority: [],
-    },
-    // template
-    {
-        key: 'masters.subcategory.list',
-        path: `${endpointConfig.master.subcategory.list}`,
-        component: lazy(() => import('@/views/masters/subcategory/List')),
-        authority: [],
-    },
-    {
-        key: 'masters.subcategory.list',
-        path: `${endpointConfig.master.subcategory.create}`,
-        component: lazy(() => import('@/views/masters/subcategory/AddEdit')),
-        authority: [],
-    },
-    {
-        key: 'masters.subcategory.list',
-        path: endpointConfig.master.subcategory.edit,
-        component: lazy(() => import('@/views/masters/subcategory/AddEdit')),
-        authority: [],
-    },
-    {
-        key: 'masters.subcategory.list',
-        path: endpointConfig.master.subcategory.view,
-        component: lazy(() => import('@/views/masters/subcategory/AddEdit')),
-        authority: [],
-    },
-
     {
         key: 'masters.document.list',
         path: `${endpointConfig.master.document.list}`,
@@ -311,71 +196,6 @@ const masterRoute: Routes = [
             pageContainerType: 'gutterless',
         },
     },
-    {
-        key: 'settings.rolesPermission.list',
-        path: `${endpointConfig.setting.rolesPermission.list}`,
-        component: lazy(() => import('@/views/masters/RolesPermissions')),
-        authority: [],
-        meta: {
-            pageContainerType: 'contained',
-            pageBackgroundType: 'plain',
-        },
-    },
-    {
-        key: 'settings.clauses.list',
-        path: `${endpointConfig.setting.clauses.list}`,
-        component: lazy(() => import('@/views/masters/clauses/List')),
-        authority: [],
-    },
-    {
-        key: 'settings.clauses.list',
-        path: `${endpointConfig.setting.clauses.create}`,
-        component: lazy(() => import('@/views/masters/clauses/AddEdit')),
-        authority: [],
-    },
-    {
-        key: 'settings.clauses.list',
-        path: `${endpointConfig.setting.clauses.create}/:id`,
-        component: lazy(() => import('@/views/masters/clauses/AddEdit')),
-        authority: [],
-    },
-    {
-        key: 'settings.clauses.list',
-        path: endpointConfig.setting.clauses.edit,
-        component: lazy(() => import('@/views/masters/clauses/AddEdit')),
-        authority: [],
-    },
-    {
-        key: 'settings.clauses.list',
-        path: endpointConfig.setting.clauses.view,
-        component: lazy(() => import('@/views/masters/clauses/AddEdit')),
-        authority: [],
-    },
-    {
-        key: 'settings.clauses.standard.create',
-        path: endpointConfig.setting.clauses.standardCreate,
-        component: lazy(
-            () => import('@/views/masters/clauses/AddEdit/standardAddEdit'),
-        ),
-        authority: [],
-    },
-    {
-        key: 'settings.clauses.standard.edit',
-        path: endpointConfig.setting.clauses.standardEdit,
-        component: lazy(
-            () => import('@/views/masters/clauses/AddEdit/standardAddEdit'),
-        ),
-        authority: [],
-    },
-    {
-        key: 'settings.clauses.standard.view',
-        path: endpointConfig.setting.clauses.standardView,
-        component: lazy(
-            () => import('@/views/masters/clauses/AddEdit/standardAddEdit'),
-        ),
-        authority: [],
-    },
-    //location
     {
         key: 'masters.location.list',
         path: `${endpointConfig.master.location.list}`,

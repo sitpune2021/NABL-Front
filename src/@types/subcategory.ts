@@ -1,8 +1,6 @@
+import { FormSchema } from '@/views/masters/subcategory/List/components/ListTableFilter'
 import { Category } from './category'
-import { TableQueries } from './common'
-import type { IdentifierEntity } from './common'
-
-import type { Control, FieldErrors } from 'react-hook-form'
+import type { IdentifierEntity, TableQueries } from './common'
 
 export type GetSubCategoryListResponse = {
     data: SubCategory[]
@@ -11,11 +9,6 @@ export type GetSubCategoryListResponse = {
 
 export type GetSubCategoryDetailResponse = {
     data: SubCategories
-}
-
-export type Filter = {
-    purchasedProducts: string
-    purchaseChannel: Array<string>
 }
 
 export type SubCategory = {
@@ -31,19 +24,6 @@ export type SubCategories = {
     cat_id: string | number
 } & IdentifierEntity
 
-export type SubCategoryListState = {
-    tableData: TableQueries
-    filterData: Filter
-    selectedSubCategory: Partial<SubCategory>[]
-}
-
-export type SubCategoryListAction = {
-    setFilterData: (payload: Filter) => void
-    setTableData: (payload: TableQueries) => void
-    setSelectedSubCategory: (checked: boolean, subCategory: SubCategory) => void
-    setSelectAllSubCategory: (subCategory: SubCategory[]) => void
-}
-
 export type Fields = {
     id?: string
     name: string
@@ -55,10 +35,18 @@ export type TagsFields = {
     tags: Array<{ value: string; label: string }>
 }
 
-export type SubCategoryFormSchema = Fields
+export type SubCategoryListState = {
+    tableData: TableQueries
+    filterData: FormSchema
+    selected: SubCategory[]
+}
 
-export type FormSectionBaseProps = {
-    control: Control<SubCategoryFormSchema>
-    errors: FieldErrors<SubCategoryFormSchema>
-    readOnly?: boolean
+export type SubCategoryListActions = {
+    updateTable: (payload: Partial<TableQueries>) => void
+    updateFilters: (payload: Partial<FormSchema>) => void
+    resetFilters: () => void
+    toggleRow: (checked: boolean, row: SubCategory) => void
+    setAll: (rows: SubCategory[]) => void
+    clearSelection: () => void
+    resetQuery: () => void
 }

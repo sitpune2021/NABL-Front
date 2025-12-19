@@ -1,6 +1,42 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { TableQueries } from './common'
 import type { Control, FieldErrors } from 'react-hook-form'
+import { TableQueries } from './common'
+import { LabFormSchema } from '@/schemas/lab.schema'
+
+export type ContactField = {
+    type: string
+    value: string
+    label?: 'primary' | 'alternate'
+    is_primary?: boolean
+}
+
+export type LocationField = {
+    id?: string
+    prefix: string
+    shortName: string
+    zone_name: string | number
+    cluster_name: string | number
+    location_name: string | number
+    instruments: (string | number)[]
+    departments: {
+        name: string | number
+        instruments: (string | number)[]
+    }[]
+    emails: ContactField[]
+    phones: ContactField[]
+    address?: string
+}
+
+export type Lab = {
+    id?: string
+    name: string
+    labType: string
+    labCode: string
+    emails: ContactField[]
+    phones: ContactField[]
+    address?: string
+    location: LocationField[]
+}
 
 export type GetLabListResponse = {
     data: Lab[]
@@ -9,23 +45,11 @@ export type GetLabListResponse = {
 
 export type GetLabDetailResponse = {
     data: Lab
-    total: number
 }
 
 export type Filter = {
     purchasedProducts: string
     purchaseChannel: string[]
-}
-
-export type Lab = {
-    id: string
-    name: string
-    labType: string
-    labCode: string
-    emails: { value: string; label: string; is_primary: any }[]
-    phones: { value: string; label: string; is_primary: any }[]
-    address?: string
-    locations: LocationField[]
 }
 
 export type LabListState = {
@@ -40,40 +64,6 @@ export type LabListAction = {
     setSelectedLab: (checked: boolean, lab: Lab) => void
     setSelectAllLab: (labs: Lab[]) => void
 }
-
-export type LocationField = {
-    id?: string
-    prefix: string
-    shortName: string
-    zone_name: string | null
-    cluster_name: string | null
-    location_name: string | null
-    instruments: (string | number)[]
-    departments: {
-        name: string
-        instruments: (string | number)[]
-    }[]
-    emails: { value: string }[]
-    phones: { value: string }[]
-    address?: string
-}
-
-export type Fields = {
-    id?: string
-    name: string
-    labType: string
-    labCode: string
-    emails: { type: string; value: string; label: string; is_primary: any }[]
-    phones: { type: string; value: string; label: string; is_primary: any }[]
-    address?: string
-    location: LocationField[]
-}
-
-export type TagsFields = {
-    tags: Array<{ value: string; label: string }>
-}
-
-export type LabFormSchema = Fields
 
 export type FormSectionBaseProps = {
     control: Control<LabFormSchema>

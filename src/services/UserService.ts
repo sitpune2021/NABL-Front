@@ -27,8 +27,6 @@ export async function apiGetUserById(id: string) {
 }
 
 export async function apiUpdateUser(id: string, data: Fields) {
-    console.log('Updating user with ID:', id, 'and data:', data) // Debug log;
-
     return ApiService.fetchDataWithAxios<Fields>({
         url: `/user/${id}`,
         method: 'put',

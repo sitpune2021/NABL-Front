@@ -55,7 +55,7 @@ const UnitAddEdit = () => {
                 </Notification>,
                 { placement: 'top-center' },
             )
-            navigate(`${endpointConfig.setting.unit.list}`)
+            navigate(`${endpointConfig.master.unit.list}`)
         } catch (error: any) {
             const backendErrors = error?.response?.data?.errors
 
@@ -90,7 +90,7 @@ const UnitAddEdit = () => {
             <Notification type="success">Changes discarded!</Notification>,
             { placement: 'top-center' },
         )
-        navigate(`${endpointConfig.setting.unit.list}`)
+        navigate(`${endpointConfig.master.unit.list}`)
     }
 
     const handleDiscard = () => setDiscardConfirmationOpen(true)

@@ -1,6 +1,5 @@
 import {
     NAV_ITEM_TYPE_TITLE,
-    NAV_ITEM_TYPE_COLLAPSE,
     NAV_ITEM_TYPE_ITEM,
 } from '@/constants/navigation.constant'
 import type { NavigationTree } from '@/@types/navigation'
@@ -66,6 +65,22 @@ const masterNavigationConfig: NavigationTree[] = [
                 subMenu: [],
             },
             {
+                key: 'masters.unit.list',
+                path: `${endpointConfig.master.unit.list}`,
+                title: 'Unit',
+                translateKey: 'nav.mastersUnit.list',
+                icon: 'uiFormsSelect',
+                type: NAV_ITEM_TYPE_ITEM,
+                authority: [],
+                meta: {
+                    description: {
+                        translateKey: 'nav.mastersUnit.listDesc',
+                        label: 'AI-powered chat systems',
+                    },
+                },
+                subMenu: [],
+            },
+            {
                 key: 'masters.template.list',
                 path: `${endpointConfig.master.template.list}`,
                 title: 'Template',
@@ -92,22 +107,6 @@ const masterNavigationConfig: NavigationTree[] = [
                 meta: {
                     description: {
                         translateKey: 'nav.mastersDocument.listDesc',
-                        label: 'AI-powered chat systems',
-                    },
-                },
-                subMenu: [],
-            },
-            {
-                key: 'masters.lab.list',
-                path: `${endpointConfig.master.lab.list}`,
-                title: 'Lab',
-                translateKey: 'nav.mastersLab.list',
-                icon: 'sharedComponentDoc',
-                type: NAV_ITEM_TYPE_ITEM,
-                authority: [],
-                meta: {
-                    description: {
-                        translateKey: 'nav.mastersLab.listDesc',
                         label: 'AI-powered chat systems',
                     },
                 },
@@ -176,67 +175,6 @@ const masterNavigationConfig: NavigationTree[] = [
                     },
                 },
                 subMenu: [],
-            },
-        ],
-    },
-    {
-        key: 'extra',
-        path: '',
-        title: 'Extra Settings',
-        translateKey: 'nav.masters',
-        icon: 'concepts',
-        type: NAV_ITEM_TYPE_TITLE,
-        authority: [],
-        meta: {},
-        subMenu: [
-            {
-                key: 'masters.signatoryBy',
-                path: '',
-                title: 'Signatory',
-                translateKey: 'nav.mastersSignatoryBy.signatoryBy',
-                icon: 'common',
-                type: NAV_ITEM_TYPE_COLLAPSE,
-                authority: [],
-                meta: {
-                    description: {
-                        translateKey: 'nav.mastersSignatoryBy.signatoryByDesc',
-                        label: 'AI tools and resources',
-                    },
-                },
-                subMenu: [
-                    {
-                        key: 'masters.signatoryBy.list',
-                        path: `${endpointConfig.master.signatoryBy.list}`,
-                        title: 'By',
-                        translateKey: 'nav.mastersSignatoryBy.list',
-                        icon: 'aiChat',
-                        type: NAV_ITEM_TYPE_ITEM,
-                        authority: [],
-                        meta: {
-                            description: {
-                                translateKey: 'nav.mastersSignatoryBy.listDesc',
-                                label: 'AI-powered chat systems',
-                            },
-                        },
-                        subMenu: [],
-                    },
-                    {
-                        key: 'masters.signatoryOn.list',
-                        path: `${endpointConfig.master.signatoryOn.list}`,
-                        title: 'On',
-                        translateKey: 'nav.mastersSignatoryOn.list',
-                        icon: 'aiChat',
-                        type: NAV_ITEM_TYPE_ITEM,
-                        authority: [],
-                        meta: {
-                            description: {
-                                translateKey: 'nav.mastersSignatoryOn.listDesc',
-                                label: 'AI-powered chat systems',
-                            },
-                        },
-                        subMenu: [],
-                    },
-                ],
             },
         ],
     },

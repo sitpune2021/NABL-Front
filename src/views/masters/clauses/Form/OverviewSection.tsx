@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useState, useEffect } from 'react'
-import { Controller, useFieldArray } from 'react-hook-form'
+import { useState, useEffect, useMemo } from 'react'
+import { Controller, useFieldArray, useWatch } from 'react-hook-form'
 import Card from '@/components/ui/Card'
 import { FormItem } from '@/components/ui/Form'
 import Input from '@/components/ui/Input'
@@ -18,17 +18,36 @@ const OverviewSection = ({
     categoryList,
     documentList,
 }: OverviewSectionProps) => {
-    const documentOptions = documentList.map((document) => ({
-        value: document.id,
-        label: document.name,
-        fullDocument: document,
-        category_id: document.category_id,
-    }))
+    const documentOptions = useMemo(
+        () =>
+            documentList.map((document) => ({
+                value: document.id,
+                label: document.name,
+                fullDocument: document,
+                category_id: document.category_id,
+            })),
+        [documentList],
+    )
 
-    const categoryOptions = categoryList.map((category) => ({
-        value: category.id,
-        label: `${category.name.toUpperCase()} - ${category.identifier}`,
-    }))
+    const documentsByCategory = useMemo(() => {
+        return documentOptions.reduce(
+            (acc: any, doc: any) => {
+                if (!acc[doc.category_id]) acc[doc.category_id] = []
+                acc[doc.category_id].push(doc)
+                return acc
+            },
+            {} as Record<string, typeof documentOptions>,
+        )
+    }, [documentOptions])
+
+    const categoryOptions = useMemo(
+        () =>
+            categoryList.map((category) => ({
+                value: category.id,
+                label: `${category.name.toUpperCase()} - ${category.identifier}`,
+            })),
+        [categoryList],
+    )
 
     const [expandedItems, setExpandedItems] = useState<Set<number>>(new Set())
 
@@ -59,9 +78,7 @@ const OverviewSection = ({
 
     const isExpanded = (id: number) => expandedItems.has(id)
 
-    const renderClauseSection = (clauseIndex: number, clause: any) => {
-        console.log(clause)
-
+    const ClauseItem = ({ clauseIndex }: { clauseIndex: number }) => {
         const { fields, append, remove } = useFieldArray({
             control,
             name: `standard_clauses.${clauseIndex}.clause_documents_tagging`,
@@ -74,13 +91,12 @@ const OverviewSection = ({
                       {
                           id: 'default',
                           category_id: '',
-                          documents: { id: '', version_id: '' },
+                          documents: { id: '', version_id: '', label: '' },
                       },
                   ]
 
         return (
             <>
-                {/* Notes */}
                 <Controller
                     name={`standard_clauses.${clauseIndex}.notes`}
                     control={control}
@@ -111,7 +127,11 @@ const OverviewSection = ({
                             onClick={() =>
                                 append({
                                     category_id: '',
-                                    documents: { id: '', version_id: '' },
+                                    documents: {
+                                        id: '',
+                                        version_id: '',
+                                        label: '',
+                                    },
                                 })
                             }
                         />
@@ -122,16 +142,25 @@ const OverviewSection = ({
                     {displayFields.map((item, index) => {
                         const isRemovable = index > 0 && fields.length > 0
 
+                        const selectedCategoryId = useWatch({
+                            control,
+                            name: `standard_clauses.${clauseIndex}.clause_documents_tagging.${index}.category_id`,
+                        })
+
+                        const filteredDocuments = selectedCategoryId
+                            ? documentsByCategory[selectedCategoryId] || []
+                            : []
+
                         return (
                             <div
                                 key={item.id}
                                 className="grid grid-cols-4 gap-3 items-end"
                             >
-                                <Controller
-                                    name={`standard_clauses.${clauseIndex}.clause_documents_tagging.${index}.category_id`}
-                                    control={control}
-                                    render={({ field }) => (
-                                        <FormItem label="Category">
+                                <FormItem label="Category">
+                                    <Controller
+                                        name={`standard_clauses.${clauseIndex}.clause_documents_tagging.${index}.category_id`}
+                                        control={control}
+                                        render={({ field }) => (
                                             <Select
                                                 options={categoryOptions}
                                                 isDisabled={readOnly}
@@ -142,91 +171,84 @@ const OverviewSection = ({
                                                             field.value,
                                                     ) || null
                                                 }
-                                                onChange={(selected) =>
+                                                menuPortalTarget={document.body} // <- This is key
+                                                onChange={(selected) => {
                                                     field.onChange(
                                                         selected?.value || '',
                                                     )
-                                                }
+                                                    const docFieldName = `standard_clauses.${clauseIndex}.clause_documents_tagging.${index}.documents`
+                                                    control.setValue(
+                                                        docFieldName,
+                                                        {
+                                                            id: '',
+                                                            version_id: '',
+                                                            label: '',
+                                                        },
+                                                    )
+                                                }}
                                             />
-                                        </FormItem>
-                                    )}
-                                />
-
-                                <FormItem label="Document Name">
-                                    <Controller
-                                        name={`standard_clauses.${clauseIndex}.clause_documents_tagging.${index}.documents`}
-                                        control={control}
-                                        render={({ field }) => {
-                                            const selectedCategoryId =
-                                                control._formValues
-                                                    .standard_clauses?.[
-                                                    clauseIndex
-                                                ]?.clause_documents_tagging?.[
-                                                    index
-                                                ]?.category_id
-
-                                            const filteredDocuments =
-                                                documentOptions.filter(
-                                                    (doc) =>
-                                                        doc.category_id ===
-                                                        selectedCategoryId,
-                                                )
-                                            return (
-                                                <Select
-                                                    options={filteredDocuments}
-                                                    isDisabled={
-                                                        readOnly ||
-                                                        !selectedCategoryId
-                                                    }
-                                                    value={
-                                                        field.value?.id
-                                                            ? {
-                                                                  value: field
-                                                                      .value.id,
-                                                                  label:
-                                                                      field
-                                                                          .value
-                                                                          .label ||
-                                                                      '',
-                                                              }
-                                                            : null
-                                                    }
-                                                    onChange={(selected) => {
-                                                        if (
-                                                            selected?.fullDocument
-                                                        ) {
-                                                            const doc =
-                                                                selected.fullDocument
-                                                            field.onChange({
-                                                                id:
-                                                                    doc.id ||
-                                                                    '',
-                                                                version_id:
-                                                                    doc
-                                                                        .current_version
-                                                                        .id ||
-                                                                    '',
-                                                                label: doc.name,
-                                                            })
-                                                        } else {
-                                                            field.onChange({
-                                                                id: '',
-                                                                version_id: '',
-                                                            })
-                                                        }
-                                                    }}
-                                                />
-                                            )
-                                        }}
+                                        )}
                                     />
                                 </FormItem>
 
+                                <FormItem label="documents">
+                                    <Controller
+                                        name={`standard_clauses.${clauseIndex}.clause_documents_tagging.${index}.documents`}
+                                        control={control}
+                                        render={({ field }) => (
+                                            <Select
+                                                options={filteredDocuments}
+                                                value={
+                                                    field.value?.id
+                                                        ? {
+                                                              value: field.value
+                                                                  .id,
+                                                              label: field.value
+                                                                  .label,
+                                                          }
+                                                        : null
+                                                }
+                                                menuPortalTarget={document.body} // <- This is key
+                                                isDisabled={
+                                                    readOnly ||
+                                                    !selectedCategoryId
+                                                }
+                                                onChange={(selected) => {
+                                                    if (
+                                                        selected?.fullDocument
+                                                    ) {
+                                                        const doc =
+                                                            selected.fullDocument
+                                                        field.onChange({
+                                                            id: doc.id || '',
+                                                            version_id:
+                                                                doc
+                                                                    .current_version
+                                                                    ?.id || '',
+                                                            label: doc.name,
+                                                        })
+                                                    } else {
+                                                        field.onChange({
+                                                            id: '',
+                                                            version_id: '',
+                                                            label: '',
+                                                        })
+                                                    }
+                                                }}
+                                            />
+                                        )}
+                                    />
+                                </FormItem>
+
+                                {/* Frequency */}
                                 <FormItem label="Frequency">
                                     <Input
                                         readOnly
                                         placeholder="Auto Frequency"
                                     />
                                 </FormItem>
+
+                                {/* Remove Button */}
                                 {!readOnly && isRemovable && (
                                     <Button
                                         type="button"
@@ -245,7 +267,6 @@ const OverviewSection = ({
         )
     }
 
-    // Recursive accordion rendering
     const renderAccordion = (items: any[], parentIndex = 0): any => {
         return items.map((item, index) => {
             const clauseIndex = parentIndex + index
@@ -265,7 +286,6 @@ const OverviewSection = ({
                         </p>
                     </div>
 
-                    {/* Always include clause_id & clause_parent_id */}
                     <Controller
                         name={`standard_clauses.${clauseIndex}.clause_id`}
                         control={control}
@@ -279,7 +299,7 @@ const OverviewSection = ({
                         render={() => null}
                     />
 
-                    {renderClauseSection(clauseIndex, item)}
+                    <ClauseItem clauseIndex={clauseIndex} />
 
                     {item.children?.length > 0 &&
                         renderAccordion(item.children, clauseIndex + 1)}

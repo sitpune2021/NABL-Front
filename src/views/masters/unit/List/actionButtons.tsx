@@ -6,6 +6,6 @@ export const actionButtons: ActionButton[] = [
     {
         label: 'Add New Unit',
         icon: <TbTemplate className="text-xl" />,
-        path: `${endpointConfig.setting.unit.create}`,
+        path: `${endpointConfig.master.unit.create}`,
     },
 ]

@@ -13,7 +13,7 @@ export async function apiGetSubCategoryList<
 }
 
 export async function apiSubCategory(data: Fields) {
-    return ApiService.fetchDataWithAxios<Fields>({
+    return ApiService.fetchDataWithAxios<GetSubCategoryDetailResponse>({
         url: '/sub-category',
         method: 'post',
         data,
@@ -28,9 +28,7 @@ export async function apiGetSubCategoryById(id: string) {
 }
 
 export async function apiUpdateSubCategory(id: string, data: Fields) {
-    console.log('Updating subcategory with ID:', id, 'and data:', data) // Debug log;
-
-    return ApiService.fetchDataWithAxios<Fields>({
+    return ApiService.fetchDataWithAxios<GetSubCategoryDetailResponse>({
         url: `/sub-category/${id}`,
         method: 'put',
         data,

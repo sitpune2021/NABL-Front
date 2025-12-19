@@ -22,14 +22,12 @@ const FrequencyPopup = ({
     isOpen,
     onClose,
     control,
-    errors,
     setValue,
     onConfirm,
 }: FrequencyPopupProps) => {
     const editor_schema = useWatch({ control, name: 'editor_schema' })
     const schedule = useWatch({ control, name: 'schedule' })
     const form_fields = useWatch({ control, name: 'form_fields' })
-    console.log(errors)
 
     const triates = categorizeThDetails(editor_schema?.json)
 
@@ -1263,7 +1261,7 @@ const FrequencyPopup = ({
                                                     field.traits?.[0]?.value ??
                                                     'text'
                                                 const saved =
-                                                    form_fields[
+                                                    form_fields?.[
                                                         field.headerText
                                                     ] || {}
 

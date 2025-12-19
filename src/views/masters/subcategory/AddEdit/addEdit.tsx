@@ -1,124 +1,83 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import { useState } from 'react'
+import { useMemo } from 'react'
 import { useParams, useNavigate, useLocation } from 'react-router'
 import Notification from '@/components/ui/Notification'
 import toast from '@/components/ui/toast'
 import ConfirmDialog from '@/components/shared/ConfirmDialog'
-import sleep from '@/utils/sleep'
 import endpointConfig from '@/configs/endpoint.config'
-import useSubCategoryList from '../List/hooks/useList'
 import SubCategoryForm from '../Form'
-import { SubCategoryFormSchema } from '@/@types/subcategory'
 import BottomPanel from '@/components/form/bottomPanel'
+import { getMode } from '@/utils/getMode'
+import { useSubCategoryDetail } from '../List/hooks/useSubCategoryDetail'
+import { useDiscardConfirm } from '@/utils/hooks/useDiscardConfirm'
+import { useEntityMutations } from '@/utils/hooks/useEntityMutations'
+import {
+    apiSubCategory,
+    apiUpdateSubCategory,
+} from '@/services/SubCategoryService'
+import { useFormSubmit } from '@/utils/hoc/useFormSubmit'
+import { SubCategoryFormSchema } from '@/schemas/sub_category.schema'
+import { EMPTY_VALUES } from '@/constants/sub_category.constant'
 
 const SubCategoryAddEdit = () => {
     const navigate = useNavigate()
     const location = useLocation()
-    const { id } = useParams()
-    const {
-        saveSubCategoryData,
-        subCategoryDetail,
-        isLoading,
-        isDetailLoading,
-    } = useSubCategoryList(id)
+    const { id } = useParams<{ id: string }>()
 
-    const [discardConfirmationOpen, setDiscardConfirmationOpen] =
-        useState(false)
-    const [isSubmiting, setIsSubmiting] = useState(false)
+    const mode = useMemo(() => getMode(location.pathname), [location.pathname])
+    const isView = mode === 'view'
+    const isEdit = mode === 'edit'
 
-    const isEdit = location.pathname.includes('/edit')
-    const isView = location.pathname.includes('/view')
-    const isAdd = location.pathname.includes('/create')
-    const loading = isAdd ? isLoading : isDetailLoading
+    const { subCategory, isLoading } = useSubCategoryDetail(id)
+    const discard = useDiscardConfirm()
+    const defaultValues = useMemo(
+        () => subCategory ?? EMPTY_VALUES,
+        [subCategory],
+    )
 
-    const handleFormSubmit = async (values: SubCategoryFormSchema) => {
-        if (isView) return
-        setIsSubmiting(true)
-        try {
-            const payload = isEdit ? { ...values, id } : values
-            await saveSubCategoryData(payload)
-            await sleep(800)
-            setIsSubmiting(false)
-            toast.push(
-                <Notification type="success">
-                    {isEdit ? 'SubCategory updated!' : 'SubCategory created!'}
-                </Notification>,
-                { placement: 'top-center' },
-            )
-            navigate(`${endpointConfig.master.subcategory.list}`)
-        } catch (error: any) {
-            const backendErrors = error?.response?.data?.errors
+    const { save } = useEntityMutations<SubCategoryFormSchema>({
+        apiCreate: apiSubCategory,
+        apiUpdate: apiUpdateSubCategory,
+    })
 
-            if (backendErrors) {
-                Object.entries(backendErrors).forEach(([messages]) => {
-                    const message = Array.isArray(messages)
-                        ? messages[0]
-                        : messages
-                    toast.push(
-                        <Notification type="danger">{message}</Notification>,
-                        { placement: 'top-center' },
-                    )
-                })
-            } else {
-                const errorMessage =
-                    error?.response?.data?.message ||
-                    `Failed to ${isEdit ? 'update' : 'create'} subcategory.`
+    const { handleSubmit, isSubmitting } = useFormSubmit<SubCategoryFormSchema>(
+        {
+            apiCall: (values) =>
+                save({ ...values, ...(isEdit && id ? { id } : {}) }),
+            navigateTo: endpointConfig.master.subcategory.list,
+        },
+    )
 
-                toast.push(
-                    <Notification type="danger">{errorMessage}</Notification>,
-                    { placement: 'top-center' },
-                )
-            }
-        } finally {
-            setIsSubmiting(false)
-        }
-    }
-
-    const handleConfirmDiscard = () => {
-        setDiscardConfirmationOpen(true)
+    const confirmDiscard = () => {
         toast.push(
-            <Notification type="success">Changes discarded!</Notification>,
+            <Notification type="success">Changes discarded</Notification>,
             { placement: 'top-center' },
         )
-        navigate(endpointConfig.master.subcategory.list)
-    }
-
-    const handleDiscard = () => setDiscardConfirmationOpen(true)
-    const handleCancel = () => setDiscardConfirmationOpen(false)
-
-    if (loading) {
-        return <p className="p-4">Loading sub category data...</p>
+        discard.close()
+        navigate(`${endpointConfig.master.subcategory.list}`)
     }
 
     return (
         <>
             <SubCategoryForm
-                newSubCategory={isAdd}
-                defaultValues={
-                    subCategoryDetail ?? {
-                        name: '',
-                        cat_id: '',
-                        identifier: '',
-                    }
-                }
+                defaultValues={defaultValues}
                 readOnly={isView}
-                onFormSubmit={handleFormSubmit}
+                loading={isLoading}
+                onFormSubmit={handleSubmit}
             >
                 <BottomPanel
                     isView={isView}
-                    isSubmitting={isSubmiting}
                     isEdit={isEdit}
-                    onDiscard={handleDiscard}
+                    isSubmitting={isSubmitting}
+                    onDiscard={discard.show}
                 />
             </SubCategoryForm>
             <ConfirmDialog
-                isOpen={discardConfirmationOpen}
+                isOpen={discard.open}
                 type="danger"
                 title="Discard changes"
-                onClose={handleCancel}
-                onRequestClose={handleCancel}
-                onCancel={handleCancel}
-                onConfirm={handleConfirmDiscard}
+                onClose={discard.close}
+                onCancel={discard.close}
+                onConfirm={confirmDiscard}
             >
                 <p>
                     Are you sure you want discard this? This action can&apos;t

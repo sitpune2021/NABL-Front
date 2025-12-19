@@ -15,7 +15,8 @@ import {
     LOGO_X_GUTTER,
 } from '@/constants/theme.constant'
 import type { Mode } from '@/@types/theme'
-import useNavigationItemsList from '@/utils/hooks/useNavigationItem'
+// import useNavigationItemsList from '@/utils/hooks/useNavigationItem'
+import navigationConfig from '@/configs/navigation.config'
 
 type SideNavProps = {
     translationSetup?: boolean
@@ -52,7 +53,7 @@ const SideNav = ({
 
     const userAuthority = useSessionUser((state) => state.user.authority)
 
-    const { navigationItems } = useNavigationItemsList()
+    // const { navigationItems } = useNavigationItemsList()
 
     return (
         <div
@@ -85,7 +86,7 @@ const SideNav = ({
                 <ScrollBar style={{ height: '100%' }} direction={direction}>
                     <VerticalMenuContent
                         collapsed={sideNavCollapse}
-                        navigationTree={navigationItems}
+                        navigationTree={navigationConfig}
                         routeKey={currentRouteKey}
                         direction={direction}
                         translationSetup={translationSetup}

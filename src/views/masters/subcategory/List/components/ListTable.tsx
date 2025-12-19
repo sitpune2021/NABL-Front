@@ -1,150 +1,80 @@
-import { useMemo } from 'react'
-import ActionColumn from '@/components/form/ActionColumn'
+import { useCallback, useMemo } from 'react'
 import DataTable from '@/components/shared/DataTable'
 import { useNavigate } from 'react-router'
-import cloneDeep from 'lodash/cloneDeep'
-import { TbPencil, TbEye } from 'react-icons/tb'
-import type { OnSortParam, ColumnDef, Row } from '@/components/shared/DataTable'
-import type { TableQueries } from '@/@types/common'
+import type { OnSortParam, Row } from '@/components/shared/DataTable'
 import useSubCategoryList from '../hooks/useList'
 import endpointConfig from '@/configs/endpoint.config'
 import { SubCategory } from '@/@types/subcategory'
+import { buildSubCategoryColumns } from '@/columns/subCategory.columns'
 
 const SubCategoryListTable = () => {
     const navigate = useNavigate()
 
     const {
         subcategoryList,
-        subcategoryListTotal,
+        total,
         tableData,
         isLoading,
-        setTableData,
-        setSelectAllSubCategory,
-        setSelectedSubCategory,
-        selectedSubCategory,
+        updateTable,
+        selected,
+        toggleRow,
+        setAll,
+        clearSelection,
     } = useSubCategoryList()
 
-    const handleEdit = (subcategory: SubCategory) => {
-        const path = endpointConfig.master.subcategory.edit.replace(
-            ':id',
-            String(subcategory.id),
-        )
-        navigate(path)
-    }
+    const navigateTo = useCallback((path: string) => navigate(path), [navigate])
 
-    const handleViewDetails = (subcategory: SubCategory) => {
-        const path = endpointConfig.master.subcategory.view.replace(
-            ':id',
-            String(subcategory.id),
-        )
-        navigate(path)
-    }
-
-    const columns: ColumnDef<SubCategory>[] = useMemo(
-        () => [
-            {
-                header: 'Id',
-                accessorKey: 'id',
-            },
-            {
-                header: 'Category',
-                accessorKey: 'category',
-                cell: (props) => {
-                    const { name, identifier } = props.row.original.category
-                    return (
-                        <div className="flex items-center gap-2">
-                            <div>
-                                <div className="font-bold heading-text">
-                                    {name}
-                                </div>
-                                <div>{identifier}</div>
-                            </div>
-                        </div>
-                    )
-                },
-            },
-            {
-                header: 'Sub Category',
-                accessorKey: 'Sub Category',
-                cell: (props) => {
-                    const { name, identifier } = props.row.original
-                    return (
-                        <div className="flex items-center gap-2">
-                            <div>
-                                <div className="font-bold heading-text">
-                                    {name}
-                                </div>
-                                <div>{identifier}</div>
-                            </div>
-                        </div>
-                    )
-                },
-            },
-            {
-                header: 'Action',
-                accessorKey: 'action',
-                id: 'action',
-                cell: (props) => (
-                    <ActionColumn
-                        buttons={[
-                            {
-                                icon: <TbPencil />,
-                                tooltip: 'Edit',
-                                onClick: () => handleEdit(props.row.original),
-                            },
-                            {
-                                icon: <TbEye />,
-                                tooltip: 'View',
-                                onClick: () =>
-                                    handleViewDetails(props.row.original),
-                            },
-                        ]}
-                    />
+    const handleEdit = useCallback(
+        (subcategory: SubCategory) =>
+            navigateTo(
+                endpointConfig.master.subcategory.edit.replace(
+                    ':id',
+                    String(subcategory.id),
                 ),
-            },
-        ],
-
-        [],
+            ),
+        [navigateTo],
     )
 
-    const handleSetTableData = (data: TableQueries) => {
-        setTableData(data)
-        if (selectedSubCategory.length > 0) {
-            setSelectAllSubCategory([])
-        }
-    }
+    const handleView = useCallback(
+        (subcategory: SubCategory) =>
+            navigateTo(
+                endpointConfig.master.subcategory.view.replace(
+                    ':id',
+                    String(subcategory.id),
+                ),
+            ),
+        [navigateTo],
+    )
+
+    const columns = useMemo(
+        () =>
+            buildSubCategoryColumns({
+                onEdit: handleEdit,
+                onView: handleView,
+            }),
+        [handleEdit, handleView],
+    )
 
     const handlePaginationChange = (page: number) => {
-        const newTableData = cloneDeep(tableData)
-        newTableData.pageIndex = page
-        handleSetTableData(newTableData)
+        updateTable({ pageIndex: page })
+        clearSelection()
     }
 
-    const handleSelectChange = (value: number) => {
-        const newTableData = cloneDeep(tableData)
-        newTableData.pageSize = Number(value)
-        newTableData.pageIndex = 1
-        handleSetTableData(newTableData)
+    const handlePageSizeChange = (pageSize: number) => {
+        updateTable({ pageSize, pageIndex: 1 })
+        clearSelection()
     }
 
     const handleSort = (sort: OnSortParam) => {
-        const newTableData = cloneDeep(tableData)
-        newTableData.sort = sort
-        handleSetTableData(newTableData)
+        updateTable({ sort })
+        clearSelection()
     }
 
-    const handleRowSelect = (checked: boolean, row: SubCategory) => {
-        setSelectedSubCategory(checked, row)
-    }
+    const handleRowSelect = (checked: boolean, row: SubCategory) =>
+        toggleRow(checked, row)
 
-    const handleAllRowSelect = (checked: boolean, rows: Row<SubCategory>[]) => {
-        if (checked) {
-            const originalRows = rows.map((row) => row.original)
-            setSelectAllSubCategory(originalRows)
-        } else {
-            setSelectAllSubCategory([])
-        }
-    }
+    const handleAllRowSelect = (checked: boolean, rows: Row<SubCategory>[]) =>
+        setAll(checked ? rows.map((r) => r.original) : [])
 
     return (
         <DataTable
@@ -156,15 +86,13 @@ const SubCategoryListTable = () => {
             skeletonAvatarProps={{ width: 28, height: 28 }}
             loading={isLoading}
             pagingData={{
-                total: subcategoryListTotal,
-                pageIndex: tableData.pageIndex as number,
-                pageSize: tableData.pageSize as number,
+                total: total,
+                pageIndex: tableData.pageIndex!,
+                pageSize: tableData.pageSize!,
             }}
-            checkboxChecked={(row) =>
-                selectedSubCategory.some((selected) => selected.id === row.id)
-            }
+            checkboxChecked={(row) => selected.some((c) => c.id === row.id)}
             onPaginationChange={handlePaginationChange}
-            onSelectChange={handleSelectChange}
+            onSelectChange={handlePageSizeChange}
             onSort={handleSort}
             onCheckBoxChange={handleRowSelect}
             onIndeterminateCheckBoxChange={handleAllRowSelect}

@@ -8,8 +8,6 @@ import LocationLabListTable from './components/LocationListTable'
 
 const LabList = () => {
     const { id: labId } = useParams()
-    console.log(labId ? 'lab' : 'loc')
-
     return (
         <ListLayout
             title={!labId ? 'Labs' : 'Location'}

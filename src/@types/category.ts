@@ -7,7 +7,8 @@ export type GetCategoryListResponse = {
     total?: number
 }
 
-export interface GetCategoryDetailResponse {
+export type GetCategoryDetailResponse = {
+    id: string
     data: Fields
 }
 

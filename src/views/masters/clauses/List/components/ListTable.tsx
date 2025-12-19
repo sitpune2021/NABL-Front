@@ -6,10 +6,10 @@ import cloneDeep from 'lodash/cloneDeep'
 import { TbPencil, TbEye } from 'react-icons/tb'
 import type { OnSortParam, ColumnDef, Row } from '@/components/shared/DataTable'
 import type { TableQueries } from '@/@types/common'
-import useClausesList from '../hooks/useList'
 import endpointConfig from '@/configs/endpoint.config'
 import { Clauses } from '@/@types/clauses'
 import Tag from '@/components/ui/Tag'
+import useStandardList from '../hooks/useStandardList'
 
 const ClausesListTable = () => {
     const navigate = useNavigate()
@@ -20,15 +20,15 @@ const ClausesListTable = () => {
     }
 
     const {
-        clausesList,
-        clausesListTotal,
+        standardList,
+        standardListTotal,
         tableData,
         isLoading,
         setTableData,
-        setSelectAllClauses,
-        setSelectedClauses,
-        selectedClauses,
-    } = useClausesList()
+        selectedStandard,
+        setSelectedStandard,
+        setSelectAllStandard,
+    } = useStandardList()
 
     const handleEdit = (clauses: Clauses) => {
         const path = endpointConfig.setting.clauses.edit.replace(
@@ -125,8 +125,8 @@ const ClausesListTable = () => {
 
     const handleSetTableData = (data: TableQueries) => {
         setTableData(data)
-        if (selectedClauses.length > 0) {
-            setSelectAllClauses([])
+        if (selectedStandard.length > 0) {
+            setSelectAllStandard([])
         }
     }
 
@@ -150,15 +150,15 @@ const ClausesListTable = () => {
     }
 
     const handleRowSelect = (checked: boolean, row: Clauses) => {
-        setSelectedClauses(checked, row)
+        setSelectedStandard(checked, row)
     }
 
     const handleAllRowSelect = (checked: boolean, rows: Row<Clauses>[]) => {
         if (checked) {
             const originalRows = rows.map((row) => row.original)
-            setSelectAllClauses(originalRows)
+            setSelectAllStandard(originalRows)
         } else {
-            setSelectAllClauses([])
+            setSelectAllStandard([])
         }
     }
 
@@ -166,18 +166,18 @@ const ClausesListTable = () => {
         <DataTable
             selectable
             columns={columns}
-            data={clausesList}
-            noData={!isLoading && clausesList.length === 0}
+            data={standardList}
+            noData={!isLoading && standardList.length === 0}
             skeletonAvatarColumns={[0]}
             skeletonAvatarProps={{ width: 28, height: 28 }}
             loading={isLoading}
             pagingData={{
-                total: clausesListTotal,
+                total: standardListTotal,
                 pageIndex: tableData.pageIndex as number,
                 pageSize: tableData.pageSize as number,
             }}
             checkboxChecked={(row) =>
-                selectedClauses.some((selected) => selected.id === row.id)
+                selectedStandard.some((selected) => selected.id === row.id)
             }
             onPaginationChange={handlePaginationChange}
             onSelectChange={handleSelectChange}

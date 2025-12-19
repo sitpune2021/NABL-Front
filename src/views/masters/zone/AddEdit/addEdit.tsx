@@ -33,8 +33,6 @@ const ZoneAddEdit = () => {
             setLoadingData(true)
             getZoneById(zoneId)
                 .then((data) => {
-                    console.log('Fetched zone data:', data)
-
                     setZoneData(data)
                 })
                 .finally(() => setLoadingData(false))

@@ -17,22 +17,6 @@ const settingNavigationConfig: NavigationTree[] = [
         meta: {},
         subMenu: [
             {
-                key: 'settings.unit.list',
-                path: `${endpointConfig.setting.unit.list}`,
-                title: 'Unit',
-                translateKey: 'nav.settingsUnit.list',
-                icon: 'uiFormsSelect',
-                type: NAV_ITEM_TYPE_ITEM,
-                authority: [],
-                meta: {
-                    description: {
-                        translateKey: 'nav.settingsUnit.listDesc',
-                        label: 'AI-powered chat systems',
-                    },
-                },
-                subMenu: [],
-            },
-            {
                 key: 'settings.rolesPermission.list',
                 path: `${endpointConfig.setting.rolesPermission.list}`,
                 title: 'Roles & Permission',
@@ -65,8 +49,8 @@ const settingNavigationConfig: NavigationTree[] = [
                 subMenu: [],
             },
             {
-                key: 'settings.clauses.list',
-                path: `${endpointConfig.setting.clauses.list}`,
+                key: 'settings.standard.list',
+                path: `${endpointConfig.setting.standard.list}`,
                 title: 'Standards',
                 translateKey: 'nav.settingsClauses.list',
                 icon: 'helpCeterEditArticle',
@@ -75,22 +59,6 @@ const settingNavigationConfig: NavigationTree[] = [
                 meta: {
                     description: {
                         translateKey: 'nav.settingsClauses.listDesc',
-                        label: 'AI-powered chat systems',
-                    },
-                },
-                subMenu: [],
-            },
-            {
-                key: 'settings.config.list',
-                path: `${endpointConfig.setting.config.list}`,
-                title: 'Standards',
-                translateKey: 'nav.settingconfig.list',
-                icon: 'helpCeterEditArticle',
-                type: NAV_ITEM_TYPE_ITEM,
-                authority: [],
-                meta: {
-                    description: {
-                        translateKey: 'nav.settingConfig.listDesc',
                         label: 'AI-powered chat systems',
                     },
                 },

@@ -1,46 +1,42 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
+import { useForm, Controller } from 'react-hook-form'
+import { z } from 'zod'
+import { zodResolver } from '@hookform/resolvers/zod'
 import Button from '@/components/ui/Button'
 import Dialog from '@/components/ui/Dialog'
-import Checkbox from '@/components/ui/Checkbox'
-import Input from '@/components/ui/Input'
 import { Form, FormItem } from '@/components/ui/Form'
 import { TbFilter } from 'react-icons/tb'
-import { useForm, Controller } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { z } from 'zod'
+import { useCategoryList } from '@/views/masters/category/List/hooks/useList'
 import useSubCategoryList from '../hooks/useList'
+import { Select } from '@/components/ui'
+import { SELECT_ALL_VALUE } from '@/constants/common.constant'
 
-type FormSchema = {
-    purchasedProducts: string
-    purchaseChannel: Array<string>
-}
-
-const channelList = [
-    'all',
-    'header',
-    'footer',
-    'generic',
-    'draft',
-    'draft-header',
-    'draft-footer',
-    'draft-generic',
-    'archived-all',
-    'archived-header',
-    'archived-footer',
-    'archived-generic',
-]
-
-const validationSchema = z.object({
-    purchasedProducts: z.string(),
-    purchaseChannel: z.array(z.string()),
+const schema = z.object({
+    categories: z.array(z.number()),
 })
+
+export type FormSchema = z.infer<typeof schema>
 
 const SubCategoryListTableFilter = () => {
     const [dialogIsOpen, setIsOpen] = useState(false)
 
-    const { filterData, setFilterData } = useSubCategoryList()
+    const { filterData, updateFilters, resetFilters } = useSubCategoryList()
+    const { categoryList } = useCategoryList()
+
+    const options = useMemo(() => {
+        const categoryOptions = categoryList.map((c) => ({
+            value: c.id,
+            label: `${c.name.toUpperCase()} - ${c.identifier}`,
+        }))
+
+        return [
+            { value: SELECT_ALL_VALUE, label: 'Select All' },
+            ...categoryOptions,
+        ]
+    }, [categoryList])
 
     const openDialog = () => {
+        reset(filterData)
         setIsOpen(true)
     }
 
@@ -50,19 +46,26 @@ const SubCategoryListTableFilter = () => {
 
     const { handleSubmit, reset, control } = useForm<FormSchema>({
         defaultValues: filterData,
-        resolver: zodResolver(validationSchema),
+        resolver: zodResolver(schema),
     })
 
+    const onReset = () => {
+        resetFilters()
+        reset({ categories: [] })
+        setIsOpen(false)
+    }
+
     const onSubmit = (values: FormSchema) => {
-        setFilterData(values)
+        updateFilters(values)
         setIsOpen(false)
     }
 
     return (
         <>
-            <Button icon={<TbFilter />} onClick={() => openDialog()}>
+            <Button icon={<TbFilter />} onClick={openDialog}>
                 Filter
             </Button>
+
             <Dialog
                 isOpen={dialogIsOpen}
                 onClose={onDialogClose}
@@ -70,46 +73,57 @@ const SubCategoryListTableFilter = () => {
             >
                 <h4 className="mb-4">Filter</h4>
                 <Form onSubmit={handleSubmit(onSubmit)}>
-                    <FormItem label="Products">
+                    <FormItem label="Categories">
                         <Controller
-                            name="purchasedProducts"
+                            name="categories"
                             control={control}
-                            render={({ field }) => (
-                                <Input
-                                    type="text"
-                                    autoComplete="off"
-                                    placeholder="Search by purchased product"
-                                    {...field}
-                                />
-                            )}
-                        />
-                    </FormItem>
-                    <FormItem label="Purchase Channel">
-                        <Controller
-                            name="purchaseChannel"
-                            control={control}
-                            render={({ field }) => (
-                                <Checkbox.Group
-                                    vertical
-                                    className="flex mt-4"
-                                    {...field}
-                                >
-                                    {channelList.map((source, index) => (
-                                        <Checkbox
-                                            key={source + index}
-                                            name={field.name}
-                                            value={source}
-                                            className="justify-between flex-row-reverse heading-text"
-                                        >
-                                            {source}
-                                        </Checkbox>
-                                    ))}
-                                </Checkbox.Group>
-                            )}
+                            render={({ field }) => {
+                                const allCategoryIds = categoryList.map(
+                                    (c) => c.id,
+                                )
+                                const isAllSelected =
+                                    field.value?.length ===
+                                    allCategoryIds.length
+
+                                return (
+                                    <Select
+                                        isMulti
+                                        placeholder="Select Categories"
+                                        options={options}
+                                        value={options.filter((o) =>
+                                            o.value === SELECT_ALL_VALUE
+                                                ? isAllSelected
+                                                : field.value?.includes(
+                                                      o.value,
+                                                  ),
+                                        )}
+                                        onChange={(selected) => {
+                                            const values =
+                                                selected?.map((s) => s.value) ||
+                                                []
+
+                                            if (
+                                                values.includes(
+                                                    SELECT_ALL_VALUE,
+                                                )
+                                            ) {
+                                                field.onChange(
+                                                    isAllSelected
+                                                        ? []
+                                                        : allCategoryIds,
+                                                )
+                                                return
+                                            }
+
+                                            field.onChange(values)
+                                        }}
+                                    />
+                                )
+                            }}
                         />
                     </FormItem>
                     <div className="flex justify-end items-center gap-2 mt-4">
-                        <Button type="button" onClick={() => reset()}>
+                        <Button type="button" onClick={onReset}>
                             Reset
                         </Button>
                         <Button type="submit" variant="solid">

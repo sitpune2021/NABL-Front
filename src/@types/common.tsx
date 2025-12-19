@@ -37,17 +37,8 @@ export interface ListActionToolsProps {
     buttons: ActionButton[]
 }
 
-export type PrefixFormSchema = {
-    id?: string
-    prefix: string
-}
-
-export type PrefixFEntity = {
-    prefix: string
-}
-
 export type IdentifierEntity = {
     identifier: string
 }
 
-export type GetPrefixResponse = PrefixFormSchema[]
+export type PageMode = 'add' | 'edit' | 'view'

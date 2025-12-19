@@ -64,6 +64,7 @@ const ClausesForm = ({
     categoryList,
 }: ClausesFormProps) => {
     const defaultValuesWithDocs = {
+        standard_id: standardDetail.id,
         standard_clauses: standardDetail.clauses.map((clause: any) => ({
             clause_id: clause.id,
             clause_parent_id: clause.parent_id,
@@ -94,7 +95,6 @@ const ClausesForm = ({
     })
 
     const onSubmit = (values: ClausesFormSchema) => {
-        console.log(values)
         onFormSubmit?.(values)
     }
 

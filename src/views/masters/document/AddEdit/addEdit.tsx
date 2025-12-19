@@ -26,13 +26,13 @@ const DocumentAddEdit = () => {
     const isEdit = pathParts.includes('edit')
     const isView = location.pathname.includes('/view')
     const isAdd = pathParts.includes('create')
+    const isForEditor = pathParts.includes('editor')
     const isDataEntry = pathParts.includes('data-entry')
 
     const defaultValues = useMemo(
         () => documentDetail ?? defaultDocumentValues,
         [documentDetail],
     )
-    console.log(documentDetail)
 
     const handleFormSubmit = useCallback(
         async (values: DocumentFormSchema) => {
@@ -84,6 +84,7 @@ const DocumentAddEdit = () => {
                 defaultValues={defaultValues}
                 readOnly={isView}
                 isEdit={isEdit}
+                isForEditor={isForEditor}
                 onFormSubmit={handleFormSubmit}
             />
 

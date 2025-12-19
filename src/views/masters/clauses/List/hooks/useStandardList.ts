@@ -55,7 +55,7 @@ export default function useStandardList(Id?: string) {
         return savedStandard
     }
 
-    const standardList = data?.list || []
+    const standardList = data || []
     const standardListTotal = data?.total || 0
     const standardDetail = detailData || {
         name: '',

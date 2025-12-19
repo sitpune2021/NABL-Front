@@ -25,12 +25,13 @@ export interface ItemConfig {
 
 export interface FrequencyPopupProps {
     isOpen: boolean
-    initialData: any
+    initialData?: any
     control: Control<any>
-    errors: FieldErrors<any>
+    errors?: FieldErrors<any>
     setValue: UseFormSetValue<any>
     onClose: () => void
     onConfirm: () => void // ✅ NEW
+    readOnly?: boolean
 }
 
 export type Trait = {
@@ -75,10 +76,14 @@ export type Document = {
     mode: string
     category_id?: string
     name: string
+    status: string
     current_version: {
         id: string
         schedule: any
         full_version: string
+    }
+    category?: {
+        name?: string
     }
 }
 
