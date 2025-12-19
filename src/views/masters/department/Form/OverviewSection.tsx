@@ -1,56 +1,46 @@
 import Card from '@/components/ui/Card'
 import Input from '@/components/ui/Input'
 import { FormItem } from '@/components/ui/Form'
-import { Controller } from 'react-hook-form'
-import { FormSectionBaseProps } from '@/@types/department'
+import { useFormContext } from 'react-hook-form'
+import { DepartmentFormSchema } from '@/schemas/department.schema'
 
-type OverviewSectionProps = FormSectionBaseProps
-
-const OverviewSection = ({
-    control,
-    errors,
-    readOnly,
-}: OverviewSectionProps) => {
+type OverviewSectionProps = {
+    readOnly?: boolean
+    loading?: boolean
+}
+const OverviewSection = ({ readOnly, loading }: OverviewSectionProps) => {
+    const {
+        register,
+        formState: { errors },
+    } = useFormContext<DepartmentFormSchema>()
     return (
         <Card>
             <h4 className="mb-6">Department</h4>
             <div className="grid md:grid-cols-2 gap-4">
                 <FormItem
                     label="Name"
-                    invalid={Boolean(errors.name)}
+                    invalid={!!errors.name}
                     errorMessage={errors.name?.message}
                 >
-                    <Controller
-                        name="name"
-                        control={control}
-                        render={({ field }) => (
-                            <Input
-                                type="text"
-                                autoComplete="off"
-                                readOnly={readOnly}
-                                placeholder="Name"
-                                {...field}
-                            />
-                        )}
+                    <Input
+                        type="text"
+                        autoComplete="off"
+                        placeholder="Enter Name"
+                        disabled={readOnly || loading}
+                        {...register('name')}
                     />
                 </FormItem>
                 <FormItem
                     label="Prefix"
-                    invalid={Boolean(errors.identifier)}
+                    invalid={!!errors.identifier}
                     errorMessage={errors.identifier?.message}
                 >
-                    <Controller
-                        name="identifier"
-                        control={control}
-                        render={({ field }) => (
-                            <Input
-                                type="text"
-                                autoComplete="off"
-                                readOnly={readOnly}
-                                placeholder="Prefix"
-                                {...field}
-                            />
-                        )}
+                    <Input
+                        type="text"
+                        autoComplete="off"
+                        placeholder="Enter Prefix"
+                        disabled={readOnly || loading}
+                        {...register('identifier')}
                     />
                 </FormItem>
             </div>

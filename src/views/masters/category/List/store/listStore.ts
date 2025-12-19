@@ -1,20 +1,7 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import type { TableQueries } from '@/@types/common'
-import type { Category } from '@/@types/category'
-
-type CategoryListState = {
-    tableData: TableQueries
-    selected: Category[]
-}
-
-type CategoryListActions = {
-    updateTable: (payload: Partial<TableQueries>) => void
-    toggleRow: (checked: boolean, row: Category) => void
-    setAll: (rows: Category[]) => void
-    clearSelection: () => void
-    resetQuery: () => void
-}
+import type { CategoryListActions, CategoryListState } from '@/@types/category'
 
 export const initialTableData: TableQueries = {
     pageIndex: 1,

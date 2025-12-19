@@ -1,6 +1,7 @@
 import { create } from 'zustand'
+import { persist } from 'zustand/middleware'
 import type { TableQueries } from '@/@types/common'
-import { DepartmentListAction, DepartmentListState } from '@/@types/department'
+import { DepartmentListActions, DepartmentListState } from '@/@types/department'
 
 export const initialTableData: TableQueries = {
     pageIndex: 1,
@@ -12,35 +13,40 @@ export const initialTableData: TableQueries = {
     },
 }
 
-const initialState: DepartmentListState = {
-    tableData: initialTableData,
-    selectedDepartment: [],
-}
-
 export const useDepartmentListStore = create<
-    DepartmentListState & DepartmentListAction
->((set) => ({
-    ...initialState,
-    setTableData: (payload) => set(() => ({ tableData: payload })),
-    setSelectedDepartment: (checked, row) =>
-        set((state) => {
-            const prevData = state.selectedDepartment
-            if (checked) {
-                return { selectedDepartment: [...prevData, ...[row]] }
-            } else {
-                if (
-                    prevData.some(
-                        (prevDepartment) => row.id === prevDepartment.id,
-                    )
-                ) {
-                    return {
-                        selectedDepartment: prevData.filter(
-                            (prevDepartment) => prevDepartment.id !== row.id,
-                        ),
-                    }
-                }
-                return { selectedDepartment: prevData }
-            }
+    DepartmentListState & DepartmentListActions
+>()(
+    persist(
+        (set) => ({
+            tableData: initialTableData,
+            selected: [],
+
+            updateTable: (payload) =>
+                set((state) => ({
+                    tableData: { ...state.tableData, ...payload },
+                })),
+
+            toggleRow: (checked, row) =>
+                set((state) => ({
+                    selected: checked
+                        ? [...state.selected, row]
+                        : state.selected.filter((r) => r.id !== row.id),
+                })),
+
+            setAll: (rows) => set({ selected: rows }),
+
+            clearSelection: () => set({ selected: [] }),
+
+            resetQuery: () =>
+                set((state) => ({
+                    tableData: { ...state.tableData, query: '', pageIndex: 1 },
+                })),
         }),
-    setSelectAllDepartment: (row) => set(() => ({ selectedDepartment: row })),
-}))
+        {
+            name: 'department-table',
+            partialize: (state) => ({
+                tableData: { ...state.tableData, query: '' },
+            }),
+        },
+    ),
+)

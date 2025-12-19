@@ -1,4 +1,3 @@
-// hooks/useCategoryList.ts
 import useSWR from 'swr'
 import { apiGetCategoryList } from '@/services/CategoriesService'
 import type { TableQueries } from '@/@types/common'
@@ -24,7 +23,7 @@ export const useCategoryList = () => {
         {
             keepPreviousData: true,
             revalidateOnFocus: false,
-            revalidateIfStale: false, // <--- disables auto revalidation
+            revalidateIfStale: false,
         },
     )
 

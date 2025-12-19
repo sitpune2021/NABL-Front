@@ -6,7 +6,11 @@ export const useCategoryDetail = (id?: string) => {
     const swr = useSWR<GetCategoryDetailResponse>(
         id ? ['category-detail', id] : null,
         () => apiGetCategoryById(id!),
-        { revalidateOnFocus: false },
+        {
+            keepPreviousData: true,
+            revalidateOnFocus: false,
+            revalidateIfStale: false,
+        },
     )
 
     return {

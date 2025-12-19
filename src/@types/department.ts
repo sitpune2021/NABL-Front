@@ -1,7 +1,5 @@
 import { IdentifierEntity, TableQueries } from './common'
 
-import type { Control, FieldErrors } from 'react-hook-form'
-
 export type GetDepartmentListResponse = {
     data: Department[]
     total: number
@@ -16,17 +14,6 @@ export type Department = {
     name: string
 } & IdentifierEntity
 
-export type DepartmentListState = {
-    tableData: TableQueries
-    selectedDepartment: Partial<Department>[]
-}
-
-export type DepartmentListAction = {
-    setTableData: (payload: TableQueries) => void
-    setSelectedDepartment: (checked: boolean, department: Department) => void
-    setSelectAllDepartment: (department: Department[]) => void
-}
-
 export type Fields = {
     id?: string
     name: string
@@ -36,10 +23,15 @@ export type TagsFields = {
     tags: Array<{ value: string; label: string }>
 }
 
-export type DepartmentFormSchema = Fields
+export type DepartmentListState = {
+    tableData: TableQueries
+    selected: Department[]
+}
 
-export type FormSectionBaseProps = {
-    control: Control<DepartmentFormSchema>
-    errors: FieldErrors<DepartmentFormSchema>
-    readOnly?: boolean
+export type DepartmentListActions = {
+    updateTable: (payload: Partial<TableQueries>) => void
+    toggleRow: (checked: boolean, row: Department) => void
+    setAll: (rows: Department[]) => void
+    clearSelection: () => void
+    resetQuery: () => void
 }
