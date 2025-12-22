@@ -85,7 +85,7 @@ const LocationLabListTable = () => {
     }, [labId, getLocationsByLabId])
 
     const handleEdit = (lab: Lab) => {
-        const path = endpointConfig.master.lab.edit.replace(
+        const path = endpointConfig.client.lab.edit.replace(
             ':id',
             String(lab.id),
         )
@@ -93,7 +93,7 @@ const LocationLabListTable = () => {
     }
 
     const handleLocation = (lab: Lab) => {
-        const path = endpointConfig.master.lab.location.replace(
+        const path = endpointConfig.client.lab.location.replace(
             ':id',
             String(lab.id),
         )
@@ -101,7 +101,7 @@ const LocationLabListTable = () => {
     }
 
     const handleViewDetails = (lab: Lab) => {
-        const path = endpointConfig.master.lab.view.replace(
+        const path = endpointConfig.client.lab.view.replace(
             ':id',
             String(lab.id),
         )

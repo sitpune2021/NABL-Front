@@ -1,129 +1,76 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import { useEffect, useState } from 'react'
+import { useMemo } from 'react'
 import { useParams, useNavigate, useLocation } from 'react-router'
 import Notification from '@/components/ui/Notification'
 import toast from '@/components/ui/toast'
 import ConfirmDialog from '@/components/shared/ConfirmDialog'
-import sleep from '@/utils/sleep'
 import endpointConfig from '@/configs/endpoint.config'
-import useUnitList from '../List/hooks/useList'
 import UnitForm from '../Form'
-import { UnitFormSchema } from '@/@types/unit'
 import BottomPanel from '@/components/form/bottomPanel'
+import { getMode } from '@/utils/getMode'
+import { useDiscardConfirm } from '@/utils/hooks/useDiscardConfirm'
+import { EMPTY_VALUES } from '@/constants/unit.constant'
+import { useEntityMutations } from '@/utils/hooks/useEntityMutations'
+import { UnitFormSchema } from '@/schemas/unit.schema'
+import { apiUnit, apiUpdateUnit } from '@/services/UnitService'
+import { useFormSubmit } from '@/utils/hoc/useFormSubmit'
+import { useUnitDetail } from '../List/hooks/useDetail'
 
 const UnitAddEdit = () => {
     const navigate = useNavigate()
     const location = useLocation()
-    const { id: unitId } = useParams()
-    const { saveUnitData, getUnitById, unitList } = useUnitList()
-    const [discardConfirmationOpen, setDiscardConfirmationOpen] =
-        useState(false)
-    const [isSubmiting, setIsSubmiting] = useState(false)
-    const [unitData, setUnitData] = useState<UnitFormSchema | null>(null)
-    const [loadingData, setLoadingData] = useState(false)
+    const { id } = useParams<{ id: string }>()
+    const mode = useMemo(() => getMode(location.pathname), [location.pathname])
+    const isView = mode === 'view'
+    const isEdit = mode === 'edit'
 
-    const isEdit = location.pathname.includes('/edit')
-    const isView = location.pathname.includes('/view')
-    const isAdd = location.pathname.includes('/create')
+    const { unit, isLoading } = useUnitDetail(id)
+    const discard = useDiscardConfirm()
 
-    const existingUnitNames = unitList
-        .filter((unit) => !isEdit || unit.id !== unitId)
-        .map((unit) => unit.name)
+    const defaultValues = useMemo(() => unit ?? EMPTY_VALUES, [unit])
 
-    useEffect(() => {
-        if (!isAdd && unitId) {
-            setLoadingData(true)
-            getUnitById(unitId)
-                .then((data) => {
-                    setUnitData(data)
-                })
-                .finally(() => setLoadingData(false))
-        }
-    }, [unitId, isAdd])
+    const { save } = useEntityMutations<UnitFormSchema>({
+        apiCreate: apiUnit,
+        apiUpdate: apiUpdateUnit,
+    })
 
-    const handleFormSubmit = async (values: UnitFormSchema) => {
-        if (isView) return
-        setIsSubmiting(true)
-        try {
-            const payload = isEdit ? { ...values, id: unitId } : values
-            await saveUnitData(payload)
-            await sleep(800)
-            setIsSubmiting(false)
-            toast.push(
-                <Notification type="success">
-                    {isEdit ? 'Unit updated!' : 'Unit created!'}
-                </Notification>,
-                { placement: 'top-center' },
-            )
-            navigate(`${endpointConfig.setting.unit.list}`)
-        } catch (error: any) {
-            const backendErrors = error?.response?.data?.errors
+    const { handleSubmit, isSubmitting } = useFormSubmit<UnitFormSchema>({
+        apiCall: (values) =>
+            save({ ...values, ...(isEdit && id ? { id } : {}) }),
+        navigateTo: endpointConfig.master.unit.list,
+    })
 
-            if (backendErrors) {
-                Object.entries(backendErrors).forEach(([messages]) => {
-                    const message = Array.isArray(messages)
-                        ? messages[0]
-                        : messages
-                    toast.push(
-                        <Notification type="danger">{message}</Notification>,
-                        { placement: 'top-center' },
-                    )
-                })
-            } else {
-                const errorMessage =
-                    error?.response?.data?.message ||
-                    `Failed to ${isEdit ? 'update' : 'create'} unit.`
-
-                toast.push(
-                    <Notification type="danger">{errorMessage}</Notification>,
-                    { placement: 'top-center' },
-                )
-            }
-        } finally {
-            setIsSubmiting(false)
-        }
-    }
-
-    const handleConfirmDiscard = () => {
-        setDiscardConfirmationOpen(true)
+    const confirmDiscard = () => {
         toast.push(
             <Notification type="success">Changes discarded!</Notification>,
             { placement: 'top-center' },
         )
-        navigate(`${endpointConfig.setting.unit.list}`)
-    }
-
-    const handleDiscard = () => setDiscardConfirmationOpen(true)
-    const handleCancel = () => setDiscardConfirmationOpen(false)
-
-    if (loadingData && !isAdd) {
-        return <p className="p-4">Loading unit data...</p>
+        discard.close()
+        navigate(endpointConfig.master.unit.list)
     }
 
     return (
         <>
             <UnitForm
-                newUnit={isAdd}
-                defaultValues={unitData ?? { name: '' }}
+                defaultValues={defaultValues}
                 readOnly={isView}
-                existingUnits={existingUnitNames}
-                onFormSubmit={handleFormSubmit}
+                loading={isLoading}
+                onFormSubmit={handleSubmit}
             >
                 <BottomPanel
                     isView={isView}
-                    isSubmitting={isSubmiting}
+                    isSubmitting={isSubmitting}
                     isEdit={isEdit}
-                    onDiscard={handleDiscard}
+                    onDiscard={discard.show}
                 />
             </UnitForm>
             <ConfirmDialog
-                isOpen={discardConfirmationOpen}
+                isOpen={discard.open}
                 type="danger"
                 title="Discard changes"
-                onClose={handleCancel}
-                onRequestClose={handleCancel}
-                onCancel={handleCancel}
-                onConfirm={handleConfirmDiscard}
+                onClose={discard.close}
+                onRequestClose={discard.close}
+                onCancel={discard.close}
+                onConfirm={confirmDiscard}
             >
                 <p>
                     Are you sure you want discard this? This action can&apos;t

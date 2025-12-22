@@ -1,133 +1,80 @@
-import { useMemo } from 'react'
-import ActionColumn from '@/components/form/ActionColumn'
+import { useCallback, useMemo } from 'react'
 import DataTable from '@/components/shared/DataTable'
 import { useNavigate } from 'react-router'
-import cloneDeep from 'lodash/cloneDeep'
-import { TbPencil, TbEye } from 'react-icons/tb'
-import type { OnSortParam, ColumnDef, Row } from '@/components/shared/DataTable'
-import type { TableQueries } from '@/@types/common'
+import type { OnSortParam, Row } from '@/components/shared/DataTable'
 import useDepartmentList from '../hooks/useList'
 import endpointConfig from '@/configs/endpoint.config'
 import { Department } from '@/@types/department'
+import { buildDepartmentColumns } from '@/columns/department.columns'
 
 const DepartmentListTable = () => {
     const navigate = useNavigate()
 
     const {
         departmentList,
-        departmentListTotal,
+        total,
         tableData,
         isLoading,
-        setTableData,
-        setSelectAllDepartment,
-        setSelectedDepartment,
-        selectedDepartment,
+        updateTable,
+        selected,
+        toggleRow,
+        setAll,
+        clearSelection,
     } = useDepartmentList()
 
-    const handleEdit = (department: Department) => {
-        const path = endpointConfig.master.department.edit.replace(
-            ':id',
-            String(department.id),
-        )
-        navigate(path)
-    }
+    const navigateTo = useCallback((path: string) => navigate(path), [navigate])
 
-    const handleViewDetails = (department: Department) => {
-        const path = endpointConfig.master.department.view.replace(
-            ':id',
-            String(department.id),
-        )
-        navigate(path)
-    }
-
-    const columns: ColumnDef<Department>[] = useMemo(
-        () => [
-            {
-                header: 'Id',
-                accessorKey: 'id',
-            },
-            {
-                header: 'Department',
-                accessorKey: 'department',
-                cell: (props) => {
-                    const { name, identifier } = props.row.original
-                    return (
-                        <div className="flex items-center gap-2">
-                            <div>
-                                <div className="font-bold heading-text">
-                                    {name}
-                                </div>
-                                <div>{identifier}</div>
-                            </div>
-                        </div>
-                    )
-                },
-            },
-            {
-                header: 'Action',
-                accessorKey: 'action',
-                id: 'action',
-                cell: (props) => (
-                    <ActionColumn
-                        buttons={[
-                            {
-                                icon: <TbPencil />,
-                                tooltip: 'Edit',
-                                onClick: () => handleEdit(props.row.original),
-                            },
-                            {
-                                icon: <TbEye />,
-                                tooltip: 'View',
-                                onClick: () =>
-                                    handleViewDetails(props.row.original),
-                            },
-                        ]}
-                    />
+    const handleEdit = useCallback(
+        (category: Department) =>
+            navigateTo(
+                endpointConfig.master.department.edit.replace(
+                    ':id',
+                    String(category.id),
                 ),
-            },
-        ],
-
-        [],
+            ),
+        [navigateTo],
     )
 
-    const handleSetTableData = (data: TableQueries) => {
-        setTableData(data)
-        if (selectedDepartment.length > 0) {
-            setSelectAllDepartment([])
-        }
-    }
+    const handleView = useCallback(
+        (category: Department) =>
+            navigateTo(
+                endpointConfig.master.department.view.replace(
+                    ':id',
+                    String(category.id),
+                ),
+            ),
+        [navigateTo],
+    )
+
+    const columns = useMemo(
+        () =>
+            buildDepartmentColumns({
+                onEdit: handleEdit,
+                onView: handleView,
+            }),
+        [handleEdit, handleView],
+    )
 
     const handlePaginationChange = (page: number) => {
-        const newTableData = cloneDeep(tableData)
-        newTableData.pageIndex = page
-        handleSetTableData(newTableData)
+        updateTable({ pageIndex: page })
+        clearSelection()
     }
 
-    const handleSelectChange = (value: number) => {
-        const newTableData = cloneDeep(tableData)
-        newTableData.pageSize = Number(value)
-        newTableData.pageIndex = 1
-        handleSetTableData(newTableData)
+    const handlePageSizeChange = (pageSize: number) => {
+        updateTable({ pageSize, pageIndex: 1 })
+        clearSelection()
     }
 
     const handleSort = (sort: OnSortParam) => {
-        const newTableData = cloneDeep(tableData)
-        newTableData.sort = sort
-        handleSetTableData(newTableData)
+        updateTable({ sort })
+        clearSelection()
     }
 
-    const handleRowSelect = (checked: boolean, row: Department) => {
-        setSelectedDepartment(checked, row)
-    }
+    const handleRowSelect = (checked: boolean, row: Department) =>
+        toggleRow(checked, row)
 
-    const handleAllRowSelect = (checked: boolean, rows: Row<Department>[]) => {
-        if (checked) {
-            const originalRows = rows.map((row) => row.original)
-            setSelectAllDepartment(originalRows)
-        } else {
-            setSelectAllDepartment([])
-        }
-    }
+    const handleAllRowSelect = (checked: boolean, rows: Row<Department>[]) =>
+        setAll(checked ? rows.map((r) => r.original) : [])
 
     return (
         <DataTable
@@ -139,15 +86,13 @@ const DepartmentListTable = () => {
             skeletonAvatarProps={{ width: 28, height: 28 }}
             loading={isLoading}
             pagingData={{
-                total: departmentListTotal,
-                pageIndex: tableData.pageIndex as number,
-                pageSize: tableData.pageSize as number,
+                total: total,
+                pageIndex: tableData.pageIndex!,
+                pageSize: tableData.pageSize!,
             }}
-            checkboxChecked={(row) =>
-                selectedDepartment.some((selected) => selected.id === row.id)
-            }
+            checkboxChecked={(row) => selected.some((c) => c.id === row.id)}
             onPaginationChange={handlePaginationChange}
-            onSelectChange={handleSelectChange}
+            onSelectChange={handlePageSizeChange}
             onSort={handleSort}
             onCheckBoxChange={handleRowSelect}
             onIndeterminateCheckBoxChange={handleAllRowSelect}

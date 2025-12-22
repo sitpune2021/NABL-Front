@@ -4,6 +4,8 @@ import { Card, Checkbox, Form, FormItem, Input, Select } from '@/components/ui'
 import { useForm, Controller } from 'react-hook-form'
 import { useEffect, useState } from 'react'
 import axios from 'axios'
+import BottomPanel from '@/components/form/bottomPanel'
+import { useSessionUser } from '@/store/authStore'
 
 const useDynamicOptions = (config: any) => {
     const [options, setOptions] = useState<any[]>([])
@@ -16,7 +18,7 @@ const useDynamicOptions = (config: any) => {
             setLoading(true)
             try {
                 const res = await axios.get(
-                    `http://192.168.1.33:8000/api/${config.table}`,
+                    `http://192.168.1.26:8000/api/${config.table}`,
                 )
                 const rows = Array.isArray(res.data?.data) ? res.data.data : []
                 const extracted = rows
@@ -50,8 +52,18 @@ const DynamicFormWrapper = ({
     } = useForm({
         defaultValues: documentData?.defaultValues || {},
     })
+    const { lab } = useSessionUser((state) => state.user)
+    const onSubmit = (data: any) => {
+        const existing = localStorage.getItem('formData')
+        const parsed = existing ? JSON.parse(existing) : {}
 
-    const onSubmit = (data: any) => console.log('FORM DATA:', data)
+        const updatedData = {
+            ...parsed,
+            ...data,
+        }
+
+        localStorage.setItem('formData', JSON.stringify(updatedData))
+    }
 
     if (!isDataEntry) return null
 
@@ -133,6 +145,8 @@ const DynamicFormWrapper = ({
                                         type="number"
                                         placeholder={`Enter ${label}`}
                                         readOnly={readOnly}
+                                        min={config.min}
+                                        max={config.max}
                                     />
                                 )
 
@@ -148,6 +162,7 @@ const DynamicFormWrapper = ({
                                     />
                                 )
 
+                            case 'radio':
                             case 'checkbox':
                                 return (
                                     <Checkbox.Group
@@ -240,21 +255,21 @@ const DynamicFormWrapper = ({
                         <Card>
                             <div className="mb-4">
                                 <h4 className="text-xl font-semibold">
-                                    Document Name : {documentData.documentName}
+                                    Document Name : {documentData.name}
                                 </h4>
                                 <p className="text-sm text-gray-600">
-                                    Document No : {documentData.documentNo}
+                                    Document No : {documentData.number}
                                 </p>
-                                <p className="text-sm text-gray-600">
+                                {/* <p className="text-sm text-gray-600">
                                     Lab Name : {documentData.labName}
-                                </p>
-                                <p className="text-sm text-gray-600">
+                                </p> */}
+                                {/* <p className="text-sm text-gray-600">
                                     Location : {documentData.location}
-                                </p>
+                                </p> */}
                             </div>
 
                             <div className="grid md:grid-cols-2 gap-6">
-                                {Object.entries(documentData.settings).map(
+                                {Object.entries(documentData.form_fields).map(
                                     ([name, config]) => (
                                         <div key={name}>
                                             {renderField(name, config)}
@@ -266,6 +281,14 @@ const DynamicFormWrapper = ({
                     </div>
                 </div>
             </Container>
+            {lab ? (
+                <BottomPanel
+                    isView={false}
+                    isSubmitting={false}
+                    isEdit={false}
+                    onDiscard={() => {}}
+                />
+            ) : null}
         </Form>
     )
 }

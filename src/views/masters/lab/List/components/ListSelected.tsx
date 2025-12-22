@@ -26,7 +26,7 @@ const LabListSelected = () => {
         setSelectAllLab([])
         mutate(
             {
-                list: newLabList,
+                data: newLabList,
                 total: labListTotal - selectedLab.length,
             },
             false,

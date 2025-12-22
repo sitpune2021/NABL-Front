@@ -503,8 +503,6 @@ export function addCustomBlocks(editor: any) {
 }
 
 export function addDynamicFields(editor: any) {
-    // console.log('Document Data:', documentData)
-
     const personOptions = [
         { value: 'user', name: 'User' },
         { value: 'preparedBy', name: 'Prepared By' },

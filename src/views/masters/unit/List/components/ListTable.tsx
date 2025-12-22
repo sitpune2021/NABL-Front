@@ -1,132 +1,80 @@
-import { useMemo } from 'react'
-import ActionColumn from '@/components/form/ActionColumn'
+import { useCallback, useMemo } from 'react'
 import DataTable from '@/components/shared/DataTable'
 import { useNavigate } from 'react-router'
-import cloneDeep from 'lodash/cloneDeep'
-import { TbPencil, TbEye } from 'react-icons/tb'
-import type { OnSortParam, ColumnDef, Row } from '@/components/shared/DataTable'
-import type { TableQueries } from '@/@types/common'
+import type { OnSortParam, Row } from '@/components/shared/DataTable'
 import useUnitList from '../hooks/useList'
 import endpointConfig from '@/configs/endpoint.config'
 import { Unit } from '@/@types/unit'
+import { buildUnitColumns } from '@/columns/unit.columns'
 
 const UnitListTable = () => {
     const navigate = useNavigate()
 
     const {
         unitList,
-        unitListTotal,
+        total,
         tableData,
         isLoading,
-        setTableData,
-        setSelectAllUnit,
-        setSelectedUnit,
-        selectedUnit,
+        updateTable,
+        selected,
+        toggleRow,
+        setAll,
+        clearSelection,
     } = useUnitList()
 
-    const handleEdit = (unit: Unit) => {
-        const path = endpointConfig.setting.unit.edit.replace(
-            ':id',
-            String(unit.id),
-        )
-        navigate(path)
-    }
+    const navigateTo = useCallback((path: string) => navigate(path), [navigate])
 
-    const handleViewDetails = (unit: Unit) => {
-        const path = endpointConfig.setting.unit.view.replace(
-            ':id',
-            String(unit.id),
-        )
-        navigate(path)
-    }
-
-    const columns: ColumnDef<Unit>[] = useMemo(
-        () => [
-            {
-                header: 'Id',
-                accessorKey: 'id',
-            },
-            {
-                header: 'Name',
-                accessorKey: 'name',
-                cell: (props) => {
-                    const { name } = props.row.original
-                    return (
-                        <div className="flex items-center gap-2">
-                            <div>
-                                <div className="font-bold heading-text">
-                                    {name}
-                                </div>
-                            </div>
-                        </div>
-                    )
-                },
-            },
-            {
-                header: 'Action',
-                accessorKey: 'action',
-                id: 'action',
-                cell: (props) => (
-                    <ActionColumn
-                        buttons={[
-                            {
-                                icon: <TbPencil />,
-                                tooltip: 'Edit',
-                                onClick: () => handleEdit(props.row.original),
-                            },
-                            {
-                                icon: <TbEye />,
-                                tooltip: 'View',
-                                onClick: () =>
-                                    handleViewDetails(props.row.original),
-                            },
-                        ]}
-                    />
+    const handleEdit = useCallback(
+        (category: Unit) =>
+            navigateTo(
+                endpointConfig.master.unit.edit.replace(
+                    ':id',
+                    String(category.id),
                 ),
-            },
-        ],
-
-        [],
+            ),
+        [navigateTo],
     )
 
-    const handleSetTableData = (data: TableQueries) => {
-        setTableData(data)
-        if (selectedUnit.length > 0) {
-            setSelectAllUnit([])
-        }
-    }
+    const handleView = useCallback(
+        (category: Unit) =>
+            navigateTo(
+                endpointConfig.master.unit.view.replace(
+                    ':id',
+                    String(category.id),
+                ),
+            ),
+        [navigateTo],
+    )
+
+    const columns = useMemo(
+        () =>
+            buildUnitColumns({
+                onEdit: handleEdit,
+                onView: handleView,
+            }),
+        [handleEdit, handleView],
+    )
 
     const handlePaginationChange = (page: number) => {
-        const newTableData = cloneDeep(tableData)
-        newTableData.pageIndex = page
-        handleSetTableData(newTableData)
+        updateTable({ pageIndex: page })
+        clearSelection()
     }
 
-    const handleSelectChange = (value: number) => {
-        const newTableData = cloneDeep(tableData)
-        newTableData.pageSize = Number(value)
-        newTableData.pageIndex = 1
-        handleSetTableData(newTableData)
+    const handlePageSizeChange = (pageSize: number) => {
+        updateTable({ pageSize, pageIndex: 1 })
+        clearSelection()
     }
 
     const handleSort = (sort: OnSortParam) => {
-        const newTableData = cloneDeep(tableData)
-        newTableData.sort = sort
-        handleSetTableData(newTableData)
+        updateTable({ sort })
+        clearSelection()
     }
 
-    const handleRowSelect = (checked: boolean, row: Unit) => {
-        setSelectedUnit(checked, row)
-    }
+    const handleRowSelect = (checked: boolean, row: Unit) =>
+        toggleRow(checked, row)
 
-    const handleAllRowSelect = (checked: boolean, rows: Row<Unit>[]) => {
-        if (checked) {
-            const originalRows = rows.map((row) => row.original)
-            setSelectAllUnit(originalRows)
-        } else {
-            setSelectAllUnit([])
-        }
-    }
+    const handleAllRowSelect = (checked: boolean, rows: Row<Unit>[]) =>
+        setAll(checked ? rows.map((r) => r.original) : [])
 
     return (
         <DataTable
@@ -138,15 +86,13 @@ const UnitListTable = () => {
             skeletonAvatarProps={{ width: 28, height: 28 }}
             loading={isLoading}
             pagingData={{
-                total: unitListTotal,
-                pageIndex: tableData.pageIndex as number,
-                pageSize: tableData.pageSize as number,
+                total: total,
+                pageIndex: tableData.pageIndex!,
+                pageSize: tableData.pageSize!,
             }}
-            checkboxChecked={(row) =>
-                selectedUnit.some((selected) => selected.id === row.id)
-            }
+            checkboxChecked={(row) => selected.some((c) => c.id === row.id)}
             onPaginationChange={handlePaginationChange}
-            onSelectChange={handleSelectChange}
+            onSelectChange={handlePageSizeChange}
             onSort={handleSort}
             onCheckBoxChange={handleRowSelect}
             onIndeterminateCheckBoxChange={handleAllRowSelect}

@@ -1,119 +1,101 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useEffect, useState } from 'react'
 import { Form } from '@/components/ui/Form'
 import Container from '@/components/shared/Container'
 import BottomStickyBar from '@/components/template/BottomStickyBar'
 import OverviewSection from './OverviewSection'
-import isEmpty from 'lodash/isEmpty'
 import { useForm } from 'react-hook-form'
 import type { CommonProps } from '@/@types/common'
-import { ClausesFormSchema, TitleSpecificData } from '@/@types/clauses'
-import { apiGetStandardById } from '@/services/StandardService'
-import { useParams } from 'react-router'
 import { Card } from '@/components/ui'
+import { Standard } from '@/@types/standard'
+import { Category } from '@/@types/category'
+import { Document } from '@/@types/document'
+// import { zodResolver } from '@hookform/resolvers/zod'
+import { z } from 'zod'
+
+// Schema for a document assigned to a clause
+const ClauseDocumentSchema = z.object({
+    id: z.string().min(1, 'Document ID is required'),
+    version_id: z.string().min(1, 'Version ID is required'),
+    label: z.string().optional(),
+})
+
+// Schema for each clause's document tagging
+const ClauseDocumentTaggingSchema = z.object({
+    category_id: z.string().min(1, 'Category is required'),
+    documents: ClauseDocumentSchema,
+})
+
+// Schema for each standard clause
+const StandardClauseSchema = z.object({
+    clause_id: z.string().min(1),
+    clause_parent_id: z.string().optional(),
+    notes: z.string(),
+    clause_documents_tagging: z
+        .array(ClauseDocumentTaggingSchema)
+        .min(1, 'At least one document must be assigned to the clause'),
+})
+
+// Full form schema
+export const ClausesFormSchema = z.object({
+    standard_clauses: z
+        .array(StandardClauseSchema)
+        .min(1, 'At least one clause is required'),
+})
+
+// Type inference
+export type ClausesFormSchema = z.infer<typeof ClausesFormSchema>
 
 type ClausesFormProps = {
     onFormSubmit: (values: ClausesFormSchema) => void
     defaultValues?: Partial<ClausesFormSchema>
     newClauses?: boolean
     readOnly?: boolean
+    standardDetail: Standard
+    categoryList: Category[]
+    documentList: Document[]
 } & CommonProps
-
-const defaultClause = {
-    category: '',
-    documentName: '',
-    frequency: '',
-}
-
-const mapStandardsToClauseDocumentsData = (
-    standards: any[],
-): TitleSpecificData[] => {
-    const result: TitleSpecificData[] = []
-
-    standards.forEach((item) => {
-        if (item.note) {
-            result.push({
-                id: item.id,
-                parentId: item.parent_id,
-                notes: '',
-                clauses: [{ ...defaultClause }],
-            })
-        }
-
-        if (item.children?.length > 0) {
-            result.push(...mapStandardsToClauseDocumentsData(item.children))
-        }
-    })
-    return result
-}
 
 const ClausesForm = ({
     onFormSubmit,
-    defaultValues = {},
     readOnly = false,
     children,
+    standardDetail,
+    documentList,
+    categoryList,
 }: ClausesFormProps) => {
-    const { id: standardId } = useParams()
+    const defaultValuesWithDocs = {
+        standard_id: standardDetail.id,
+        standard_clauses: standardDetail.clauses.map((clause: any) => ({
+            clause_id: clause.id,
+            clause_parent_id: clause.parent_id,
+            notes: '',
+            clause_documents_tagging: clause.clause_documents_tagging?.length
+                ? clause.clause_documents_tagging
+                : [
+                      {
+                          category_id: '',
+                          documents: {
+                              id: '',
+                              version_is: '',
+                              version: '',
+                              frequench: '',
+                          },
+                      },
+                  ],
+        })),
+    }
+
     const {
-        handleSubmit,
-        reset,
-        formState: { errors },
         control,
-        setValue,
-        getValues,
-    } = useForm<ClausesFormSchema>({
-        defaultValues: {
-            Standard_id: standardId,
-            clause_documents: [],
-        },
+        handleSubmit,
+        formState: { errors },
+    } = useForm({
+        defaultValues: defaultValuesWithDocs,
+        // resolver: zodResolver(ClausesFormSchema),
     })
 
-    const [accordionData, setAccordionData] = useState<any[]>([])
-    const [name, setName] = useState<any>('')
-
-    useEffect(() => {
-        const fetchData = async () => {
-            if (!isEmpty(defaultValues?.clause_documents)) {
-                reset(defaultValues)
-                return
-            }
-
-            if (!standardId) return
-
-            try {
-                const data: any = await apiGetStandardById(standardId)
-                setName(data.name)
-                setAccordionData(data.clauses)
-                const mappedData = mapStandardsToClauseDocumentsData(
-                    data.clauses,
-                )
-                reset({ clause_documents: mappedData })
-            } catch (err) {
-                console.error('Failed to fetch standard:', err)
-            }
-        }
-
-        fetchData()
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [JSON.stringify(defaultValues), reset, standardId])
-
     const onSubmit = (values: ClausesFormSchema) => {
-        const cleanedData = {
-            ...values,
-            clause_documents: values.clause_documents
-                .map((doc) => ({
-                    ...doc,
-                    clauses: doc.clauses.filter(
-                        (c) =>
-                            c.category.trim() !== '' ||
-                            c.documentName.trim() !== '' ||
-                            c.frequency.trim() !== '',
-                    ),
-                }))
-                .filter((doc) => doc.clauses.length > 0),
-        }
-
-        onFormSubmit?.(cleanedData)
+        onFormSubmit?.(values)
     }
 
     return (
@@ -126,15 +108,17 @@ const ClausesForm = ({
                 <div className="flex flex-col md:flex-row gap-4">
                     <div className="gap-4 flex flex-col flex-auto">
                         <Card>
-                            <h4 className="text-lg font-semibold">{name}</h4>
+                            <h4 className="text-lg font-semibold">
+                                {standardDetail.name}
+                            </h4>
                         </Card>
                         <OverviewSection
                             control={control}
                             errors={errors}
                             readOnly={readOnly}
-                            setValue={setValue}
-                            getValues={getValues}
-                            accordionData={accordionData}
+                            accordionData={standardDetail.clauses || []}
+                            documentList={documentList}
+                            categoryList={categoryList}
                         />
                     </div>
                 </div>

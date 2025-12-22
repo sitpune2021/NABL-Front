@@ -3,6 +3,9 @@ import { TableQueries } from './common'
 
 import type { Control, FieldErrors, UseFormSetValue } from 'react-hook-form'
 import { z } from 'zod'
+import { Department } from './department'
+import { Category } from './category'
+import { Template as TemplateSh } from './template'
 
 export type FrequencyType =
     | 'Daily'
@@ -22,11 +25,13 @@ export interface ItemConfig {
 
 export interface FrequencyPopupProps {
     isOpen: boolean
+    initialData?: any
+    control: Control<any>
+    errors?: FieldErrors<any>
+    setValue: UseFormSetValue<any>
     onClose: () => void
-    onConfirm: (config: FrequencyConfig, settings: any) => void
-    initialData?: FrequencyConfig
-    initialSettings?: any
-    triates: { daily: Field[]; oneTime: Field[] }
+    onConfirm: () => void // ✅ NEW
+    readOnly?: boolean
 }
 
 export type Trait = {
@@ -51,13 +56,6 @@ export interface FrequencyConfig {
     selectedDay?: string
 }
 
-export interface DataEntrySchedule {
-    id?: string | number
-    frequency: FrequencyConfig
-    startDate: string
-    endDate?: string
-}
-
 export type GetDocumentListResponse = {
     data: Document[]
     total: number
@@ -76,41 +74,16 @@ export type Filter = {
 export type Document = {
     id?: string
     mode: string
-    labName: string
-    location?: string
-    department?: string
-    header?: string
-    footer?: string
-    category?: string
-    documentName: string
-    documentNo?: string
-    issuedNo?: string
-    amendmentNo?: string
-    copyNo?: string
-    date?: string
-    preparedByDate?: string
-    time?: string
-    preparedBy: string
-    quantityPrepared?: string | number
-    approvedBy: string
-    issuedBy?: string
-    issueDate: string
-    amendmentDate?: string
-    effectiveDate: string
-    frequency?: string
-    duration?: string
-    durationUnit?: string
-    durationValue?: number
-    status?: 'Controlled' | 'Uncontrolled'
-    dataEntrySchedule?: DataEntrySchedule
-    editor?: {
-        id?: string
-        documentId?: string | number
-        document?: {
-            html: string
-            css: string
-            js: string
-        }
+    category_id?: string
+    name: string
+    status: string
+    current_version: {
+        id: string
+        schedule: any
+        full_version: string
+    }
+    category?: {
+        name?: string
     }
 }
 
@@ -129,48 +102,54 @@ export type DocumentListAction = {
 
 export type Fields = {
     id?: string
-    mode: string
-    labName: string
-    location?: string
+    mode: 'create' | 'upload'
+    category_id?: string
     department?: string[]
-    header?: string
-    footer?: string
-    category?: string
-    documentName: string
-    documentNo?: string
-    issuedNo?: string
-    amendmentNo?: string
-    copyNo?: string
-    date?: string
-    preparedByDate?: string
-    time?: string
-    preparedBy: string
-    quantityPrepared?: string | number
-    approvedBy: string
-    issuedBy?: string
-    issueDate: string
-    amendmentDate?: string
-    effectiveDate: string
-    frequency?: string
-    duration?: string
-    durationUnit?: string
-    durationValue?: number
-    status?: 'Controlled' | 'Uncontrolled'
-    dataEntrySchedule?: DataEntrySchedule
-    document?: {
+    number?: string // documentNo
+    name: string // documentName
+    status?: 'controlled' | 'uncontrolled'
+
+    header?: {
+        template_id: string | number
+        type: string
+        current_version: string
+    }
+    footer?: {
+        template_id: string | number
+        type: string
+        current_version: string
+    }
+    copy_no?: string
+    quantity_prepared?: string | number
+
+    workflow_state?: string
+    step_type?: string
+    performed_by?: string
+    performed_date?: string
+    effective_date?: string
+
+    review_frequency?: string
+    notification_unit?: string
+    notification_value?: number | string
+
+    editor_schema?: {
         html: string
         css: string
-        js: string
         json: string
     }
-    settings?: any
+    form_fields?: any
+    issued_by?: string
+    issue_date?: string
+    amendment_no?: string
+    amendment_date?: string
+    schedule?: FrequencyConfig
 }
 
 export type TagsFields = {
     tags: Array<{ value: string; label: string }>
 }
 
-export type DocumentFormSchema = Fields
+export type DocumentFormSchema = Fields | Document
 
 export type EditorFormSchema = {
     documentId: string
@@ -182,10 +161,13 @@ export type EditorFormSchema = {
 }
 
 export type FormSectionBaseProps = {
-    control: Control<DocumentFormSchema | EditorFormSchema>
-    errors: FieldErrors<DocumentFormSchema & EditorFormSchema>
+    control: Control<DocumentFormSchema>
+    errors: FieldErrors<DocumentFormSchema>
     readOnly?: boolean
-    setValue: UseFormSetValue<DocumentFormSchema | EditorFormSchema>
+    setValue: UseFormSetValue<DocumentFormSchema>
+    departmentList: Department[]
+    categoryList: Category[]
+    templateList: TemplateSh[]
 }
 
 export type DocumentResolved = Document & {
@@ -308,39 +290,59 @@ export function categorizeThDetails(components: any): CategorizedDetails {
 }
 
 export const documentFormSchema = z.object({
-    mode: z.string().optional(),
-    labName: z.string().min(1, 'Lab Name is required'),
-    location: z.string().optional(),
+    // From documentFieldOne
+    mode: z.enum(['create', 'upload']).optional(),
+    category_id: z.union([
+        z.string().min(1, 'Category is required'),
+        z.number(),
+    ]),
     department: z.array(z.union([z.string(), z.number()])).optional(),
-    header: z.union([z.string(), z.number()]).optional(),
-    footer: z.union([z.string(), z.number()]).optional(),
-    category: z.string().optional(),
-    documentName: z.string().min(1, 'Document Name is required'),
-    documentNo: z.string().optional(),
-    issuedNo: z.string().optional(),
-    amendmentNo: z.string().optional(),
-    copyNo: z.string().optional(),
-    date: z.string().optional(),
-    preparedByDate: z.string().optional(),
-    time: z.string().optional(),
-    preparedBy: z.string().optional(),
-    quantityPrepared: z
+    number: z.string(),
+    name: z.string().min(1, 'Document Name is required'),
+    status: z.enum(['controlled', 'uncontrolled']),
+
+    // From documentFieldTwo
+    header: z
+        .object({
+            template_id: z.union([z.string(), z.number()]),
+            type: z.literal('header'),
+            current_version: z.string(),
+        })
+        .optional(),
+    footer: z
+        .object({
+            template_id: z.union([z.string(), z.number()]),
+            type: z.literal('footer'),
+            current_version: z.string(),
+        })
+        .optional(),
+    copy_no: z.string().optional(),
+    quantity_prepared: z
         .union([z.string(), z.number()])
         .optional()
         .refine((val) => !val || Number(val) >= 0, {
             message: 'Quantity must be a positive number',
         }),
-    approvedBy: z.string().optional(),
-    issuedBy: z.string().optional(),
-    issueDate: z.string().optional(),
-    amendmentDate: z.string().optional(),
-    effectiveDate: z.string().min(1, 'Effective Date is required'),
-    frequency: z.string().optional(),
-    duration: z.string().optional(),
-    durationUnit: z.string().optional(),
-    durationValue: z.string().optional(),
-    prefix: z.string().optional(),
-    status: z.enum(['Controlled', 'Uncontrolled']).optional(),
+
+    // From documentFieldThree
+    workflow_state: z.string(),
+    step_type: z.string(),
+    performed_by: z.string(),
+    performed_date: z.string(), // can add date parsing later if needed
+    effective_date: z.string().min(1, 'Effective Date is required'),
+    review_frequency: z.enum(
+        ['Weekly', 'Monthly', 'Yearly'],
+        'Select frequency',
+    ),
+    notification_unit: z.string(),
+    notification_value: z
+        .union([z.string(), z.number()])
+        .refine((val) => !val || Number(val) > 0, {
+            message: 'Duration Value must be positive',
+        }),
+    editor_schema: z.any(),
+    schedule: z.any(),
+    form_fields: z.any(),
 })
 
 export const editorSchema = z.object({
@@ -364,6 +366,7 @@ export type FormFieldType =
     | 'header'
     | 'footer'
     | 'checkbox'
+    | 'switch'
 
 export interface FormFieldConfig {
     name: string
@@ -374,10 +377,41 @@ export interface FormFieldConfig {
     options?: Option[]
     readOnly?: boolean
     condition?: (values: any) => boolean // conditional rendering
-    customRender?: (
-        field: any,
-        formValues: any,
-        extraProps?: any,
-    ) => JSX.Element
+    customRender?: (field: any, formValues: any, extraProps?: any) => any
     onChange?: (value: any) => void
+    defaultValue?: any
+}
+
+export type TemplateOption = {
+    value: string
+    label: string
+    html: string
+    css: string
+}
+
+export type DepartmentOption = {
+    label: string
+    value: string
+}
+
+export interface GrapesEditorProps {
+    control: Control<any>
+    errors: any
+    readOnly: boolean
+    setValue: UseFormSetValue<any>
+    documentData?: DocumentFormSchema | null
+    isEdit?: boolean
+    getTemplateById: any
+}
+
+export interface TemplatePart {
+    html: string | undefined
+    json: any | undefined
+    css: string | undefined
+}
+
+export interface Template {
+    header: TemplatePart
+    footer: TemplatePart
+    section?: TemplatePart
 }

@@ -6,6 +6,6 @@ export const actionButtons: ActionButton[] = [
     {
         label: 'Add New Lab',
         icon: <TbTemplate className="text-xl" />,
-        path: `${endpointConfig.master.lab.create}`,
+        path: `${endpointConfig.client.lab.create}`,
     },
 ]

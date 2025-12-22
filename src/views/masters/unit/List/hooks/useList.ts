@@ -1,67 +1,45 @@
-import {
-    apiUnit,
-    apiGetUnitList,
-    apiGetUnitById,
-    apiUpdateUnit,
-} from '@/services/UnitService'
 import useSWR from 'swr'
-import { useUnitListStore } from '../store/listStore'
 import type { TableQueries } from '@/@types/common'
-import { Fields, GetUnitListResponse } from '@/@types/unit'
+import { useUnitListStore } from '../store/listStore'
+import { apiGetUnitList } from '@/services/UnitService'
+import { GetUnitListResponse } from '@/@types/unit'
 
-export default function useUnitList() {
+const LIST_KEY = 'unit-list'
+export default function useDepartmentList() {
     const {
         tableData,
-        filterData,
-        setTableData,
-        selectedUnit,
-        setSelectedUnit,
-        setSelectAllUnit,
-        setFilterData,
-    } = useUnitListStore((state) => state)
+        updateTable,
+        selected,
+        toggleRow,
+        setAll,
+        clearSelection,
+    } = useUnitListStore()
 
-    const { data, error, isLoading, mutate } = useSWR(
-        ['/api/unit', { ...tableData, ...filterData }],
+    const swr = useSWR(
+        [LIST_KEY, tableData],
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         ([_, params]) =>
             apiGetUnitList<GetUnitListResponse, TableQueries>(params),
         {
+            keepPreviousData: true,
             revalidateOnFocus: false,
+            revalidateIfStale: false,
         },
     )
-    const saveUnitData = async (unit: Fields) => {
-        if (unit.id) {
-            await apiUpdateUnit(unit.id, unit)
-        } else {
-            await apiUnit(unit)
-        }
-        await mutate() // refresh list
-    }
-
-    // ✅ Get single unit by ID (for edit or view)
-    const getUnitById = async (id: string) => {
-        const unit = await apiGetUnitById(id)
-        return unit
-    }
-
-    const unitList = data?.list || []
-
-    const unitListTotal = data?.total || 0
 
     return {
-        unitList,
-        unitListTotal,
-        error,
-        isLoading,
+        unitList: swr.data?.data ?? [],
+        total: swr.data?.total ?? 0,
+        isLoading: swr.isLoading,
+        error: swr.error,
+        mutate: swr.mutate,
+
         tableData,
-        filterData,
-        mutate,
-        setTableData,
-        selectedUnit,
-        setSelectedUnit,
-        setSelectAllUnit,
-        setFilterData,
-        saveUnitData,
-        getUnitById, // ✅ Now defined properly
+        updateTable,
+
+        selected,
+        toggleRow,
+        setAll,
+        clearSelection,
     }
 }

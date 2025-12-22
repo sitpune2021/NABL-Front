@@ -4,6 +4,7 @@ import type { NavigationTree } from '@/@types/navigation'
 import masterNavigationConfig from './master.navigation.config'
 import endpointConfig from '../endpoint.config'
 import settingNavigationConfig from './settings.navigation.config'
+import clientNavigationConfig from './client.navigation.config'
 
 const navigationConfig: NavigationTree[] = [
     {
@@ -17,6 +18,7 @@ const navigationConfig: NavigationTree[] = [
         subMenu: [],
     },
     ...masterNavigationConfig,
+    ...clientNavigationConfig,
     ...settingNavigationConfig,
 ]
 

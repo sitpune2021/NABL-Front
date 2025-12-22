@@ -1,129 +1,88 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import { useEffect, useState } from 'react'
+import { useMemo } from 'react'
 import { useParams, useNavigate, useLocation } from 'react-router'
 import Notification from '@/components/ui/Notification'
 import toast from '@/components/ui/toast'
 import ConfirmDialog from '@/components/shared/ConfirmDialog'
-import sleep from '@/utils/sleep'
-import endpointConfig from '@/configs/endpoint.config'
-import useClausesList from '../List/hooks/useList'
 import ClausesForm from '../Form'
 import { ClausesFormSchema } from '@/@types/clauses'
 import BottomPanel from '@/components/form/bottomPanel'
+import useDocumentList from '../../document/List/hooks/useList'
+import { getMode } from '@/utils/getMode'
+import { useCategoryList } from '../../category/List/hooks/useList'
+import { useDiscardConfirm } from '@/utils/hooks/useDiscardConfirm'
+import endpointConfig from '@/configs/endpoint.config'
+import { useFormSubmit } from '@/utils/hoc/useFormSubmit'
+import { useEntityMutations } from '@/utils/hooks/useEntityMutations'
+import { apiCreateClauses, apiUpdateClauses } from '@/services/ClausesService'
+import { useClauseDetail } from '../List/hooks/useDetail'
+import { useStandardDetail } from '../List/hooks/useStanderdDetail'
+
+const EMPTY_VALUES = undefined
 
 const ClausesAddEdit = () => {
     const navigate = useNavigate()
+    const { id } = useParams<{ id: string }>()
     const location = useLocation()
-    const { id: clausesId } = useParams()
-    const { saveClausesData, getClausesById } = useClausesList()
+    const mode = useMemo(() => getMode(location.pathname), [location.pathname])
+    const isView = mode === 'view'
+    const isEdit = mode === 'edit'
 
-    const [discardConfirmationOpen, setDiscardConfirmationOpen] =
-        useState(false)
-    const [isSubmiting, setIsSubmiting] = useState(false)
-    const [clausesData, setClausesData] = useState<ClausesFormSchema | null>(
-        null,
-    )
-    const [loadingData, setLoadingData] = useState(false)
+    const { clause } = useClauseDetail()
+    const { standard, isLoading } = useStandardDetail(id)
+    const { categoryList } = useCategoryList()
+    const { documentList } = useDocumentList()
+    const discard = useDiscardConfirm()
 
-    const isEdit = location.pathname.includes('/edit')
-    const isView = location.pathname.includes('/view')
-    const isAdd = location.pathname.includes('/create')
+    const defaultValues = useMemo(() => clause ?? EMPTY_VALUES, [clause])
 
-    useEffect(() => {
-        if (!isAdd && clausesId) {
-            setLoadingData(true)
-            getClausesById(clausesId)
-                .then((data) => {
-                    console.log('Fetched clauses data:', data)
-                    setClausesData(data)
-                })
-                .finally(() => setLoadingData(false))
-        }
-    }, [clausesId, isAdd])
+    const { save } = useEntityMutations<ClausesFormSchema>({
+        apiCreate: apiCreateClauses,
+        apiUpdate: apiUpdateClauses,
+    })
 
-    const handleFormSubmit = async (values: ClausesFormSchema) => {
-        if (isView) return
-        setIsSubmiting(true)
-        try {
-            const payload = isEdit ? { ...values, id: clausesId } : values
+    const { handleSubmit, isSubmitting } = useFormSubmit<ClausesFormSchema>({
+        apiCall: (values) =>
+            save({ ...values, ...(isEdit && id ? { id } : {}) }),
+        navigateTo: endpointConfig.setting.clauses.list,
+    })
 
-            await saveClausesData(payload)
-            await sleep(800)
-            setIsSubmiting(false)
-            toast.push(
-                <Notification type="success">
-                    {isEdit ? 'Clauses updated!' : 'Clauses created!'}
-                </Notification>,
-                { placement: 'top-center' },
-            )
-            navigate(endpointConfig.setting.clauses.list)
-        } catch (error: any) {
-            const backendErrors = error?.response?.data?.errors
-
-            if (backendErrors) {
-                Object.entries(backendErrors).forEach(([messages]) => {
-                    const message = Array.isArray(messages)
-                        ? messages[0]
-                        : messages
-                    toast.push(
-                        <Notification type="danger">{message}</Notification>,
-                        { placement: 'top-center' },
-                    )
-                })
-            } else {
-                const errorMessage =
-                    error?.response?.data?.message ||
-                    `Failed to ${isEdit ? 'update' : 'create'} clauses`
-
-                toast.push(
-                    <Notification type="danger">{errorMessage}</Notification>,
-                    { placement: 'top-center' },
-                )
-            }
-        } finally {
-            setIsSubmiting(false)
-        }
-    }
-
-    const handleConfirmDiscard = () => {
-        setDiscardConfirmationOpen(true)
+    const confirmDiscard = () => {
         toast.push(
-            <Notification type="success">Changes discarded!</Notification>,
+            <Notification type="success">Changes discarded</Notification>,
             { placement: 'top-center' },
         )
+        discard.close()
         navigate(endpointConfig.setting.clauses.list)
     }
 
-    const handleDiscard = () => setDiscardConfirmationOpen(true)
-    const handleCancel = () => setDiscardConfirmationOpen(false)
-
-    if (loadingData && !isAdd) {
+    if (isLoading) {
         return <p className="p-4">Loading clauses data...</p>
     }
 
     return (
         <>
             <ClausesForm
-                newClauses={isAdd}
-                defaultValues={clausesData || undefined}
+                defaultValues={defaultValues}
                 readOnly={isView}
-                onFormSubmit={handleFormSubmit}
+                standardDetail={standard}
+                categoryList={categoryList}
+                documentList={documentList}
+                onFormSubmit={handleSubmit}
             >
                 <BottomPanel
                     isView={isView}
-                    isSubmitting={isSubmiting}
+                    isSubmitting={isSubmitting}
                     isEdit={isEdit}
-                    onDiscard={handleDiscard}
+                    onDiscard={discard.show}
                 />
             </ClausesForm>
             <ConfirmDialog
-                isOpen={discardConfirmationOpen}
+                isOpen={discard.open}
                 type="danger"
                 title="Discard changes"
-                onClose={handleCancel}
-                onRequestClose={handleCancel}
-                onCancel={handleCancel}
-                onConfirm={handleConfirmDiscard}
+                onClose={discard.close}
+                onCancel={discard.close}
+                onConfirm={confirmDiscard}
             >
                 <p>
                     Are you sure you want discard this? This action can&apos;t

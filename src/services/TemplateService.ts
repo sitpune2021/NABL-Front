@@ -27,8 +27,6 @@ export async function apiGetTemplateById(id: string) {
 }
 
 export async function apiUpdateTemplate(id: string, data: Fields) {
-    console.log('Updating template with ID:', id, 'and data:', data) // Debug log;
-
     return ApiService.fetchDataWithAxios<Fields>({
         url: `/template/${id}`,
         method: 'put',

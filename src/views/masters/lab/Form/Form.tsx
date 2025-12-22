@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { Form } from '@/components/ui/Form'
 import Container from '@/components/shared/Container'
 import BottomStickyBar from '@/components/template/BottomStickyBar'
@@ -7,93 +7,11 @@ import OverviewSection from './OverviewSection'
 import isEmpty from 'lodash/isEmpty'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm, FormProvider } from 'react-hook-form'
-import { z } from 'zod'
 import type { CommonProps } from '@/@types/common'
-import type { LabFormSchema } from '@/@types/lab'
 import LocationsSection from './LocationsSection'
-
-const validationSchema = z.object({
-    name: z.string().min(1, { message: 'Name is required' }),
-    labType: z.string().min(1, { message: 'Lab Type is required' }),
-    department: z.any().refine((val) => val !== '' && val !== null, {
-        message: 'Department is required',
-    }),
-    labCode: z.string().min(1, { message: 'Lab Code is required' }),
-    emails: z
-        .array(
-            z.object({
-                value: z
-                    .string()
-                    .nonempty({ message: 'Email is required' })
-                    .email({ message: 'Invalid email address' }),
-                is_primary: z.boolean().optional(),
-                label: z.enum(['primary', 'alternate']).optional(),
-            }),
-        )
-        .min(1, { message: 'At least one email is required' }),
-    phones: z
-        .array(
-            z.object({
-                value: z.string().nonempty({ message: 'Phone is required' }),
-                is_primary: z.boolean().optional(),
-                label: z.enum(['primary', 'alternate']).optional(),
-            }),
-        )
-        .min(1, { message: 'At least one phone is required' }),
-    address: z.string().optional(),
-    location: z
-        .array(
-            z.object({
-                zone_name: z.union([z.string(), z.number()]),
-                cluster_name: z.union([z.string(), z.number()]),
-                location_name: z.union([z.string(), z.number()]),
-
-                departments: z
-                    .array(
-                        z.object({
-                            name: z.union([z.string(), z.number()]),
-                            instruments: z
-                                .array(z.union([z.string(), z.number()]))
-                                .min(1, {
-                                    message:
-                                        'At least one instrument is required per department',
-                                }),
-                        }),
-                    )
-                    .min(1, { message: 'At least one department is required' }),
-                prefix: z.string().nonempty(),
-                shortName: z.string(),
-                emails: z
-                    .array(
-                        z.object({
-                            value: z
-                                .string()
-                                .nonempty({ message: 'Email is required' })
-                                .email({ message: 'Invalid email address' }),
-                            is_primary: z.boolean().optional(),
-                            label: z.enum(['primary', 'alternate']).optional(),
-                        }),
-                    )
-                    .min(1, { message: 'At least one email is required' }),
-                phones: z
-                    .array(
-                        z.object({
-                            value: z
-                                .string()
-                                .nonempty({ message: 'Phone is required' }),
-                            is_primary: z.boolean().optional(),
-                            label: z.enum(['primary', 'alternate']).optional(),
-                        }),
-                    )
-                    .min(1, { message: 'At least one phone is required' }),
-                address: z.string().optional(),
-                instruments: z
-                    .array(z.union([z.string(), z.number()]))
-                    .min(1, { message: 'At least one instrument is required' }),
-            }),
-        )
-        .min(1, { message: 'At least one location is required' }),
-})
+import useInstrumentList from '../../instrument/List/hooks/useList'
+import ClauseTree from './ClauseTree'
+import { labSchema, LabFormSchema } from '@/schemas/lab.schema'
 
 type LabFormProps = {
     onFormSubmit: (values: LabFormSchema) => void
@@ -120,8 +38,11 @@ const LabForm = ({
 }: LabFormProps) => {
     const methods = useForm<LabFormSchema>({
         defaultValues,
-        resolver: zodResolver(validationSchema) as any,
+        resolver: zodResolver(labSchema),
     })
+
+    const { clauseLIst, clauseLoadfing } = useInstrumentList()
+    const [selectedClauses, setSelectedClauses] = useState<string[]>([])
 
     const {
         handleSubmit,
@@ -138,7 +59,16 @@ const LabForm = ({
     }, [defaultValues])
 
     const onSubmit = (values: LabFormSchema) => {
-        onFormSubmit?.(values)
+        const payload = {
+            ...values,
+            selectedClauses,
+            standard_id: clauseLIst.id, // Or pick dynamically if multiple standards
+        }
+        onFormSubmit?.(payload)
+    }
+
+    if (clauseLoadfing) {
+        return <>loading.....</>
     }
 
     return (
@@ -166,6 +96,12 @@ const LabForm = ({
                                 locationList={locationList}
                                 departmentList={departmentList}
                                 instrumentList={instrumentList}
+                            />
+                            <ClauseTree
+                                data={clauseLIst.clauses}
+                                onSelectionChange={(selected) =>
+                                    setSelectedClauses(selected)
+                                }
                             />
                         </div>
                     </div>

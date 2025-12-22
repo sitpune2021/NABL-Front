@@ -463,7 +463,9 @@ const LocationsItems = ({
                                 <Button
                                     type="button"
                                     size="xs"
-                                    onClick={() => addEmail({ value: '' })}
+                                    onClick={() =>
+                                        addEmail({ type: 'email', value: '' })
+                                    }
                                 >
                                     <HiPlus />
                                 </Button>
@@ -532,7 +534,9 @@ const LocationsItems = ({
                                 <Button
                                     type="button"
                                     size="xs"
-                                    onClick={() => addPhone({ value: '' })}
+                                    onClick={() =>
+                                        addPhone({ type: 'phone', value: '' })
+                                    }
                                 >
                                     <HiPlus />
                                 </Button>

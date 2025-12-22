@@ -7,7 +7,7 @@ import {
 import useSWR from 'swr'
 import { useLabListStore } from '../store/listStore'
 import type { TableQueries } from '@/@types/common'
-import { Fields, GetLabListResponse } from '@/@types/lab'
+import { GetLabListResponse, Lab } from '@/@types/lab'
 
 export default function useLabList() {
     const {
@@ -29,7 +29,7 @@ export default function useLabList() {
             revalidateOnFocus: false,
         },
     )
-    const saveLabData = async (lab: Fields) => {
+    const saveLabData = async (lab: Lab) => {
         if (lab.id) {
             await apiUpdateLab(lab.id, lab)
         } else {
@@ -46,7 +46,7 @@ export default function useLabList() {
 
     const getLocationsByLabId = async (id: string) => {
         const lab = await apiGetLabById(id)
-        return lab.data.locations
+        return lab.data.location
     }
 
     const labList = data?.data || []

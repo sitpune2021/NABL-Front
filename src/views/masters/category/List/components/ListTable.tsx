@@ -1,153 +1,98 @@
-import { useMemo } from 'react'
-import ActionColumn from '@/components/form/ActionColumn'
-import DataTable from '@/components/shared/DataTable'
+import { useCallback, useMemo } from 'react'
 import { useNavigate } from 'react-router'
-import cloneDeep from 'lodash/cloneDeep'
-import { TbPencil, TbEye } from 'react-icons/tb'
-import type { OnSortParam, ColumnDef, Row } from '@/components/shared/DataTable'
-import type { TableQueries } from '@/@types/common'
-import useCategoryList from '../hooks/useList'
+import DataTable from '@/components/shared/DataTable'
+import type { OnSortParam, Row } from '@/components/shared/DataTable'
 import endpointConfig from '@/configs/endpoint.config'
 import { Category } from '@/@types/category'
+import { buildCategoryColumns } from '@/columns/category.columns'
+import { useCategoryList } from '../hooks/useList'
 
 const CategoryListTable = () => {
     const navigate = useNavigate()
 
     const {
         categoryList,
-        categoryListTotal,
+        total,
         tableData,
         isLoading,
-        setTableData,
-        setSelectAllCategory,
-        setSelectedCategory,
-        selectedCategory,
+        updateTable,
+        selected,
+        toggleRow,
+        setAll,
+        clearSelection,
     } = useCategoryList()
 
-    const handleEdit = (category: Category) => {
-        const path = endpointConfig.master.category.edit.replace(
-            ':id',
-            String(category.id),
-        )
-        navigate(path)
-    }
+    const navigateTo = useCallback((path: string) => navigate(path), [navigate])
 
-    const handleViewDetails = (category: Category) => {
-        const path = endpointConfig.master.category.view.replace(
-            ':id',
-            String(category.id),
-        )
-        navigate(path)
-    }
-
-    const columns: ColumnDef<Category>[] = useMemo(
-        () => [
-            {
-                header: 'Id',
-                accessorKey: 'id',
-            },
-            {
-                header: 'Name',
-                accessorKey: 'name',
-                cell: (props) => {
-                    const { name, identifier } = props.row.original
-                    return (
-                        <div className="flex items-center gap-2">
-                            <div>
-                                <div className="font-bold heading-text">
-                                    {name}
-                                </div>
-                                <div>{identifier}</div>
-                            </div>
-                        </div>
-                    )
-                },
-            },
-            {
-                header: 'Action',
-                accessorKey: 'action',
-                id: 'action',
-                cell: (props) => (
-                    <ActionColumn
-                        buttons={[
-                            {
-                                icon: <TbPencil />,
-                                tooltip: 'Edit',
-                                onClick: () => handleEdit(props.row.original),
-                            },
-                            {
-                                icon: <TbEye />,
-                                tooltip: 'View',
-                                onClick: () =>
-                                    handleViewDetails(props.row.original),
-                            },
-                        ]}
-                    />
+    const handleEdit = useCallback(
+        (category: Category) =>
+            navigateTo(
+                endpointConfig.master.category.edit.replace(
+                    ':id',
+                    String(category.id),
                 ),
-            },
-        ],
-
-        [],
+            ),
+        [navigateTo],
     )
 
-    const handleSetTableData = (data: TableQueries) => {
-        setTableData(data)
-        if (selectedCategory.length > 0) {
-            setSelectAllCategory([])
-        }
-    }
+    const handleView = useCallback(
+        (category: Category) =>
+            navigateTo(
+                endpointConfig.master.category.view.replace(
+                    ':id',
+                    String(category.id),
+                ),
+            ),
+        [navigateTo],
+    )
+
+    const columns = useMemo(
+        () =>
+            buildCategoryColumns({
+                onEdit: handleEdit,
+                onView: handleView,
+            }),
+        [handleEdit, handleView],
+    )
 
     const handlePaginationChange = (page: number) => {
-        const newTableData = cloneDeep(tableData)
-        newTableData.pageIndex = page
-        handleSetTableData(newTableData)
+        updateTable({ pageIndex: page })
+        clearSelection()
     }
 
-    const handleSelectChange = (value: number) => {
-        const newTableData = cloneDeep(tableData)
-        newTableData.pageSize = Number(value)
-        newTableData.pageIndex = 1
-        handleSetTableData(newTableData)
+    const handlePageSizeChange = (pageSize: number) => {
+        updateTable({ pageSize, pageIndex: 1 })
+        clearSelection()
     }
 
     const handleSort = (sort: OnSortParam) => {
-        const newTableData = cloneDeep(tableData)
-        newTableData.sort = sort
-        handleSetTableData(newTableData)
+        updateTable({ sort })
+        clearSelection()
     }
 
-    const handleRowSelect = (checked: boolean, row: Category) => {
-        setSelectedCategory(checked, row)
-    }
+    const handleRowSelect = (checked: boolean, row: Category) =>
+        toggleRow(checked, row)
 
-    const handleAllRowSelect = (checked: boolean, rows: Row<Category>[]) => {
-        if (checked) {
-            const originalRows = rows.map((row) => row.original)
-            setSelectAllCategory(originalRows)
-        } else {
-            setSelectAllCategory([])
-        }
-    }
+    const handleAllRowSelect = (checked: boolean, rows: Row<Category>[]) =>
+        setAll(checked ? rows.map((r) => r.original) : [])
 
     return (
         <DataTable
             selectable
             columns={columns}
             data={categoryList}
+            loading={isLoading}
             noData={!isLoading && categoryList.length === 0}
             skeletonAvatarColumns={[0]}
             skeletonAvatarProps={{ width: 28, height: 28 }}
-            loading={isLoading}
             pagingData={{
-                total: categoryListTotal,
-                pageIndex: tableData.pageIndex as number,
-                pageSize: tableData.pageSize as number,
+                total: total,
+                pageIndex: tableData.pageIndex!,
+                pageSize: tableData.pageSize!,
             }}
-            checkboxChecked={(row) =>
-                selectedCategory.some((selected) => selected.id === row.id)
-            }
+            checkboxChecked={(row) => selected.some((c) => c.id === row.id)}
             onPaginationChange={handlePaginationChange}
-            onSelectChange={handleSelectChange}
+            onSelectChange={handlePageSizeChange}
             onSort={handleSort}
             onCheckBoxChange={handleRowSelect}
             onIndeterminateCheckBoxChange={handleAllRowSelect}

@@ -43,6 +43,7 @@ export type User = {
     username?: string | null
     email?: string | null
     authority?: string[]
+    lab?: []
 }
 
 export type Token = {

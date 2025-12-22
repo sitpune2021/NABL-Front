@@ -36,9 +36,9 @@ const LocationsSection = ({
             departments: [{ name: '', instruments: [] }],
             prefix: '',
             shortName: '',
-            emails: [{ value: '' }],
+            emails: [{ type: 'email', value: '' }],
             instruments: [],
-            phones: [{ value: '' }],
+            phones: [{ type: 'phone', value: '' }],
             address: '',
         })
     }

@@ -1,6 +1,7 @@
 import { create } from 'zustand'
+import { persist } from 'zustand/middleware'
 import type { TableQueries } from '@/@types/common'
-import { UnitListAction, UnitListState } from '@/@types/unit'
+import { UnitListState, UnitListActions } from '@/@types/unit'
 
 export const initialTableData: TableQueries = {
     pageIndex: 1,
@@ -12,51 +13,38 @@ export const initialTableData: TableQueries = {
     },
 }
 
-export const initialFilterData = {
-    purchasedProducts: '',
-    purchaseChannel: [
-        'all',
-        'header',
-        'footer',
-        'generic',
-        'draft',
-        'draft-header',
-        'draft-footer',
-        'draft-generic',
-        'archived-all',
-        'archived-header',
-        'archived-footer',
-        'archived-generic',
-    ],
-}
+export const useUnitListStore = create<UnitListState & UnitListActions>()(
+    persist(
+        (set) => ({
+            tableData: initialTableData,
+            selected: [],
 
-const initialState: UnitListState = {
-    tableData: initialTableData,
-    filterData: initialFilterData,
-    selectedUnit: [],
-}
+            updateTable: (payload) =>
+                set((state) => ({
+                    tableData: { ...state.tableData, ...payload },
+                })),
 
-export const useUnitListStore = create<UnitListState & UnitListAction>(
-    (set) => ({
-        ...initialState,
-        setFilterData: (payload) => set(() => ({ filterData: payload })),
-        setTableData: (payload) => set(() => ({ tableData: payload })),
-        setSelectedUnit: (checked, row) =>
-            set((state) => {
-                const prevData = state.selectedUnit
-                if (checked) {
-                    return { selectedUnit: [...prevData, ...[row]] }
-                } else {
-                    if (prevData.some((prevUnit) => row.id === prevUnit.id)) {
-                        return {
-                            selectedUnit: prevData.filter(
-                                (prevUnit) => prevUnit.id !== row.id,
-                            ),
-                        }
-                    }
-                    return { selectedUnit: prevData }
-                }
+            toggleRow: (checked, row) =>
+                set((state) => ({
+                    selected: checked
+                        ? [...state.selected, row]
+                        : state.selected.filter((r) => r.id !== row.id),
+                })),
+
+            setAll: (rows) => set({ selected: rows }),
+
+            clearSelection: () => set({ selected: [] }),
+
+            resetQuery: () =>
+                set((state) => ({
+                    tableData: { ...state.tableData, query: '', pageIndex: 1 },
+                })),
+        }),
+        {
+            name: 'unit-table',
+            partialize: (state) => ({
+                tableData: { ...state.tableData, query: '' },
             }),
-        setSelectAllUnit: (row) => set(() => ({ selectedUnit: row })),
-    }),
+        },
+    ),
 )

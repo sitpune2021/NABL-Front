@@ -15,9 +15,11 @@ import type { TableQueries } from '@/@types/common'
 import useDocumentList from '../hooks/useList'
 import endpointConfig from '@/configs/endpoint.config'
 import { Document } from '@/@types/document'
+import { useSessionUser } from '@/store/authStore'
 
 const DocumentListTable = () => {
     const navigate = useNavigate()
+    const { lab } = useSessionUser((state) => state.user)
 
     const {
         documentList,
@@ -29,7 +31,6 @@ const DocumentListTable = () => {
         setSelectedDocument,
         selectedDocument,
     } = useDocumentList()
-    console.log(documentList)
 
     const handleEdit = (document: Document) => {
         const path = endpointConfig.master.document.edit.replace(
@@ -48,23 +49,26 @@ const DocumentListTable = () => {
     }
 
     const handleEditorViewDetails = (document: Document) => {
-        const path = endpointConfig.master.document.editorview
-            .replace(':docId', String(document.id))
-            .replace(':id', String(document.editor?.id))
+        const path = endpointConfig.master.document.editorview.replace(
+            ':id',
+            String(document?.id),
+        )
         navigate(path)
     }
 
     const handleEditorDetails = (document: Document) => {
-        const path = endpointConfig.master.document.editorEdit
-            .replace(':docId', String(document.id))
-            .replace(':id', String(document.editor?.id))
+        const path = endpointConfig.master.document.editorEdit.replace(
+            ':id',
+            String(document.id),
+        )
         navigate(path)
     }
 
     const handleDataEntryForm = (document: Document) => {
-        const path = endpointConfig.master.document.dataEntry
-            .replace(':docId', String(document.id))
-            .replace(':id', String(document.editor?.id))
+        const path = endpointConfig.master.document.dataEntry.replace(
+            ':id',
+            String(document.id),
+        )
         navigate(path)
     }
 
@@ -75,33 +79,27 @@ const DocumentListTable = () => {
                 accessorKey: 'id',
             },
             {
-                header: 'Document No',
-                accessorKey: 'documentNo',
-                cell: (props) => {
-                    const row = props.row.original
-                    return (
-                        <span className="font-semibold">{row.documentNo}</span>
-                    )
-                },
-            },
-            {
                 header: 'Document Name',
-                accessorKey: 'documentName',
+                accessorKey: 'name',
                 cell: (props) => {
                     const row = props.row.original
                     return (
                         <span className="font-semibold heading-text">
-                            {row.documentName}
+                            {row.name}
                         </span>
                     )
                 },
             },
             {
                 header: 'Category',
-                accessorKey: 'category',
+                accessorKey: 'category_id',
                 cell: (props) => {
                     const row = props.row.original
-                    return <span className="font-semibold">{row.category}</span>
+                    return (
+                        <span className="font-semibold">
+                            {row?.category?.name}
+                        </span>
+                    )
                 },
             },
             {
@@ -129,11 +127,14 @@ const DocumentListTable = () => {
                 cell: (props) => (
                     <ActionColumn
                         buttons={[
-                            {
-                                icon: <TbEdit />,
-                                tooltip: 'Edit',
-                                onClick: () => handleEdit(props.row.original),
-                            },
+                            !lab
+                                ? {
+                                      icon: <TbEdit />,
+                                      tooltip: 'Edit',
+                                      onClick: () =>
+                                          handleEdit(props.row.original),
+                                  }
+                                : null,
                             {
                                 icon: <TbEye />,
                                 tooltip: 'View',
@@ -146,19 +147,23 @@ const DocumentListTable = () => {
                                 onClick: () =>
                                     handleEditorViewDetails(props.row.original),
                             },
-                            {
-                                icon: <TbFilePencil />,
-                                tooltip: 'Document Edit',
-                                onClick: () =>
-                                    handleEditorDetails(props.row.original),
-                            },
+                            !lab
+                                ? {
+                                      icon: <TbFilePencil />,
+                                      tooltip: 'Document Edit',
+                                      onClick: () =>
+                                          handleEditorDetails(
+                                              props.row.original,
+                                          ),
+                                  }
+                                : null,
                             {
                                 icon: <TbBrandSentry />,
                                 tooltip: 'Data Entry Form',
                                 onClick: () =>
                                     handleDataEntryForm(props.row.original),
                             },
-                        ]}
+                        ].filter(Boolean)} // remove null entries
                     />
                 ),
             },

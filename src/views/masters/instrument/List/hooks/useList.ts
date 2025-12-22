@@ -1,8 +1,10 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import {
     apiInstrument,
     apiGetInstrumentList,
     apiGetInstrumentById,
     apiUpdateInstrument,
+    apiGetClauseDocumentsList,
 } from '@/services/InstrumentService'
 import useSWR from 'swr'
 import { useInstrumentListStore } from '../store/listStore'
@@ -31,6 +33,16 @@ export default function useInstrumentList() {
             revalidateOnFocus: false,
         },
     )
+
+    const { data: clauseList, isLoading: clauseLoadfing } = useSWR(
+        ['/api/standards/current', { ...tableData, ...filterData }],
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        ([_, params]) => apiGetClauseDocumentsList<any, TableQueries>(params),
+        {
+            revalidateOnFocus: false,
+        },
+    )
+
     const saveInstrumentData = async (instrument: Fields) => {
         if (instrument.id) {
             await apiUpdateInstrument(instrument.id, instrument)
@@ -47,6 +59,7 @@ export default function useInstrumentList() {
     }
 
     const instrumentList = data?.data || []
+    const clauseLIst = clauseList?.data || {}
 
     const instrumentListTotal = data?.total || 0
 
@@ -65,5 +78,7 @@ export default function useInstrumentList() {
         setFilterData,
         saveInstrumentData,
         getInstrumentById, // ✅ Now defined properly
+        clauseLIst,
+        clauseLoadfing,
     }
 }

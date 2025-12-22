@@ -1,28 +1,36 @@
 import Card from '@/components/ui/Card'
 import Input from '@/components/ui/Input'
 import { FormItem } from '@/components/ui/Form'
-import { Controller, useWatch } from 'react-hook-form'
-import { FormSectionBaseProps } from '@/@types/subcategory'
+import { Controller, useFormContext } from 'react-hook-form'
 import { Select } from '@/components/ui'
-import useCategoryList from '../../category/List/hooks/useList'
+import { useCategoryList } from '../../category/List/hooks/useList'
+import { SubCategoryFormSchema } from '@/schemas/sub_category.schema'
+import { useMemo } from 'react'
 
-type OverviewSectionProps = FormSectionBaseProps
+type OverviewSectionProps = {
+    readOnly?: boolean
+    loading?: boolean
+}
 
-const OverviewSection = ({
-    control,
-    errors,
-    readOnly,
-}: OverviewSectionProps) => {
+const OverviewSection = ({ readOnly, loading }: OverviewSectionProps) => {
+    const {
+        register,
+        control,
+        setValue,
+        getValues,
+        formState: { errors },
+    } = useFormContext<SubCategoryFormSchema>()
+
     const { categoryList } = useCategoryList()
-    const options = categoryList.map((category) => ({
-        value: category.id,
-        label: category.name.toUpperCase(),
-        identifier: category.identifier, // make sure your API includes this
-    }))
 
-    const selecteCatIdentifier = useWatch({ control, name: 'cat_id' })
-    const selectedCatIdentifier = options.find(
-        (z) => z.value === selecteCatIdentifier,
+    const options = useMemo(
+        () =>
+            categoryList.map((category) => ({
+                value: category.id,
+                label: category.name.toUpperCase(),
+                identifier: category.identifier,
+            })),
+        [categoryList],
     )
 
     return (
@@ -31,7 +39,7 @@ const OverviewSection = ({
             <div className="grid md:grid-cols-2 gap-4">
                 <FormItem
                     label="Category Name"
-                    invalid={Boolean(errors.cat_id)}
+                    invalid={!!errors.cat_id}
                     errorMessage={errors.cat_id?.message}
                 >
                     <Controller
@@ -39,75 +47,63 @@ const OverviewSection = ({
                         control={control}
                         render={({ field }) => (
                             <Select
-                                {...field}
-                                value={options.filter(
-                                    (option) => option.value === field.value,
-                                )}
                                 options={options}
                                 placeholder="Select Category"
-                                onChange={(option) =>
+                                value={options.find(
+                                    (opt) => opt.value === field.value,
+                                )}
+                                isDisabled={readOnly || loading}
+                                onChange={(option) => {
                                     field.onChange(option?.value)
-                                }
-                            />
-                        )}
-                    />
-                </FormItem>
-                <FormItem
-                    label="Sub Category"
-                    invalid={Boolean(errors.name)}
-                    errorMessage={errors.name?.message}
-                >
-                    <Controller
-                        name="name"
-                        control={control}
-                        render={({ field }) => (
-                            <Input
-                                type="text"
-                                autoComplete="off"
-                                readOnly={readOnly}
-                                placeholder="Sub Category"
-                                {...field}
-                            />
-                        )}
-                    />
-                </FormItem>
-                <FormItem
-                    label="Prefix"
-                    invalid={Boolean(errors.identifier)}
-                    errorMessage={errors.identifier?.message}
-                >
-                    <Controller
-                        name="identifier"
-                        control={control}
-                        render={({ field: { onChange, value, ...rest } }) => (
-                            <Input
-                                type="text"
-                                autoComplete="off"
-                                readOnly={readOnly}
-                                placeholder="Prefix"
-                                value={
-                                    selectedCatIdentifier?.identifier
-                                        ? `${selectedCatIdentifier.identifier}-${(value || '').replace(`${selectedCatIdentifier.identifier}-`, '')}`
-                                        : value || ''
-                                }
-                                onChange={(e) => {
-                                    const inputValue = e.target.value
-                                    const cleanedValue =
-                                        selectedCatIdentifier?.identifier
-                                            ? inputValue.replace(
-                                                  `${selectedCatIdentifier.identifier}-`,
-                                                  '',
-                                              )
-                                            : inputValue
-                                    onChange(
-                                        selectedCatIdentifier?.identifier
-                                            ? `${selectedCatIdentifier.identifier}-${cleanedValue}`
-                                            : cleanedValue,
+
+                                    if (!option) return
+
+                                    const currentIdentifier =
+                                        getValues('identifier') || ''
+                                    const suffix = currentIdentifier
+                                        .split('-')
+                                        .slice(1)
+                                        .join('-')
+
+                                    setValue(
+                                        'identifier',
+                                        suffix
+                                            ? `${option.identifier}-${suffix}`
+                                            : `${option.identifier}-`,
+                                        {
+                                            shouldDirty: true,
+                                            shouldValidate: true,
+                                        },
                                     )
                                 }}
-                                {...rest}
                             />
                         )}
+                    />
+                </FormItem>
+
+                <FormItem
+                    label="Sub Category"
+                    invalid={!!errors.name}
+                    errorMessage={errors.name?.message}
+                >
+                    <Input
+                        type="text"
+                        placeholder="Sub Category"
+                        disabled={readOnly || loading}
+                        {...register('name')}
+                    />
+                </FormItem>
+
+                <FormItem
+                    label="Prefix"
+                    invalid={!!errors.identifier}
+                    errorMessage={errors.identifier?.message}
+                >
+                    <Input
+                        type="text"
+                        placeholder="Prefix"
+                        disabled={readOnly || loading}
+                        {...register('identifier')}
                     />
                 </FormItem>
             </div>

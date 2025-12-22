@@ -1,99 +1,54 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import {
-    apiSubCategory,
-    apiGetSubCategoryList,
-    apiGetSubCategoryById,
-    apiUpdateSubCategory,
-} from '@/services/SubCategoryService'
+import { apiGetSubCategoryList } from '@/services/SubCategoryService'
 import useSWR from 'swr'
 import { useSubCategoryListStore } from '../store/listStore'
 import type { TableQueries } from '@/@types/common'
-import {
-    Fields,
-    GetSubCategoryListResponse,
-    GetSubCategoryDetailResponse,
-} from '@/@types/subcategory'
+import { GetSubCategoryListResponse } from '@/@types/subcategory'
+import { LIST_KEY } from '@/constants/sub_category.constant'
 
-export default function useSubCategoryList(subCategoryId?: string) {
+export default function useSubCategoryList() {
     const {
-        tableData,
         filterData,
-        setTableData,
-        selectedSubCategory,
-        setSelectedSubCategory,
-        setSelectAllSubCategory,
-        setFilterData,
-    } = useSubCategoryListStore((state) => state)
+        updateFilters,
+        resetFilters,
+        tableData,
+        updateTable,
+        selected,
+        toggleRow,
+        setAll,
+        clearSelection,
+    } = useSubCategoryListStore()
 
-    const { data, error, isLoading, mutate } = useSWR(
-        ['/api/subcategory', { ...tableData, ...filterData }],
+    const swr = useSWR(
+        [LIST_KEY, { ...tableData, ...filterData }],
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         ([_, params]) =>
             apiGetSubCategoryList<GetSubCategoryListResponse, TableQueries>(
                 params,
             ),
         {
+            keepPreviousData: true,
             revalidateOnFocus: false,
+            revalidateIfStale: false, // <--- disables auto revalidation
         },
     )
 
-    const {
-        data: detailData,
-        error: detailError,
-        isLoading: isDetailLoading,
-        mutate: mutateDetail,
-    } = useSWR<GetSubCategoryDetailResponse>(
-        subCategoryId ? `/api/subcategory/${subCategoryId}` : null,
-        () => apiGetSubCategoryById(subCategoryId!),
-        { revalidateOnFocus: false },
-    )
-
-    const saveSubCategoryData = async (subcategory: Fields) => {
-        let savedData: any
-        if (subcategory.id) {
-            /* eslint-disable @typescript-eslint/no-unused-vars */
-            const { id, ...subcategoryWithoutId } = subcategory
-            savedData = await apiUpdateSubCategory(
-                subcategory.id,
-                subcategoryWithoutId,
-            )
-        } else {
-            savedData = await apiSubCategory(subcategory)
-        }
-        await mutate()
-        if (subcategory.id && mutateDetail) {
-            mutateDetail({ data: savedData }, false)
-        }
-        return savedData
-    }
-
-    const subcategoryList = data?.data || []
-
-    const subcategoryListTotal = data?.total || 0
-
-    const subCategoryDetail = detailData?.data || {
-        name: '',
-        cat_id: '',
-        identifier: '',
-    }
-
     return {
-        subcategoryList,
-        subcategoryListTotal,
-        error,
-        isLoading,
-        subCategoryDetail,
-        isDetailLoading,
-        detailError,
-        mutateDetail,
+        subcategoryList: swr.data?.data ?? [],
+        total: swr.data?.total ?? 0,
+        isLoading: swr.isLoading,
+        error: swr.error,
+        mutate: swr.mutate,
+
         tableData,
+        updateTable,
+
         filterData,
-        mutate,
-        setTableData,
-        selectedSubCategory,
-        setSelectedSubCategory,
-        setSelectAllSubCategory,
-        setFilterData,
-        saveSubCategoryData,
+        updateFilters,
+        resetFilters,
+
+        selected,
+        toggleRow,
+        setAll,
+        clearSelection,
     }
 }
