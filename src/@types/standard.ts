@@ -1,3 +1,4 @@
+import { StandardFormSchema } from '@/schemas/standard.schema'
 import { TableQueries } from './common'
 import type { Control, FieldErrors } from 'react-hook-form'
 
@@ -5,8 +6,8 @@ export type Child = {
     title: string
     message: string
     note: boolean
-    isChild: boolean
-    count: number
+    is_child: boolean
+    children_count: number
     children: Child[]
     depth?: number
 }
@@ -18,8 +19,8 @@ export type Clause = {
     title: string
     message: string
     note: boolean
-    isChild: boolean
-    numberingType: 'numerical' | 'dot' | string
+    is_child: boolean
+    numbering_type: 'numerical' | 'dot' | string
     numberingValue: string
     sortOrder: number
     createdAt: string
@@ -37,14 +38,15 @@ export type Standard = {
     changesType: 'minor' | 'major' | string
     status: 'published' | 'draft' | string
     isCurrent: boolean
+    is_document_link: boolean
     createdBy: number
-    createdAt: string
+    created_at: string
     updatedAt: string
     clauses: Clause[]
 }
 
 export type GetStandardListResponse = {
-    list: Standard[]
+    data: Standard[]
     total: number
 }
 
@@ -73,10 +75,8 @@ export type Fields = {
     id?: string
     uuid?: string
     name: string
-    standards: Child | Child[] // support single or multiple standards
+    clauses: Child | Child[] // support single or multiple standards
 }
-
-export type StandardFormSchema = Fields
 
 export type TagsFields = {
     tags: Array<{ value: string; label: string }>
@@ -90,13 +90,13 @@ export type FormSectionBaseProps = {
 
 export type StandardListState = {
     tableData: TableQueries
-    filterData: Filter
-    selectedStandard: Partial<Standard>[]
+    selected: Partial<Standard>[]
 }
 
-export type StandardListAction = {
-    setFilterData: (payload: Filter) => void
-    setTableData: (payload: TableQueries) => void
-    setSelectedStandard: (checked: boolean, customer: Standard) => void
-    setSelectAllStandard: (customer: Standard[]) => void
+export type StandardListActions = {
+    updateTable: (payload: Partial<TableQueries>) => void
+    toggleRow: (checked: boolean, row: Standard) => void
+    setAll: (rows: Standard[]) => void
+    clearSelection: () => void
+    resetQuery: () => void
 }

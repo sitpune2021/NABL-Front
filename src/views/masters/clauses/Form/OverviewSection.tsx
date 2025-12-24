@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useMemo } from 'react'
 import { Controller, useFieldArray, useWatch } from 'react-hook-form'
 import Card from '@/components/ui/Card'
 import { FormItem } from '@/components/ui/Form'
@@ -50,21 +50,6 @@ const OverviewSection = ({
     )
 
     const [expandedItems, setExpandedItems] = useState<Set<number>>(new Set())
-
-    // Expand all items by default
-    useEffect(() => {
-        const collectIds = (items: any[]): number[] => {
-            let ids: number[] = []
-            items.forEach((i) => {
-                ids.push(i.id)
-                if (i.children?.length > 0) {
-                    ids = [...ids, ...collectIds(i.children)]
-                }
-            })
-            return ids
-        }
-        setExpandedItems(new Set(collectIds(accordionData)))
-    }, [accordionData])
 
     const handleToggle = (expanded: boolean, e: any) => {
         const id = Number((e.currentTarget as any)?.dataset?.id)
@@ -171,7 +156,7 @@ const OverviewSection = ({
                                                             field.value,
                                                     ) || null
                                                 }
-                                                menuPortalTarget={document.body} // <- This is key
+                                                menuPortalTarget={document.body}
                                                 onChange={(selected) => {
                                                     field.onChange(
                                                         selected?.value || '',
@@ -191,7 +176,7 @@ const OverviewSection = ({
                                     />
                                 </FormItem>
 
-                                <FormItem label="documents">
+                                <FormItem label="Documents">
                                     <Controller
                                         name={`standard_clauses.${clauseIndex}.clause_documents_tagging.${index}.documents`}
                                         control={control}
@@ -208,7 +193,7 @@ const OverviewSection = ({
                                                           }
                                                         : null
                                                 }
-                                                menuPortalTarget={document.body} // <- This is key
+                                                menuPortalTarget={document.body}
                                                 isDisabled={
                                                     readOnly ||
                                                     !selectedCategoryId
@@ -267,16 +252,24 @@ const OverviewSection = ({
         )
     }
 
-    const renderAccordion = (items: any[], parentIndex = 0): any => {
-        return items.map((item, index) => {
-            const clauseIndex = parentIndex + index
+    // Global index counter for all clauses
+    let globalClauseIndex = 0
+
+    const renderAccordion = (items: any[]): any => {
+        return items.map((item) => {
+            const clauseIndex = globalClauseIndex
+            globalClauseIndex++
+
+            const label = item.numbering_value
+                ? `${item.numbering_value} ${item.title}`
+                : item.title
 
             return (
                 <Menu.MenuCollapse
                     key={item.id}
                     eventKey={item.id}
                     expanded={isExpanded(item.id)}
-                    label={`${item.numbering_value} ${item.title}`}
+                    label={label}
                     data-id={item.id}
                     onToggle={handleToggle}
                 >
@@ -302,7 +295,7 @@ const OverviewSection = ({
                     <ClauseItem clauseIndex={clauseIndex} />
 
                     {item.children?.length > 0 &&
-                        renderAccordion(item.children, clauseIndex + 1)}
+                        renderAccordion(item.children)}
                 </Menu.MenuCollapse>
             )
         })

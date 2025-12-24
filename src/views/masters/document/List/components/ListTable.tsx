@@ -63,6 +63,13 @@ const DocumentListTable = () => {
         )
         navigate(path)
     }
+    const handleEntryDetails = (document: Document) => {
+        const path = endpointConfig.master.document.dataEntryList.replace(
+            ':id',
+            String(document.id),
+        )
+        navigate(path)
+    }
 
     const handleDataEntryForm = (document: Document) => {
         const path = endpointConfig.master.document.dataEntry.replace(
@@ -153,6 +160,16 @@ const DocumentListTable = () => {
                                       tooltip: 'Document Edit',
                                       onClick: () =>
                                           handleEditorDetails(
+                                              props.row.original,
+                                          ),
+                                  }
+                                : null,
+                            lab
+                                ? {
+                                      icon: <TbFilePencil />,
+                                      tooltip: 'Data Entry List',
+                                      onClick: () =>
+                                          handleEntryDetails(
                                               props.row.original,
                                           ),
                                   }

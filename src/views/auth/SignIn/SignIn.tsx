@@ -25,7 +25,7 @@ export const SignInBase = ({
 
     // const uploadFullNavigationTree = async () => {
     //     try {
-    //         const response = await axios.post('http://192.168.1.26:8000/api/navigation-items', navigationConfig)
+    //         const response = await axios.post('http://192.168.1.33:8000/api/navigation-items', navigationConfig)
     //         const savedItem = response.data
     //         return savedItem
     //     } catch (error: any) {

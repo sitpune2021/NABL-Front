@@ -9,6 +9,9 @@ import { actionButtons } from './actionButtons'
 import { useDocumentListStore } from './store/listStore'
 import { Document } from '@/@types/document'
 import { resolveFieldValue } from '@/utils/resolveFieldValue'
+import { useLocation } from 'react-router'
+import { useMemo } from 'react'
+import DocumentEntryListTable from './components/ListTableEntry'
 
 function generateResolvedHtml(docs: Document) {
     const parsedContent = { header: '', content: '', footer: '' }
@@ -59,6 +62,14 @@ function generateResolvedHtml(docs: Document) {
 
 const DocumentList = () => {
     const { selectedDocument } = useDocumentListStore((state) => state)
+
+    const location = useLocation()
+
+    const pathParts = useMemo(
+        () => location.pathname.split('/'),
+        [location.pathname],
+    )
+    const isDataEntry = pathParts.includes('data-entry')
 
     const handleDownload = async () => {
         if (!selectedDocument || selectedDocument.length === 0) {
@@ -305,7 +316,9 @@ const DocumentList = () => {
             title="Document"
             ActionTools={actionButtons(handleDownload)}
             TableTools={<DocumentListTableTools />}
-            Table={<DocumentListTable />}
+            Table={
+                isDataEntry ? <DocumentEntryListTable /> : <DocumentListTable />
+            }
             SelectedComponent={<DocumentListSelected />}
         />
     )

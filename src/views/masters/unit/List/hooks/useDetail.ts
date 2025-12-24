@@ -7,9 +7,7 @@ export const useUnitDetail = (id?: string) => {
         id ? ['unit-detail', id] : null,
         () => apiGetUnitById(id!),
         {
-            keepPreviousData: true,
             revalidateOnFocus: false,
-            revalidateIfStale: false,
         },
     )
 

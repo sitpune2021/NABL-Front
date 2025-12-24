@@ -23,9 +23,7 @@ export default function useDepartmentList() {
                 params,
             ),
         {
-            keepPreviousData: true,
             revalidateOnFocus: false,
-            revalidateIfStale: false,
         },
     )
 

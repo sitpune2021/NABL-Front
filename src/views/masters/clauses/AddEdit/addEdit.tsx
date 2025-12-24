@@ -15,7 +15,7 @@ import { useFormSubmit } from '@/utils/hoc/useFormSubmit'
 import { useEntityMutations } from '@/utils/hooks/useEntityMutations'
 import { apiCreateClauses, apiUpdateClauses } from '@/services/ClausesService'
 import { useClauseDetail } from '../List/hooks/useDetail'
-import { useStandardDetail } from '../List/hooks/useStanderdDetail'
+import { useStandardDetail } from '@/views/settings/standard/List/hooks/useDetail'
 
 const EMPTY_VALUES = undefined
 
@@ -27,7 +27,9 @@ const ClausesAddEdit = () => {
     const isView = mode === 'view'
     const isEdit = mode === 'edit'
 
-    const { clause } = useClauseDetail()
+    const { clause, isLoading: clauseisLoading } = useClauseDetail(id)
+    console.log(clause, 'clause')
+
     const { standard, isLoading } = useStandardDetail(id)
     const { categoryList } = useCategoryList()
     const { documentList } = useDocumentList()
@@ -56,6 +58,9 @@ const ClausesAddEdit = () => {
     }
 
     if (isLoading) {
+        return <p className="p-4">Loading clauses data...</p>
+    }
+    if (clauseisLoading) {
         return <p className="p-4">Loading clauses data...</p>
     }
 

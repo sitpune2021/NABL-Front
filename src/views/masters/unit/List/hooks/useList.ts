@@ -21,9 +21,7 @@ export default function useDepartmentList() {
         ([_, params]) =>
             apiGetUnitList<GetUnitListResponse, TableQueries>(params),
         {
-            keepPreviousData: true,
             revalidateOnFocus: false,
-            revalidateIfStale: false,
         },
     )
 
