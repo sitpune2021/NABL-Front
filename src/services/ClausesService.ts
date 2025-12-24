@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Fields } from '@/@types/clauses'
 import ApiService from './ApiService'
 
@@ -23,6 +24,21 @@ export async function apiCreateClauses(data: Fields) {
         url: '/clauses',
         method: 'post',
         data,
+    })
+}
+
+export async function apiDataEntry(data: any) {
+    return ApiService.fetchDataWithAxios<any>({
+        url: '/data-entry',
+        method: 'post',
+        data,
+    })
+}
+
+export async function apiDataEntryList(id: any) {
+    return ApiService.fetchDataWithAxios<any>({
+        url: `/data-entry/${id}`,
+        method: 'get',
     })
 }
 

@@ -6,6 +6,11 @@ import { useEffect, useState } from 'react'
 import axios from 'axios'
 import BottomPanel from '@/components/form/bottomPanel'
 import { useSessionUser } from '@/store/authStore'
+import { useParams } from 'react-router'
+import { useFormSubmit } from '@/utils/hoc/useFormSubmit'
+import { useEntityMutations } from '@/utils/hooks/useEntityMutations'
+import { apiDataEntry } from '@/services/ClausesService'
+import endpointConfig from '@/configs/endpoint.config'
 
 const useDynamicOptions = (config: any) => {
     const [options, setOptions] = useState<any[]>([])
@@ -18,7 +23,7 @@ const useDynamicOptions = (config: any) => {
             setLoading(true)
             try {
                 const res = await axios.get(
-                    `http://192.168.1.26:8000/api/${config.table}`,
+                    `http://192.168.1.33:8000/api/${config.table}`,
                 )
                 const rows = Array.isArray(res.data?.data) ? res.data.data : []
                 const extracted = rows
@@ -52,18 +57,22 @@ const DynamicFormWrapper = ({
     } = useForm({
         defaultValues: documentData?.defaultValues || {},
     })
+    const { id } = useParams()
+
     const { lab } = useSessionUser((state) => state.user)
-    const onSubmit = (data: any) => {
-        const existing = localStorage.getItem('formData')
-        const parsed = existing ? JSON.parse(existing) : {}
 
-        const updatedData = {
-            ...parsed,
-            ...data,
-        }
+    const { save } = useEntityMutations<any>({
+        apiCreate: apiDataEntry,
+    })
 
-        localStorage.setItem('formData', JSON.stringify(updatedData))
-    }
+    const { handleSubmit: onsubmit, isSubmitting } = useFormSubmit<any>({
+        apiCall: (values) =>
+            save({
+                document_id: id,
+                fields_entry: values, // form values go here
+            }),
+        navigateTo: endpointConfig.master.document.list,
+    })
 
     if (!isDataEntry) return null
 
@@ -151,6 +160,7 @@ const DynamicFormWrapper = ({
                                 )
 
                             case 'datetime':
+                            case 'date':
                                 return (
                                     <Input
                                         type="datetime-local"
@@ -228,6 +238,16 @@ const DynamicFormWrapper = ({
                                     />
                                 )
 
+                            case 'upload':
+                                return (
+                                    <Input
+                                        type="file"
+                                        {...field}
+                                        placeholder={`Enter ${label}`}
+                                        readOnly={readOnly}
+                                    />
+                                )
+
                             default:
                                 return null
                         }
@@ -247,7 +267,7 @@ const DynamicFormWrapper = ({
         <Form
             className="flex w-full h-full"
             containerClassName="flex flex-col w-full justify-between"
-            onSubmit={handleSubmit(onSubmit)}
+            onSubmit={handleSubmit(onsubmit)}
         >
             <Container>
                 <div className="flex flex-col md:flex-row gap-4">
@@ -260,21 +280,23 @@ const DynamicFormWrapper = ({
                                 <p className="text-sm text-gray-600">
                                     Document No : {documentData.number}
                                 </p>
-                                {/* <p className="text-sm text-gray-600">
-                                    Lab Name : {documentData.labName}
-                                </p> */}
-                                {/* <p className="text-sm text-gray-600">
-                                    Location : {documentData.location}
-                                </p> */}
                             </div>
 
                             <div className="grid md:grid-cols-2 gap-6">
-                                {Object.entries(documentData.form_fields).map(
-                                    ([name, config]) => (
+                                {documentData.mode === 'create' ? (
+                                    Object.entries(
+                                        documentData.form_fields,
+                                    ).map(([name, config]) => (
                                         <div key={name}>
                                             {renderField(name, config)}
                                         </div>
-                                    ),
+                                    ))
+                                ) : (
+                                    <div key={documentData.name}>
+                                        {renderField(documentData.name, {
+                                            type: 'upload',
+                                        })}
+                                    </div>
                                 )}
                             </div>
                         </Card>
@@ -284,7 +306,7 @@ const DynamicFormWrapper = ({
             {lab ? (
                 <BottomPanel
                     isView={false}
-                    isSubmitting={false}
+                    isSubmitting={isSubmitting}
                     isEdit={false}
                     onDiscard={() => {}}
                 />

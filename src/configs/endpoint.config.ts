@@ -47,6 +47,7 @@ const endpointConfig = {
             view: `${MASTER_PREFIX_PATH}/document/view/:id`,
             editorview: `${MASTER_PREFIX_PATH}/document/view/:id/editor`,
             dataEntry: `${MASTER_PREFIX_PATH}/document/view/:id/data-entry`,
+            dataEntryList: `${MASTER_PREFIX_PATH}/document/data-entry/:id`,
         },
         template: {
             list: `${MASTER_PREFIX_PATH}/template/list`,
@@ -103,15 +104,15 @@ const endpointConfig = {
         },
         clauses: {
             list: `${SETTING_PREFIX_PATH}/clauses/list`,
-            create: `${SETTING_PREFIX_PATH}/clauses/create`,
+            create: `${SETTING_PREFIX_PATH}/clauses/create/:id`,
             edit: `${SETTING_PREFIX_PATH}/clauses/edit/:id`,
             view: `${SETTING_PREFIX_PATH}/clauses/view/:id`,
         },
         standard: {
             list: `${SETTING_PREFIX_PATH}/standard/list`,
             create: `${SETTING_PREFIX_PATH}/standard/create`,
-            edit: `${SETTING_PREFIX_PATH}/clauses/edit/:id`,
-            view: `${SETTING_PREFIX_PATH}/clauses/view/:id`,
+            edit: `${SETTING_PREFIX_PATH}/standard/edit/:id`,
+            view: `${SETTING_PREFIX_PATH}/standard/view/:id`,
         },
     },
 }

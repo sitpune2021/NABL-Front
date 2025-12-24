@@ -168,6 +168,7 @@ export type FormSectionBaseProps = {
     departmentList: Department[]
     categoryList: Category[]
     templateList: TemplateSh[]
+    isEdit: boolean
 }
 
 export type DocumentResolved = Document & {
@@ -225,12 +226,7 @@ export function categorizeThDetails(components: any): CategorizedDetails {
                 ['span'].includes(c.get?.('tagName') || c.tagName) ||
                 ['text'].includes(c.get?.('type') || c.type),
         )
-        return (
-            child?.get?.('content') ??
-            child?.view?.el?.innerText ??
-            child?.content ??
-            ''
-        ).trim()
+        return (child?.view?.el?.innerText || 'text').trim()
     }
 
     const traverse = (components: any): any[] => {

@@ -10,7 +10,7 @@ export const useStandardDetail = (id?: string) => {
     )
 
     return {
-        standard: swr.data?.data as undefined,
+        standard: swr?.data as undefined,
         isLoading: swr.isLoading,
 
         error: swr.error,

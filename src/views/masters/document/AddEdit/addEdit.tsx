@@ -10,12 +10,14 @@ import DocumentForm from '../Form'
 import DynamicFormWrapper from '../Form/DynamicWrapper'
 import type { DocumentFormSchema } from '@/@types/document'
 import { defaultDocumentValues } from '@/constants/intial-doc.constant'
+import { useDocumentDetail } from '../List/hooks/useDetail'
 
 const DocumentAddEdit = () => {
     const navigate = useNavigate()
     const location = useLocation()
     const { id } = useParams()
-    const { saveDocumentData, documentDetail, isLoading } = useDocumentList(id)
+    const { saveDocumentData } = useDocumentList(id)
+    const { document, isLoading } = useDocumentDetail(id)
 
     const [isDialogOpen, setIsDialogOpen] = useState(false)
 
@@ -30,8 +32,8 @@ const DocumentAddEdit = () => {
     const isDataEntry = pathParts.includes('data-entry')
 
     const defaultValues = useMemo(
-        () => documentDetail ?? defaultDocumentValues,
-        [documentDetail],
+        () => document ?? defaultDocumentValues,
+        [document],
     )
 
     const handleFormSubmit = useCallback(
@@ -74,8 +76,8 @@ const DocumentAddEdit = () => {
     if (isLoading && !isAdd)
         return <p className="p-4 text-gray-600">Loading document data...</p>
 
-    if (isDataEntry && documentDetail?.form_fields) {
-        return <DynamicFormWrapper isDataEntry documentData={documentDetail} />
+    if (isDataEntry && document) {
+        return <DynamicFormWrapper isDataEntry documentData={document} />
     }
 
     return (

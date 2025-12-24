@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Form } from '@/components/ui/Form'
 import Container from '@/components/shared/Container'
 import BottomStickyBar from '@/components/template/BottomStickyBar'
@@ -62,35 +61,36 @@ const ClausesForm = ({
     standardDetail,
     documentList,
     categoryList,
+    defaultValues,
 }: ClausesFormProps) => {
-    const defaultValuesWithDocs = {
-        standard_id: standardDetail.id,
-        standard_clauses: standardDetail.clauses.map((clause: any) => ({
-            clause_id: clause.id,
-            clause_parent_id: clause.parent_id,
-            notes: '',
-            clause_documents_tagging: clause.clause_documents_tagging?.length
-                ? clause.clause_documents_tagging
-                : [
-                      {
-                          category_id: '',
-                          documents: {
-                              id: '',
-                              version_is: '',
-                              version: '',
-                              frequench: '',
-                          },
-                      },
-                  ],
-        })),
-    }
+    // const defaultValuesWithDocs = {
+    //     standard_id: standardDetail.id,
+    //     standard_clauses: standardDetail.clauses.map((clause: any) => ({
+    //         clause_id: clause.id,
+    //         clause_parent_id: clause.parent_id,
+    //         notes: '',
+    //         clause_documents_tagging: clause.clause_documents_tagging?.length
+    //             ? clause.clause_documents_tagging
+    //             : [
+    //                   {
+    //                       category_id: '',
+    //                       documents: {
+    //                           id: '',
+    //                           version_is: '',
+    //                           version: '',
+    //                           frequench: '',
+    //                       },
+    //                   },
+    //               ],
+    //     })),
+    // }
 
     const {
         control,
         handleSubmit,
         formState: { errors },
     } = useForm({
-        defaultValues: defaultValuesWithDocs,
+        defaultValues: defaultValues,
         // resolver: zodResolver(ClausesFormSchema),
     })
 

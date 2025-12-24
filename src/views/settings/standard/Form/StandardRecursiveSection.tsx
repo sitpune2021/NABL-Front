@@ -1,20 +1,18 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useRef, useCallback, memo } from 'react'
-import { useFieldArray, useWatch, Control, FieldErrors } from 'react-hook-form'
+import { useFieldArray, useFormContext, useWatch } from 'react-hook-form'
 import { HiPlus } from 'react-icons/hi'
 import Button from '@/components/ui/Button'
 import StandardCard from './StandardCard'
-import type { FormValues } from './StandardForm'
+import { StandardChildFormSchema } from '@/schemas/standard.schema'
 
 type StandardFieldPath =
-    | 'standards'
-    | `standards.${number}`
-    | `standards.${number}.children`
+    | 'clauses'
+    | `clauses.${number}`
+    | `clauses.${number}.children`
 
 interface StandardRecursiveSectionProps {
-    control: Control<FormValues>
     name: StandardFieldPath
-    errors: FieldErrors<FormValues>
     readOnly: boolean
     isRoot?: boolean
     depth?: number
@@ -25,22 +23,25 @@ const createDefaultStandard = (depth = 0) => ({
     title: '',
     message: '',
     note: true,
-    isChild: false,
-    count: 0,
+    is_child: false,
+    children_count: 0,
     children: [],
     numberingValue: '',
-    numberingType: 'none',
+    numbering_type: 'none',
     depth,
 })
 
 const StandardRecursiveSection = ({
-    control,
     name,
-    errors,
     readOnly,
     isRoot = false,
     depth = 0,
 }: StandardRecursiveSectionProps) => {
+    const {
+        control,
+        formState: { errors },
+    } = useFormContext<StandardChildFormSchema>()
+
     const { fields, append, update } = useFieldArray({
         control,
         name,
@@ -59,10 +60,10 @@ const StandardRecursiveSection = ({
 
     useEffect(() => {
         watched?.forEach((item: any, i: number) => {
-            if (!item?.isChild) return
+            if (!item?.is_child) return
 
             const children = item.children || []
-            const needed = item.count || 0
+            const needed = item.children_count || 0
 
             if (needed === children.length) return
 
@@ -89,7 +90,7 @@ const StandardRecursiveSection = ({
 
     return (
         <div>
-            {isRoot && (
+            {isRoot && !readOnly && (
                 <Button
                     size="sm"
                     type="button"

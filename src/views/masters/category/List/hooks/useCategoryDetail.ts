@@ -7,9 +7,7 @@ export const useCategoryDetail = (id?: string) => {
         id ? ['category-detail', id] : null,
         () => apiGetCategoryById(id!),
         {
-            keepPreviousData: true,
             revalidateOnFocus: false,
-            revalidateIfStale: false,
         },
     )
 

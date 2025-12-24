@@ -158,6 +158,12 @@ const masterRoute: Routes = [
         authority: [],
     },
     {
+        key: 'masters.document.list',
+        path: endpointConfig.master.document.dataEntryList,
+        component: lazy(() => import('@/views/masters/document/List')),
+        authority: [],
+    },
+    {
         key: 'masters.template.list',
         path: `${endpointConfig.master.template.list}`,
         component: lazy(() => import('@/views/masters/template/List')),

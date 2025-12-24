@@ -111,6 +111,7 @@ export default function DocumentForm({
                             categoryList={categoryList}
                             departmentList={departmentList}
                             templateList={templateList}
+                            isEdit={isEdit}
                         />
                     )}
 
