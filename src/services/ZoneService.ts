@@ -12,7 +12,7 @@ export async function apiGetZoneList<T, U extends Record<string, unknown>>(
 }
 
 export async function apiZone(data: Fields) {
-    return ApiService.fetchDataWithAxios<Fields>({
+    return ApiService.fetchDataWithAxios<GetZoneDetailResponse>({
         url: '/zone',
         method: 'post',
         data,
@@ -27,7 +27,7 @@ export async function apiGetZoneById(id: string) {
 }
 
 export async function apiUpdateZone(id: string, data: Fields) {
-    return ApiService.fetchDataWithAxios<Fields>({
+    return ApiService.fetchDataWithAxios<GetZoneDetailResponse>({
         url: `/zone/${id}`,
         method: 'put',
         data,

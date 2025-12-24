@@ -1,93 +1,45 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import {
-    apiZone,
-    apiGetZoneList,
-    apiGetZoneById,
-    apiUpdateZone,
-} from '@/services/ZoneService'
 import useSWR from 'swr'
-import { useZoneListStore } from '../store/listStore'
+import { apiGetZoneList } from '@/services/ZoneService'
 import type { TableQueries } from '@/@types/common'
-import {
-    Fields,
-    GetZoneListResponse,
-    GetZoneDetailResponse,
-} from '@/@types/zone'
+import type { GetZoneListResponse } from '@/@types/zone'
+import { useZoneListStore } from '../store/listStore'
 
-export default function useZoneList(zoneId?: string) {
+const LIST_KEY = 'zone-list'
+export const useZoneList = () => {
     const {
         tableData,
-        setTableData,
-        selectedZone,
-        setSelectedZone,
-        setSelectAllZone,
-    } = useZoneListStore((state) => state)
+        updateTable,
+        selected,
+        toggleRow,
+        setAll,
+        clearSelection,
+    } = useZoneListStore()
 
-    const { data, error, isLoading, mutate } = useSWR(
-        ['/api/zone', { ...tableData }],
+    const swr = useSWR(
+        [LIST_KEY, tableData],
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         ([_, params]) =>
             apiGetZoneList<GetZoneListResponse, TableQueries>(params),
+        {
+            keepPreviousData: true,
+            revalidateOnFocus: false,
+            revalidateIfStale: false,
+        },
     )
-
-    const {
-        data: detailData,
-        error: detailError,
-        isLoading: isDetailLoading,
-        mutate: mutateDetail,
-    } = useSWR<GetZoneDetailResponse>(
-        zoneId ? `/api/zone/${zoneId}` : null,
-        () => apiGetZoneById(zoneId!),
-        { revalidateOnFocus: false },
-    )
-
-    const getZoneById = async (id: string) => {
-        const response = await apiGetZoneById(id)
-        return response.data || response
-    }
-
-    const saveZoneData = async (zone: Fields) => {
-        let savedData: any
-        if (zone.id) {
-            /* eslint-disable @typescript-eslint/no-unused-vars */
-            const { id, ...zoneWithoutId } = zone
-            savedData = await apiUpdateZone(zone.id, zoneWithoutId)
-        } else {
-            savedData = await apiZone(zone)
-        }
-        await mutate()
-
-        if (zone.id && mutateDetail) {
-            mutateDetail({ data: savedData }, false)
-        }
-
-        return savedData
-    }
-
-    const zoneList = data?.data || []
-    const zoneListTotal = data?.total || 0
-
-    const zoneDetail = detailData?.data || {
-        name: '',
-        identifier: '',
-    }
 
     return {
-        zoneList,
-        zoneListTotal,
-        error,
-        isLoading,
-        zoneDetail,
-        isDetailLoading,
-        detailError,
-        mutateDetail,
+        zoneList: swr.data?.data ?? [],
+        total: swr.data?.total ?? 0,
+        isLoading: swr.isLoading,
+        error: swr.error,
+        mutate: swr.mutate,
+
         tableData,
-        mutate,
-        setTableData,
-        selectedZone,
-        setSelectedZone,
-        setSelectAllZone,
-        saveZoneData,
-        getZoneById,
+        updateTable,
+
+        selected,
+        toggleRow,
+        setAll,
+        clearSelection,
     }
 }
