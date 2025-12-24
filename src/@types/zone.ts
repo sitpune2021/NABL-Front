@@ -1,13 +1,12 @@
 import { IdentifierEntity, TableQueries } from './common'
-import type { Control, FieldErrors } from 'react-hook-form'
 
 export type GetZoneListResponse = {
     data: Zone[]
     total?: number
 }
 
-export interface GetZoneDetailResponse {
-    data: Zone
+export type GetZoneDetailResponse = {
+    data: Fields
 }
 
 export type Zone = {
@@ -17,13 +16,15 @@ export type Zone = {
 
 export type ZoneListState = {
     tableData: TableQueries
-    selectedZone: Partial<Zone>[]
+    selected: Zone[]
 }
 
-export type ZoneListAction = {
-    setTableData: (payload: TableQueries) => void
-    setSelectedZone: (checked: boolean, zone: Zone) => void
-    setSelectAllZone: (zones: Zone[]) => void
+export type ZoneListActions = {
+    updateTable: (payload: Partial<TableQueries>) => void
+    toggleRow: (checked: boolean, row: Zone) => void
+    setAll: (rows: Zone[]) => void
+    clearSelection: () => void
+    resetQuery: () => void
 }
 
 export type Fields = {
@@ -33,12 +34,4 @@ export type Fields = {
 
 export type TagsFields = {
     tags: Array<{ value: string; label: string }>
-}
-
-export type ZoneFormSchema = Fields
-
-export type FormSectionBaseProps = {
-    control: Control<ZoneFormSchema>
-    errors: FieldErrors<ZoneFormSchema>
-    readOnly?: boolean
 }
