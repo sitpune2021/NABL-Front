@@ -8,11 +8,13 @@ import { useApiError } from '@/utils/hoc/useApiError'
 type UseFormSubmitProps<T> = {
     apiCall: (values: T) => Promise<{ message?: string; data?: any }>
     navigateTo?: string
+    onSuccess?: (response: any) => void
 }
 
 export const useFormSubmit = <T,>({
     apiCall,
     navigateTo,
+    onSuccess,
 }: UseFormSubmitProps<T>) => {
     const navigate = useNavigate()
     const handleApiError = useApiError()
@@ -32,7 +34,7 @@ export const useFormSubmit = <T,>({
                 })
 
                 if (navigateTo) navigate(navigateTo)
-
+                onSuccess?.(response)
                 return response
             } catch (error: any) {
                 handleApiError(error, 'Operation failed!')

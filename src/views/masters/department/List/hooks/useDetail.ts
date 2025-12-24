@@ -7,9 +7,7 @@ export const useDepartmentDetail = (id?: string) => {
         id ? ['department-detail', id] : null,
         () => apiGetDepartmentById(id!),
         {
-            keepPreviousData: true,
             revalidateOnFocus: false,
-            revalidateIfStale: false,
         },
     )
 

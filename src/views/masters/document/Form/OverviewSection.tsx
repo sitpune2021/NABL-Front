@@ -23,6 +23,7 @@ const OverviewSection = ({
     categoryList,
     templateList,
     departmentList,
+    isEdit = false,
 }: FormSectionBaseProps) => {
     const { username } = useSessionUser((state) => state.user)
 
@@ -231,6 +232,7 @@ const OverviewSection = ({
             label: `Document Mode ${mode === 'create' ? '(Create)' : '(Upload)'}`,
             type: 'checkbox',
             defaultValue: 'create',
+            condition: () => !isEdit, // 👈 only show when isEdit is true
             customRender: (field) => (
                 <Checkbox
                     disabled={readOnly}

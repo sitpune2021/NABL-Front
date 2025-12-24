@@ -26,9 +26,7 @@ export default function useSubCategoryList() {
                 params,
             ),
         {
-            keepPreviousData: true,
             revalidateOnFocus: false,
-            revalidateIfStale: false, // <--- disables auto revalidation
         },
     )
 

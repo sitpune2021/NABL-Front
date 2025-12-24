@@ -1,11 +1,11 @@
 import useSWR from 'swr'
-import { apiGetCategoryList } from '@/services/CategoriesService'
 import type { TableQueries } from '@/@types/common'
-import type { GetCategoryListResponse } from '@/@types/category'
-import { useCategoryListStore } from '../store/listStore'
+import { useStandardListStore } from '../store/listStore'
+import { apiGetStandardList } from '@/services/StandardService'
+import { GetStandardListResponse } from '@/@types/standard'
 
-const LIST_KEY = 'category-list'
-export const useCategoryList = () => {
+const LIST_KEY = 'standard-list'
+export const useStandardList = () => {
     const {
         tableData,
         updateTable,
@@ -13,21 +13,21 @@ export const useCategoryList = () => {
         toggleRow,
         setAll,
         clearSelection,
-    } = useCategoryListStore()
+    } = useStandardListStore()
 
     const swr = useSWR(
         [LIST_KEY, tableData],
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         ([_, params]) =>
-            apiGetCategoryList<GetCategoryListResponse, TableQueries>(params),
+            apiGetStandardList<GetStandardListResponse, TableQueries>(params),
         {
             revalidateOnFocus: false,
         },
     )
 
     return {
-        categoryList: swr.data?.data ?? [],
-        total: swr.data?.total ?? 0,
+        standardList: swr?.data?.data ?? [],
+        total: 0,
         isLoading: swr.isLoading,
         error: swr.error,
         mutate: swr.mutate,
