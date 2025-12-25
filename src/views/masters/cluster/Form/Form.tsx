@@ -1,84 +1,68 @@
-import { useEffect } from 'react'
+import { useEffect, useMemo } from 'react'
 import { Form } from '@/components/ui/Form'
 import Container from '@/components/shared/Container'
 import BottomStickyBar from '@/components/template/BottomStickyBar'
 import OverviewSection from './OverviewSection'
-import isEmpty from 'lodash/isEmpty'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useForm } from 'react-hook-form'
-import { z } from 'zod'
+import { FormProvider, useForm } from 'react-hook-form'
 import type { CommonProps } from '@/@types/common'
-import { ClusterFormSchema } from '@/@types/cluster'
+import { ClusterFormSchema, clusterSchema } from '@/schemas/cluster.schema'
+import { EMPTY_VALUES } from '@/constants/cluster.constant'
 
 type ClusterFormProps = {
     onFormSubmit: (values: ClusterFormSchema) => void
     defaultValues?: ClusterFormSchema
     newCluster?: boolean
     readOnly?: boolean
+    loading?: boolean
 } & CommonProps
 
-const validationSchema = z.object({
-    zone_id: z.union([
-        z.string().min(1, { message: ' Zone required' }),
-        z.number(),
-    ]),
-    name: z.string().min(1, { message: 'Name required' }),
-    identifier: z.string().regex(/^[A-Z]{1,4}-[A-Z]{1,4}$/, {
-        message:
-            'Prefix must be in format ZZZ-XXXX (zone prefix + 1–4 uppercase letters only)',
-    }),
-})
-
-const ClusterForm = (props: ClusterFormProps) => {
-    const {
-        onFormSubmit,
-        defaultValues = {},
-        readOnly = false,
-        children,
-    } = props
-
-    const {
-        handleSubmit,
-        reset,
-        formState: { errors },
-        control,
-    } = useForm<ClusterFormSchema>({
-        defaultValues: {
-            ...defaultValues,
-        },
-        resolver: zodResolver(validationSchema),
+const ClusterForm = ({
+    onFormSubmit,
+    defaultValues,
+    readOnly = false,
+    loading = false,
+    children,
+}: ClusterFormProps) => {
+    const memoizedDefaults = useMemo(
+        () => defaultValues ?? EMPTY_VALUES,
+        [defaultValues],
+    )
+    const methods = useForm<ClusterFormSchema>({
+        resolver: zodResolver(clusterSchema),
+        defaultValues: memoizedDefaults,
+        mode: 'onSubmit',
+        reValidateMode: 'onChange',
     })
 
+    const { handleSubmit, reset } = methods
+
     useEffect(() => {
-        if (!isEmpty(defaultValues)) {
+        if (defaultValues) {
             reset(defaultValues)
         }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [JSON.stringify(defaultValues)])
-
-    const onSubmit = (values: ClusterFormSchema) => {
-        onFormSubmit?.(values)
-    }
+    }, [defaultValues, reset])
 
     return (
-        <Form
-            className="flex w-full h-full"
-            containerClassName="flex flex-col w-full justify-between"
-            onSubmit={handleSubmit(onSubmit)}
-        >
-            <Container>
-                <div className="flex flex-col md:flex-row gap-4">
-                    <div className="gap-4 flex flex-col flex-auto">
-                        <OverviewSection
-                            control={control}
-                            errors={errors}
-                            readOnly={readOnly}
-                        />
+        <FormProvider {...methods}>
+            <Form
+                className="flex w-full h-full"
+                containerClassName="flex flex-col w-full justify-between"
+                onSubmit={handleSubmit(onFormSubmit)}
+            >
+                <Container>
+                    <div className="flex flex-col md:flex-row gap-4">
+                        <div className="gap-4 flex flex-col flex-auto">
+                            <OverviewSection
+                                loading={loading}
+                                readOnly={readOnly}
+                            />
+                        </div>
                     </div>
-                </div>
-            </Container>
-            <BottomStickyBar>{children}</BottomStickyBar>
-        </Form>
+                </Container>
+                <BottomStickyBar>{children}</BottomStickyBar>
+            </Form>
+        </FormProvider>
     )
 }
 
