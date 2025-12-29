@@ -16,7 +16,7 @@ import {
     GetDocumentListResponse,
     GetDocumentResponse,
 } from '@/@types/document'
-import { defaultDocumentValues } from '@/constants/intial-doc.constant'
+import { EMPTY_VALUES } from '@/constants/document.constant'
 
 export default function useDocumentList(documentId?: string) {
     const {
@@ -78,7 +78,7 @@ export default function useDocumentList(documentId?: string) {
     }
 
     const documentList = data?.data || []
-    const documentDetail = detailData?.data || defaultDocumentValues
+    const documentDetail = detailData?.data || EMPTY_VALUES
 
     const documentListTotal = data?.total || 0
 

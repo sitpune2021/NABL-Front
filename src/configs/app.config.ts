@@ -8,6 +8,7 @@ export type AppConfig = {
     accessTokenPersistStrategy: 'localStorage' | 'sessionStorage' | 'cookies'
     enableMock: boolean
     activeNavTranslation: boolean
+    enableNav: boolean
 }
 
 const appConfig: AppConfig = {
@@ -18,6 +19,7 @@ const appConfig: AppConfig = {
     accessTokenPersistStrategy: 'cookies',
     enableMock: true,
     activeNavTranslation: false,
+    enableNav: false,
 }
 
 export default appConfig

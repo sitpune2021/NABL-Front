@@ -1,6 +1,6 @@
 import { DocumentFormSchema } from '@/@types/document'
 
-export const defaultDocumentValues: DocumentFormSchema = {
+export const EMPTY_VALUES: DocumentFormSchema = {
     // Field from documentFieldOne
     mode: 'create', // 'create' | 'upload'
     category_id: '',
@@ -29,3 +29,5 @@ export const defaultDocumentValues: DocumentFormSchema = {
     performed_date: new Date().toISOString(),
     effective_date: '',
 }
+
+export const LIST_KEY = 'document-list'

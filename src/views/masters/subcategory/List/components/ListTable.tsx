@@ -5,7 +5,7 @@ import type { OnSortParam, Row } from '@/components/shared/DataTable'
 import useSubCategoryList from '../hooks/useList'
 import endpointConfig from '@/configs/endpoint.config'
 import { SubCategory } from '@/@types/subcategory'
-import { buildSubCategoryColumns } from '@/columns/subCategory.columns'
+import { buildSubCategoryColumns } from '@/columns/sub_category.columns'
 
 const SubCategoryListTable = () => {
     const navigate = useNavigate()
