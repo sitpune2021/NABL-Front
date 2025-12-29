@@ -1,7 +1,6 @@
+import { FormSchema } from '@/views/masters/location/List/components/ListTableFilter'
 import { Cluster } from './cluster'
 import { IdentifierEntity, TableQueries } from './common'
-
-import type { Control, FieldErrors } from 'react-hook-form'
 
 export type GetLocationListResponse = {
     data: Location[]
@@ -10,11 +9,6 @@ export type GetLocationListResponse = {
 
 export type GetLocationDetailResponse = {
     data: Location
-}
-
-export type Filter = {
-    purchasedProducts: string
-    purchaseChannel: Array<string>
 }
 
 export type Location = {
@@ -28,15 +22,18 @@ export type Location = {
 
 export type LocationListState = {
     tableData: TableQueries
-    filterData: Filter
-    selectedLocation: Partial<Location>[]
+    filterData: FormSchema
+    selected: Partial<Location>[]
 }
 
 export type LocationListAction = {
-    setFilterData: (payload: Filter) => void
-    setTableData: (payload: TableQueries) => void
-    setSelectedLocation: (checked: boolean, customer: Location) => void
-    setSelectAllLocation: (customer: Location[]) => void
+    updateTable: (payload: Partial<TableQueries>) => void
+    updateFilters: (payload: Partial<FormSchema>) => void
+    resetFilters: () => void
+    toggleRow: (checked: boolean, row: Location) => void
+    setAll: (rows: Location[]) => void
+    clearSelection: () => void
+    resetQuery: () => void
 }
 
 export type Fields = {
@@ -49,12 +46,4 @@ export type Fields = {
 
 export type TagsFields = {
     tags: Array<{ value: string; label: string }>
-}
-
-export type LocationFormSchema = Fields
-
-export type FormSectionBaseProps = {
-    control: Control<LocationFormSchema>
-    errors: FieldErrors<LocationFormSchema>
-    readOnly?: boolean
 }

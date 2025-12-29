@@ -1,149 +1,77 @@
-import { useMemo } from 'react'
-import ActionColumn from '@/components/form/ActionColumn'
+import { useMemo, useCallback } from 'react'
 import DataTable from '@/components/shared/DataTable'
 import { useNavigate } from 'react-router'
-import cloneDeep from 'lodash/cloneDeep'
-import { TbPencil, TbEye } from 'react-icons/tb'
-import type { OnSortParam, ColumnDef, Row } from '@/components/shared/DataTable'
-import type { TableQueries } from '@/@types/common'
+import type { OnSortParam, Row } from '@/components/shared/DataTable'
 import useClusterList from '../hooks/useList'
 import endpointConfig from '@/configs/endpoint.config'
 import { Cluster } from '@/@types/cluster'
+import { buildClusterColumns } from '@/columns/cluster.columns'
 
 const ClusterListTable = () => {
     const navigate = useNavigate()
 
     const {
         clusterList,
-        clusterListTotal,
+        total,
         tableData,
         isLoading,
-        setTableData,
-        setSelectAllCluster,
-        setSelectedCluster,
-        selectedCluster,
+        updateTable,
+        selected,
+        toggleRow,
+        setAll,
+        clearSelection,
     } = useClusterList()
 
-    const handleEdit = (cluster: Cluster) => {
-        const path = endpointConfig.master.cluster.edit.replace(
-            ':id',
-            String(cluster.id),
-        )
-        navigate(path)
-    }
+    const navigateTo = useCallback((path: string) => navigate(path), [navigate])
 
-    const handleViewDetails = (cluster: Cluster) => {
-        const path = endpointConfig.master.cluster.view.replace(
-            ':id',
-            String(cluster.id),
-        )
-        navigate(path)
-    }
-
-    const columns: ColumnDef<Cluster>[] = useMemo(
-        () => [
-            {
-                header: 'Id',
-                accessorKey: 'id',
-            },
-            {
-                header: 'Zone',
-                accessorKey: 'zone',
-                cell: (props) => {
-                    const { name, identifier } = props.row.original.zone
-                    return (
-                        <div className="flex items-center gap-2">
-                            <div>
-                                <div className="font-bold heading-text">
-                                    {name}
-                                </div>
-                                <div>{identifier}</div>
-                            </div>
-                        </div>
-                    )
-                },
-            },
-            {
-                header: 'Cluster',
-                accessorKey: 'cluster',
-                cell: (props) => {
-                    const { name, identifier } = props.row.original
-                    return (
-                        <div className="flex items-center gap-2">
-                            <div>
-                                <div className="font-bold heading-text">
-                                    {name}
-                                </div>
-                                <div>{identifier}</div>
-                            </div>
-                        </div>
-                    )
-                },
-            },
-            {
-                header: 'Action',
-                accessorKey: 'action',
-                id: 'action',
-                cell: (props) => (
-                    <ActionColumn
-                        buttons={[
-                            {
-                                icon: <TbPencil />,
-                                tooltip: 'Edit',
-                                onClick: () => handleEdit(props.row.original),
-                            },
-                            {
-                                icon: <TbEye />,
-                                tooltip: 'View',
-                                onClick: () =>
-                                    handleViewDetails(props.row.original),
-                            },
-                        ]}
-                    />
+    const handleEdit = useCallback(
+        (cluster: Cluster) =>
+            navigateTo(
+                endpointConfig.master.cluster.edit.replace(
+                    ':id',
+                    String(cluster.id),
                 ),
-            },
-        ],
-
-        [],
+            ),
+        [navigateTo],
     )
 
-    const handleSetTableData = (data: TableQueries) => {
-        setTableData(data)
-        if (selectedCluster.length > 0) {
-            setSelectAllCluster([])
-        }
-    }
+    const handleView = useCallback(
+        (cluster: Cluster) =>
+            navigateTo(
+                endpointConfig.master.cluster.view.replace(
+                    ':id',
+                    String(cluster.id),
+                ),
+            ),
+        [navigateTo],
+    )
+
+    const columns = useMemo(
+        () => buildClusterColumns({ onEdit: handleEdit, onView: handleView }),
+        [handleEdit, handleView],
+    )
 
     const handlePaginationChange = (page: number) => {
-        const newTableData = cloneDeep(tableData)
-        newTableData.pageIndex = page
-        handleSetTableData(newTableData)
+        updateTable({ pageIndex: page })
+        clearSelection()
     }
 
-    const handleSelectChange = (value: number) => {
-        const newTableData = cloneDeep(tableData)
-        newTableData.pageSize = Number(value)
-        newTableData.pageIndex = 1
-        handleSetTableData(newTableData)
+    const handlePageSizeChange = (pageSize: number) => {
+        updateTable({ pageSize, pageIndex: 1 })
+        clearSelection()
     }
 
     const handleSort = (sort: OnSortParam) => {
-        const newTableData = cloneDeep(tableData)
-        newTableData.sort = sort
-        handleSetTableData(newTableData)
+        updateTable({ sort })
+        clearSelection()
     }
 
     const handleRowSelect = (checked: boolean, row: Cluster) => {
-        setSelectedCluster(checked, row)
+        toggleRow(checked, row)
     }
 
     const handleAllRowSelect = (checked: boolean, rows: Row<Cluster>[]) => {
-        if (checked) {
-            const originalRows = rows.map((row) => row.original)
-            setSelectAllCluster(originalRows)
-        } else {
-            setSelectAllCluster([])
-        }
+        setAll(checked ? rows.map((r) => r.original) : [])
     }
 
     return (
@@ -156,15 +84,13 @@ const ClusterListTable = () => {
             skeletonAvatarProps={{ width: 28, height: 28 }}
             loading={isLoading}
             pagingData={{
-                total: clusterListTotal,
-                pageIndex: tableData.pageIndex as number,
-                pageSize: tableData.pageSize as number,
+                total: total,
+                pageIndex: tableData.pageIndex!,
+                pageSize: tableData.pageSize!,
             }}
-            checkboxChecked={(row) =>
-                selectedCluster.some((selected) => selected.id === row.id)
-            }
+            checkboxChecked={(row) => selected.some((z) => z.id === row.id)}
             onPaginationChange={handlePaginationChange}
-            onSelectChange={handleSelectChange}
+            onSelectChange={handlePageSizeChange}
             onSort={handleSort}
             onCheckBoxChange={handleRowSelect}
             onIndeterminateCheckBoxChange={handleAllRowSelect}

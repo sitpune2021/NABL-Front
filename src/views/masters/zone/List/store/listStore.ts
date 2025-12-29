@@ -1,42 +1,47 @@
 import { create } from 'zustand'
+import { persist } from 'zustand/middleware'
 import type { TableQueries } from '@/@types/common'
-import { ZoneListAction, ZoneListState } from '@/@types/zone'
+import type { ZoneListActions, ZoneListState } from '@/@types/zone'
 
 export const initialTableData: TableQueries = {
     pageIndex: 1,
     pageSize: 10,
     query: '',
-    sort: {
-        order: '',
-        key: '',
-    },
+    sort: { key: '', order: '' },
 }
 
-const initialState: ZoneListState = {
-    tableData: initialTableData,
-    selectedZone: [],
-}
+export const useZoneListStore = create<ZoneListState & ZoneListActions>()(
+    persist(
+        (set) => ({
+            tableData: initialTableData,
+            selected: [],
 
-export const useZoneListStore = create<ZoneListState & ZoneListAction>(
-    (set) => ({
-        ...initialState,
-        setTableData: (payload) => set(() => ({ tableData: payload })),
-        setSelectedZone: (checked, row) =>
-            set((state) => {
-                const prevData = state.selectedZone
-                if (checked) {
-                    return { selectedZone: [...prevData, ...[row]] }
-                } else {
-                    if (prevData.some((prevZone) => row.id === prevZone.id)) {
-                        return {
-                            selectedZone: prevData.filter(
-                                (prevZone) => prevZone.id !== row.id,
-                            ),
-                        }
-                    }
-                    return { selectedZone: prevData }
-                }
+            updateTable: (payload) =>
+                set((state) => ({
+                    tableData: { ...state.tableData, ...payload },
+                })),
+
+            toggleRow: (checked, row) =>
+                set((state) => ({
+                    selected: checked
+                        ? [...state.selected, row]
+                        : state.selected.filter((r) => r.id !== row.id),
+                })),
+
+            setAll: (rows) => set({ selected: rows }),
+
+            clearSelection: () => set({ selected: [] }),
+
+            resetQuery: () =>
+                set((state) => ({
+                    tableData: { ...state.tableData, query: '', pageIndex: 1 },
+                })),
+        }),
+        {
+            name: 'zone-table',
+            partialize: (state) => ({
+                tableData: { ...state.tableData, query: '' }, // persist only page/sort, not query
             }),
-        setSelectAllZone: (row) => set(() => ({ selectedZone: row })),
-    }),
+        },
+    ),
 )

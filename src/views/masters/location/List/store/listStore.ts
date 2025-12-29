@@ -1,5 +1,7 @@
 import { create } from 'zustand'
+import { persist } from 'zustand/middleware'
 import type { TableQueries } from '@/@types/common'
+import type { FormSchema } from '../components/ListTableFilter'
 import { LocationListAction, LocationListState } from '@/@types/location'
 
 export const initialTableData: TableQueries = {
@@ -12,53 +14,75 @@ export const initialTableData: TableQueries = {
     },
 }
 
-export const initialFilterData = {
-    purchasedProducts: '',
-    purchaseChannel: [
-        'all',
-        'header',
-        'footer',
-        'generic',
-        'draft',
-        'draft-header',
-        'draft-footer',
-        'draft-generic',
-        'archived-all',
-        'archived-header',
-        'archived-footer',
-        'archived-generic',
-    ],
+export const initialFilterData: FormSchema = {
+    zones: [],
+    clusters: [],
 }
 
 const initialState: LocationListState = {
     tableData: initialTableData,
     filterData: initialFilterData,
-    selectedLocation: [],
+    selected: [],
 }
 
 export const useLocationListStore = create<
     LocationListState & LocationListAction
->((set) => ({
-    ...initialState,
-    setFilterData: (payload) => set(() => ({ filterData: payload })),
-    setTableData: (payload) => set(() => ({ tableData: payload })),
-    setSelectedLocation: (checked, row) =>
-        set((state) => {
-            const prevData = state.selectedLocation
-            if (checked) {
-                return { selectedLocation: [...prevData, ...[row]] }
-            } else {
-                if (
-                    prevData.some((prevLocation) => row.id === prevLocation.id)
-                ) {
-                    return {
-                        selectedLocation: prevData.filter(
-                            (prevLocation) => prevLocation.id !== row.id,
-                        ),
-                    }
-                }
-                return { selectedLocation: prevData }
-            }
+>()(
+    persist(
+        (set) => ({
+            ...initialState,
+
+            updateTable: (payload) =>
+                set((state) => ({
+                    tableData: { ...state.tableData, ...payload },
+                })),
+
+            updateFilters: (payload) =>
+                set((state) => ({
+                    filterData: { ...state.filterData, ...payload },
+                    tableData: {
+                        ...state.tableData,
+                        pageIndex: 1,
+                    },
+                })),
+
+            resetFilters: () =>
+                set((state) => ({
+                    filterData: { ...initialFilterData },
+                    tableData: {
+                        ...state.tableData,
+                    },
+                })),
+
+            toggleRow: (checked, row) =>
+                set((state) => ({
+                    selected: checked
+                        ? [...state.selected, row]
+                        : state.selected.filter((r) => r.id !== row.id),
+                })),
+
+            setAll: (rows) => set({ selected: rows }),
+
+            clearSelection: () => set({ selected: [] }),
+
+            resetQuery: () =>
+                set((state) => ({
+                    tableData: {
+                        ...state.tableData,
+                        query: '',
+                        pageIndex: 1,
+                    },
+                })),
         }),
-    setSelectAllLocation: (row) => set(() => ({ selectedLocation: row })),
-}))
+        {
+            name: 'location-table',
+            partialize: (state) => ({
+                tableData: {
+                    ...state.tableData,
+                    query: '', // do not persist search text
+                },
+                filterData: state.filterData,
+            }),
+        },
+    ),
+)

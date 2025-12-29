@@ -1,56 +1,48 @@
+import { memo } from 'react'
 import Card from '@/components/ui/Card'
 import Input from '@/components/ui/Input'
 import { FormItem } from '@/components/ui/Form'
-import { Controller } from 'react-hook-form'
-import { FormSectionBaseProps } from '@/@types/zone'
+import { useFormContext } from 'react-hook-form'
+import { ZoneFormSchema } from '@/schemas/zone.schema'
 
-type OverviewSectionProps = FormSectionBaseProps
+type OverviewSectionProps = {
+    readOnly?: boolean
+    loading?: boolean
+}
+const OverviewSection = ({ readOnly, loading }: OverviewSectionProps) => {
+    const {
+        register,
+        formState: { errors },
+    } = useFormContext<ZoneFormSchema>()
 
-const OverviewSection = ({
-    control,
-    errors,
-    readOnly,
-}: OverviewSectionProps) => {
     return (
         <Card>
             <h4 className="mb-6">Zone</h4>
             <div className="grid md:grid-cols-2 gap-4">
                 <FormItem
                     label="Name"
-                    invalid={Boolean(errors.name)}
+                    invalid={!!errors.name}
                     errorMessage={errors.name?.message}
                 >
-                    <Controller
-                        name="name"
-                        control={control}
-                        render={({ field }) => (
-                            <Input
-                                type="text"
-                                autoComplete="off"
-                                readOnly={readOnly}
-                                placeholder="First Name"
-                                {...field}
-                            />
-                        )}
+                    <Input
+                        type="text"
+                        autoComplete="off"
+                        placeholder="Enter Name"
+                        disabled={readOnly || loading}
+                        {...register('name')}
                     />
                 </FormItem>
                 <FormItem
                     label="Prefix"
-                    invalid={Boolean(errors.identifier)}
+                    invalid={!!errors.identifier}
                     errorMessage={errors.identifier?.message}
                 >
-                    <Controller
-                        name="identifier"
-                        control={control}
-                        render={({ field }) => (
-                            <Input
-                                type="text"
-                                autoComplete="off"
-                                readOnly={readOnly}
-                                placeholder="Prefix"
-                                {...field}
-                            />
-                        )}
+                    <Input
+                        type="text"
+                        autoComplete="off"
+                        placeholder="Enter Prefix"
+                        disabled={readOnly || loading}
+                        {...register('identifier')}
                     />
                 </FormItem>
             </div>
@@ -58,4 +50,4 @@ const OverviewSection = ({
     )
 }
 
-export default OverviewSection
+export default memo(OverviewSection)

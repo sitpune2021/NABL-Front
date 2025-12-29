@@ -1,66 +1,52 @@
 import { create } from 'zustand'
+import { persist } from 'zustand/middleware'
 import type { TableQueries } from '@/@types/common'
-import { InstrumentListAction, InstrumentListState } from '@/@types/instrument'
+import type {
+    InstrumentListActions,
+    InstrumentListState,
+} from '@/@types/instrument'
 
 export const initialTableData: TableQueries = {
     pageIndex: 1,
     pageSize: 10,
     query: '',
-    sort: {
-        order: '',
-        key: '',
-    },
-}
-
-export const initialFilterData = {
-    purchasedProducts: '',
-    purchaseChannel: [
-        'all',
-        'header',
-        'footer',
-        'generic',
-        'draft',
-        'draft-header',
-        'draft-footer',
-        'draft-generic',
-        'archived-all',
-        'archived-header',
-        'archived-footer',
-        'archived-generic',
-    ],
-}
-
-const initialState: InstrumentListState = {
-    tableData: initialTableData,
-    filterData: initialFilterData,
-    selectedInstrument: [],
+    sort: { key: '', order: '' },
 }
 
 export const useInstrumentListStore = create<
-    InstrumentListState & InstrumentListAction
->((set) => ({
-    ...initialState,
-    setFilterData: (payload) => set(() => ({ filterData: payload })),
-    setTableData: (payload) => set(() => ({ tableData: payload })),
-    setSelectedInstrument: (checked, row) =>
-        set((state) => {
-            const prevData = state.selectedInstrument
-            if (checked) {
-                return { selectedInstrument: [...prevData, ...[row]] }
-            } else {
-                if (
-                    prevData.some(
-                        (prevInstrument) => row.id === prevInstrument.id,
-                    )
-                ) {
-                    return {
-                        selectedInstrument: prevData.filter(
-                            (prevInstrument) => prevInstrument.id !== row.id,
-                        ),
-                    }
-                }
-                return { selectedInstrument: prevData }
-            }
+    InstrumentListState & InstrumentListActions
+>()(
+    persist(
+        (set) => ({
+            tableData: initialTableData,
+            selected: [],
+
+            updateTable: (payload) =>
+                set((state) => ({
+                    tableData: { ...state.tableData, ...payload },
+                })),
+
+            toggleRow: (checked, row) =>
+                set((state) => ({
+                    selected: checked
+                        ? [...state.selected, row]
+                        : state.selected.filter((r) => r.id !== row.id),
+                })),
+
+            setAll: (rows) => set({ selected: rows }),
+
+            clearSelection: () => set({ selected: [] }),
+
+            resetQuery: () =>
+                set((state) => ({
+                    tableData: { ...state.tableData, query: '', pageIndex: 1 },
+                })),
         }),
-    setSelectAllInstrument: (row) => set(() => ({ selectedInstrument: row })),
-}))
+        {
+            name: 'instrument-table',
+            partialize: (state) => ({
+                tableData: { ...state.tableData, query: '' }, // persist only page/sort, not query
+            }),
+        },
+    ),
+)

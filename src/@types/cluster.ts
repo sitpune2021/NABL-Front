@@ -1,18 +1,13 @@
 import { IdentifierEntity, TableQueries } from './common'
 
-import type { Control, FieldErrors } from 'react-hook-form'
+import { FormSchema } from '@/views/masters/cluster/List/components/ListTableFilter'
 
 export type GetClusterListResponse = {
     data: Cluster[]
     total: number
 }
 export type GetClusterDetailResponse = {
-    data: Fields
-}
-
-export type Filter = {
-    purchasedProducts: string
-    purchaseChannel: Array<string>
+    data: Cluster
 }
 
 export type Cluster = {
@@ -28,15 +23,18 @@ export type Cluster = {
 
 export type ClusterListState = {
     tableData: TableQueries
-    filterData: Filter
-    selectedCluster: Partial<Cluster>[]
+    filterData: FormSchema
+    selected: Partial<Cluster>[]
 }
 
 export type ClusterListAction = {
-    setFilterData: (payload: Filter) => void
-    setTableData: (payload: TableQueries) => void
-    setSelectedCluster: (checked: boolean, customer: Cluster) => void
-    setSelectAllCluster: (customer: Cluster[]) => void
+    updateTable: (payload: Partial<TableQueries>) => void
+    updateFilters: (payload: Partial<FormSchema>) => void
+    resetFilters: () => void
+    toggleRow: (checked: boolean, row: Cluster) => void
+    setAll: (rows: Cluster[]) => void
+    clearSelection: () => void
+    resetQuery: () => void
 }
 
 export type Fields = {
@@ -47,12 +45,4 @@ export type Fields = {
 
 export type TagsFields = {
     tags: Array<{ value: string; label: string }>
-}
-
-export type ClusterFormSchema = Fields
-
-export type FormSectionBaseProps = {
-    control: Control<ClusterFormSchema>
-    errors: FieldErrors<ClusterFormSchema>
-    readOnly?: boolean
 }
