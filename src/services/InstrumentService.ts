@@ -1,4 +1,4 @@
-import { Fields, GetnstrumentDetailResponse } from '@/@types/instrument'
+import { Fields, GetInstrumentDetailResponse } from '@/@types/instrument'
 import ApiService from './ApiService'
 
 export async function apiGetInstrumentList<
@@ -24,7 +24,7 @@ export async function apiGetClauseDocumentsList<
 }
 
 export async function apiInstrument(data: Fields) {
-    return ApiService.fetchDataWithAxios<Fields>({
+    return ApiService.fetchDataWithAxios<GetInstrumentDetailResponse>({
         url: '/instrument',
         method: 'post',
         data,
@@ -32,14 +32,14 @@ export async function apiInstrument(data: Fields) {
 }
 
 export async function apiGetInstrumentById(id: string) {
-    return ApiService.fetchDataWithAxios<GetnstrumentDetailResponse>({
+    return ApiService.fetchDataWithAxios<GetInstrumentDetailResponse>({
         url: `/instrument/${id}`,
         method: 'get',
     })
 }
 
 export async function apiUpdateInstrument(id: string, data: Fields) {
-    return ApiService.fetchDataWithAxios<Fields>({
+    return ApiService.fetchDataWithAxios<GetInstrumentDetailResponse>({
         url: `/instrument/${id}`,
         method: 'put',
         data,
