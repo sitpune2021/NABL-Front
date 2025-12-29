@@ -1,89 +1,69 @@
-import { useEffect } from 'react'
+import { useEffect, useMemo } from 'react'
 import { Form } from '@/components/ui/Form'
 import Container from '@/components/shared/Container'
 import BottomStickyBar from '@/components/template/BottomStickyBar'
 import OverviewSection from './OverviewSection'
-import isEmpty from 'lodash/isEmpty'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useForm } from 'react-hook-form'
-import { z } from 'zod'
+import { useForm, FormProvider } from 'react-hook-form'
 import type { CommonProps } from '@/@types/common'
-import { InstrumentFormSchema } from '@/@types/instrument'
+import {
+    InstrumentFormSchema,
+    instrumentSchema,
+} from '@/schemas/instrument.schema'
+import { EMPTY_VALUES } from '@/constants/instrument.constant'
 
 type InstrumentFormProps = {
     onFormSubmit: (values: InstrumentFormSchema) => void
     defaultValues?: InstrumentFormSchema
-    newInstrument?: boolean
     readOnly?: boolean
+    loading?: boolean
 } & CommonProps
 
-const validationSchema = z.object({
-    name: z.string().min(1, { message: 'Name is required' }),
-    short_name: z.string().min(1, { message: 'Short Name is required' }),
-    manufacturer: z.string().min(1, { message: 'Manufacturer is required' }),
-    serial_no: z.string().min(1, { message: 'Serial Number is required' }),
-    identifier: z
-        .string()
-        .min(1, { message: 'Prefix is required' })
-        .max(4, { message: 'Prefix must be at most 4 characters' })
-        .regex(/^[A-Z]+$/, {
-            message: 'Prefix must contain only uppercase letters',
-        })
-        .refine((val) => !/\s{2,}/.test(val), {
-            message: 'Prefix must not contain double spaces',
-        }),
-})
-
-const InstrumentForm = (props: InstrumentFormProps) => {
-    const {
-        onFormSubmit,
-        defaultValues = {},
-        readOnly = false,
-        children,
-    } = props
-
-    const {
-        handleSubmit,
-        reset,
-        formState: { errors },
-        control,
-    } = useForm<InstrumentFormSchema>({
-        defaultValues: {
-            ...defaultValues,
-        },
-        resolver: zodResolver(validationSchema),
+const InstrumentForm = ({
+    onFormSubmit,
+    defaultValues,
+    readOnly = false,
+    loading = false,
+    children,
+}: InstrumentFormProps) => {
+    const memoizedDefaults = useMemo(
+        () => defaultValues ?? EMPTY_VALUES,
+        [defaultValues],
+    )
+    const methods = useForm<InstrumentFormSchema>({
+        resolver: zodResolver(instrumentSchema),
+        defaultValues: memoizedDefaults,
+        mode: 'onSubmit',
+        reValidateMode: 'onChange',
     })
+    const { handleSubmit, reset } = methods
 
     useEffect(() => {
-        if (!isEmpty(defaultValues)) {
+        if (defaultValues) {
             reset(defaultValues)
         }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [JSON.stringify(defaultValues)])
-
-    const onSubmit = (values: InstrumentFormSchema) => {
-        onFormSubmit?.(values)
-    }
+    }, [defaultValues, reset])
 
     return (
-        <Form
-            className="flex w-full h-full"
-            containerClassName="flex flex-col w-full justify-between"
-            onSubmit={handleSubmit(onSubmit)}
-        >
-            <Container>
-                <div className="flex flex-col md:flex-row gap-4">
-                    <div className="gap-4 flex flex-col flex-auto">
-                        <OverviewSection
-                            control={control}
-                            errors={errors}
-                            readOnly={readOnly}
-                        />
+        <FormProvider {...methods}>
+            <Form
+                className="flex w-full h-full"
+                containerClassName="flex flex-col w-full justify-between"
+                onSubmit={handleSubmit(onFormSubmit)}
+            >
+                <Container>
+                    <div className="flex flex-col md:flex-row gap-4">
+                        <div className="flex flex-col gap-4 flex-auto">
+                            <OverviewSection
+                                readOnly={readOnly}
+                                loading={loading}
+                            />
+                        </div>
                     </div>
-                </div>
-            </Container>
-            <BottomStickyBar>{children}</BottomStickyBar>
-        </Form>
+                </Container>
+                <BottomStickyBar>{children}</BottomStickyBar>
+            </Form>
+        </FormProvider>
     )
 }
 

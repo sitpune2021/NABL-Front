@@ -1,29 +1,22 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import {
-    apiInstrument,
-    apiGetInstrumentList,
-    apiGetInstrumentById,
-    apiUpdateInstrument,
-    apiGetClauseDocumentsList,
-} from '@/services/InstrumentService'
 import useSWR from 'swr'
-import { useInstrumentListStore } from '../store/listStore'
+import { apiGetInstrumentList } from '@/services/InstrumentService'
 import type { TableQueries } from '@/@types/common'
-import type { Fields, GetInstrumentListResponse } from '@/@types/instrument'
+import type { GetInstrumentListResponse } from '@/@types/instrument'
+import { useInstrumentListStore } from '../store/listStore'
 
-export default function useInstrumentList() {
+const LIST_KEY = 'instrument-list'
+export const useInstrumentList = () => {
     const {
         tableData,
-        filterData,
-        setTableData,
-        selectedInstrument,
-        setSelectedInstrument,
-        setSelectAllInstrument,
-        setFilterData,
-    } = useInstrumentListStore((state) => state)
+        updateTable,
+        selected,
+        toggleRow,
+        setAll,
+        clearSelection,
+    } = useInstrumentListStore()
 
-    const { data, error, isLoading, mutate } = useSWR(
-        ['/api/instrument', { ...tableData, ...filterData }],
+    const swr = useSWR(
+        [LIST_KEY, tableData],
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         ([_, params]) =>
             apiGetInstrumentList<GetInstrumentListResponse, TableQueries>(
@@ -34,51 +27,19 @@ export default function useInstrumentList() {
         },
     )
 
-    const { data: clauseList, isLoading: clauseLoadfing } = useSWR(
-        ['/api/standards/current', { ...tableData, ...filterData }],
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        ([_, params]) => apiGetClauseDocumentsList<any, TableQueries>(params),
-        {
-            revalidateOnFocus: false,
-        },
-    )
-
-    const saveInstrumentData = async (instrument: Fields) => {
-        if (instrument.id) {
-            await apiUpdateInstrument(instrument.id, instrument)
-        } else {
-            await apiInstrument(instrument)
-        }
-        await mutate() // refresh list
-    }
-
-    // ✅ Get single instrument by ID (for edit or view)
-    const getInstrumentById = async (id: string) => {
-        const instrument = await apiGetInstrumentById(id)
-        return instrument.data
-    }
-
-    const instrumentList = data?.data || []
-    const clauseLIst = clauseList?.data || {}
-
-    const instrumentListTotal = data?.total || 0
-
     return {
-        instrumentList,
-        instrumentListTotal,
-        error,
-        isLoading,
+        instrumentList: swr.data?.data ?? [],
+        total: swr.data?.total ?? 0,
+        isLoading: swr.isLoading,
+        error: swr.error,
+        mutate: swr.mutate,
+
         tableData,
-        filterData,
-        mutate,
-        setTableData,
-        selectedInstrument,
-        setSelectedInstrument,
-        setSelectAllInstrument,
-        setFilterData,
-        saveInstrumentData,
-        getInstrumentById, // ✅ Now defined properly
-        clauseLIst,
-        clauseLoadfing,
+        updateTable,
+
+        selected,
+        toggleRow,
+        setAll,
+        clearSelection,
     }
 }
