@@ -75,7 +75,7 @@ const OverviewSection = ({ readOnly, loading }: OverviewSectionProps) => {
                                             : `${option.identifier}-`,
                                         {
                                             shouldDirty: true,
-                                            shouldValidate: true,
+                                            shouldValidate: false,
                                         },
                                     )
                                 }}
