@@ -1,136 +1,77 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import { useEffect, useState } from 'react'
+import { useMemo } from 'react'
 import { useParams, useNavigate, useLocation } from 'react-router'
 import Notification from '@/components/ui/Notification'
 import toast from '@/components/ui/toast'
 import ConfirmDialog from '@/components/shared/ConfirmDialog'
-import sleep from '@/utils/sleep'
 import endpointConfig from '@/configs/endpoint.config'
-import useLocationList from '../List/hooks/useList'
 import LocationForm from '../Form'
-import { LocationFormSchema } from '@/@types/location'
+import { LocationFormSchema } from '@/schemas/location.schema'
 import BottomPanel from '@/components/form/bottomPanel'
+import { getMode } from '@/utils/getMode'
+import { useLocationDetail } from '../List/hooks/useLocationDetail'
+import { useDiscardConfirm } from '@/utils/hooks/useDiscardConfirm'
+import { useEntityMutations } from '@/utils/hooks/useEntityMutations'
+import { apiLocation, apiUpdateLocation } from '@/services/LocationService'
+import { useFormSubmit } from '@/utils/hoc/useFormSubmit'
+import { EMPTY_VALUES } from '@/constants/location.constant'
 
 const LocationAddEdit = () => {
     const navigate = useNavigate()
-    const location = useLocation()
-    const { id: locationId } = useParams()
-    const { saveLocationData, getLocationById } = useLocationList()
+    const routerLocation = useLocation()
 
-    const [discardConfirmationOpen, setDiscardConfirmationOpen] =
-        useState(false)
-    const [isSubmiting, setIsSubmiting] = useState(false)
-    const [locationData, setLocationData] = useState<LocationFormSchema | null>(
-        null,
+    const { id } = useParams<{ id: string }>()
+
+    const mode = useMemo(
+        () => getMode(routerLocation.pathname),
+        [routerLocation.pathname],
     )
-    const [loadingData, setLoadingData] = useState(false)
+    const isView = mode === 'view'
+    const isEdit = mode === 'edit'
 
-    const isEdit = location.pathname.includes('/edit')
-    const isView = location.pathname.includes('/view')
-    const isAdd = location.pathname.includes('/create')
+    const { location, isLoading } = useLocationDetail(id)
+    const discard = useDiscardConfirm()
+    const defaultValues = useMemo(() => location ?? EMPTY_VALUES, [location])
 
-    // Load existing location data in edit or view mode
-    useEffect(() => {
-        if (!isAdd && locationId) {
-            setLoadingData(true)
-            getLocationById(locationId)
-                .then((data) => {
-                    setLocationData(data)
-                })
-                .finally(() => setLoadingData(false))
-        }
-    }, [locationId, isAdd])
+    const { save } = useEntityMutations<LocationFormSchema>({
+        apiCreate: apiLocation,
+        apiUpdate: apiUpdateLocation,
+    })
+    const { handleSubmit, isSubmitting } = useFormSubmit<LocationFormSchema>({
+        apiCall: (values) =>
+            save({ ...values, ...(isEdit && id ? { id } : {}) }),
+        navigateTo: endpointConfig.master.location.list,
+    })
 
-    const handleFormSubmit = async (values: LocationFormSchema) => {
-        if (isView) return
-        setIsSubmiting(true)
-        try {
-            const payload = isEdit ? { ...values, id: locationId } : values
-            await saveLocationData(payload)
-            await sleep(800)
-            setIsSubmiting(false)
-            toast.push(
-                <Notification type="success">
-                    {isEdit ? 'Location updated!' : 'Location created!'}
-                </Notification>,
-                { placement: 'top-center' },
-            )
-            navigate(`${endpointConfig.master.location.list}`)
-        } catch (error: any) {
-            const backendErrors = error?.response?.data?.errors
-
-            if (backendErrors) {
-                Object.entries(backendErrors).forEach(([messages]) => {
-                    const message = Array.isArray(messages)
-                        ? messages[0]
-                        : messages
-                    toast.push(
-                        <Notification type="danger">{message}</Notification>,
-                        { placement: 'top-center' },
-                    )
-                })
-            } else {
-                const errorMessage =
-                    error?.response?.data?.message ||
-                    `Failed to ${isEdit ? 'update' : 'create'} location`
-
-                toast.push(
-                    <Notification type="danger">{errorMessage}</Notification>,
-                    { placement: 'top-center' },
-                )
-            }
-        } finally {
-            setIsSubmiting(false)
-        }
-    }
-
-    const handleConfirmDiscard = () => {
-        setDiscardConfirmationOpen(true)
+    const confirmDiscard = () => {
         toast.push(
-            <Notification type="success">Changes discarded!</Notification>,
+            <Notification type="success">Changes discarded</Notification>,
             { placement: 'top-center' },
         )
+        discard.close()
         navigate(`${endpointConfig.master.location.list}`)
     }
-
-    const handleDiscard = () => setDiscardConfirmationOpen(true)
-    const handleCancel = () => setDiscardConfirmationOpen(false)
-
-    if (loadingData && !isAdd) {
-        return <p className="p-4">Loading location data...</p>
-    }
-
     return (
         <>
             <LocationForm
-                newLocation={isAdd}
-                defaultValues={
-                    locationData ?? {
-                        name: '',
-                        zone_id: '',
-                        cluster_id: '',
-                        short_name: '',
-                        identifier: '',
-                    }
-                }
+                defaultValues={defaultValues}
                 readOnly={isView}
-                onFormSubmit={handleFormSubmit}
+                loading={isLoading}
+                onFormSubmit={handleSubmit}
             >
                 <BottomPanel
                     isView={isView}
-                    isSubmitting={isSubmiting}
+                    isSubmitting={isSubmitting}
                     isEdit={isEdit}
-                    onDiscard={handleDiscard}
+                    onDiscard={discard.show}
                 />
             </LocationForm>
             <ConfirmDialog
-                isOpen={discardConfirmationOpen}
+                isOpen={discard.open}
                 type="danger"
                 title="Discard changes"
-                onClose={handleCancel}
-                onRequestClose={handleCancel}
-                onCancel={handleCancel}
-                onConfirm={handleConfirmDiscard}
+                onClose={discard.close}
+                onCancel={discard.close}
+                onConfirm={confirmDiscard}
             >
                 <p>
                     Are you sure you want discard this? This action can&apos;t

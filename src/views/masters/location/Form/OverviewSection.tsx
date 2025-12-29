@@ -1,37 +1,52 @@
 import Card from '@/components/ui/Card'
 import Input from '@/components/ui/Input'
 import { FormItem } from '@/components/ui/Form'
-import { Controller, useWatch } from 'react-hook-form'
-import { FormSectionBaseProps } from '@/@types/location'
+import { Controller, useFormContext } from 'react-hook-form'
 import { Select } from '@/components/ui'
-import useZoneList from '../../zone/List/hooks/useList'
+import { useZoneList } from '../../zone/List/hooks/useList'
 import useClusterList from '../../cluster/List/hooks/useList'
+import { useMemo } from 'react'
+import { LocationFormSchema } from '@/schemas/location.schema'
 
-type OverviewSectionProps = FormSectionBaseProps
+type OverviewSectionProps = {
+    readOnly?: boolean
+    loading?: boolean
+}
 
-const OverviewSection = ({
-    control,
-    errors,
-    readOnly,
-}: OverviewSectionProps) => {
+const OverviewSection = ({ readOnly, loading }: OverviewSectionProps) => {
+    const {
+        register,
+        control,
+        setValue,
+        getValues,
+        clearErrors,
+        formState: { errors },
+    } = useFormContext<LocationFormSchema>()
+
     const { zoneList } = useZoneList()
     const { clusterList } = useClusterList()
 
-    const zoneOptions = zoneList.map((zone) => ({
-        label: zone.name,
-        value: zone.id,
-    }))
+    const zoneOptions = useMemo(
+        () =>
+            zoneList.map((zone) => ({
+                value: zone.id,
+                label: zone.name.toUpperCase(),
+                identifier: zone.identifier,
+            })),
+        [zoneList],
+    )
 
-    const clusterOptions = clusterList.map((cluster) => ({
-        label: cluster.name,
-        value: cluster.id,
-        prefix: cluster.identifier,
-    }))
-
-    const selectedClustersName = useWatch({ control, name: 'cluster_id' })
-
-    const selectedClusters = clusterOptions.find(
-        (z) => z.value === selectedClustersName,
+    const selectedZoneId = getValues('zone_id')
+    const filteredClusterOptions = useMemo(
+        () =>
+            clusterList
+                .filter((cluster) => cluster.zone_id === selectedZoneId)
+                .map((cluster) => ({
+                    value: cluster.id,
+                    label: cluster.name.toUpperCase(),
+                    identifier: cluster.identifier,
+                })),
+        [clusterList, selectedZoneId],
     )
 
     return (
@@ -40,7 +55,7 @@ const OverviewSection = ({
             <div className="grid md:grid-cols-2 gap-4">
                 <FormItem
                     label="Zone"
-                    invalid={Boolean(errors.zone_id)}
+                    invalid={!!errors.zone_id}
                     errorMessage={errors.zone_id?.message}
                 >
                     <Controller
@@ -48,19 +63,29 @@ const OverviewSection = ({
                         control={control}
                         render={({ field }) => (
                             <Select
-                                placeholder="Select Zone"
                                 options={zoneOptions}
-                                value={
-                                    zoneOptions.find(
-                                        (o) => o.value === field.value,
-                                    ) || null
-                                }
-                                isDisabled={readOnly}
-                                onChange={(selected) =>
-                                    field.onChange(
-                                        selected ? selected.value : '',
+                                placeholder="Select Zone"
+                                value={zoneOptions.find(
+                                    (opt) => opt.value === field.value,
+                                )}
+                                isDisabled={readOnly || loading}
+                                onChange={(option) => {
+                                    field.onChange(option?.value)
+                                    setValue('cluster_id', '', {
+                                        shouldDirty: true,
+                                        shouldValidate: false,
+                                    })
+                                    clearErrors('cluster_id')
+                                    if (!option) return
+                                    setValue(
+                                        'identifier',
+                                        `${option.identifier}-`,
+                                        {
+                                            shouldDirty: true,
+                                            shouldValidate: false,
+                                        },
                                     )
-                                }
+                                }}
                             />
                         )}
                     />
@@ -68,7 +93,7 @@ const OverviewSection = ({
 
                 <FormItem
                     label="Cluster"
-                    invalid={Boolean(errors.cluster_id)}
+                    invalid={!!errors.cluster_id}
                     errorMessage={errors.cluster_id?.message}
                 >
                     <Controller
@@ -76,19 +101,37 @@ const OverviewSection = ({
                         control={control}
                         render={({ field }) => (
                             <Select
+                                options={filteredClusterOptions}
                                 placeholder="Select Cluster"
-                                options={clusterOptions}
-                                value={
-                                    clusterOptions.find(
-                                        (o) => o.value === field.value,
-                                    ) || null
+                                value={filteredClusterOptions.find(
+                                    (opt) => opt.value === field.value,
+                                )}
+                                isDisabled={
+                                    readOnly || loading || !selectedZoneId
                                 }
-                                isDisabled={readOnly}
-                                onChange={(selected) =>
-                                    field.onChange(
-                                        selected ? selected.value : '',
+                                onChange={(option) => {
+                                    field.onChange(option?.value)
+                                    if (!option) return
+
+                                    const currentIdentifier =
+                                        getValues('identifier') || ''
+
+                                    const suffix = currentIdentifier
+                                        .split('-')
+                                        .slice(2)
+                                        .join('-')
+
+                                    setValue(
+                                        'identifier',
+                                        suffix
+                                            ? `${option.identifier}-${suffix}`
+                                            : `${option.identifier}-`,
+                                        {
+                                            shouldDirty: true,
+                                            shouldValidate: false,
+                                        },
                                     )
-                                }
+                                }}
                             />
                         )}
                     />
@@ -96,81 +139,42 @@ const OverviewSection = ({
 
                 <FormItem
                     label="Name"
-                    invalid={Boolean(errors.name)}
+                    invalid={!!errors.name}
                     errorMessage={errors.name?.message}
                 >
-                    <Controller
-                        name="name"
-                        control={control}
-                        render={({ field }) => (
-                            <Input
-                                type="text"
-                                autoComplete="off"
-                                readOnly={readOnly}
-                                placeholder="First Name"
-                                {...field}
-                            />
-                        )}
+                    <Input
+                        type="text"
+                        placeholder="Name"
+                        disabled={readOnly || loading}
+                        {...register('name')}
                     />
                 </FormItem>
 
                 <FormItem
                     label="Short Name"
-                    invalid={Boolean(errors.short_name)}
-                    errorMessage={errors.short_name?.message}
+                    invalid={!!errors.short_name}
+                    errorMessage={
+                        errors.short_name?.message as string | undefined
+                    }
                 >
-                    <Controller
-                        name="short_name"
-                        control={control}
-                        render={({ field }) => (
-                            <Input
-                                type="text"
-                                autoComplete="off"
-                                readOnly={readOnly}
-                                placeholder="Short Name"
-                                {...field}
-                            />
-                        )}
+                    <Input
+                        type="text"
+                        placeholder="Short Name"
+                        disabled={readOnly || loading}
+                        {...register('short_name')}
                     />
                 </FormItem>
 
                 <FormItem
                     label="Prefix"
-                    invalid={Boolean(errors.identifier)}
+                    invalid={!!errors.identifier}
                     errorMessage={errors.identifier?.message}
                 >
-                    <Controller
-                        name="identifier"
-                        control={control}
-                        render={({ field: { onChange, value, ...rest } }) => (
-                            <Input
-                                type="text"
-                                autoComplete="off"
-                                readOnly={readOnly}
-                                placeholder="Prefix"
-                                value={
-                                    selectedClusters?.prefix
-                                        ? `${selectedClusters.prefix}-${(value || '').replace(`${selectedClusters.prefix}-`, '')}`
-                                        : value || ''
-                                }
-                                onChange={(e) => {
-                                    const inputValue = e.target.value
-                                    const cleanedValue =
-                                        selectedClusters?.prefix
-                                            ? inputValue.replace(
-                                                  `${selectedClusters.prefix}-`,
-                                                  '',
-                                              )
-                                            : inputValue
-                                    onChange(
-                                        selectedClusters?.prefix
-                                            ? `${selectedClusters.prefix}-${cleanedValue}`
-                                            : cleanedValue,
-                                    )
-                                }}
-                                {...rest}
-                            />
-                        )}
+                    <Input
+                        type="text"
+                        placeholder="Prefix"
+                        disabled={readOnly || loading}
+                        {...register('identifier')}
                     />
                 </FormItem>
             </div>

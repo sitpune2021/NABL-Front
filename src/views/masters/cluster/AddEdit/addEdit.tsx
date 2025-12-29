@@ -1,134 +1,75 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import { useEffect, useState } from 'react'
+import { useMemo } from 'react'
 import { useParams, useNavigate, useLocation } from 'react-router'
 import Notification from '@/components/ui/Notification'
 import toast from '@/components/ui/toast'
 import ConfirmDialog from '@/components/shared/ConfirmDialog'
-import sleep from '@/utils/sleep'
 import endpointConfig from '@/configs/endpoint.config'
-import useClusterList from '../List/hooks/useList'
 import ClusterForm from '../Form'
-import { ClusterFormSchema } from '@/@types/cluster'
+import { ClusterFormSchema } from '@/schemas/cluster.schema'
 import BottomPanel from '@/components/form/bottomPanel'
+import { getMode } from '@/utils/getMode'
+import { useClusterDetail } from '../List/hooks/useClusterDetail'
+import { useDiscardConfirm } from '@/utils/hooks/useDiscardConfirm'
+import { useEntityMutations } from '@/utils/hooks/useEntityMutations'
+import { apiCluster, apiUpdateCluster } from '@/services/ClusterService'
+import { useFormSubmit } from '@/utils/hoc/useFormSubmit'
+import { EMPTY_VALUES } from '@/constants/cluster.constant'
 
 const ClusterAddEdit = () => {
     const navigate = useNavigate()
     const location = useLocation()
-    const { id: clusterId } = useParams()
-    const { saveClusterData, getClusterById } = useClusterList()
+    const { id } = useParams<{ id: string }>()
 
-    const [discardConfirmationOpen, setDiscardConfirmationOpen] =
-        useState(false)
-    const [isSubmiting, setIsSubmiting] = useState(false)
-    const [clusterData, setClusterData] = useState<ClusterFormSchema | null>(
-        null,
-    )
-    const [loadingData, setLoadingData] = useState(false)
+    const mode = useMemo(() => getMode(location.pathname), [location.pathname])
+    const isView = mode === 'view'
+    const isEdit = mode === 'edit'
 
-    const isEdit = location.pathname.includes('/edit')
-    const isView = location.pathname.includes('/view')
-    const isAdd = location.pathname.includes('/create')
+    const { cluster, isLoading } = useClusterDetail(id)
+    const discard = useDiscardConfirm()
+    const defaultValues = useMemo(() => cluster ?? EMPTY_VALUES, [cluster])
 
-    // Load existing cluster data in edit or view mode
-    useEffect(() => {
-        if (!isAdd && clusterId) {
-            setLoadingData(true)
-            getClusterById(clusterId)
-                .then((data) => {
-                    setClusterData(data)
-                })
-                .finally(() => setLoadingData(false))
-        }
-    }, [clusterId, isAdd])
+    const { save } = useEntityMutations<ClusterFormSchema>({
+        apiCreate: apiCluster,
+        apiUpdate: apiUpdateCluster,
+    })
 
-    const handleFormSubmit = async (values: ClusterFormSchema) => {
-        if (isView) return
-        setIsSubmiting(true)
-        try {
-            const payload = isEdit ? { ...values, id: clusterId } : values
-            await saveClusterData(payload)
-            await sleep(800)
-            setIsSubmiting(false)
-            toast.push(
-                <Notification type="success">
-                    {isEdit ? 'Cluster updated!' : 'Cluster created!'}
-                </Notification>,
-                { placement: 'top-center' },
-            )
-            navigate(`${endpointConfig.master.cluster.list}`)
-        } catch (error: any) {
-            const backendErrors = error?.response?.data?.errors
-
-            if (backendErrors) {
-                Object.entries(backendErrors).forEach(([messages]) => {
-                    const message = Array.isArray(messages)
-                        ? messages[0]
-                        : messages
-                    toast.push(
-                        <Notification type="danger">{message}</Notification>,
-                        { placement: 'top-center' },
-                    )
-                })
-            } else {
-                const errorMessage =
-                    error?.response?.data?.message ||
-                    `Failed to ${isEdit ? 'update' : 'create'}cluster`
-
-                toast.push(
-                    <Notification type="danger">{errorMessage}</Notification>,
-                    { placement: 'top-center' },
-                )
-            }
-        } finally {
-            setIsSubmiting(false)
-        }
-    }
-
-    const handleConfirmDiscard = () => {
-        setDiscardConfirmationOpen(true)
+    const { handleSubmit, isSubmitting } = useFormSubmit<ClusterFormSchema>({
+        apiCall: (values) =>
+            save({ ...values, ...(isEdit && id ? { id } : {}) }),
+        navigateTo: endpointConfig.master.cluster.list,
+    })
+    const confirmDiscard = () => {
         toast.push(
             <Notification type="success">Changes discarded!</Notification>,
             { placement: 'top-center' },
         )
-        navigate(`${endpointConfig.master.cluster.list}`)
-    }
-
-    const handleDiscard = () => setDiscardConfirmationOpen(true)
-    const handleCancel = () => setDiscardConfirmationOpen(false)
-
-    if (loadingData && !isAdd) {
-        return <p className="p-4">Loading cluster data...</p>
+        discard.close()
+        navigate(endpointConfig.master.cluster.list)
     }
 
     return (
         <>
             <ClusterForm
-                newCluster={isAdd}
-                defaultValues={
-                    clusterData ?? {
-                        zone_id: '',
-                        name: '',
-                        identifier: '',
-                    }
-                }
+                defaultValues={defaultValues}
                 readOnly={isView}
-                onFormSubmit={handleFormSubmit}
+                loading={isLoading}
+                onFormSubmit={handleSubmit}
             >
                 <BottomPanel
                     isView={isView}
-                    isSubmitting={isSubmiting}
+                    isSubmitting={isSubmitting}
                     isEdit={isEdit}
-                    onDiscard={handleDiscard}
+                    onDiscard={discard.show}
                 />
             </ClusterForm>
             <ConfirmDialog
-                isOpen={discardConfirmationOpen}
+                isOpen={discard.open}
                 type="danger"
-                title="Discard changes"
-                onClose={handleCancel}
-                onRequestClose={handleCancel}
-                onCancel={handleCancel}
-                onConfirm={handleConfirmDiscard}
+                title="Discard Changes?"
+                onClose={discard.close}
+                onRequestClose={discard.close}
+                onCancel={discard.close}
+                onConfirm={confirmDiscard}
             >
                 <p>
                     Are you sure you want discard this? This action can&apos;t

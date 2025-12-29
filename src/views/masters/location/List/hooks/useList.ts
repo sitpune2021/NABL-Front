@@ -1,95 +1,48 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import {
-    apiLocation,
-    apiGetLocationList,
-    apiGetLocationById,
-    apiUpdateLocation,
-} from '@/services/LocationService'
+import { apiGetLocationList } from '@/services/LocationService'
 import useSWR from 'swr'
 import { useLocationListStore } from '../store/listStore'
 import type { TableQueries } from '@/@types/common'
-import {
-    Fields,
-    GetLocationListResponse,
-    GetLocationDetailResponse,
-} from '@/@types/location'
+import { GetLocationListResponse } from '@/@types/location'
+import { LIST_KEY } from '@/constants/location.constant'
 
-export default function useLocationList(locationId?: string) {
+export default function useLocationList() {
     const {
-        tableData,
         filterData,
-        setTableData,
-        selectedLocation,
-        setSelectedLocation,
-        setSelectAllLocation,
-        setFilterData,
+        updateFilters,
+        resetFilters,
+        tableData,
+        updateTable,
+        selected,
+        toggleRow,
+        setAll,
+        clearSelection,
     } = useLocationListStore((state) => state)
 
-    const { data, error, isLoading, mutate } = useSWR(
-        ['/api/location', { ...tableData, ...filterData }],
+    const swr = useSWR(
+        [LIST_KEY, { ...tableData, ...filterData }],
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         ([_, params]) =>
             apiGetLocationList<GetLocationListResponse, TableQueries>(params),
-        { revalidateOnFocus: false },
+        {
+            revalidateOnFocus: false,
+        },
     )
 
-    const {
-        data: detailData,
-        error: detailError,
-        isLoading: isDetailLoading,
-        mutate: mutateDetail,
-    } = useSWR<GetLocationDetailResponse>(
-        locationId ? `/api/location/${locationId}` : null,
-        () => apiGetLocationById(locationId!),
-        { revalidateOnFocus: false },
-    )
-
-    const saveLocationData = async (location: Fields) => {
-        let savedData: any
-
-        if (location.id) {
-            // eslint-disable-next-line @typescript-eslint/no-unused-vars
-            const { id, ...withoutId } = location
-            savedData = await apiUpdateLocation(location.id, withoutId)
-        } else {
-            savedData = await apiLocation(location)
-        }
-
-        await mutate()
-        if (location.id && mutateDetail) {
-            mutateDetail({ data: savedData }, false)
-        }
-
-        return savedData
-    }
-
-    const getLocationById = async (id: string) => {
-        const res = await apiGetLocationById(id)
-        return res.data
-    }
-
-    const locationList = data?.data || []
-    const locationListTotal = data?.total || 0
-
-    const locationDetail = detailData?.data
     return {
-        locationList,
-        locationListTotal,
-        error,
-        isLoading,
-        locationDetail,
-        isDetailLoading,
-        detailError,
-        mutateDetail,
+        locationList: swr.data?.data ?? [],
+        total: swr.data?.total ?? 0,
+        isLoading: swr.isLoading,
+        error: swr.error,
+        mutate: swr.mutate,
         tableData,
+        updateTable,
         filterData,
-        mutate,
-        setTableData,
-        selectedLocation,
-        setSelectedLocation,
-        setSelectAllLocation,
-        setFilterData,
-        saveLocationData,
-        getLocationById,
+        updateFilters,
+        resetFilters,
+
+        selected,
+        toggleRow,
+        setAll,
+        clearSelection,
     }
 }
