@@ -1,55 +1,32 @@
 import { useMemo } from 'react'
-import DataTable from '@/components/shared/DataTable'
 import { useParams } from 'react-router'
-import type { ColumnDef } from '@/components/shared/DataTable'
-import { Document } from '@/@types/document'
+import DataTable from '@/components/shared/DataTable'
 import { useDateEntryList } from '../hooks/dataentry'
+import { buildDocumentDataEntryColumns } from '@/columns/document_data_entry.columns'
 
 const DocumentEntryListTable = () => {
     const { id } = useParams()
 
-    const { dataEntryList } = useDateEntryList(id)
+    const { dataEntryList, isLoading } = useDateEntryList(id)
 
-    const columns: ColumnDef<Document>[] = useMemo(
-        () => [
-            {
-                header: 'Id',
-                accessorKey: 'id',
-            },
-            {
-                header: 'Document Name',
-                accessorKey: 'name',
-                cell: (props) => {
-                    const row = props.row.original
-                    return (
-                        <span className="font-semibold heading-text">
-                            {row.name}
-                        </span>
-                    )
-                },
-            },
-            {
-                header: 'Category',
-                accessorKey: 'category_id',
-                cell: (props) => {
-                    const row = props.row.original
-                    return (
-                        <span className="font-semibold">
-                            {row?.category?.name}
-                        </span>
-                    )
-                },
-            },
-        ],
+    const headers = dataEntryList?.headers ?? []
+    const rows = dataEntryList?.rows ?? []
 
-        [],
+    const columns = useMemo(
+        () =>
+            buildDocumentDataEntryColumns({
+                headers,
+            }),
+        [headers],
     )
 
     return (
         <DataTable
             selectable
             columns={columns}
-            data={dataEntryList}
+            data={rows}
+            noData={!isLoading && rows.length === 0}
+            loading={isLoading}
             skeletonAvatarColumns={[0]}
             skeletonAvatarProps={{ width: 28, height: 28 }}
         />

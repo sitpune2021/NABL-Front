@@ -1,9 +1,18 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Container } from '@/components/shared'
-import { Card, Checkbox, Form, FormItem, Input, Select } from '@/components/ui'
+/* eslint-disable no-case-declarations */
+import { Container, DoubleSidedImage } from '@/components/shared'
+import {
+    Avatar,
+    Button,
+    Card,
+    Checkbox,
+    Form,
+    FormItem,
+    Input,
+    Select,
+    Upload,
+} from '@/components/ui'
 import { useForm, Controller } from 'react-hook-form'
-import { useEffect, useState } from 'react'
-import axios from 'axios'
 import BottomPanel from '@/components/form/bottomPanel'
 import { useSessionUser } from '@/store/authStore'
 import { useParams } from 'react-router'
@@ -11,53 +20,54 @@ import { useFormSubmit } from '@/utils/hoc/useFormSubmit'
 import { useEntityMutations } from '@/utils/hooks/useEntityMutations'
 import { apiDataEntry } from '@/services/ClausesService'
 import endpointConfig from '@/configs/endpoint.config'
+import { useDocumentDetail } from '../List/hooks/useDetail'
 
-const useDynamicOptions = (config: any) => {
-    const [options, setOptions] = useState<any[]>([])
-    const [loading, setLoading] = useState(false)
+// const useDynamicOptions = (config: any) => {
+//     const [options, setOptions] = useState<any[]>([])
+//     const [isLoading, setLoading] = useState(false)
 
-    useEffect(() => {
-        if (!config?.dynamic || !config?.table || !config?.field) return
+//     useEffect(() => {
+//         if (!config?.dynamic || !config?.table || !config?.field) return
 
-        const fetchOptions = async () => {
-            setLoading(true)
-            try {
-                const res = await axios.get(
-                    `http://192.168.1.33:8000/api/${config.table}`,
-                )
-                const rows = Array.isArray(res.data?.data) ? res.data.data : []
-                const extracted = rows
-                    .map((item: any) => item[config.field])
-                    .filter((v: any) => v !== null && v !== undefined)
+//         const fetchOptions = async () => {
+//             setLoading(true)
+//             try {
+//                 const res = await axios.get(
+//                     `${import.meta.env.VITE_API_URL}/api/${config.table}`,
+//                 )
+//                 const rows = Array.isArray(res.data?.data) ? res.data.data : []
+//                 const extracted = rows
+//                     .map((item: any) => item[config.field])
+//                     .filter((v: any) => v !== null && v !== undefined)
 
-                setOptions(extracted)
-            } catch (err) {
-                console.error('Dynamic dropdown fetch failed:', err)
-                setOptions([])
-            } finally {
-                setLoading(false)
-            }
-        }
+//                 setOptions(extracted)
+//             } catch (err) {
+//                 console.error('Dynamic dropdown fetch failed:', err)
+//                 setOptions([])
+//             } finally {
+//                 setLoading(false)
+//             }
+//         }
 
-        fetchOptions()
-    }, [config?.dynamic, config?.table, config?.field])
+//         fetchOptions()
+//     }, [config?.dynamic, config?.table, config?.field])
 
-    return { options, loading }
-}
+//     return { options, isLoading }
+// }
 
-const DynamicFormWrapper = ({
-    isDataEntry,
-    documentData,
-    readOnly = false,
-}: any) => {
+const DynamicFormWrapper = () => {
+    const readOnly = false
+    const { id } = useParams<{ id: string }>()
+
+    const { document, isLoading } = useDocumentDetail(id)
+
     const {
         control,
         handleSubmit,
         formState: { errors },
     } = useForm({
-        defaultValues: documentData?.defaultValues || {},
+        defaultValues: {},
     })
-    const { id } = useParams()
 
     const { lab } = useSessionUser((state) => state.user)
 
@@ -66,27 +76,53 @@ const DynamicFormWrapper = ({
     })
 
     const { handleSubmit: onsubmit, isSubmitting } = useFormSubmit<any>({
-        apiCall: (values) =>
-            save({
-                document_id: id,
-                fields_entry: values, // form values go here
-            }),
+        apiCall: (values) => {
+            const formData = new FormData()
+
+            formData.append('document_id', id as string)
+
+            Object.entries(values).forEach(([key, value]: any) => {
+                if (value instanceof File) {
+                    formData.append(`fields_entry[${key}]`, value)
+                } else if (Array.isArray(value)) {
+                    value.forEach((v) =>
+                        formData.append(`fields_entry[${key}][]`, v),
+                    )
+                } else {
+                    formData.append(`fields_entry[${key}]`, value)
+                }
+            })
+
+            return save(formData)
+        },
         navigateTo: endpointConfig.master.document.list,
     })
 
-    if (!isDataEntry) return null
+    const beforeUpload = (files: FileList | null) => {
+        let valid: string | boolean = true
+
+        const maxSizeMB = 10
+
+        if (files) {
+            for (const file of files) {
+                if (file.size > maxSizeMB * 1024 * 1024) {
+                    valid = `File size must be under ${maxSizeMB}MB`
+                }
+            }
+        }
+
+        return valid
+    }
+    const isImage = (file: File) => file.type.startsWith('image/')
 
     const renderField = (name: string, config: any) => {
         const label = config.label || name
         const fieldName = name.replace(/\s+/g, '_')
 
-        const { options: dynamicOptions, loading } = useDynamicOptions(config)
-
-        const finalOptions = config.dynamic
-            ? dynamicOptions
-            : typeof config.options === 'string'
-              ? config.options.split(',').map((o: string) => o.trim())
-              : config.options || []
+        const finalOptions =
+            typeof config.options === 'string'
+                ? config.options.split(',').map((o: string) => o.trim())
+                : config.options || []
 
         const patternRules =
             config.validation === 'alphabet'
@@ -193,7 +229,7 @@ const DynamicFormWrapper = ({
                             case 'select':
                                 return (
                                     <Select
-                                        isDisabled={readOnly || loading}
+                                        isDisabled={readOnly || isLoading}
                                         options={finalOptions.map((o: any) => ({
                                             value: o,
                                             label: o,
@@ -217,14 +253,26 @@ const DynamicFormWrapper = ({
                                 return (
                                     <Select
                                         isMulti
-                                        isDisabled={readOnly || loading}
+                                        isDisabled={readOnly || isLoading}
                                         options={finalOptions.map((o: any) => ({
                                             value: o,
                                             label: o,
                                         }))}
                                         placeholder={`Select ${label}`}
-                                        value={field.value || []}
-                                        onChange={field.onChange}
+                                        value={(field.value || []).map(
+                                            (v: any) =>
+                                                typeof v === 'string'
+                                                    ? { value: v, label: v }
+                                                    : v,
+                                        )}
+                                        onChange={(selected: any) => {
+                                            // selected is an array of {value, label}
+                                            const values =
+                                                selected?.map(
+                                                    (item: any) => item.value,
+                                                ) || []
+                                            field.onChange(values)
+                                        }}
                                     />
                                 )
 
@@ -239,13 +287,63 @@ const DynamicFormWrapper = ({
                                 )
 
                             case 'upload':
+                                const file = field.value as File | undefined
+                                const previewUrl =
+                                    file && isImage(file)
+                                        ? URL.createObjectURL(file)
+                                        : null
+
                                 return (
-                                    <Input
-                                        type="file"
-                                        {...field}
-                                        placeholder={`Enter ${label}`}
-                                        readOnly={readOnly}
-                                    />
+                                    <>
+                                        <div className="flex items-center justify-center">
+                                            {file ? (
+                                                isImage(file) ? (
+                                                    <Avatar
+                                                        size={100}
+                                                        src={
+                                                            previewUrl as string
+                                                        }
+                                                        className="border-4 border-white shadow-lg"
+                                                    />
+                                                ) : (
+                                                    <div className="flex flex-col items-center text-gray-500">
+                                                        <span className="text-sm font-medium">
+                                                            {file.name}
+                                                        </span>
+                                                        <span className="text-xs">
+                                                            {file.type ||
+                                                                'Unknown type'}
+                                                        </span>
+                                                    </div>
+                                                )
+                                            ) : (
+                                                <DoubleSidedImage
+                                                    src="/img/others/upload.png"
+                                                    darkModeSrc="/img/others/upload-dark.png"
+                                                    alt="Upload document"
+                                                />
+                                            )}
+                                        </div>
+
+                                        <Upload
+                                            showList={false}
+                                            uploadLimit={1}
+                                            beforeUpload={beforeUpload}
+                                            onChange={(files) => {
+                                                if (files.length > 0) {
+                                                    field.onChange(files[0]) // ✅ File object
+                                                }
+                                            }}
+                                        >
+                                            <Button
+                                                variant="solid"
+                                                className="mt-4"
+                                                type="button"
+                                            >
+                                                Upload Document
+                                            </Button>
+                                        </Upload>
+                                    </>
                                 )
 
                             default:
@@ -275,25 +373,25 @@ const DynamicFormWrapper = ({
                         <Card>
                             <div className="mb-4">
                                 <h4 className="text-xl font-semibold">
-                                    Document Name : {documentData.name}
+                                    Document Name : {document?.name}
                                 </h4>
                                 <p className="text-sm text-gray-600">
-                                    Document No : {documentData.number}
+                                    Document No : {document?.number}
                                 </p>
                             </div>
 
                             <div className="grid md:grid-cols-2 gap-6">
-                                {documentData.mode === 'create' ? (
-                                    Object.entries(
-                                        documentData.form_fields,
-                                    ).map(([name, config]) => (
-                                        <div key={name}>
-                                            {renderField(name, config)}
-                                        </div>
-                                    ))
+                                {document?.mode === 'create' ? (
+                                    Object.entries(document?.form_fields).map(
+                                        ([name, config]) => (
+                                            <div key={name}>
+                                                {renderField(name, config)}
+                                            </div>
+                                        ),
+                                    )
                                 ) : (
-                                    <div key={documentData.name}>
-                                        {renderField(documentData.name, {
+                                    <div key={document?.name}>
+                                        {renderField('document', {
                                             type: 'upload',
                                         })}
                                     </div>

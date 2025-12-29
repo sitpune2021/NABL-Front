@@ -154,7 +154,9 @@ const masterRoute: Routes = [
     {
         key: 'masters.document.list',
         path: endpointConfig.master.document.dataEntry,
-        component: lazy(() => import('@/views/masters/document/AddEdit')),
+        component: lazy(
+            () => import('@/views/masters/document/Form/DynamicWrapper'),
+        ),
         authority: [],
     },
     {

@@ -1,4 +1,3 @@
-// columns/category.columns.tsx
 import ActionColumn from '@/components/form/ActionColumn'
 import { TbPencil, TbEye } from 'react-icons/tb'
 import type { ColumnDef } from '@/components/shared/DataTable'
