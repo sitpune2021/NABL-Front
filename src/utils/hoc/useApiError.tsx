@@ -19,7 +19,9 @@ export const useApiError = () => {
 
         toast.push(
             <Notification type="danger">
-                {error?.response?.data?.message || fallbackMessage}
+                {error?.response?.data?.message ||
+                    error?.response?.data?.error ||
+                    fallbackMessage}
             </Notification>,
             { placement: 'top-center' },
         )

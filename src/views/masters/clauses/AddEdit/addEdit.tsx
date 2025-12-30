@@ -1,10 +1,11 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useMemo } from 'react'
 import { useParams, useNavigate, useLocation } from 'react-router'
 import Notification from '@/components/ui/Notification'
 import toast from '@/components/ui/toast'
 import ConfirmDialog from '@/components/shared/ConfirmDialog'
 import ClausesForm from '../Form'
-import { ClausesFormSchema } from '@/@types/clauses'
+import { ClausesFormSchema } from '@/schemas/clauses.schema'
 import BottomPanel from '@/components/form/bottomPanel'
 import useDocumentList from '../../document/List/hooks/useList'
 import { getMode } from '@/utils/getMode'
@@ -16,8 +17,7 @@ import { useEntityMutations } from '@/utils/hooks/useEntityMutations'
 import { apiCreateClauses, apiUpdateClauses } from '@/services/ClausesService'
 import { useClauseDetail } from '../List/hooks/useDetail'
 import { useStandardDetail } from '@/views/settings/standard/List/hooks/useDetail'
-
-const EMPTY_VALUES = undefined
+import { flattenClauses } from '@/utils/flattenClauses'
 
 const ClausesAddEdit = () => {
     const navigate = useNavigate()
@@ -27,15 +27,76 @@ const ClausesAddEdit = () => {
     const isView = mode === 'view'
     const isEdit = mode === 'edit'
 
-    const { clause, isLoading: clauseisLoading } = useClauseDetail(id)
-    console.log(clause, 'clause')
-
+    const { clause, isLoading: isClauseLoading } = useClauseDetail(id)
     const { standard, isLoading } = useStandardDetail(id)
     const { categoryList } = useCategoryList()
     const { documentList } = useDocumentList()
     const discard = useDiscardConfirm()
 
-    const defaultValues = useMemo(() => clause ?? EMPTY_VALUES, [clause])
+    const defaultValues = useMemo(() => {
+        if (!standard) {
+            return {
+                standard_id: '',
+                standard_clauses: [],
+            }
+        }
+
+        if (clause) {
+            const flatClauses = flattenClauses(clause.clauses)
+            console.log(flatClauses, 'flatClauses')
+
+            return {
+                standard_id: clause.id,
+                standard_clauses: flatClauses.map((c: any) => ({
+                    clause_id: c.id,
+                    clause_parent_id: c.parent_id,
+                    notes: c.note_message ?? '',
+                    clause_documents_tagging:
+                        c.documents?.length > 0
+                            ? c.documents.map((doc: any) => ({
+                                  category_id: doc.category_id ?? '',
+                                  documents: {
+                                      id: doc.id ?? '',
+                                      version_id: doc.current_version?.id ?? '',
+                                      label: doc.name ?? '',
+                                  },
+                              }))
+                            : [
+                                  {
+                                      category_id: '',
+                                      documents: {
+                                          id: '',
+                                          version_id: '',
+                                          label: '',
+                                      },
+                                  },
+                              ],
+                })),
+            }
+        }
+
+        // ➕ CREATE MODE
+        return {
+            standard_id: standard.id,
+            standard_clauses: flattenClauses(standard.clauses).map(
+                (c: any) => ({
+                    clause_id: c.id,
+                    clause_parent_id: c.parent_id,
+                    notes: '',
+                    clause_documents_tagging: [
+                        {
+                            category_id: '',
+                            documents: {
+                                id: '',
+                                version_id: '',
+                                label: '',
+                            },
+                        },
+                    ],
+                }),
+            ),
+        }
+    }, [clause, standard])
 
     const { save } = useEntityMutations<ClausesFormSchema>({
         apiCreate: apiCreateClauses,
@@ -45,7 +106,7 @@ const ClausesAddEdit = () => {
     const { handleSubmit, isSubmitting } = useFormSubmit<ClausesFormSchema>({
         apiCall: (values) =>
             save({ ...values, ...(isEdit && id ? { id } : {}) }),
-        navigateTo: endpointConfig.setting.clauses.list,
+        navigateTo: endpointConfig.setting.standard.list,
     })
 
     const confirmDiscard = () => {
@@ -57,22 +118,21 @@ const ClausesAddEdit = () => {
         navigate(endpointConfig.setting.clauses.list)
     }
 
-    if (isLoading) {
-        return <p className="p-4">Loading clauses data...</p>
+    if (isLoading || isClauseLoading) {
+        return <p className="p-4">Loading clause data…</p>
     }
-    if (clauseisLoading) {
-        return <p className="p-4">Loading clauses data...</p>
-    }
+
+    if (!standard) return null
 
     return (
         <>
             <ClausesForm
                 defaultValues={defaultValues}
                 readOnly={isView}
-                standardDetail={standard}
+                standard={standard}
                 categoryList={categoryList}
                 documentList={documentList}
-                onFormSubmit={handleSubmit}
+                onSubmit={handleSubmit}
             >
                 <BottomPanel
                     isView={isView}
@@ -81,6 +141,7 @@ const ClausesAddEdit = () => {
                     onDiscard={discard.show}
                 />
             </ClausesForm>
+
             <ConfirmDialog
                 isOpen={discard.open}
                 type="danger"

@@ -10,7 +10,7 @@ export const useClauseDetail = (id?: string) => {
     )
 
     return {
-        clause: swr?.data as undefined,
+        clause: swr?.data,
         isLoading: swr.isLoading,
         error: swr.error,
         mutate: swr.mutate,

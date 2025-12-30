@@ -9,9 +9,9 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm, FormProvider } from 'react-hook-form'
 import type { CommonProps } from '@/@types/common'
 import LocationsSection from './LocationsSection'
-import useInstrumentList from '../../instrument/List/hooks/useList'
 import ClauseTree from './ClauseTree'
 import { labSchema, LabFormSchema } from '@/schemas/lab.schema'
+import { useStandardClauseList } from '../../instrument/List/hooks/useSTDClause'
 
 type LabFormProps = {
     onFormSubmit: (values: LabFormSchema) => void
@@ -41,7 +41,7 @@ const LabForm = ({
         resolver: zodResolver(labSchema),
     })
 
-    const { clauseLIst, clauseLoadfing } = useInstrumentList()
+    const { ClauseDocumentList, isLoading } = useStandardClauseList('current')
     const [selectedClauses, setSelectedClauses] = useState<string[]>([])
 
     const {
@@ -58,16 +58,25 @@ const LabForm = ({
         }
     }, [defaultValues])
 
+    useEffect(() => {
+        if (!isEmpty(defaultValues)) {
+            reset(defaultValues)
+            if (defaultValues.selectedClauses) {
+                setSelectedClauses(defaultValues.selectedClauses)
+            }
+        }
+    }, [defaultValues])
+
     const onSubmit = (values: LabFormSchema) => {
         const payload = {
             ...values,
             selectedClauses,
-            standard_id: clauseLIst.id, // Or pick dynamically if multiple standards
+            standard_id: ClauseDocumentList.id, // Or pick dynamically if multiple standards
         }
         onFormSubmit?.(payload)
     }
 
-    if (clauseLoadfing) {
+    if (isLoading) {
         return <>loading.....</>
     }
 
@@ -98,7 +107,8 @@ const LabForm = ({
                                 instrumentList={instrumentList}
                             />
                             <ClauseTree
-                                data={clauseLIst.clauses}
+                                data={ClauseDocumentList.clauses}
+                                selectedItems={selectedClauses} // optional if you want controlled selection
                                 onSelectionChange={(selected) =>
                                     setSelectedClauses(selected)
                                 }
