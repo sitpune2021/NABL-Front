@@ -1,5 +1,5 @@
+import { Search } from '@/components/form'
 import useUserList from '../hooks/useList'
-import UserListSearch from './ListSearch'
 import UserListTableFilter from './ListTableFilter'
 import cloneDeep from 'lodash/cloneDeep'
 
@@ -21,7 +21,7 @@ const UserListTableTools = () => {
 
     return (
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2">
-            <UserListSearch onInputChange={handleInputChange} />
+            <Search onInputChange={handleInputChange} />
             <UserListTableFilter />
         </div>
     )

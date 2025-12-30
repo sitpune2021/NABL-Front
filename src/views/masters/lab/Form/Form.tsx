@@ -61,8 +61,8 @@ const LabForm = ({
     useEffect(() => {
         if (!isEmpty(defaultValues)) {
             reset(defaultValues)
-            if (defaultValues.selectedClauses) {
-                setSelectedClauses(defaultValues.selectedClauses)
+            if ((defaultValues as any).selectedClauses) {
+                setSelectedClauses((defaultValues as any).selectedClauses)
             }
         }
     }, [defaultValues])
