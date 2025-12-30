@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Fields, GetInstrumentDetailResponse } from '@/@types/instrument'
 import ApiService from './ApiService'
 
@@ -12,14 +13,10 @@ export async function apiGetInstrumentList<
     })
 }
 
-export async function apiGetClauseDocumentsList<
-    T,
-    U extends Record<string, unknown>,
->(params: U) {
-    return ApiService.fetchDataWithAxios<T>({
-        url: '/standards/current',
+export async function apiGetClauseDocumentsList(mode: string) {
+    return ApiService.fetchDataWithAxios<any>({
+        url: `/standards/${mode}`,
         method: 'get',
-        params,
     })
 }
 

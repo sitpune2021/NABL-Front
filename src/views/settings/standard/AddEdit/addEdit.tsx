@@ -42,7 +42,7 @@ const AddEdit = () => {
         onSuccess: (response) => {
             navigate(
                 `${endpointConfig.setting.clauses.create}/${
-                    isEdit ? id : response.data.id
+                    isEdit ? id : response.id
                 }`,
             )
         },
@@ -54,7 +54,7 @@ const AddEdit = () => {
             { placement: 'top-center' },
         )
         discard.close()
-        navigate(`${endpointConfig.master.subcategory.list}`)
+        navigate(`${endpointConfig.setting.standard.list}`)
     }
 
     return (

@@ -21,7 +21,7 @@ export type Clause = {
     note: boolean
     is_child: boolean
     numbering_type: 'numerical' | 'dot' | string
-    numberingValue: string
+    numbering_value: string
     sortOrder: number
     createdAt: string
     updatedAt: string

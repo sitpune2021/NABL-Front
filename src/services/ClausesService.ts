@@ -19,8 +19,8 @@ export async function apiGetClausesDataList<T>() {
     })
 }
 
-export async function apiCreateClauses(data: Fields) {
-    return ApiService.fetchDataWithAxios<Fields>({
+export async function apiCreateClauses(data: any) {
+    return ApiService.fetchDataWithAxios<any>({
         url: '/clauses',
         method: 'post',
         data,
@@ -49,8 +49,8 @@ export async function apiGetClausesById(id: string) {
     })
 }
 
-export async function apiUpdateClauses(id: string, data: Fields) {
-    return ApiService.fetchDataWithAxios<Fields>({
+export async function apiUpdateClauses(id: string, data: any) {
+    return ApiService.fetchDataWithAxios<any>({
         url: `/clauses/${id}`,
         method: 'put',
         data,

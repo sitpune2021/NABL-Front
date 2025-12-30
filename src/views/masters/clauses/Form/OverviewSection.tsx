@@ -1,6 +1,11 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useState, useMemo } from 'react'
-import { Controller, useFieldArray, useWatch } from 'react-hook-form'
+import { useMemo, useState, Fragment } from 'react'
+import {
+    Controller,
+    useFieldArray,
+    useFormContext,
+    useWatch,
+} from 'react-hook-form'
 import Card from '@/components/ui/Card'
 import { FormItem } from '@/components/ui/Form'
 import Input from '@/components/ui/Input'
@@ -10,33 +15,49 @@ import Menu from '@/components/ui/Menu'
 import { HiPlus } from 'react-icons/hi'
 import { TbTrash } from 'react-icons/tb'
 import { OverviewSectionProps } from '@/@types/clauses'
+import { ClausesFormSchema } from '@/schemas/clauses.schema'
+
+type DocumentOption = {
+    value: string
+    label: string
+    category_id: string
+    document: any
+}
 
 const OverviewSection = ({
-    control,
     readOnly,
     accordionData,
     categoryList,
     documentList,
+    standardId,
 }: OverviewSectionProps) => {
-    const documentOptions = useMemo(
+    const {
+        control,
+        register,
+        setValue,
+        formState: { errors },
+    } = useFormContext<ClausesFormSchema>()
+    console.log(errors)
+
+    const documentOptions = useMemo<DocumentOption[]>(
         () =>
-            documentList.map((document) => ({
-                value: document.id,
-                label: document.name,
-                fullDocument: document,
-                category_id: document.category_id,
+            documentList.map((doc: any) => ({
+                value: doc.id,
+                label: doc.name,
+                category_id: doc.category_id,
+                document: doc,
             })),
         [documentList],
     )
 
     const documentsByCategory = useMemo(() => {
-        return documentOptions.reduce(
-            (acc: any, doc: any) => {
-                if (!acc[doc.category_id]) acc[doc.category_id] = []
+        return documentOptions.reduce<Record<string, DocumentOption[]>>(
+            (acc, doc) => {
+                acc[doc.category_id] ??= []
                 acc[doc.category_id].push(doc)
                 return acc
             },
-            {} as Record<string, typeof documentOptions>,
+            {},
         )
     }, [documentOptions])
 
@@ -49,36 +70,22 @@ const OverviewSection = ({
         [categoryList],
     )
 
-    const [expandedItems, setExpandedItems] = useState<Set<number>>(new Set())
+    const [expanded, setExpanded] = useState<Set<string>>(new Set())
 
-    const handleToggle = (expanded: boolean, e: any) => {
-        const id = Number((e.currentTarget as any)?.dataset?.id)
-        if (!id) return
-        setExpandedItems((prev) => {
-            const set = new Set(prev)
-            expanded ? set.add(id) : set.delete(id)
-            return set
+    const toggleAccordion = (isOpen: boolean, e: React.SyntheticEvent) => {
+        const id = String((e.currentTarget as HTMLElement).dataset.id)
+        setExpanded((prev) => {
+            const next = new Set(prev)
+            isOpen ? next.add(id) : next.delete(id)
+            return next
         })
     }
 
-    const isExpanded = (id: number) => expandedItems.has(id)
-
-    const ClauseItem = ({ clauseIndex }: { clauseIndex: number }) => {
+    const ClauseDocuments = ({ clauseIndex }: { clauseIndex: number }) => {
         const { fields, append, remove } = useFieldArray({
             control,
             name: `standard_clauses.${clauseIndex}.clause_documents_tagging`,
         })
-
-        const displayFields =
-            fields.length > 0
-                ? fields
-                : [
-                      {
-                          id: 'default',
-                          category_id: '',
-                          documents: { id: '', version_id: '', label: '' },
-                      },
-                  ]
 
         return (
             <>
@@ -99,9 +106,9 @@ const OverviewSection = ({
                     )}
                 />
 
-                {/* Documents */}
                 <div className="flex justify-between items-center mt-4">
-                    <h4>Assigning Documents To The Clause</h4>
+                    <h4>Assign Documents</h4>
+
                     {!readOnly && (
                         <Button
                             type="button"
@@ -123,24 +130,22 @@ const OverviewSection = ({
                     )}
                 </div>
 
-                <div className="grid gap-3 mt-4">
-                    {displayFields.map((item, index) => {
-                        const isRemovable = index > 0 && fields.length > 0
-
+                <div className="grid gap-4 mt-4">
+                    {fields.map((field, index) => {
                         const selectedCategoryId = useWatch({
                             control,
                             name: `standard_clauses.${clauseIndex}.clause_documents_tagging.${index}.category_id`,
                         })
 
-                        const filteredDocuments = selectedCategoryId
-                            ? documentsByCategory[selectedCategoryId] || []
-                            : []
+                        const availableDocs =
+                            documentsByCategory[selectedCategoryId] ?? []
 
                         return (
                             <div
-                                key={item.id}
+                                key={field.id}
                                 className="grid grid-cols-4 gap-3 items-end"
                             >
+                                {/* Category */}
                                 <FormItem label="Category">
                                     <Controller
                                         name={`standard_clauses.${clauseIndex}.clause_documents_tagging.${index}.category_id`}
@@ -149,21 +154,18 @@ const OverviewSection = ({
                                             <Select
                                                 options={categoryOptions}
                                                 isDisabled={readOnly}
-                                                value={
-                                                    categoryOptions.find(
-                                                        (opt) =>
-                                                            opt.value ===
-                                                            field.value,
-                                                    ) || null
-                                                }
+                                                value={categoryOptions.find(
+                                                    (opt: any) =>
+                                                        opt.value ===
+                                                        field.value,
+                                                )}
                                                 menuPortalTarget={document.body}
-                                                onChange={(selected) => {
+                                                onChange={(option: any) => {
                                                     field.onChange(
-                                                        selected?.value || '',
+                                                        option?.value ?? '',
                                                     )
-                                                    const docFieldName = `standard_clauses.${clauseIndex}.clause_documents_tagging.${index}.documents`
-                                                    control.setValue(
-                                                        docFieldName,
+                                                    setValue(
+                                                        `standard_clauses.${clauseIndex}.clause_documents_tagging.${index}.documents`,
                                                         {
                                                             id: '',
                                                             version_id: '',
@@ -176,13 +178,14 @@ const OverviewSection = ({
                                     />
                                 </FormItem>
 
-                                <FormItem label="Documents">
+                                {/* Document */}
+                                <FormItem label="Document">
                                     <Controller
                                         name={`standard_clauses.${clauseIndex}.clause_documents_tagging.${index}.documents`}
                                         control={control}
                                         render={({ field }) => (
                                             <Select
-                                                options={filteredDocuments}
+                                                options={availableDocs}
                                                 value={
                                                     field.value?.id
                                                         ? {
@@ -198,43 +201,37 @@ const OverviewSection = ({
                                                     readOnly ||
                                                     !selectedCategoryId
                                                 }
-                                                onChange={(selected) => {
-                                                    if (
-                                                        selected?.fullDocument
-                                                    ) {
-                                                        const doc =
-                                                            selected.fullDocument
-                                                        field.onChange({
-                                                            id: doc.id || '',
-                                                            version_id:
-                                                                doc
-                                                                    .current_version
-                                                                    ?.id || '',
-                                                            label: doc.name,
-                                                        })
-                                                    } else {
-                                                        field.onChange({
-                                                            id: '',
-                                                            version_id: '',
-                                                            label: '',
-                                                        })
-                                                    }
+                                                onChange={(option: any) => {
+                                                    const doc = option?.document
+                                                    field.onChange(
+                                                        doc
+                                                            ? {
+                                                                  id: doc.id,
+                                                                  version_id:
+                                                                      doc
+                                                                          .current_version
+                                                                          ?.id ??
+                                                                      '',
+                                                                  label: doc.name,
+                                                              }
+                                                            : {
+                                                                  id: '',
+                                                                  version_id:
+                                                                      '',
+                                                                  label: '',
+                                                              },
+                                                    )
                                                 }}
                                             />
                                         )}
                                     />
                                 </FormItem>
 
-                                {/* Frequency */}
                                 <FormItem label="Frequency">
-                                    <Input
-                                        readOnly
-                                        placeholder="Auto Frequency"
-                                    />
+                                    <Input readOnly placeholder="Auto" />
                                 </FormItem>
 
-                                {/* Remove Button */}
-                                {!readOnly && isRemovable && (
+                                {!readOnly && index > 0 && (
                                     <Button
                                         type="button"
                                         variant="solid"
@@ -252,58 +249,67 @@ const OverviewSection = ({
         )
     }
 
-    // Global index counter for all clauses
-    let globalClauseIndex = 0
-
-    const renderAccordion = (items: any[]): any => {
-        return items.map((item) => {
-            const clauseIndex = globalClauseIndex
-            globalClauseIndex++
-
-            const label = item.numbering_value
-                ? `${item.numbering_value} ${item.title}`
-                : item.title
+    const renderClauses = (
+        clauses: any[],
+        clauseIndexRef: { current: number },
+    ) =>
+        clauses.map((clause) => {
+            const clauseIndex = clauseIndexRef.current++
 
             return (
-                <Menu.MenuCollapse
-                    key={item.id}
-                    eventKey={item.id}
-                    expanded={isExpanded(item.id)}
-                    label={label}
-                    data-id={item.id}
-                    onToggle={handleToggle}
-                >
-                    <div className="bg-blue-50 border border-blue-200 p-4 mt-4 rounded-lg">
-                        <p className="text-blue-800 text-sm leading-relaxed whitespace-pre-line">
-                            {item.message}
-                        </p>
-                    </div>
+                <Fragment key={clause.id}>
+                    <Menu.MenuCollapse
+                        data-id={clause.id}
+                        eventKey={clause.id}
+                        expanded={expanded.has(clause.id)}
+                        label={
+                            clause.numbering_value
+                                ? `${clause.numbering_value} ${clause.title}`
+                                : clause.title
+                        }
+                        onToggle={toggleAccordion}
+                    >
+                        <div className="bg-blue-50 border border-blue-200 p-4 mt-4 rounded-lg">
+                            <p className="text-blue-800 text-sm leading-relaxed whitespace-pre-line">
+                                {clause.message}
+                            </p>
+                        </div>
 
-                    <Controller
-                        name={`standard_clauses.${clauseIndex}.clause_id`}
-                        control={control}
-                        defaultValue={item.id}
-                        render={() => null}
-                    />
-                    <Controller
-                        name={`standard_clauses.${clauseIndex}.clause_parent_id`}
-                        control={control}
-                        defaultValue={item.parent_id}
-                        render={() => null}
-                    />
+                        <input
+                            type="hidden"
+                            {...register(
+                                `standard_clauses.${clauseIndex}.clause_id`,
+                            )}
+                            value={clause.id}
+                        />
 
-                    <ClauseItem clauseIndex={clauseIndex} />
+                        <input
+                            type="hidden"
+                            {...register(
+                                `standard_clauses.${clauseIndex}.clause_parent_id`,
+                            )}
+                            value={clause.parent_id ?? ''}
+                        />
 
-                    {item.children?.length > 0 &&
-                        renderAccordion(item.children)}
-                </Menu.MenuCollapse>
+                        <ClauseDocuments clauseIndex={clauseIndex} />
+
+                        {clause.children?.length > 0 &&
+                            renderClauses(clause.children, clauseIndexRef)}
+                    </Menu.MenuCollapse>
+                </Fragment>
             )
         })
-    }
 
     return (
         <Card>
-            <Menu>{renderAccordion(accordionData)}</Menu>
+            <Menu>
+                <input
+                    type="hidden"
+                    {...register(`standard_id`)}
+                    value={standardId}
+                />
+                {renderClauses(accordionData, { current: 0 })}
+            </Menu>
         </Card>
     )
 }

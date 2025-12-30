@@ -13,7 +13,7 @@ export const standardItemSchema: z.ZodType<any> = z.lazy(() =>
                 .min(0, { message: 'Count must be 0 or greater' }),
             children: z.array(standardItemSchema).optional(),
             numbering_type: z.union([z.number(), z.string()]),
-            numberingValue: z.union([z.number(), z.string()]),
+            numbering_value: z.union([z.number(), z.string()]),
         })
         .superRefine((data, ctx) => {
             if (

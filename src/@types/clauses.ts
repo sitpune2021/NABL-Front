@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { TableQueries } from './common'
-import type { Control, FieldErrors } from 'react-hook-form'
 import { Document } from './document'
 import { Category } from './category'
 
@@ -74,8 +73,6 @@ export type TagsFields = {
 export type ClausesFormSchema = Fields
 
 export type FormSectionBaseProps = {
-    control: Control<ClausesFormSchema>
-    errors: FieldErrors<ClausesFormSchema>
     readOnly?: boolean
 }
 
@@ -83,4 +80,6 @@ export type OverviewSectionProps = FormSectionBaseProps & {
     accordionData: any[]
     documentList: Document[]
     categoryList: Category[]
+    loading?: any
+    standardId?: number | string
 }

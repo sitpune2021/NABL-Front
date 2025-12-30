@@ -1,5 +1,5 @@
 import { Card } from '@/components/ui'
-import React, { useState } from 'react'
+import React from 'react'
 
 interface DocumentType {
     id: number
@@ -78,37 +78,44 @@ const ClauseItem: React.FC<{
 
 interface ClauseTreeProps {
     data: ClauseType[]
+    selectedItems: string[] // <-- controlled selection
     onSelectionChange?: (selected: string[]) => void // callback for parent
+    readOnly?: boolean // optional
 }
 
-const ClauseTree: React.FC<ClauseTreeProps> = ({ data, onSelectionChange }) => {
-    const [selectedItems, setSelectedItems] = useState<string[]>([])
-
+const ClauseTree: React.FC<ClauseTreeProps> = ({
+    data,
+    selectedItems,
+    onSelectionChange,
+    readOnly = false,
+}) => {
     const handleToggle = (id: string, clause?: ClauseType) => {
-        setSelectedItems((prev) => {
-            let newSelected: string[]
-            if (prev.includes(id)) {
-                if (clause) {
-                    const allIds = getAllDescendantIds(clause)
-                    newSelected = prev.filter((item) => !allIds.includes(item))
-                } else {
-                    newSelected = prev.filter((item) => item !== id)
-                }
-            } else {
-                if (clause) {
-                    const allIds = getAllDescendantIds(clause)
-                    newSelected = [
-                        ...prev,
-                        ...allIds.filter((i) => !prev.includes(i)),
-                    ]
-                } else {
-                    newSelected = [...prev, id]
-                }
-            }
+        if (readOnly) return // prevent changes in read-only mode
 
-            onSelectionChange?.(newSelected)
-            return newSelected
-        })
+        let newSelected: string[] = []
+
+        if (selectedItems.includes(id)) {
+            if (clause) {
+                const allIds = getAllDescendantIds(clause)
+                newSelected = selectedItems.filter(
+                    (item) => !allIds.includes(item),
+                )
+            } else {
+                newSelected = selectedItems.filter((item) => item !== id)
+            }
+        } else {
+            if (clause) {
+                const allIds = getAllDescendantIds(clause)
+                newSelected = [
+                    ...selectedItems,
+                    ...allIds.filter((i) => !selectedItems.includes(i)),
+                ]
+            } else {
+                newSelected = [...selectedItems, id]
+            }
+        }
+
+        onSelectionChange?.(newSelected)
     }
 
     return (
