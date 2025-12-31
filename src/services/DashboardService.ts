@@ -6,24 +6,3 @@ export async function apiGetEcommerceDashboard<T>() {
         method: 'get',
     })
 }
-
-export async function apiGetProjectDashboard<T>() {
-    return ApiService.fetchDataWithAxios<T>({
-        url: '/api/dashboard/project',
-        method: 'get',
-    })
-}
-
-export async function apiGetAnalyticDashboard<T>() {
-    return ApiService.fetchDataWithAxios<T>({
-        url: '/api/dashboard/analytic',
-        method: 'get',
-    })
-}
-
-export async function apiGetMarketingDashboard<T>() {
-    return ApiService.fetchDataWithAxios<T>({
-        url: '/api/dashboard/marketing',
-        method: 'get',
-    })
-}

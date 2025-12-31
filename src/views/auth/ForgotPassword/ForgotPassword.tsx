@@ -5,13 +5,14 @@ import ActionLink from '@/components/shared/ActionLink'
 import ForgotPasswordForm from './components/ForgotPasswordForm'
 import useTimeOutMessage from '@/utils/hooks/useTimeOutMessage'
 import { useNavigate } from 'react-router'
+import endpointConfig from '@/configs/endpoint.config'
 
 type ForgotPasswordProps = {
     signInUrl?: string
 }
 
 export const ForgotPasswordBase = ({
-    signInUrl = '/sign-in',
+    signInUrl = endpointConfig.signIn,
 }: ForgotPasswordProps) => {
     const [emailSent, setEmailSent] = useState(false)
     const [message, setMessage] = useTimeOutMessage()

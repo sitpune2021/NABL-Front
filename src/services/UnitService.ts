@@ -1,11 +1,12 @@
 import { Fields, GetUnitDetailResponse } from '@/@types/unit'
 import ApiService from './ApiService'
+import apiEndpointConfig from '@/configs/api-endpoint.config'
 
 export async function apiGetUnitList<T, U extends Record<string, unknown>>(
     params: U,
 ) {
     return ApiService.fetchDataWithAxios<T>({
-        url: '/unit',
+        url: apiEndpointConfig.units,
         method: 'get',
         params,
     })
@@ -13,7 +14,7 @@ export async function apiGetUnitList<T, U extends Record<string, unknown>>(
 
 export async function apiUnit(data: Fields) {
     return ApiService.fetchDataWithAxios<GetUnitDetailResponse>({
-        url: '/unit',
+        url: apiEndpointConfig.units,
         method: 'post',
         data,
     })
@@ -21,14 +22,14 @@ export async function apiUnit(data: Fields) {
 
 export async function apiGetUnitById(id: string) {
     return ApiService.fetchDataWithAxios<GetUnitDetailResponse>({
-        url: `/unit/${id}`,
+        url: `${apiEndpointConfig.units}/${id}`,
         method: 'get',
     })
 }
 
 export async function apiUpdateUnit(id: string, data: Fields) {
     return ApiService.fetchDataWithAxios<GetUnitDetailResponse>({
-        url: `/unit/${id}`,
+        url: `${apiEndpointConfig.units}/${id}`,
         method: 'put',
         data,
     })

@@ -18,7 +18,7 @@ import { useSessionUser } from '@/store/authStore'
 import { useParams } from 'react-router'
 import { useFormSubmit } from '@/utils/hoc/useFormSubmit'
 import { useEntityMutations } from '@/utils/hooks/useEntityMutations'
-import { apiDataEntry } from '@/services/ClausesService'
+import { apiDataEntry } from '@/services/DataEntryService'
 import endpointConfig from '@/configs/endpoint.config'
 import { useDocumentDetail } from '../List/hooks/useDetail'
 

@@ -4,11 +4,8 @@ import {
     SETTING_PREFIX_PATH,
 } from '@/constants/route.constant'
 
-export const apiPrefix = '/api'
-
 const endpointConfig = {
     signIn: '/sign-in',
-    signOut: '/sign-out',
     signUp: '/sign-up',
     forgotPassword: '/forgot-password',
     resetPassword: '/reset-password',

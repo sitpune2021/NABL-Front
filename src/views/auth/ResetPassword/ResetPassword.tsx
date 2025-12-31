@@ -5,13 +5,14 @@ import ActionLink from '@/components/shared/ActionLink'
 import ResetPasswordForm from './components/ResetPasswordForm'
 import useTimeOutMessage from '@/utils/hooks/useTimeOutMessage'
 import { useNavigate } from 'react-router'
+import endpointConfig from '@/configs/endpoint.config'
 
 type ResetPasswordProps = {
     signInUrl?: string
 }
 
 export const ResetPasswordBase = ({
-    signInUrl = '/sign-in',
+    signInUrl = endpointConfig.signIn,
 }: ResetPasswordProps) => {
     const [resetComplete, setResetComplete] = useState(false)
 
