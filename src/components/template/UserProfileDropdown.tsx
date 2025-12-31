@@ -11,6 +11,7 @@ import {
 } from 'react-icons/pi'
 import { useAuth } from '@/auth'
 import type { JSX } from 'react'
+import endpointConfig from '@/configs/endpoint.config'
 
 type DropdownList = {
     label: string
@@ -21,12 +22,12 @@ type DropdownList = {
 const dropdownItemList: DropdownList[] = [
     {
         label: 'Profile',
-        path: '/concepts/account/settings',
+        path: `${endpointConfig.setting.account.profile}`,
         icon: <PiUserDuotone />,
     },
     {
         label: 'Account Setting',
-        path: '/concepts/account/settings',
+        path: `${endpointConfig.setting.account.profile}`,
         icon: <PiGearDuotone />,
     },
     {

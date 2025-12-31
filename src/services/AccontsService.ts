@@ -2,8 +2,16 @@ import ApiService from './ApiService'
 
 export async function apiGetSettingsProfile<T>() {
     return ApiService.fetchDataWithAxios<T>({
-        url: '/setting/profile',
+        url: '/profile/me',
         method: 'get',
+    })
+}
+
+export async function apiUpdateSettingsProfile<T, U>(data: U) {
+    return ApiService.fetchDataWithAxios<T>({
+        url: '/profile/update',
+        method: 'put',
+        data,
     })
 }
 

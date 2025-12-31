@@ -19,7 +19,7 @@ const appConfig: AppConfig = {
     accessTokenPersistStrategy: 'cookies',
     enableMock: true,
     activeNavTranslation: false,
-    enableNav: false,
+    enableNav: true,
 }
 
 export default appConfig

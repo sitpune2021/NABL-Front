@@ -114,6 +114,12 @@ const endpointConfig = {
             edit: `${SETTING_PREFIX_PATH}/standard/edit/:id`,
             view: `${SETTING_PREFIX_PATH}/standard/view/:id`,
         },
+        account: {
+            profile: `${SETTING_PREFIX_PATH}/account/profile`,
+            security: `${SETTING_PREFIX_PATH}/account/security`,
+            notification: `${SETTING_PREFIX_PATH}/account/notification`,
+            integration: `${SETTING_PREFIX_PATH}/account/integration`,
+        },
     },
 }
 

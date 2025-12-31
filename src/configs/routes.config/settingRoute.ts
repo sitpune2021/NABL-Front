@@ -82,6 +82,16 @@ const settingRoute: Routes = [
             pageBackgroundType: 'plain',
         },
     },
+    {
+        key: 'settings.account',
+        path: `${endpointConfig.setting.account.profile}`,
+        component: lazy(() => import('@/views/settings/account/Settings')),
+        authority: [],
+        meta: {
+            pageContainerType: 'contained',
+            pageBackgroundType: 'plain',
+        },
+    },
 ]
 
 export default settingRoute
