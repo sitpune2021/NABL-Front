@@ -26,7 +26,7 @@ const createDefaultStandard = (depth = 0) => ({
     is_child: false,
     children_count: 0,
     children: [],
-    numberingValue: '',
+    numbering_value: '',
     numbering_type: 'none',
     depth,
 })

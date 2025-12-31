@@ -69,9 +69,9 @@ const StandardCard = ({
         <Card key={standard.id} className="mt-3">
             {!readOnly && (
                 <Controller
-                    name={`${path}.numberingValue`}
+                    name={`${path}.numbering_value`}
                     control={control}
-                    defaultValue={standard.numberingValue || ''}
+                    defaultValue={standard.numbering_value || ''}
                     render={({ field }) => {
                         if (field.value !== numberingValue) {
                             field.onChange(numberingValue)

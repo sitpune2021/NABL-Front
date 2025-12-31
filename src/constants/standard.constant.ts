@@ -8,7 +8,7 @@ const EMPTY_STANDARD_ITEM = {
     is_child: false,
     children_count: 0,
     children: [],
-    numberingValue: '',
+    numbering_value: '',
     numbering_type: 'none',
 }
 
@@ -28,7 +28,7 @@ export const createStandard = (depth: number) => ({
     is_child: false,
     children_count: 0,
     children: [],
-    numberingValue: '',
+    numbering_value: '',
     numbering_type: 'none',
     depth,
 })
