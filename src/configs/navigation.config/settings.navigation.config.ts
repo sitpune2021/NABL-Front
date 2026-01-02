@@ -64,6 +64,23 @@ const settingNavigationConfig: NavigationTree[] = [
                 },
                 subMenu: [],
             },
+
+            {
+                key: 'settings.account',
+                path: `${endpointConfig.setting.account.profile}`,
+                title: 'Account',
+                translateKey: 'nav.settingsAccount',
+                icon: 'account',
+                type: NAV_ITEM_TYPE_ITEM,
+                authority: [],
+                meta: {
+                    description: {
+                        translateKey: 'nav.settingsAccount.listDesc',
+                        label: 'Manage profile and security',
+                    },
+                },
+                subMenu: [],
+            },
         ],
     },
 ]
