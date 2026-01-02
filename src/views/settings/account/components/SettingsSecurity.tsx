@@ -25,12 +25,6 @@ const authenticatorList = [
         desc: 'Using Google Authenticator app generates time-sensitive codes for secure logins.',
     },
     {
-        label: 'Okta Verify',
-        value: 'oktaVerify',
-        img: '/img/others/okta.png',
-        desc: 'Receive push notifications from Okta Verify app on your phone for quick login approval.',
-    },
-    {
         label: 'E Mail verification',
         value: 'emailVerification',
         img: '/img/others/email.png',

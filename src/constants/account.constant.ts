@@ -8,6 +8,8 @@ export const EMPTY_VALUES: ProfileFormSchema = {
     phone: '',
     address: '',
     profileImage: '',
+    signature: '',
+    location: [],
     userRoles: [],
 }
 

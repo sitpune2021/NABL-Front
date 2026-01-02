@@ -1,23 +1,24 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
+import { useForm, FormProvider } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import useSWR from 'swr'
 import { Form } from '@/components/ui/Form'
 import Button from '@/components/ui/Button'
 import BottomStickyBar from '@/components/template/BottomStickyBar'
-import ProfileOverview from './ProfileOverview'
+import toast from '@/components/ui/toast'
+import Notification from '@/components/ui/Notification'
+import SettingsLocationSection from './SettingsLocationSection'
+import { useApiError } from '@/utils/hoc/useApiError'
+
 import {
     apiGetSettingsProfile,
     apiUpdateSettingsProfile,
 } from '@/services/AccontsService'
-import useSWR from 'swr'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { useForm, FormProvider } from 'react-hook-form'
-import toast from '@/components/ui/toast'
-import Notification from '@/components/ui/Notification'
-import { profileSchema, type ProfileFormSchema } from '@/schemas/account.schema'
+import { profileSchema, ProfileFormSchema } from '@/schemas/account.schema'
 import { EMPTY_VALUES, LIST_KEY } from '@/constants/account.constant'
-import { useApiError } from '@/utils/hoc/useApiError'
 
-const SettingsProfile = () => {
+const SettingsLocations = () => {
     const apiError = useApiError()
     const { data: profileData, mutate } = useSWR(
         LIST_KEY,
@@ -34,8 +35,17 @@ const SettingsProfile = () => {
     const {
         handleSubmit,
         reset,
-        formState: { isSubmitting },
+        control,
+        formState: { isSubmitting, errors },
     } = methods
+
+    const [lists] = useState({
+        zoneList: [],
+        clusterList: [],
+        locationList: [],
+        departmentList: [],
+        instrumentList: [],
+    })
 
     useEffect(() => {
         if (profileData?.data) {
@@ -66,7 +76,7 @@ const SettingsProfile = () => {
                 mutate()
                 toast.push(
                     <Notification title="Success" type="success">
-                        Profile updated!
+                        Locations updated successfully!
                     </Notification>,
                 )
             }
@@ -81,16 +91,29 @@ const SettingsProfile = () => {
                 className="h-full flex flex-col justify-between"
                 onSubmit={handleSubmit(onSubmit)}
             >
-                <ProfileOverview />
+                <div className="flex flex-col gap-6 p-2">
+                    <div className="mt-4">
+                        <SettingsLocationSection
+                            control={control}
+                            errors={errors}
+                            zoneList={lists.zoneList}
+                            clusterList={lists.clusterList}
+                            locationList={lists.locationList}
+                            departmentList={lists.departmentList}
+                            instrumentList={lists.instrumentList}
+                        />
+                    </div>
+                </div>
 
                 <BottomStickyBar>
                     <div className="flex items-center justify-end gap-2 p-4">
-                        <Button type="button" onClick={() => reset()}>
+                        <Button type="button" size="sm" onClick={() => reset()}>
                             Reset
                         </Button>
                         <Button
                             variant="solid"
                             type="submit"
+                            size="sm"
                             loading={isSubmitting}
                         >
                             Update
@@ -102,4 +125,4 @@ const SettingsProfile = () => {
     )
 }
 
-export default SettingsProfile
+export default SettingsLocations

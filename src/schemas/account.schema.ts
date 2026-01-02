@@ -32,11 +32,26 @@ export const profileSchema = z.object({
                             z.object({
                                 value: z.number(),
                                 label: z.string(),
-                                permissions: z.array(z.string()).optional(),
                             }),
                         ),
                     }),
                 ),
+            }),
+        )
+        .optional(),
+    location: z
+        .array(
+            z.object({
+                zone_name: z.any().optional(),
+                cluster_name: z.any().optional(),
+                location_name: z.any().optional(),
+                departments: z.array(z.any()).optional(),
+                prefix: z.string().optional(),
+                shortName: z.string().optional(),
+                emails: z.array(z.any()).optional(),
+                instruments: z.array(z.any()).optional(),
+                phones: z.array(z.any()).optional(),
+                address: z.string().optional(),
             }),
         )
         .optional(),

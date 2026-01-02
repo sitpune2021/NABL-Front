@@ -1,12 +1,11 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import type { Control, FieldErrors } from 'react-hook-form'
 
-export type View = 'profile' | 'security' | 'notification'
+export type View = 'profile' | 'security' | 'notification' | 'location'
 
 export type Department = {
     department_id?: number
     roles?: Array<{ value?: number; label?: string }>
-    permissions?: Record<string | number, Record<string, string[]>>
 }
 
 export type UserRole = {
@@ -44,4 +43,11 @@ export type ProfileSectionBaseProps = {
 
 export type GetSettingsProfileResponse = {
     data: ProfileFormSchema
+}
+
+export type GetSettingsNotificationResponse = {
+    email: string[]
+    desktop: boolean
+    unreadMessageBadge: boolean
+    notifymeAbout: string
 }
