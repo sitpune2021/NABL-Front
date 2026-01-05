@@ -1,5 +1,5 @@
+import { Search } from '@/components/form'
 import useClausesList from '../hooks/useList'
-import ClausesListSearch from './ListSearch'
 import ClausesListTableFilter from './ListTableFilter'
 import cloneDeep from 'lodash/cloneDeep'
 
@@ -21,7 +21,7 @@ const ClausesListTableTools = () => {
 
     return (
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2">
-            <ClausesListSearch onInputChange={handleInputChange} />
+            <Search onInputChange={handleInputChange} />
             <ClausesListTableFilter />
         </div>
     )

@@ -56,13 +56,14 @@ const DocumentListTable = () => {
         navigate(path)
     }
 
-    const handleEditorDetails = (document: Document) => {
-        const path = endpointConfig.master.document.editorEdit.replace(
-            ':id',
-            String(document.id),
-        )
-        navigate(path)
-    }
+    // const handleEditorDetails = (document: Document) => {
+    //     const path = endpointConfig.master.document.editorEdit.replace(
+    //         ':id',
+    //         String(document.id),
+    //     )
+    //     navigate(path)
+    // }
+
     const handleEntryDetails = (document: Document) => {
         const path = endpointConfig.master.document.dataEntryList.replace(
             ':id',
@@ -126,7 +127,10 @@ const DocumentListTable = () => {
                     </span>
                 ),
             },
-
+            {
+                header: 'Id',
+                accessorKey: 'mode',
+            },
             {
                 header: 'Action',
                 accessorKey: 'action',
@@ -134,36 +138,38 @@ const DocumentListTable = () => {
                 cell: (props) => (
                     <ActionColumn
                         buttons={[
-                            !lab
-                                ? {
-                                      icon: <TbEdit />,
-                                      tooltip: 'Edit',
-                                      onClick: () =>
-                                          handleEdit(props.row.original),
-                                  }
-                                : null,
+                            {
+                                icon: <TbEdit />,
+                                tooltip: 'Edit',
+                                onClick: () => handleEdit(props.row.original),
+                            },
+
                             {
                                 icon: <TbEye />,
                                 tooltip: 'View',
                                 onClick: () =>
                                     handleViewDetails(props.row.original),
                             },
-                            {
-                                icon: <TbFileText />,
-                                tooltip: 'Document View',
-                                onClick: () =>
-                                    handleEditorViewDetails(props.row.original),
-                            },
-                            !lab
+                            props.row.original.mode == 'create'
                                 ? {
-                                      icon: <TbFilePencil />,
-                                      tooltip: 'Document Edit',
+                                      icon: <TbFileText />,
+                                      tooltip: 'Document View',
                                       onClick: () =>
-                                          handleEditorDetails(
+                                          handleEditorViewDetails(
                                               props.row.original,
                                           ),
                                   }
                                 : null,
+                            // props.row.original.mode == 'create' ? !lab
+                            //     ? {
+                            //         icon: <TbFilePencil />,
+                            //         tooltip: 'Document Edit',
+                            //         onClick: () =>
+                            //             handleEditorDetails(
+                            //                 props.row.original,
+                            //             ),
+                            //     }
+                            //     : null : null,
                             lab
                                 ? {
                                       icon: <TbFilePencil />,

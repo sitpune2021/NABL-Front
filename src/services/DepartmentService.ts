@@ -1,6 +1,5 @@
-import { Fields } from '@/@types/department'
+import { Fields, GetDepartmentDetailResponse } from '@/@types/department'
 import ApiService from './ApiService'
-import { GetZoneDetailResponse } from '@/@types/zone'
 import apiEndpointConfig from '@/configs/api-endpoint.config'
 
 export async function apiGetDepartmentList<
@@ -15,7 +14,7 @@ export async function apiGetDepartmentList<
 }
 
 export async function apiDepartment(data: Fields) {
-    return ApiService.fetchDataWithAxios<Fields>({
+    return ApiService.fetchDataWithAxios<GetDepartmentDetailResponse>({
         url: apiEndpointConfig.departments,
         method: 'post',
         data,
@@ -23,14 +22,14 @@ export async function apiDepartment(data: Fields) {
 }
 
 export async function apiGetDepartmentById(id: string) {
-    return ApiService.fetchDataWithAxios<GetZoneDetailResponse>({
+    return ApiService.fetchDataWithAxios<GetDepartmentDetailResponse>({
         url: `${apiEndpointConfig.departments}/${id}`,
         method: 'get',
     })
 }
 
 export async function apiUpdateDepartment(id: string, data: Fields) {
-    return ApiService.fetchDataWithAxios<Fields>({
+    return ApiService.fetchDataWithAxios<GetDepartmentDetailResponse>({
         url: `${apiEndpointConfig.departments}/${id}`,
         method: 'put',
         data,

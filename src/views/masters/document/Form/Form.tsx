@@ -20,6 +20,7 @@ type DocumentFormProps = {
     readOnly?: boolean
     isEdit?: boolean
     isForEditor?: boolean
+    isForEditorView?: boolean
 }
 
 export default function DocumentForm({
@@ -28,6 +29,7 @@ export default function DocumentForm({
     readOnly = false,
     isEdit = false,
     isForEditor,
+    isForEditorView,
 }: DocumentFormProps) {
     const [step, setStep] = useState(0)
     const [showFrequencyPopup, setShowFrequencyPopup] = useState(false)
@@ -82,18 +84,20 @@ export default function DocumentForm({
         handleSubmit(onFormSubmit as any)()
     }
 
-    if (isForEditor && readOnly) {
+    if (isForEditor || isForEditorView) {
         return (
             <GrapesEditor
                 control={control}
                 errors={errors}
-                readOnly={readOnly}
+                readOnly={isForEditorView}
                 setValue={setValue}
                 isEdit={isEdit}
                 getTemplateById={getTemplateById}
             />
         )
     }
+
+    console.log(errors)
 
     return (
         <Form

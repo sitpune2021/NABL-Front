@@ -1,17 +1,18 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useState } from 'react'
-import { Form } from '@/components/ui/Form'
+import { Form, FormItem } from '@/components/ui/Form'
 import Container from '@/components/shared/Container'
 import BottomStickyBar from '@/components/template/BottomStickyBar'
 import OverviewSection from './OverviewSection'
 import isEmpty from 'lodash/isEmpty'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useForm, FormProvider } from 'react-hook-form'
+import { useForm, FormProvider, Controller } from 'react-hook-form'
 import type { CommonProps } from '@/@types/common'
 import LocationsSection from './LocationsSection'
 import ClauseTree from './ClauseTree'
 import { labSchema, LabFormSchema } from '@/schemas/lab.schema'
 import { useStandardClauseList } from '../../instrument/List/hooks/useSTDClause'
+import { Card, Select } from '@/components/ui'
 
 type LabFormProps = {
     onFormSubmit: (values: LabFormSchema) => void
@@ -23,6 +24,7 @@ type LabFormProps = {
     locationList: any[]
     departmentList: any[]
     instrumentList: any[]
+    documentList: any[]
 } & CommonProps
 
 const LabForm = ({
@@ -35,6 +37,7 @@ const LabForm = ({
     locationList,
     departmentList,
     instrumentList,
+    documentList,
 }: LabFormProps) => {
     const methods = useForm<LabFormSchema>({
         defaultValues,
@@ -113,6 +116,51 @@ const LabForm = ({
                                     setSelectedClauses(selected)
                                 }
                             />
+                            <Card>
+                                <FormItem
+                                    label="Documents"
+                                    invalid={!!errors.documents}
+                                    errorMessage={errors.documents?.message}
+                                >
+                                    <Controller
+                                        name={`documents`}
+                                        defaultValue={documentList.map(
+                                            (i) => i.id,
+                                        )} // <-- select all by default
+                                        control={control}
+                                        render={({ field }) => (
+                                            <Select
+                                                isMulti
+                                                placeholder="Select Documents"
+                                                options={documentList.map(
+                                                    (i) => ({
+                                                        label: i.name,
+                                                        value: i.id,
+                                                    }),
+                                                )}
+                                                value={documentList
+                                                    .map((i) => ({
+                                                        label: i.name,
+                                                        value: i.id,
+                                                    }))
+                                                    .filter((opt) =>
+                                                        field.value?.includes(
+                                                            opt.value,
+                                                        ),
+                                                    )}
+                                                isDisabled={readOnly}
+                                                onChange={(selected) =>
+                                                    field.onChange(
+                                                        selected?.map(
+                                                            (s) => s.value,
+                                                        ) || [],
+                                                    )
+                                                }
+                                            />
+                                        )}
+                                    />
+                                </FormItem>
+                            </Card>
                         </div>
                     </div>
                 </Container>

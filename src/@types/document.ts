@@ -312,9 +312,9 @@ export const documentFormSchema = z.object({
             current_version: z.string(),
         })
         .optional(),
-    copy_no: z.string().optional(),
+    copy_no: z.union([z.string(), z.number(), z.null()]).optional(),
     quantity_prepared: z
-        .union([z.string(), z.number()])
+        .union([z.string(), z.number(), z.null()])
         .optional()
         .refine((val) => !val || Number(val) >= 0, {
             message: 'Quantity must be a positive number',
