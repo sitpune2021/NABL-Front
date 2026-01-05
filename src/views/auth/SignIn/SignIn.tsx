@@ -7,6 +7,7 @@ import useTimeOutMessage from '@/utils/hooks/useTimeOutMessage'
 import { useThemeStore } from '@/store/themeStore'
 import appConfig from '@/configs/app.config'
 import { apiNavigationItems } from '@/services/NavigationItemsService'
+import endpointConfig from '@/configs/endpoint.config'
 
 type SignInProps = {
     signUpUrl?: string
@@ -15,8 +16,8 @@ type SignInProps = {
 }
 
 export const SignInBase = ({
-    signUpUrl = '/sign-up',
-    forgetPasswordUrl = '/forgot-password',
+    signUpUrl = endpointConfig.signUp,
+    forgetPasswordUrl = endpointConfig.forgotPassword,
     disableSubmit,
 }: SignInProps) => {
     const [message, setMessage] = useTimeOutMessage()

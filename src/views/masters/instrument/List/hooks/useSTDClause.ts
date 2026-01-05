@@ -1,11 +1,11 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import { apiGetClauseDocumentsList } from '@/services/LabService'
 import useSWR from 'swr'
-import { apiGetClauseDocumentsList } from '@/services/InstrumentService'
 
 const LIST_KEY = 'standard-clause-list'
 
 export const useStandardClauseList = (path: any) => {
-    const swr = useSWR(
+    const swr: any = useSWR(
         [LIST_KEY, path],
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         ([_, path]) => apiGetClauseDocumentsList(path),

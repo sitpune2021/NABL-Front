@@ -1,11 +1,12 @@
 import { Fields, GetDocumentResponse } from '@/@types/document'
 import ApiService from './ApiService'
+import apiEndpointConfig from '@/configs/api-endpoint.config'
 
 export async function apiGetDocumentList<T, U extends Record<string, unknown>>(
     params: U,
 ) {
     return ApiService.fetchDataWithAxios<T>({
-        url: '/document',
+        url: apiEndpointConfig.documents,
         method: 'get',
         params,
     })
@@ -13,7 +14,7 @@ export async function apiGetDocumentList<T, U extends Record<string, unknown>>(
 
 export async function apiDocument(data: Fields) {
     return ApiService.fetchDataWithAxios<GetDocumentResponse>({
-        url: '/document',
+        url: apiEndpointConfig.documents,
         method: 'post',
         data,
     })
@@ -21,37 +22,14 @@ export async function apiDocument(data: Fields) {
 
 export async function apiGetDocumentById(id: string) {
     return ApiService.fetchDataWithAxios<GetDocumentResponse>({
-        url: `/document/${id}`,
+        url: `${apiEndpointConfig.documents}/${id}`,
         method: 'get',
     })
 }
 
 export async function apiUpdateDocument(id: string, data: Fields) {
     return ApiService.fetchDataWithAxios<GetDocumentResponse>({
-        url: `/document/${id}`,
-        method: 'put',
-        data,
-    })
-}
-
-export async function apiDocumenEditort(data: Fields) {
-    return ApiService.fetchDataWithAxios<GetDocumentResponse>({
-        url: '/document-editor',
-        method: 'post',
-        data,
-    })
-}
-
-export async function apiGetDocumentEditortById(id: string) {
-    return ApiService.fetchDataWithAxios<Fields>({
-        url: `/document-editor/${id}`,
-        method: 'get',
-    })
-}
-
-export async function apiUpdateDocumentEditor(id: string, data: Fields) {
-    return ApiService.fetchDataWithAxios<GetDocumentResponse>({
-        url: `/document-editor/${id}`,
+        url: `${apiEndpointConfig.documents}/${id}`,
         method: 'put',
         data,
     })

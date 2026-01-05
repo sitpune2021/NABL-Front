@@ -1,11 +1,12 @@
 import { Fields, GetClusterDetailResponse } from '@/@types/cluster'
 import ApiService from './ApiService'
+import apiEndpointConfig from '@/configs/api-endpoint.config'
 
 export async function apiGetClusterList<T, U extends Record<string, unknown>>(
     params: U,
 ) {
     return ApiService.fetchDataWithAxios<T>({
-        url: '/cluster',
+        url: apiEndpointConfig.clusters,
         method: 'get',
         params,
     })
@@ -13,7 +14,7 @@ export async function apiGetClusterList<T, U extends Record<string, unknown>>(
 
 export async function apiCluster(data: Fields) {
     return ApiService.fetchDataWithAxios<Fields>({
-        url: '/cluster',
+        url: apiEndpointConfig.clusters,
         method: 'post',
         data,
     })
@@ -21,14 +22,14 @@ export async function apiCluster(data: Fields) {
 
 export async function apiGetClusterById(id: string) {
     return ApiService.fetchDataWithAxios<GetClusterDetailResponse>({
-        url: `/cluster/${id}`,
+        url: `${apiEndpointConfig.clusters}/${id}`,
         method: 'get',
     })
 }
 
 export async function apiUpdateCluster(id: string, data: Fields) {
     return ApiService.fetchDataWithAxios<Fields>({
-        url: `/cluster/${id}`,
+        url: `${apiEndpointConfig.clusters}/${id}`,
         method: 'put',
         data,
     })

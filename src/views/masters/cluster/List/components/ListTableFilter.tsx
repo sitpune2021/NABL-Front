@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useMemo } from 'react'
 import Button from '@/components/ui/Button'
 import Dialog from '@/components/ui/Dialog'
@@ -87,7 +88,7 @@ const ClusterListTableFilter = () => {
                                         isMulti
                                         placeholder="Select Zone"
                                         options={options}
-                                        value={options.filter((o) =>
+                                        value={options.filter((o: any) =>
                                             o.value === SELECT_ALL_VALUE
                                                 ? isAllSelected
                                                 : field.value?.includes(

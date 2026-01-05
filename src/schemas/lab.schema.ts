@@ -82,6 +82,7 @@ export const labSchema = z.object({
             }),
         )
         .min(1, { message: 'At least one location is required' }),
+    documents: z.array(z.union([z.string(), z.number()])),
 })
 
 export type LabFormSchema = z.infer<typeof labSchema>

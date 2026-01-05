@@ -1,11 +1,12 @@
 import { Fields } from '@/@types/roles'
 import ApiService from './ApiService'
+import apiEndpointConfig from '@/configs/api-endpoint.config'
 
 export async function apiGetRolesList<T, U extends Record<string, unknown>>(
     params: U,
 ) {
     return ApiService.fetchDataWithAxios<T>({
-        url: '/roles',
+        url: apiEndpointConfig.roles,
         method: 'get',
         params,
     })
@@ -13,14 +14,14 @@ export async function apiGetRolesList<T, U extends Record<string, unknown>>(
 
 export async function apiGetAccesModulesList<T>() {
     return ApiService.fetchDataWithAxios<T>({
-        url: '/access-modules',
+        url: apiEndpointConfig.accessModules,
         method: 'get',
     })
 }
 
 export async function apiRoles(data: Fields) {
     return ApiService.fetchDataWithAxios<Fields>({
-        url: '/roles',
+        url: apiEndpointConfig.roles,
         method: 'post',
         data,
     })
@@ -28,14 +29,14 @@ export async function apiRoles(data: Fields) {
 
 export async function apiGetRolesById(id: string) {
     return ApiService.fetchDataWithAxios<Fields>({
-        url: `/roles/${id}`,
+        url: `${apiEndpointConfig.roles}/${id}`,
         method: 'get',
     })
 }
 
 export async function apiUpdateRoles(id: string, data: Fields) {
     return ApiService.fetchDataWithAxios<Fields>({
-        url: `/roles/${id}`,
+        url: `${apiEndpointConfig.roles}/${id}`,
         method: 'put',
         data,
     })

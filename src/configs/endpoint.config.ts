@@ -4,11 +4,8 @@ import {
     SETTING_PREFIX_PATH,
 } from '@/constants/route.constant'
 
-export const apiPrefix = '/api'
-
 const endpointConfig = {
     signIn: '/sign-in',
-    signOut: '/sign-out',
     signUp: '/sign-up',
     forgotPassword: '/forgot-password',
     resetPassword: '/reset-password',
@@ -42,10 +39,10 @@ const endpointConfig = {
             list: `${MASTER_PREFIX_PATH}/document/list`,
             create: `${MASTER_PREFIX_PATH}/document/create`,
             editor: `${MASTER_PREFIX_PATH}/document/create/editor`,
-            editorEdit: `${MASTER_PREFIX_PATH}/document/edit/:docId/editor/:id`,
+            editorEdit: `${MASTER_PREFIX_PATH}/document/edit/:id/editor`,
             edit: `${MASTER_PREFIX_PATH}/document/edit/:id`,
             view: `${MASTER_PREFIX_PATH}/document/view/:id`,
-            editorview: `${MASTER_PREFIX_PATH}/document/view/:id/editor`,
+            editorview: `${MASTER_PREFIX_PATH}/document/view/:id/editor-view`,
             dataEntry: `${MASTER_PREFIX_PATH}/document/view/:id/data-entry`,
             dataEntryList: `${MASTER_PREFIX_PATH}/document/data-entry/:id`,
         },

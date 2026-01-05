@@ -21,6 +21,7 @@ import { useLabDetail } from '../List/hooks/useLabDetail'
 import useLabList from '../List/hooks/useList'
 import { LabFormSchema } from '@/schemas/lab.schema'
 import { Lab } from '@/@types/lab'
+import useDocumentList from '../../document/List/hooks/useList'
 
 const LabAddEdit = () => {
     const navigate = useNavigate()
@@ -38,6 +39,7 @@ const LabAddEdit = () => {
     const { locationList } = useLocationList()
     const { departmentList } = useDepartmentList()
     const { instrumentList } = useInstrumentList()
+    const { documentList, isLoading: docIsLoading } = useDocumentList()
 
     const { handleSubmit, isSubmitting } = useFormSubmit<Lab>({
         apiCall: (values) =>
@@ -94,9 +96,19 @@ const LabAddEdit = () => {
                 instruments: [],
             },
         ],
+        documents: [], // select all initially
     }
 
-    const defaultValues = useMemo(() => lab ?? EMPTY_VALUES, [lab])
+    const defaultValues = useMemo(() => {
+        if (lab) return lab // editing existing lab
+        if (!docIsLoading && documentList?.length) {
+            return {
+                ...EMPTY_VALUES,
+                documents: documentList.map((doc) => doc.id),
+            }
+        }
+        return EMPTY_VALUES // fallback while loading
+    }, [lab, documentList, docIsLoading])
 
     const { save } = useEntityMutations<Lab>({
         apiCreate: apiLab,
@@ -112,7 +124,7 @@ const LabAddEdit = () => {
         navigate(`${endpointConfig.client.lab.list}`)
     }
 
-    if (isLoading) {
+    if (isLoading || docIsLoading) {
         return <p className="p-4">Loading lab data...</p>
     }
 
@@ -126,6 +138,7 @@ const LabAddEdit = () => {
                 locationList={locationList}
                 departmentList={departmentList}
                 instrumentList={instrumentList}
+                documentList={documentList}
                 onFormSubmit={handleSubmit}
             >
                 <BottomPanel

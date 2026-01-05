@@ -1,12 +1,8 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import {
     apiDocument,
     apiGetDocumentList,
     apiGetDocumentById,
     apiUpdateDocument,
-    apiUpdateDocumentEditor,
-    apiDocumenEditort,
-    apiGetDocumentEditortById,
 } from '@/services/DocumentService'
 import useSWR from 'swr'
 import { useDocumentListStore } from '../store/listStore'
@@ -61,22 +57,6 @@ export default function useDocumentList(documentId?: string) {
         return response
     }
 
-    const saveDocumentEditorData = async (document: Fields) => {
-        let response
-        if (document.id) {
-            response = await apiUpdateDocumentEditor(document.id, document)
-        } else {
-            response = await apiDocumenEditort(document)
-        }
-        await mutate()
-        return response
-    }
-
-    const getDocumentEditortById = async (id: string) => {
-        const document: any = await apiGetDocumentEditortById(id)
-        return document.data
-    }
-
     const documentList = data?.data || []
     const documentDetail = detailData?.data || EMPTY_VALUES
 
@@ -100,7 +80,5 @@ export default function useDocumentList(documentId?: string) {
         detailError,
         isDetailLoading,
         mutateDetail,
-        saveDocumentEditorData,
-        getDocumentEditortById,
     }
 }

@@ -1,11 +1,12 @@
 import { GetLabDetailResponse, Lab } from '@/@types/lab'
 import ApiService from './ApiService'
+import apiEndpointConfig from '@/configs/api-endpoint.config'
 
 export async function apiGetLabList<T, U extends Record<string, unknown>>(
     params: U,
 ) {
     return ApiService.fetchDataWithAxios<T>({
-        url: '/lab',
+        url: apiEndpointConfig.labs,
         method: 'get',
         params,
     })
@@ -13,7 +14,7 @@ export async function apiGetLabList<T, U extends Record<string, unknown>>(
 
 export async function apiLab(data: Lab) {
     return ApiService.fetchDataWithAxios<Lab>({
-        url: '/lab',
+        url: apiEndpointConfig.labs,
         method: 'post',
         data,
     })
@@ -21,15 +22,23 @@ export async function apiLab(data: Lab) {
 
 export async function apiGetLabById(id: string) {
     return ApiService.fetchDataWithAxios<GetLabDetailResponse>({
-        url: `/lab/${id}`,
+        url: `${apiEndpointConfig.labs}/${id}`,
         method: 'get',
     })
 }
 
 export async function apiUpdateLab(id: string, data: Lab) {
     return ApiService.fetchDataWithAxios<Lab>({
-        url: `/lab/${id}`,
+        url: `${apiEndpointConfig.labs}/${id}`,
         method: 'put',
         data,
+    })
+}
+
+export async function apiGetClauseDocumentsList(mode: string) {
+    console.log(mode)
+    return ApiService.fetchDataWithAxios({
+        url: `/standards-current`,
+        method: 'get',
     })
 }

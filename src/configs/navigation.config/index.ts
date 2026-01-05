@@ -9,7 +9,7 @@ import clientNavigationConfig from './client.navigation.config'
 const navigationConfig: NavigationTree[] = [
     {
         key: 'home',
-        path: `${endpointConfig.dashbord}`,
+        path: endpointConfig.dashbord,
         title: 'Home',
         translateKey: 'nav.home',
         icon: 'home',

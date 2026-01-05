@@ -10,7 +10,7 @@ export const publicRoutes: Routes = [...authRoute]
 export const protectedRoutes: Routes = [
     {
         key: 'home',
-        path: `${endpointConfig.dashbord}`,
+        path: endpointConfig.dashbord,
         component: lazy(() => import('@/views/dashboard/Home')),
         authority: [],
     },
@@ -18,13 +18,13 @@ export const protectedRoutes: Routes = [
     ...settingRoute,
     {
         key: 'clients.lab.list',
-        path: `${endpointConfig.client.lab.list}`,
+        path: endpointConfig.client.lab.list,
         component: lazy(() => import('@/views/masters/lab/List')),
         authority: [],
     },
     {
         key: 'clients.lab.list',
-        path: `${endpointConfig.client.lab.create}`,
+        path: endpointConfig.client.lab.create,
         component: lazy(() => import('@/views/masters/lab/AddEdit')),
         authority: [],
     },

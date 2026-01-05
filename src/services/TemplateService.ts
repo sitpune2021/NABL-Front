@@ -1,11 +1,12 @@
 import { Fields, GetTemplateDetailResponse } from '@/@types/template'
 import ApiService from './ApiService'
+import apiEndpointConfig from '@/configs/api-endpoint.config'
 
 export async function apiGetTemplateList<T, U extends Record<string, unknown>>(
     params: U,
 ) {
     return ApiService.fetchDataWithAxios<T>({
-        url: '/template',
+        url: apiEndpointConfig.templates,
         method: 'get',
         params,
     })
@@ -13,7 +14,7 @@ export async function apiGetTemplateList<T, U extends Record<string, unknown>>(
 
 export async function apiTemplate(data: Fields) {
     return ApiService.fetchDataWithAxios<Fields>({
-        url: '/template',
+        url: apiEndpointConfig.templates,
         method: 'post',
         data,
     })
@@ -21,14 +22,14 @@ export async function apiTemplate(data: Fields) {
 
 export async function apiGetTemplateById(id: string) {
     return ApiService.fetchDataWithAxios<GetTemplateDetailResponse>({
-        url: `/template/${id}`,
+        url: `${apiEndpointConfig.templates}/${id}`,
         method: 'get',
     })
 }
 
 export async function apiUpdateTemplate(id: string, data: Fields) {
     return ApiService.fetchDataWithAxios<Fields>({
-        url: `/template/${id}`,
+        url: `${apiEndpointConfig.templates}/${id}`,
         method: 'put',
         data,
     })

@@ -13,8 +13,8 @@ export type AppConfig = {
 
 const appConfig: AppConfig = {
     apiPrefix: '/api',
-    authenticatedEntryPath: `${endpointConfig.dashbord}`,
-    unAuthenticatedEntryPath: '/sign-in',
+    authenticatedEntryPath: endpointConfig.dashbord,
+    unAuthenticatedEntryPath: endpointConfig.signIn,
     locale: 'en',
     accessTokenPersistStrategy: 'cookies',
     enableMock: true,

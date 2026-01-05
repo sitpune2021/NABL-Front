@@ -4,6 +4,7 @@ import SignUpForm from './components/SignUpForm'
 import ActionLink from '@/components/shared/ActionLink'
 import useTimeOutMessage from '@/utils/hooks/useTimeOutMessage'
 import { useThemeStore } from '@/store/themeStore'
+import endpointConfig from '@/configs/endpoint.config'
 
 type SignUpProps = {
     disableSubmit?: boolean
@@ -11,7 +12,7 @@ type SignUpProps = {
 }
 
 export const SignUpBase = ({
-    signInUrl = '/sign-in',
+    signInUrl = endpointConfig.signIn,
     disableSubmit,
 }: SignUpProps) => {
     const [message, setMessage] = useTimeOutMessage()

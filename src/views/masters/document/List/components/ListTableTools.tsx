@@ -1,5 +1,5 @@
+import { Search } from '@/components/form'
 import useDocumentList from '../hooks/useList'
-import DocumentListSearch from './ListSearch'
 import DocumentListTableFilter from './ListTableFilter'
 import cloneDeep from 'lodash/cloneDeep'
 
@@ -21,7 +21,7 @@ const DocumentListTableTools = () => {
 
     return (
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2">
-            <DocumentListSearch onInputChange={handleInputChange} />
+            <Search onInputChange={handleInputChange} />
             <DocumentListTableFilter />
         </div>
     )

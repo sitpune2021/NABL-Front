@@ -2,7 +2,6 @@ import Card from '@/components/ui/Card'
 import Input from '@/components/ui/Input'
 import { FormItem } from '@/components/ui/Form'
 import { Controller } from 'react-hook-form'
-// import useRoleList from '../../roles/List/hooks/useList'
 import { countryList } from '@/constants/countries.constant'
 import Avatar from '@/components/ui/Avatar'
 import { FormSectionBaseProps } from '@/@types/user'
@@ -10,7 +9,6 @@ import { useMemo } from 'react'
 import { components, ControlProps, OptionProps } from 'react-select'
 import Select, { Option as DefaultOption } from '@/components/ui/Select'
 import { NumericInput } from '@/components/shared'
-// import { Roles } from '@/@types/roles'
 
 type CountryOption = {
     label: string

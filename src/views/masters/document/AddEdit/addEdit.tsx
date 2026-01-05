@@ -22,6 +22,7 @@ const DocumentAddEdit = () => {
     const isView = mode === 'view'
     const isEdit = mode === 'edit'
     const isForEditor = mode === 'editor'
+    const isForEditorView = mode === 'editor-view'
 
     const discard = useDiscardConfirm()
 
@@ -57,6 +58,7 @@ const DocumentAddEdit = () => {
                 loading={isLoading}
                 isEdit={isEdit}
                 isForEditor={isForEditor}
+                isForEditorView={isForEditorView}
                 isSubmitting={isSubmitting}
                 onFormSubmit={handleSubmit}
             />
