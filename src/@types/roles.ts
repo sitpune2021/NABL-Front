@@ -17,6 +17,7 @@ export type Roles = {
     id: string
     name: string
     description: string
+    level: number
     users: User[]
     accessRight?: Record<string, string[]>
 }
@@ -38,6 +39,7 @@ export type Fields = {
     id?: string
     name: string
     description: string
+    level: number
 }
 
 export type TagsFields = {
