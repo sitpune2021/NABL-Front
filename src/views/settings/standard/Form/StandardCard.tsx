@@ -129,7 +129,7 @@ const StandardCard = ({
             {readOnly && standard.message}
 
             {!readOnly && (
-                <div className="flex flex-wrap gap-6 mb-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4 mb-4">
                     <FormItem label="Note">
                         <Controller
                             name={`${path}.note`}

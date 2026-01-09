@@ -155,26 +155,32 @@ export default function DocumentForm({
 
             {!showFrequencyPopup && (
                 <BottomStickyBar>
-                    <Button
-                        type="button"
-                        disabled={step === 0}
-                        onClick={goPrev}
-                    >
-                        Previous
-                    </Button>
-                    {step < 1 ? (
-                        <Button type="button" variant="solid" onClick={goNext}>
-                            Next
-                        </Button>
-                    ) : (
+                    <div className="flex justify-end gap-2 mt-6">
                         <Button
                             type="button"
-                            variant="solid"
-                            onClick={() => setShowFrequencyPopup(true)}
+                            disabled={step === 0}
+                            onClick={goPrev}
                         >
-                            Submit
+                            Previous
                         </Button>
-                    )}
+                        {step < 1 ? (
+                            <Button
+                                type="button"
+                                variant="solid"
+                                onClick={goNext}
+                            >
+                                Next
+                            </Button>
+                        ) : (
+                            <Button
+                                type="button"
+                                variant="solid"
+                                onClick={() => setShowFrequencyPopup(true)}
+                            >
+                                Submit
+                            </Button>
+                        )}
+                    </div>
                 </BottomStickyBar>
             )}
         </Form>
