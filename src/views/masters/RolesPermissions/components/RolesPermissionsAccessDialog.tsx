@@ -33,6 +33,7 @@ const validationSchema = z.object({
         .string()
         .trim()
         .min(1, { message: 'Description is required' }),
+    level: z.number().min(1, { message: 'Level is required' }),
 })
 
 type RolesPermissionsAccessDialogProps = {
@@ -67,6 +68,10 @@ const RolesPermissionsAccessDialog = ({
     const { selectedRole, setRoleDialog, roleDialog } =
         useRolePermissionsStore()
     const isEdit = roleDialog.type === 'edit'
+    const nextLevel = useMemo(() => {
+        if (!roleList || roleList.length === 0) return 1
+        return Math.max(...roleList.map((r) => r.level)) + 1
+    }, [roleList])
 
     const {
         handleSubmit,
@@ -74,7 +79,11 @@ const RolesPermissionsAccessDialog = ({
         control,
         reset,
     } = useForm<RolesFormSchema>({
-        defaultValues: { name: '', description: '' },
+        defaultValues: {
+            name: '',
+            description: '',
+            level: nextLevel,
+        },
         resolver: isEdit ? undefined : zodResolver(validationSchema),
     })
 
@@ -117,7 +126,12 @@ const RolesPermissionsAccessDialog = ({
     const onSubmit = async (values: RolesFormSchema) => {
         const payload = isEdit
             ? { id: selectedRole, accessRight }
-            : { ...values, accessRight }
+            : {
+                  name: values.name,
+                  description: values.description,
+                  level: values.level,
+                  accessRight,
+              }
 
         setIsSubmitting(true)
         try {
@@ -162,9 +176,19 @@ const RolesPermissionsAccessDialog = ({
             reset({
                 name: currentRole.name,
                 description: currentRole.description,
+                level: currentRole.level,
             })
         }
     }, [isEdit, currentRole, reset])
+    useEffect(() => {
+        if (roleDialog.type === 'new') {
+            reset({
+                name: '',
+                description: '',
+                level: nextLevel,
+            })
+        }
+    }, [roleDialog.type, nextLevel, reset])
 
     return (
         <Dialog
@@ -202,6 +226,30 @@ const RolesPermissionsAccessDialog = ({
                                     )}
                                 />
                             </FormItem>
+                            {/* Level */}
+                            <FormItem
+                                label="Level"
+                                invalid={!!errors.level}
+                                errorMessage={errors.level?.message}
+                            >
+                                <Controller
+                                    name="level"
+                                    control={control}
+                                    render={({ field }) => (
+                                        <Input
+                                            type="number"
+                                            min={1}
+                                            placeholder="Enter role level"
+                                            {...field}
+                                            onChange={(e) =>
+                                                field.onChange(
+                                                    Number(e.target.value),
+                                                )
+                                            }
+                                        />
+                                    )}
+                                />
+                            </FormItem>
                             <FormItem
                                 label="Description"
                                 invalid={!!errors.description}
@@ -231,7 +279,7 @@ const RolesPermissionsAccessDialog = ({
                             <h5 className="font-bold text-lg mb-4 capitalize">
                                 {group}
                             </h5>
-                            {modules.map((module, index) => (
+                            {modules.map((module: any, index: number) => (
                                 <div
                                     key={module.id}
                                     className={classNames(
