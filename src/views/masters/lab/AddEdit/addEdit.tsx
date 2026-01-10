@@ -10,8 +10,6 @@ import useLocationList from '../../location/List/hooks/useList'
 import useDepartmentList from '../../department/List/hooks/useList'
 import { useInstrumentList } from '../../instrument/List/hooks/useList'
 
-import LabForm from '../Form'
-import BottomPanel from '@/components/form/bottomPanel'
 import { getMode } from '@/utils/getMode'
 import { useDiscardConfirm } from '@/utils/hooks/useDiscardConfirm'
 import { useEntityMutations } from '@/utils/hooks/useEntityMutations'
@@ -22,6 +20,7 @@ import useLabList from '../List/hooks/useList'
 import { LabFormSchema } from '@/schemas/lab.schema'
 import { Lab } from '@/@types/lab'
 import useDocumentList from '../../document/List/hooks/useList'
+import LabFormStepsWrapper from '../Form/LabFormStepsWrapper'
 
 const LabAddEdit = () => {
     const navigate = useNavigate()
@@ -130,7 +129,7 @@ const LabAddEdit = () => {
 
     return (
         <>
-            <LabForm
+            {/* <LabForm
                 defaultValues={defaultValues}
                 readOnly={isView}
                 zoneList={zoneList}
@@ -147,7 +146,24 @@ const LabAddEdit = () => {
                     isEdit={isEdit}
                     onDiscard={discard.show}
                 />
-            </LabForm>
+            </LabForm> */}
+            <LabFormStepsWrapper
+                labFormProps={{
+                    defaultValues,
+                    readOnly: isView,
+                    zoneList,
+                    clusterList,
+                    locationList,
+                    departmentList,
+                    instrumentList,
+                    documentList,
+                    onFormSubmit: handleSubmit,
+                    isSubmitting,
+                    isEdit,
+                    isView,
+                    onDiscard: discard.show,
+                }}
+            />
 
             <ConfirmDialog
                 isOpen={discard.open}
