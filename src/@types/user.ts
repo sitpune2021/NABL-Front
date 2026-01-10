@@ -19,15 +19,10 @@ export type User = {
     phone: string
     username: string
     address?: string
-    issuedBy: boolean
-    approvedBy: boolean
     signature?: string
     profileImage?: string
-    preparedBy: boolean
     dialCode: string
     status?: string
-    city?: string
-    postcode?: string
     userRoles?: UserRole[]
 }
 
@@ -49,6 +44,12 @@ export type Department = {
     roles?: Array<{ value?: number; label?: string }>
     permissions?: Record<string | number, any>
 }
+export type LabAssignment = {
+    locationId: string
+    roleId?: string
+}
+
+export type LabAssignments = Record<string, Record<string, LabAssignment>>
 
 export type UserRole = {
     id?: string
@@ -70,12 +71,9 @@ export type Fields = {
     city?: string
     postcode?: string
 
-    issuedBy: boolean
-    approvedBy: boolean
-    preparedBy: boolean
-
     signature?: string
     profileImage?: string
+    labAssignments?: LabAssignments
     userRoles?: Array<UserRole>
 }
 

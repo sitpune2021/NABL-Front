@@ -3,7 +3,6 @@ import Input from '@/components/ui/Input'
 import { FormItem } from '@/components/ui/Form'
 import { Controller } from 'react-hook-form'
 import { FormSectionBaseProps } from '@/@types/user'
-import { Checkbox } from '@/components/ui'
 
 type AddressSectionProps = FormSectionBaseProps
 
@@ -67,60 +66,6 @@ const AddressSection = ({ control, errors, readOnly }: AddressSectionProps) => {
                                 placeholder="Postal Code"
                                 {...field}
                                 readOnly={readOnly}
-                            />
-                        )}
-                    />
-                </FormItem>
-            </div>
-            <div className="grid md:grid-cols-3 gap-4">
-                <FormItem
-                    label="Prepared By"
-                    invalid={Boolean(errors.preparedBy)}
-                    errorMessage={errors.preparedBy?.message}
-                >
-                    <Controller
-                        name="preparedBy"
-                        control={control}
-                        defaultValue={true}
-                        render={({ field }) => (
-                            <Checkbox
-                                checked={!!field.value}
-                                defaultChecked={field.value}
-                                {...field}
-                            />
-                        )}
-                    />
-                </FormItem>
-                <FormItem
-                    label="Issued By"
-                    invalid={Boolean(errors.issuedBy)}
-                    errorMessage={errors.issuedBy?.message}
-                >
-                    <Controller
-                        name="issuedBy"
-                        control={control}
-                        render={({ field }) => (
-                            <Checkbox
-                                checked={!!field.value}
-                                defaultChecked={field.value}
-                                {...field}
-                            />
-                        )}
-                    />
-                </FormItem>
-                <FormItem
-                    label="Approved By"
-                    invalid={Boolean(errors.approvedBy)}
-                    errorMessage={errors.approvedBy?.message}
-                >
-                    <Controller
-                        name="approvedBy"
-                        control={control}
-                        render={({ field }) => (
-                            <Checkbox
-                                checked={!!field.value}
-                                defaultChecked={field.value}
-                                {...field}
                             />
                         )}
                     />

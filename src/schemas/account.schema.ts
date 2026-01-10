@@ -21,13 +21,11 @@ export const profileSchema = z.object({
         .array(
             z.object({
                 location_id: z.number(),
-                location_name: z.string().optional().nullable(),
                 zone_id: z.number().optional().nullable(),
                 cluster_id: z.number().optional().nullable(),
                 department: z.array(
                     z.object({
                         department_id: z.number(),
-                        department_name: z.string().optional().nullable(),
                         roles: z.array(
                             z.object({
                                 value: z.number(),
@@ -36,22 +34,6 @@ export const profileSchema = z.object({
                         ),
                     }),
                 ),
-            }),
-        )
-        .optional(),
-    location: z
-        .array(
-            z.object({
-                zone_name: z.any().optional(),
-                cluster_name: z.any().optional(),
-                location_name: z.any().optional(),
-                departments: z.array(z.any()).optional(),
-                prefix: z.string().optional(),
-                shortName: z.string().optional(),
-                emails: z.array(z.any()).optional(),
-                instruments: z.array(z.any()).optional(),
-                phones: z.array(z.any()).optional(),
-                address: z.string().optional(),
             }),
         )
         .optional(),

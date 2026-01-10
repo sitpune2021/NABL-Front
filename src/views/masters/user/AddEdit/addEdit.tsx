@@ -9,7 +9,6 @@ import endpointConfig from '@/configs/endpoint.config'
 import useUserList from '../List/hooks/useList'
 import UserForm from '../Form'
 import { UserFormSchema } from '@/@types/user'
-import BottomPanel from '@/components/form/bottomPanel'
 
 const UserAddEdit = () => {
     const navigate = useNavigate()
@@ -17,11 +16,13 @@ const UserAddEdit = () => {
     const { id: userId } = useParams()
     const { saveUserData, getUserById } = useUserList()
 
+    const [currentStep, setCurrentStep] = useState(0)
     const [discardConfirmationOpen, setDiscardConfirmationOpen] =
         useState(false)
     const [isSubmiting, setIsSubmiting] = useState(false)
     const [userData, setUserData] = useState<UserFormSchema | null>(null)
     const [loadingData, setLoadingData] = useState(false)
+    const [savedUserId, setSavedUserId] = useState<string | undefined>(userId)
 
     const isEdit = location.pathname.includes('/edit')
     const isView = location.pathname.includes('/view')
@@ -35,25 +36,32 @@ const UserAddEdit = () => {
                     setUserData({
                         ...data,
                         dialCode: data.dialCode || '+91',
+                        labAssignments: data.labAssignments || {},
                     })
                 })
                 .finally(() => setLoadingData(false))
         }
-    }, [userId, isAdd])
+    }, [userId, isAdd, getUserById])
 
     const handleFormSubmit = async (values: UserFormSchema) => {
         if (isView) return
+
+        console.log(' Form Submit - Current Step:', currentStep)
+        console.log(' Form Values:', values)
+
         setIsSubmiting(true)
+
         try {
             const payload = {
                 ...values,
                 dialCode: values.dialCode || '+91',
-                id: isEdit ? userId : undefined,
+                id: savedUserId || (isEdit ? userId : undefined),
             }
 
+            console.log(' Payload to save:', payload)
+
             const result = await saveUserData(payload)
-            await sleep(800)
-            setIsSubmiting(false)
+            await sleep(500)
 
             toast.push(
                 <Notification type={result.success ? 'success' : 'danger'}>
@@ -63,7 +71,29 @@ const UserAddEdit = () => {
             )
 
             if (result.success) {
-                navigate(endpointConfig.setting.user.list)
+                if (currentStep === 0) {
+                    // Step 0 saved successfully
+                    const newUserId = result.data?.id || savedUserId
+                    console.log(' Step 0 saved, User ID:', newUserId)
+
+                    setSavedUserId(newUserId)
+                    setUserData(values)
+
+                    // Move to next step
+                    console.log(' Moving to Step 1')
+                    setCurrentStep(1)
+
+                    toast.push(
+                        <Notification type="info">
+                            User saved! Now assign lab locations
+                        </Notification>,
+                        { placement: 'top-center' },
+                    )
+                } else if (currentStep === 1) {
+                    // Step 1 saved successfully - redirect to list
+                    console.log('Step 1 saved, redirecting to list')
+                    navigate(endpointConfig.setting.user.list)
+                }
             }
         } catch (error: any) {
             const backendErrors = error?.response?.data?.errors
@@ -81,7 +111,7 @@ const UserAddEdit = () => {
             } else {
                 const errorMessage =
                     error?.response?.data?.message ||
-                    `Failed to ${isEdit ? 'update' : 'create'} unit.`
+                    `Failed to ${isEdit ? 'update' : 'create'} user.`
 
                 toast.push(
                     <Notification type="danger">{errorMessage}</Notification>,
@@ -113,6 +143,9 @@ const UserAddEdit = () => {
         <>
             <UserForm
                 newUser={isAdd}
+                currentStep={currentStep}
+                isSubmitting={isSubmiting}
+                isEdit={isEdit}
                 defaultValues={
                     userData ?? {
                         name: '',
@@ -123,11 +156,9 @@ const UserAddEdit = () => {
                         address: '',
                         city: '',
                         postcode: '',
-                        preparedBy: true,
-                        issuedBy: true,
-                        approvedBy: true,
                         signature: '',
                         profileImage: '',
+                        labAssignments: {},
                         userRoles: [
                             {
                                 zone_id: '',
@@ -145,15 +176,10 @@ const UserAddEdit = () => {
                     }
                 }
                 readOnly={isView}
+                onStepChange={setCurrentStep}
+                onDiscard={handleDiscard}
                 onFormSubmit={handleFormSubmit}
-            >
-                <BottomPanel
-                    isView={isView}
-                    isSubmitting={isSubmiting}
-                    isEdit={isEdit}
-                    onDiscard={handleDiscard}
-                />
-            </UserForm>
+            />
 
             <ConfirmDialog
                 isOpen={discardConfirmationOpen}
@@ -165,7 +191,7 @@ const UserAddEdit = () => {
                 onConfirm={handleConfirmDiscard}
             >
                 <p>
-                    Are you sure you want to discard this? This action can’t be
+                    Are you sure you want to discard this? This action cant be
                     undone.
                 </p>
             </ConfirmDialog>
