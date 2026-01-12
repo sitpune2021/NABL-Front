@@ -1,199 +1,90 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useParams, useNavigate, useLocation } from 'react-router'
 import Notification from '@/components/ui/Notification'
 import toast from '@/components/ui/toast'
 import ConfirmDialog from '@/components/shared/ConfirmDialog'
-import sleep from '@/utils/sleep'
 import endpointConfig from '@/configs/endpoint.config'
 import useUserList from '../List/hooks/useList'
-import UserForm from '../Form'
+import { useDiscardConfirm } from '@/utils/hooks/useDiscardConfirm'
+import UserFormStepsWrapper from '../Form/UserFormStepsWrapper'
 import { UserFormSchema } from '@/@types/user'
+import { USER_EMPTY_VALUES } from '@/constants/user.constants'
 
 const UserAddEdit = () => {
+    const { id } = useParams<{ id: string }>()
     const navigate = useNavigate()
     const location = useLocation()
-    const { id: userId } = useParams()
+
+    const isEdit = location.pathname.includes('edit')
+    const isView = location.pathname.includes('view')
+
+    const discard = useDiscardConfirm()
     const { saveUserData, getUserById } = useUserList()
 
-    const [currentStep, setCurrentStep] = useState(0)
-    const [discardConfirmationOpen, setDiscardConfirmationOpen] =
-        useState(false)
-    const [isSubmiting, setIsSubmiting] = useState(false)
-    const [userData, setUserData] = useState<UserFormSchema | null>(null)
-    const [loadingData, setLoadingData] = useState(false)
-    const [savedUserId, setSavedUserId] = useState<string | undefined>(userId)
-
-    const isEdit = location.pathname.includes('/edit')
-    const isView = location.pathname.includes('/view')
-    const isAdd = location.pathname.includes('/create')
+    const [user, setUser] = useState<UserFormSchema | null>(null)
+    const [loading, setLoading] = useState(false)
 
     useEffect(() => {
-        if (!isAdd && userId) {
-            setLoadingData(true)
-            getUserById(userId)
+        if ((isEdit || isView) && id) {
+            setLoading(true)
+            getUserById(id)
                 .then((data) => {
-                    setUserData({
+                    setUser({
                         ...data,
                         dialCode: data.dialCode || '+91',
                         labAssignments: data.labAssignments || {},
+                        userRoles: data.userRoles || [],
                     })
                 })
-                .finally(() => setLoadingData(false))
+                .finally(() => setLoading(false))
         }
-    }, [userId, isAdd, getUserById])
+    }, [id, isEdit, isView])
 
-    const handleFormSubmit = async (values: UserFormSchema) => {
-        if (isView) return
+    const defaultValues = useMemo<UserFormSchema>(() => {
+        if (user) return user
+        return USER_EMPTY_VALUES
+    }, [user])
 
-        console.log(' Form Submit - Current Step:', currentStep)
-        console.log(' Form Values:', values)
+    const handleSubmit = async (values: UserFormSchema) => {
+        const res = await saveUserData({
+            ...values,
+            ...(isEdit && id ? { id } : {}),
+        })
 
-        setIsSubmiting(true)
-
-        try {
-            const payload = {
-                ...values,
-                dialCode: values.dialCode || '+91',
-                id: savedUserId || (isEdit ? userId : undefined),
-            }
-
-            console.log(' Payload to save:', payload)
-
-            const result = await saveUserData(payload)
-            await sleep(500)
-
-            toast.push(
-                <Notification type={result.success ? 'success' : 'danger'}>
-                    {result.message}
-                </Notification>,
-                { placement: 'top-center' },
-            )
-
-            if (result.success) {
-                if (currentStep === 0) {
-                    // Step 0 saved successfully
-                    const newUserId = result.data?.id || savedUserId
-                    console.log(' Step 0 saved, User ID:', newUserId)
-
-                    setSavedUserId(newUserId)
-                    setUserData(values)
-
-                    // Move to next step
-                    console.log(' Moving to Step 1')
-                    setCurrentStep(1)
-
-                    toast.push(
-                        <Notification type="info">
-                            User saved! Now assign lab locations
-                        </Notification>,
-                        { placement: 'top-center' },
-                    )
-                } else if (currentStep === 1) {
-                    // Step 1 saved successfully - redirect to list
-                    console.log('Step 1 saved, redirecting to list')
-                    navigate(endpointConfig.setting.user.list)
-                }
-            }
-        } catch (error: any) {
-            const backendErrors = error?.response?.data?.errors
-
-            if (backendErrors) {
-                Object.entries(backendErrors).forEach(([messages]) => {
-                    const message = Array.isArray(messages)
-                        ? messages[0]
-                        : messages
-                    toast.push(
-                        <Notification type="danger">{message}</Notification>,
-                        { placement: 'top-center' },
-                    )
-                })
-            } else {
-                const errorMessage =
-                    error?.response?.data?.message ||
-                    `Failed to ${isEdit ? 'update' : 'create'} user.`
-
-                toast.push(
-                    <Notification type="danger">{errorMessage}</Notification>,
-                    { placement: 'top-center' },
-                )
-            }
-        } finally {
-            setIsSubmiting(false)
-        }
-    }
-
-    const handleConfirmDiscard = () => {
-        setDiscardConfirmationOpen(false)
         toast.push(
-            <Notification type="success">Changes discarded!</Notification>,
+            <Notification type={res.success ? 'success' : 'danger'}>
+                {res.message}
+            </Notification>,
             { placement: 'top-center' },
         )
-        navigate(`${endpointConfig.setting.user.list}`)
+
+        if (res.success) {
+            navigate(endpointConfig.setting.user.list)
+        }
     }
-
-    const handleDiscard = () => setDiscardConfirmationOpen(true)
-    const handleCancel = () => setDiscardConfirmationOpen(false)
-
-    if (loadingData && !isAdd) {
+    if (loading) {
         return <p className="p-4">Loading user data...</p>
     }
 
     return (
         <>
-            <UserForm
-                newUser={isAdd}
-                currentStep={currentStep}
-                isSubmitting={isSubmiting}
-                isEdit={isEdit}
-                defaultValues={
-                    userData ?? {
-                        name: '',
-                        username: '',
-                        email: '',
-                        phone: '',
-                        dialCode: '+91',
-                        address: '',
-                        city: '',
-                        postcode: '',
-                        signature: '',
-                        profileImage: '',
-                        labAssignments: {},
-                        userRoles: [
-                            {
-                                zone_id: '',
-                                cluster_id: '',
-                                location_id: '',
-                                department: [
-                                    {
-                                        department_id: '',
-                                        roles: [],
-                                        permissions: {},
-                                    },
-                                ],
-                            },
-                        ],
-                    }
-                }
-                readOnly={isView}
-                onStepChange={setCurrentStep}
-                onDiscard={handleDiscard}
-                onFormSubmit={handleFormSubmit}
+            <UserFormStepsWrapper
+                userFormProps={{
+                    defaultValues,
+                    readOnly: isView,
+                    isSubmitting: false,
+                    onFormSubmit: handleSubmit,
+                }}
             />
 
             <ConfirmDialog
-                isOpen={discardConfirmationOpen}
+                isOpen={discard.open}
                 type="danger"
                 title="Discard changes"
-                onClose={handleCancel}
-                onRequestClose={handleCancel}
-                onCancel={handleCancel}
-                onConfirm={handleConfirmDiscard}
+                onClose={discard.close}
+                onConfirm={() => navigate(endpointConfig.setting.user.list)}
             >
-                <p>
-                    Are you sure you want to discard this? This action cant be
-                    undone.
-                </p>
+                <p>Are you sure you want to discard changes?</p>
             </ConfirmDialog>
         </>
     )
