@@ -9,7 +9,6 @@ export const EMPTY_VALUES: ProfileFormSchema = {
     address: '',
     profileImage: '',
     signature: '',
-    location: [],
     userRoles: [],
 }
 

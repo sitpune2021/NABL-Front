@@ -44,26 +44,11 @@ const SettingsLocations = () => {
         clusterList: [],
         locationList: [],
         departmentList: [],
-        instrumentList: [],
     })
 
     useEffect(() => {
         if (profileData?.data) {
-            const raw = profileData.data
-            const mappedData = {
-                ...raw,
-                location:
-                    raw.userRoles?.map((role: any) => ({
-                        zone_name: role.zone_id,
-                        cluster_name: role.cluster_id,
-                        location_name: role.location_id,
-                        departments: role.department?.map((dept: any) => ({
-                            name: dept.department_id,
-                            instruments: [],
-                        })),
-                    })) || [],
-            }
-            reset(mappedData)
+            reset(profileData.data)
         }
     }, [profileData, reset])
 
@@ -92,17 +77,14 @@ const SettingsLocations = () => {
                 onSubmit={handleSubmit(onSubmit)}
             >
                 <div className="flex flex-col gap-6 p-2">
-                    <div className="mt-4">
-                        <SettingsLocationSection
-                            control={control}
-                            errors={errors}
-                            zoneList={lists.zoneList}
-                            clusterList={lists.clusterList}
-                            locationList={lists.locationList}
-                            departmentList={lists.departmentList}
-                            instrumentList={lists.instrumentList}
-                        />
-                    </div>
+                    <SettingsLocationSection
+                        control={control}
+                        errors={errors}
+                        zoneList={lists.zoneList}
+                        clusterList={lists.clusterList}
+                        locationList={lists.locationList}
+                        departmentList={lists.departmentList}
+                    />
                 </div>
 
                 <BottomStickyBar>

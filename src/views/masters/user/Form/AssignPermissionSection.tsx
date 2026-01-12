@@ -1,61 +1,34 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import Card from '@/components/ui/Card'
-import { useFieldArray } from 'react-hook-form'
 import { FormSectionBaseProps } from '@/@types/user'
-import { Button } from '@/components/ui'
 import AssignPermissionItem from './AssignPermissionItem'
+import useRolesList from '../../roles/List/hooks/useList'
 
 const AssignPermissionSection = ({
     control,
     errors,
     readOnly = false,
-    setValue,
 }: FormSectionBaseProps) => {
-    const { fields, append, remove } = useFieldArray({
-        control,
-        name: 'userRoles',
-    })
+    const { rolesList } = useRolesList()
 
-    const canRemove = fields.length > 1
-
-    const addNewRole = () => {
-        append({
-            zone_id: '',
-            cluster_id: '',
-            location_id: '',
-            department: [
-                {
-                    department_id: '',
-                    roles: [],
-                    permissions: {},
-                },
-            ],
-        })
-    }
+    const roleOptions = rolesList.map((r: any) => ({
+        label: r.name,
+        value: r.id,
+    }))
 
     return (
         <Card>
-            <div className="flex items-center justify-between gap-2 mb-4">
-                <h4>Role Assignments</h4>
-                {!readOnly && (
-                    <Button type="button" size="xs" onClick={addNewRole}>
-                        +
-                    </Button>
-                )}
+            <div className="mb-4">
+                <h4>Role Assignment</h4>
             </div>
 
-            {fields.map((_, index) => (
-                <AssignPermissionItem
-                    key={index} // use index if no stable id
-                    control={control}
-                    errors={errors}
-                    readOnly={readOnly}
-                    index={index}
-                    setValue={setValue}
-                    onRemove={
-                        !readOnly && canRemove ? () => remove(index) : undefined
-                    }
-                />
-            ))}
+            <AssignPermissionItem
+                control={control}
+                errors={errors}
+                readOnly={readOnly}
+                name="userRoles.roles"
+                roleOptions={roleOptions}
+            />
         </Card>
     )
 }

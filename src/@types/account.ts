@@ -24,11 +24,6 @@ export type ProfileFormSchema = {
     phone: string
     dialCode: string
     address?: string
-    city?: string
-    postcode?: string
-    issuedBy: boolean
-    approvedBy: boolean
-    preparedBy: boolean
     signature?: string
     profileImage?: string
     userRoles?: Array<UserRole>
