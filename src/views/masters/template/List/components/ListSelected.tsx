@@ -6,13 +6,7 @@ import { TbChecks } from 'react-icons/tb'
 import useTemplateList from '../hooks/useList'
 
 const TemplateListSelected = () => {
-    const {
-        selectedTemplate,
-        templateList,
-        mutate,
-        templateListTotal,
-        setSelectAllTemplate,
-    } = useTemplateList()
+    const { templateList, selected, mutate, total, setAll } = useTemplateList()
 
     const [deleteConfirmationOpen, setDeleteConfirmationOpen] = useState(false)
 
@@ -26,15 +20,13 @@ const TemplateListSelected = () => {
 
     const handleConfirmDelete = () => {
         const newTemplateList = templateList.filter((template) => {
-            return !selectedTemplate.some(
-                (selected) => selected.id === template.id,
-            )
+            return !selected.some((selected) => selected.id === template.id)
         })
-        setSelectAllTemplate([])
+        setAll([])
         mutate(
             {
-                list: newTemplateList,
-                total: templateListTotal - selectedTemplate.length,
+                data: newTemplateList,
+                total: total - selected.length,
             },
             false,
         )
@@ -43,7 +35,7 @@ const TemplateListSelected = () => {
 
     return (
         <>
-            {selectedTemplate.length > 0 && (
+            {selected.length > 0 && (
                 <StickyFooter
                     className=" flex items-center justify-between py-4 bg-white dark:bg-gray-800"
                     stickyClass="-mx-4 sm:-mx-8 border-t border-gray-200 dark:border-gray-700 px-8"
@@ -52,15 +44,14 @@ const TemplateListSelected = () => {
                     <div className="container mx-auto">
                         <div className="flex items-center justify-between">
                             <span>
-                                {selectedTemplate.length > 0 && (
+                                {selected.length > 0 && (
                                     <span className="flex items-center gap-2">
                                         <span className="text-lg text-primary">
                                             <TbChecks />
                                         </span>
                                         <span className="font-semibold flex items-center gap-1">
                                             <span className="heading-text">
-                                                {selectedTemplate.length}{' '}
-                                                Templates
+                                                {selected.length} Templates
                                             </span>
                                             <span>selected</span>
                                         </span>

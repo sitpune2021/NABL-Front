@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import type { KeyedMutator } from 'swr'
 
 export type User = {
@@ -22,6 +23,7 @@ export type Role = {
     name: string
     description: string
     users: Pick<User, 'id' | 'name' | 'email' | 'role' | 'img'>[]
+    level: any
     accessRight: Record<string, string[]>
 }
 

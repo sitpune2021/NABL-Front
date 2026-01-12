@@ -5,6 +5,8 @@ import { useRolePermissionsStore } from '../store/rolePermissionsStore'
 import { TbSearch } from 'react-icons/tb'
 import { components } from 'react-select'
 import type { ControlProps, OptionProps } from 'react-select'
+import { mapToOptions } from '@/helpers/optionMappers'
+import useRolesList from '../hooks/useList'
 
 const { Control } = components
 
@@ -23,16 +25,6 @@ const statusOptions = [
     { label: 'All', value: '', dotBackground: 'bg-gray-200' },
     { label: 'Active', value: 'active', dotBackground: 'bg-success' },
     { label: 'Blocked', value: 'blocked', dotBackground: 'bg-error' },
-]
-
-const roleOptions = [
-    { label: 'All', value: '' },
-    { label: 'Admin', value: 'admin' },
-    { label: 'Supervisor', value: 'supervisor' },
-    { label: 'Support', value: 'support' },
-    { label: 'User', value: 'user' },
-    { label: 'Auditor', value: 'auditor' },
-    { label: 'Guest', value: 'guest' },
 ]
 
 const StatusSelectOption = (props: OptionProps<StatusOption>) => {
@@ -75,7 +67,8 @@ const CustomControl = ({ children, ...props }: ControlProps<StatusOption>) => {
 const RolesPermissionsUserAction = () => {
     const { tableData, filterData, setFilterData, setTableData } =
         useRolePermissionsStore()
-
+    const { rolesList, mutate: roleMutate } = useRolesList()
+    roleMutate
     const handleStatusChange = (status: string) => {
         setFilterData({ ...filterData, status })
     }
@@ -87,6 +80,11 @@ const RolesPermissionsUserAction = () => {
     const handleInputChange = (query: string) => {
         setTableData({ ...tableData, query })
     }
+
+    const roleOptions = mapToOptions(rolesList, {
+        value: 'id',
+        label: (role) => role.name,
+    })
 
     return (
         <div className="flex items-center justify-between">

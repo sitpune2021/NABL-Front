@@ -12,8 +12,8 @@ export type GetTemplateDetailResponse = {
 }
 
 export type Filter = {
-    purchasedProducts: string
-    purchaseChannel: Array<string>
+    status: Array<string>
+    type: Array<string>
 }
 
 export type Template = {
@@ -32,14 +32,17 @@ export type Template = {
 export type TemplateListState = {
     tableData: TableQueries
     filterData: Filter
-    selectedTemplate: Partial<Template>[]
+    selected: Partial<Template>[]
 }
 
-export type TemplateListAction = {
-    setFilterData: (payload: Filter) => void
-    setTableData: (payload: TableQueries) => void
-    setSelectedTemplate: (checked: boolean, customer: Template) => void
-    setSelectAllTemplate: (customer: Template[]) => void
+export type TemplateListActions = {
+    updateTable: (payload: Partial<TableQueries>) => void
+    updateFilters: (payload: Partial<Filter>) => void
+    resetFilters: () => void
+    toggleRow: (checked: boolean, row: Template) => void
+    setAll: (rows: Template[]) => void
+    clearSelection: () => void
+    resetQuery: () => void
 }
 
 export type Fields = {

@@ -14,6 +14,7 @@ const navigationConfig: NavigationTree[] = [
         translateKey: 'nav.home',
         icon: 'home',
         type: NAV_ITEM_TYPE_ITEM,
+        for: 'both',
         authority: [],
         subMenu: [],
     },

@@ -27,6 +27,17 @@ export async function apiGetTemplateById(id: string) {
     })
 }
 
+export async function apiGetTemplateVersionsById<
+    T,
+    U extends Record<string, unknown>,
+>(id: string, params: U) {
+    return ApiService.fetchDataWithAxios<T>({
+        url: `${apiEndpointConfig.templatesVerions}/${id}`,
+        method: 'get',
+        params,
+    })
+}
+
 export async function apiUpdateTemplate(id: string, data: Fields) {
     return ApiService.fetchDataWithAxios<Fields>({
         url: `${apiEndpointConfig.templates}/${id}`,

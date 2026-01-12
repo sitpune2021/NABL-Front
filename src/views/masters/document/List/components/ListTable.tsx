@@ -16,6 +16,7 @@ import useDocumentList from '../hooks/useList'
 import endpointConfig from '@/configs/endpoint.config'
 import { Document } from '@/@types/document'
 import { useSessionUser } from '@/store/authStore'
+import WorkflowStateCell from './WorkflowStateCell'
 
 const DocumentListTable = () => {
     const navigate = useNavigate()
@@ -55,14 +56,6 @@ const DocumentListTable = () => {
         )
         navigate(path)
     }
-
-    // const handleEditorDetails = (document: Document) => {
-    //     const path = endpointConfig.master.document.editorEdit.replace(
-    //         ':id',
-    //         String(document.id),
-    //     )
-    //     navigate(path)
-    // }
 
     const handleEntryDetails = (document: Document) => {
         const path = endpointConfig.master.document.dataEntryList.replace(
@@ -128,8 +121,20 @@ const DocumentListTable = () => {
                 ),
             },
             {
-                header: 'Id',
+                header: 'Mode',
                 accessorKey: 'mode',
+            },
+            {
+                header: 'Workflow State',
+                accessorKey: 'workflow_state',
+                cell: ({ row }) => (
+                    <WorkflowStateCell
+                        document={row.original}
+                        onSave={(id, value) => {
+                            console.log('Save workflow state', id, value)
+                        }}
+                    />
+                ),
             },
             {
                 header: 'Action',
@@ -160,16 +165,6 @@ const DocumentListTable = () => {
                                           ),
                                   }
                                 : null,
-                            // props.row.original.mode == 'create' ? !lab
-                            //     ? {
-                            //         icon: <TbFilePencil />,
-                            //         tooltip: 'Document Edit',
-                            //         onClick: () =>
-                            //             handleEditorDetails(
-                            //                 props.row.original,
-                            //             ),
-                            //     }
-                            //     : null : null,
                             lab
                                 ? {
                                       icon: <TbFilePencil />,

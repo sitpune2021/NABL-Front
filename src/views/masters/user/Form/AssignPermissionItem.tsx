@@ -7,7 +7,7 @@ import { HiMinus, HiPlus } from 'react-icons/hi'
 import { useZoneList } from '../../zone/List/hooks/useList'
 import useClusterList from '../../cluster/List/hooks/useList'
 import useLocationList from '../../location/List/hooks/useList'
-import useRolesList from '../../roles/List/hooks/useList'
+import useRolesList from '../../RolesPermissions/hooks/useList'
 import useDepartmentList from '../../department/List/hooks/useList'
 
 export type AssignPermissionItemProps = {

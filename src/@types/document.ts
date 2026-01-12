@@ -81,6 +81,7 @@ export type Document = {
         id: string
         schedule: any
         full_version: string
+        workflow_state?: string
     }
     category?: {
         name?: string

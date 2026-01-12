@@ -22,7 +22,7 @@ const initialState: TemplateListState = {
     selected: [],
 }
 
-export const useTemplateListStore = create<
+export const useVersionsTemplateListStore = create<
     TemplateListState & TemplateListActions
 >()(
     persist(

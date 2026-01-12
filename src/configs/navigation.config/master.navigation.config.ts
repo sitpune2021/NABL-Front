@@ -13,6 +13,7 @@ const masterNavigationConfig: NavigationTree[] = [
         translateKey: 'nav.masters',
         icon: 'concepts',
         type: NAV_ITEM_TYPE_TITLE,
+        for: 'both',
         authority: [],
         meta: {},
         subMenu: [
@@ -23,6 +24,7 @@ const masterNavigationConfig: NavigationTree[] = [
                 translateKey: 'nav.mastersCategory.list',
                 icon: 'documentation',
                 type: NAV_ITEM_TYPE_ITEM,
+                for: 'both',
                 authority: [],
                 meta: {
                     description: {
@@ -39,6 +41,7 @@ const masterNavigationConfig: NavigationTree[] = [
                 translateKey: 'nav.mastersSubCategory.list',
                 icon: 'products',
                 type: NAV_ITEM_TYPE_ITEM,
+                for: 'both',
                 authority: [],
                 meta: {
                     description: {
@@ -55,6 +58,7 @@ const masterNavigationConfig: NavigationTree[] = [
                 translateKey: 'nav.mastersDepartment.list',
                 icon: 'utilsDoc',
                 type: NAV_ITEM_TYPE_ITEM,
+                for: 'both',
                 authority: [],
                 meta: {
                     description: {
@@ -71,6 +75,7 @@ const masterNavigationConfig: NavigationTree[] = [
                 translateKey: 'nav.mastersUnit.list',
                 icon: 'uiFormsSelect',
                 type: NAV_ITEM_TYPE_ITEM,
+                for: 'both',
                 authority: [],
                 meta: {
                     description: {
@@ -87,6 +92,7 @@ const masterNavigationConfig: NavigationTree[] = [
                 translateKey: 'nav.mastersTemplate.list',
                 icon: 'uiComponents',
                 type: NAV_ITEM_TYPE_ITEM,
+                for: 'both',
                 authority: [],
                 meta: {
                     description: {
@@ -103,6 +109,7 @@ const masterNavigationConfig: NavigationTree[] = [
                 translateKey: 'nav.mastersDocument.list',
                 icon: 'dataDisplay',
                 type: NAV_ITEM_TYPE_ITEM,
+                for: 'both',
                 authority: [],
                 meta: {
                     description: {
@@ -119,6 +126,7 @@ const masterNavigationConfig: NavigationTree[] = [
                 translateKey: 'nav.mastersZone.list',
                 icon: 'navigation',
                 type: NAV_ITEM_TYPE_ITEM,
+                for: 'both',
                 authority: [],
                 meta: {
                     description: {
@@ -135,6 +143,7 @@ const masterNavigationConfig: NavigationTree[] = [
                 translateKey: 'nav.mastersCluster.list',
                 icon: 'fileManager',
                 type: NAV_ITEM_TYPE_ITEM,
+                for: 'both',
                 authority: [],
                 meta: {
                     description: {
@@ -151,6 +160,7 @@ const masterNavigationConfig: NavigationTree[] = [
                 translateKey: 'nav.mastersLocation.list',
                 icon: 'uiGraphMaps',
                 type: NAV_ITEM_TYPE_ITEM,
+                for: 'both',
                 authority: [],
                 meta: {
                     description: {
@@ -167,6 +177,7 @@ const masterNavigationConfig: NavigationTree[] = [
                 translateKey: 'nav.mastersInstrument.list',
                 icon: 'documentation',
                 type: NAV_ITEM_TYPE_ITEM,
+                for: 'both',
                 authority: [],
                 meta: {
                     description: {

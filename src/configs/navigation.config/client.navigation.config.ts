@@ -13,6 +13,7 @@ const clientNavigationConfig: NavigationTree[] = [
         translateKey: 'nav.clients',
         icon: 'concepts',
         type: NAV_ITEM_TYPE_TITLE,
+        for: 'master',
         authority: [],
         meta: {},
         subMenu: [
@@ -23,6 +24,7 @@ const clientNavigationConfig: NavigationTree[] = [
                 translateKey: 'nav.clientsLab.list',
                 icon: 'sharedComponentDoc',
                 type: NAV_ITEM_TYPE_ITEM,
+                for: 'master',
                 authority: [],
                 meta: {
                     description: {

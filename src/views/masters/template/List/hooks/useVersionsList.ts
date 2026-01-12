@@ -1,14 +1,11 @@
-import {
-    apiGetTemplateById,
-    apiGetTemplateList,
-} from '@/services/TemplateService'
+import { apiGetTemplateVersionsById } from '@/services/TemplateService'
 import useSWR from 'swr'
-import { useTemplateListStore } from '../store/listStore'
 import type { TableQueries } from '@/@types/common'
 import { GetTemplateListResponse } from '@/@types/template'
+import { useVersionsTemplateListStore } from '../store/versionListStore'
 
-const LIST_KEY = 'template-list'
-export default function useTemplateList() {
+const LIST_KEY = 'template-versions-list'
+export default function useVersionsTemplateList(id: string) {
     const {
         filterData,
         updateFilters,
@@ -19,25 +16,23 @@ export default function useTemplateList() {
         toggleRow,
         setAll,
         clearSelection,
-    } = useTemplateListStore((state) => state)
+    } = useVersionsTemplateListStore((state) => state)
 
     const swr = useSWR(
-        [LIST_KEY, { ...tableData, ...filterData }],
+        [LIST_KEY, id, { ...tableData, ...filterData }],
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        ([_, params]) =>
-            apiGetTemplateList<GetTemplateListResponse, TableQueries>(params),
+        ([_, id, params]) =>
+            apiGetTemplateVersionsById<GetTemplateListResponse, TableQueries>(
+                id,
+                params,
+            ),
         {
             revalidateOnFocus: false,
         },
     )
 
-    const getTemplateById = async (id: string) => {
-        const { data } = await apiGetTemplateById(id)
-        return data
-    }
-
     return {
-        templateList: swr.data?.data ?? [],
+        templateVersionsList: swr.data?.data ?? [],
         total: swr.data?.total ?? 0,
         isLoading: swr.isLoading,
         error: swr.error,
@@ -54,6 +49,5 @@ export default function useTemplateList() {
         toggleRow,
         setAll,
         clearSelection,
-        getTemplateById,
     }
 }

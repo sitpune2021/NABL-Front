@@ -20,6 +20,7 @@ export interface NavigationTree {
     translateKey: string
     icon: string
     type: 'title' | 'collapse' | 'item'
+    for: 'lab' | 'master' | 'both'
     authority: string[]
     subMenu: NavigationTree[]
     description?: string

@@ -6,24 +6,21 @@ import { addCustomBlocks, addDynamicFields } from './BlockManager'
 import ReactDOMServer from 'react-dom/server'
 import HeaderBlock from './HeaderBlock'
 import { useParams } from 'react-router'
-import { Control, useWatch } from 'react-hook-form'
+import { useFormContext, useWatch } from 'react-hook-form'
 import { TemplateFormSchema } from '@/@types/template'
 import footerContent from './FooterBlock'
 
 interface GrapesEditorProps {
-    control: Control<TemplateFormSchema>
     readOnly: boolean
-    setValue: (name: keyof TemplateFormSchema, value: any) => void
+    loading?: boolean
 }
 
-export default function GrapesEditor({
-    control,
-    readOnly,
-    setValue,
-}: GrapesEditorProps) {
+const GrapesEditor = ({ readOnly, loading }: GrapesEditorProps) => {
     const editorRef = useRef<any | null>(null)
     const containerRef = useRef<HTMLDivElement>(null)
     const { type } = useParams<{ type: string }>()
+    loading
+    const { control, setValue } = useFormContext<TemplateFormSchema>()
     const template = useWatch({ control, name: 'template' })
 
     useEffect(() => {
@@ -74,10 +71,6 @@ export default function GrapesEditor({
         } else if (type) {
             if (type === 'header') editor.runCommand('insert-header')
             else if (type === 'footer') editor.runCommand('insert-footer')
-            else if (type === 'template') {
-                editor.runCommand('insert-header')
-                editor.runCommand('insert-footer')
-            }
         }
 
         editor.on('change', () => {
@@ -112,3 +105,5 @@ export default function GrapesEditor({
         </div>
     )
 }
+
+export default GrapesEditor
