@@ -6,174 +6,114 @@ import BottomStickyBar from '@/components/template/BottomStickyBar'
 import OverviewSection from './OverviewSection'
 import isEmpty from 'lodash/isEmpty'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useForm } from 'react-hook-form'
-import { z } from 'zod'
-import type { CommonProps } from '@/@types/common'
+import { FormProvider, useForm } from 'react-hook-form'
 import { UserFormSchema } from '@/@types/user'
 import AddressSection from './AddressSection'
 import SignImageSection from './SignImageSection'
 import ProfileImageSection from './ProfileImageSection'
 import AssignPermissionSection from './AssignPermissionSection'
+import LabAssignmentSection from './LabAssignmentSection'
 
-type UserFormProps = {
-    onFormSubmit: (values: UserFormSchema) => void
+import { userSchema } from '@/schemas/user.schema'
+
+interface UserFormProps {
+    step?: number
     defaultValues?: UserFormSchema
-    newUser?: boolean
     readOnly?: boolean
-} & CommonProps
+    onFormSubmit: (values: UserFormSchema) => void
+    onMethodsReady?: (methods: any) => void
+    children?: React.ReactNode
+}
 
-const validationSchema = z.object({
-    name: z.string().min(1, { message: 'Name required' }),
-    username: z.string().min(1, { message: 'Username required' }),
-    email: z
-        .string()
-        .min(1, { message: 'Email required' })
-        .email({ message: 'Invalid email address' }),
-
-    dialCode: z.string().min(1, { message: 'Please select your country code' }),
-    phone: z
-        .string()
-        .min(1, { message: 'Please input your mobile number' })
-        .max(10, { message: 'Mobile number must be 10 digits' }),
-
-    address: z.string().optional(),
-    city: z.string().optional(),
-    postcode: z.string().optional(),
-
-    preparedBy: z.boolean(),
-    issuedBy: z.boolean(),
-    approvedBy: z.boolean(),
-
-    signature: z.string().optional(),
-    profileImage: z.string().optional(),
-
-    userRoles: z
-        .array(
-            z.object({
-                zone_id: z.number().optional(),
-                cluster_id: z.number().optional(),
-                location_id: z.number().optional(),
-
-                department: z
-                    .array(
-                        z.object({
-                            department_id: z.number().optional(),
-                            roles: z
-                                .array(
-                                    z.object({
-                                        value: z.number().optional(),
-                                        label: z.string().optional(),
-                                    }),
-                                )
-                                .optional(),
-                            permissions: z
-                                .record(
-                                    z.union([z.string(), z.number()]), // role id
-                                    z.record(
-                                        z.string(), // module id
-                                        z.array(z.string()), // permissions
-                                    ),
-                                )
-                                .optional(),
-                        }),
-                    )
-                    .optional(),
-            }),
-        )
-        .optional(),
-})
-
-const UserForm = (props: UserFormProps) => {
-    const {
-        onFormSubmit,
-        defaultValues = {},
-        readOnly = false,
-        children,
-    } = props
+const UserForm = ({
+    step = 0,
+    defaultValues,
+    readOnly = false,
+    onFormSubmit,
+    onMethodsReady,
+    children,
+}: UserFormProps) => {
+    const methods = useForm<UserFormSchema>({
+        defaultValues,
+        resolver: zodResolver(userSchema),
+        shouldUnregister: false,
+    })
 
     const {
         handleSubmit,
         reset,
-        formState: { errors },
         control,
         setValue,
-    } = useForm<UserFormSchema>({
-        defaultValues: {
-            ...defaultValues,
-        },
-        resolver: zodResolver(validationSchema),
-    })
+        formState: { errors },
+    } = methods
+
+    useEffect(() => {
+        onMethodsReady?.(methods)
+    }, [methods])
 
     useEffect(() => {
         if (!isEmpty(defaultValues)) {
-            const existingUserRoles = (defaultValues as any).userRoles
-            const formattedValues = {
-                ...defaultValues,
-                userRoles: existingUserRoles || [
-                    {
-                        zone_id: '',
-                        cluster_id: '',
-                        location_name: '',
-                        department: [
-                            {
-                                department_name: '',
-                                roles: [],
-                                permissions: {},
-                            },
-                        ],
-                    },
-                ],
-            }
-            reset(formattedValues)
+            reset(defaultValues)
         }
-    }, [defaultValues, reset])
-
-    const onSubmit = (values: UserFormSchema) => {
-        onFormSubmit?.(values)
-    }
+    }, [defaultValues])
 
     return (
-        <Form
-            className="flex w-full h-full"
-            containerClassName="flex flex-col w-full justify-between"
-            onSubmit={handleSubmit(onSubmit)}
-        >
-            <Container>
-                <div className="flex flex-col md:flex-row gap-4">
-                    <div className="gap-4 flex flex-col flex-auto">
-                        <OverviewSection
+        <FormProvider {...methods}>
+            <Form
+                className="flex w-full h-full"
+                containerClassName="flex flex-col w-full justify-between"
+                onSubmit={handleSubmit(onFormSubmit)}
+            >
+                <Container>
+                    {step === 0 && (
+                        <div className="flex flex-col md:flex-row gap-4">
+                            <div className="flex flex-col gap-4 flex-auto">
+                                <OverviewSection
+                                    control={control}
+                                    errors={errors}
+                                    readOnly={readOnly}
+                                />
+                                <AssignPermissionSection
+                                    control={control}
+                                    errors={errors}
+                                    readOnly={readOnly}
+                                    setValue={setValue}
+                                />
+                            </div>
+
+                            <div className="md:w-[370px] flex flex-col gap-4">
+                                <ProfileImageSection
+                                    control={control}
+                                    errors={errors}
+                                    readOnly={readOnly}
+                                />
+                                <SignImageSection
+                                    control={control}
+                                    errors={errors}
+                                    readOnly={readOnly}
+                                />
+                                <AddressSection
+                                    control={control}
+                                    errors={errors}
+                                    readOnly={readOnly}
+                                />
+                            </div>
+                        </div>
+                    )}
+
+                    {step === 1 && (
+                        <LabAssignmentSection
                             control={control}
                             errors={errors}
-                            readOnly={readOnly}
-                        />
-                        <AssignPermissionSection
-                            control={control}
-                            errors={errors}
-                            readOnly={readOnly}
                             setValue={setValue}
-                        />
-                    </div>
-                    <div className="md:w-[370px] gap-4 flex flex-col">
-                        <ProfileImageSection
-                            control={control}
-                            errors={errors}
                             readOnly={readOnly}
                         />
-                        <SignImageSection
-                            control={control}
-                            errors={errors}
-                            readOnly={readOnly}
-                        />
-                        <AddressSection
-                            control={control}
-                            errors={errors}
-                            readOnly={readOnly}
-                        />
-                    </div>
-                </div>
-            </Container>
-            <BottomStickyBar>{children}</BottomStickyBar>
-        </Form>
+                    )}
+                </Container>
+
+                <BottomStickyBar>{children}</BottomStickyBar>
+            </Form>
+        </FormProvider>
     )
 }
 

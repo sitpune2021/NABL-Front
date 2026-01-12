@@ -1,4 +1,4 @@
-import { Card } from '@/components/ui'
+import { Card, Checkbox, Button } from '@/components/ui'
 import React, { useState } from 'react'
 
 interface DocumentType {
@@ -46,28 +46,30 @@ const ClauseItem: React.FC<{
             <div className="flex items-center gap-2 p-2 rounded-md hover:bg-muted">
                 {/* Collapse Button */}
                 {hasChildren ? (
-                    <button
+                    <Button
                         type="button"
-                        className="text-xs w-6 text-center text-muted-foreground"
+                        size="xs"
+                        variant="plain"
+                        className="w-6 text-center text-muted-foreground p-0"
+                        aria-label={open ? 'collapse' : 'expand'}
                         onClick={() => setOpen(!open)}
                     >
                         <span className="text-xl font-bold leading-none">
                             {open ? '▾' : '▸'}
                         </span>
-                    </button>
+                    </Button>
                 ) : (
                     <span className="w-6" />
                 )}
-                <input
-                    type="checkbox"
-                    className="h-4 w-4 accent-primary"
+
+                <Checkbox
                     checked={selectedItems.includes(`clause-${clause.id}`)}
                     onChange={() => handleToggle(`clause-${clause.id}`, clause)}
-                />
-
-                <span className="font-semibold text-gray-900">
-                    {clause.title}
-                </span>
+                >
+                    <span className="font-semibold text-gray-900">
+                        {clause.title}
+                    </span>
+                </Checkbox>
             </div>
 
             {open && (
@@ -75,13 +77,11 @@ const ClauseItem: React.FC<{
                     {clause.documents && (
                         <div className="ml-10 mt-2 space-y-2">
                             {clause.documents.map((doc) => (
-                                <label
+                                <div
                                     key={doc.id}
-                                    className="flex items-center gap-3 p-2 rounded-md cursor-pointer text-sm hover:bg-muted"
+                                    className="p-2 rounded-md text-sm hover:bg-muted"
                                 >
-                                    <input
-                                        type="checkbox"
-                                        className="h-4 w-4 accent-primary"
+                                    <Checkbox
                                         checked={selectedItems.includes(
                                             `doc-${clause.id}-${doc.id}`,
                                         )}
@@ -90,11 +90,12 @@ const ClauseItem: React.FC<{
                                                 `doc-${clause.id}-${doc.id}`,
                                             )
                                         }
-                                    />
-                                    <span className="text-gray-700">
-                                        {doc.name}
-                                    </span>
-                                </label>
+                                    >
+                                        <span className="text-gray-700">
+                                            {doc.name}
+                                        </span>
+                                    </Checkbox>
+                                </div>
                             ))}
                         </div>
                     )}
