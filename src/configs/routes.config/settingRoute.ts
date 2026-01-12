@@ -57,7 +57,6 @@ const settingRoute: Routes = [
                     'Manage Users details, track Users, and update Users easily.',
                 contained: true,
             },
-            footer: false,
         },
     },
     {

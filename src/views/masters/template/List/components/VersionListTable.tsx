@@ -1,17 +1,19 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useCallback, useMemo } from 'react'
 import DataTable from '@/components/shared/DataTable'
-import { useNavigate } from 'react-router'
+import { useNavigate, useParams } from 'react-router'
 import type { OnSortParam, Row } from '@/components/shared/DataTable'
-import useTemplateList from '../hooks/useList'
 import endpointConfig from '@/configs/endpoint.config'
 import { Template } from '@/@types/template'
-import { buildTemplateColumns } from '@/columns/template.columns'
+import useVersionsTemplateList from '../hooks/useVersionsList'
+import { buildVersionTemplateColumns } from '@/columns/version_template.columns'
 
-const TemplateListTable = () => {
+const VersionListTable = () => {
     const navigate = useNavigate()
+    const { id } = useParams()
 
     const {
-        templateList,
+        templateVersionsList,
         total,
         tableData,
         isLoading,
@@ -20,49 +22,35 @@ const TemplateListTable = () => {
         toggleRow,
         setAll,
         clearSelection,
-    } = useTemplateList()
+    } = useVersionsTemplateList(id)
 
     const navigateTo = useCallback((path: string) => navigate(path), [navigate])
 
     const handleEdit = useCallback(
-        (template: Template) =>
+        (template: any) =>
             navigateTo(
-                endpointConfig.master.template.edit.replace(
-                    ':id',
-                    String(template.id),
-                ),
+                endpointConfig.master.template.versions.edit
+                    .replace(':id', String(template.temp_id))
+                    .replace(':version_id', String(template.id)),
             ),
         [navigateTo],
     )
 
     const handleView = useCallback(
-        (template: Template) =>
+        (template: any) =>
             navigateTo(
-                endpointConfig.master.template.view.replace(
-                    ':id',
-                    String(template.id),
-                ),
-            ),
-        [navigateTo],
-    )
-
-    const handleVersionsList = useCallback(
-        (template: Template) =>
-            navigateTo(
-                endpointConfig.master.template.versions.list.replace(
-                    ':id',
-                    String(template.id),
-                ),
+                endpointConfig.master.template.versions.view
+                    .replace(':id', String(template.temp_id))
+                    .replace(':version_id', String(template.id)),
             ),
         [navigateTo],
     )
 
     const columns = useMemo(
         () =>
-            buildTemplateColumns({
+            buildVersionTemplateColumns({
                 onEdit: handleEdit,
                 onView: handleView,
-                onVersionsList: handleVersionsList,
             }),
         [handleEdit, handleView],
     )
@@ -92,8 +80,8 @@ const TemplateListTable = () => {
         <DataTable
             selectable
             columns={columns}
-            data={templateList}
-            noData={!isLoading && templateList.length === 0}
+            data={templateVersionsList}
+            noData={!isLoading && templateVersionsList.length === 0}
             skeletonAvatarColumns={[0]}
             skeletonAvatarProps={{ width: 28, height: 28 }}
             loading={isLoading}
@@ -112,4 +100,4 @@ const TemplateListTable = () => {
     )
 }
 
-export default TemplateListTable
+export default VersionListTable

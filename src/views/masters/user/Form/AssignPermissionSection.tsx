@@ -2,7 +2,7 @@
 import Card from '@/components/ui/Card'
 import { FormSectionBaseProps } from '@/@types/user'
 import AssignPermissionItem from './AssignPermissionItem'
-import useRolesList from '../../roles/List/hooks/useList'
+import useRolesList from '../../RolesPermissions/hooks/useList'
 
 const AssignPermissionSection = ({
     control,

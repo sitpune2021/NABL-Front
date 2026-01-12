@@ -168,7 +168,21 @@ const masterRoute: Routes = [
     {
         key: 'masters.template.list',
         path: `${endpointConfig.master.template.list}`,
-        component: lazy(() => import('@/views/masters/template/List')),
+        component: lazy(() =>
+            import('@/views/masters/template/List').then((module) => ({
+                default: module.TemplateList,
+            })),
+        ),
+        authority: [],
+    },
+    {
+        key: 'masters.template.list',
+        path: `${endpointConfig.master.template.versions.list}`,
+        component: lazy(() =>
+            import('@/views/masters/template/List').then((module) => ({
+                default: module.VersionList,
+            })),
+        ),
         authority: [],
     },
     {

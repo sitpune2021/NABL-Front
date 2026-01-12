@@ -13,6 +13,7 @@ const settingNavigationConfig: NavigationTree[] = [
         translateKey: 'nav.settings',
         icon: 'concepts',
         type: NAV_ITEM_TYPE_TITLE,
+        for: 'both',
         authority: [],
         meta: {},
         subMenu: [
@@ -23,6 +24,7 @@ const settingNavigationConfig: NavigationTree[] = [
                 translateKey: 'nav.settingsRoles.list',
                 icon: 'accountRoleAndPermission',
                 type: NAV_ITEM_TYPE_ITEM,
+                for: 'both',
                 authority: [],
                 meta: {
                     description: {
@@ -39,6 +41,7 @@ const settingNavigationConfig: NavigationTree[] = [
                 translateKey: 'nav.settingsUser.list',
                 icon: 'account',
                 type: NAV_ITEM_TYPE_ITEM,
+                for: 'both',
                 authority: [],
                 meta: {
                     description: {
@@ -55,6 +58,7 @@ const settingNavigationConfig: NavigationTree[] = [
                 translateKey: 'nav.settingsClauses.list',
                 icon: 'helpCeterEditArticle',
                 type: NAV_ITEM_TYPE_ITEM,
+                for: 'master',
                 authority: [],
                 meta: {
                     description: {
@@ -72,6 +76,7 @@ const settingNavigationConfig: NavigationTree[] = [
                 translateKey: 'nav.settingsAccount',
                 icon: 'account',
                 type: NAV_ITEM_TYPE_ITEM,
+                for: 'both',
                 authority: [],
                 meta: {
                     description: {

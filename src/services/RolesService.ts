@@ -19,6 +19,13 @@ export async function apiGetAccesModulesList<T>() {
     })
 }
 
+export async function apiGetRoleLevelsList<T>() {
+    return ApiService.fetchDataWithAxios<T>({
+        url: apiEndpointConfig.roleLevels,
+        method: 'get',
+    })
+}
+
 export async function apiRoles(data: Fields) {
     return ApiService.fetchDataWithAxios<Fields>({
         url: apiEndpointConfig.roles,

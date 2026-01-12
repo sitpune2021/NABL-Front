@@ -2,45 +2,36 @@ import { useState } from 'react'
 import Button from '@/components/ui/Button'
 import Dialog from '@/components/ui/Dialog'
 import Checkbox from '@/components/ui/Checkbox'
-import Input from '@/components/ui/Input'
 import { Form, FormItem } from '@/components/ui/Form'
 import { TbFilter } from 'react-icons/tb'
 import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import useTemplateList from '../hooks/useList'
+import { Select } from '@/components/ui'
 
-type FormSchema = {
-    purchasedProducts: string
-    purchaseChannel: Array<string>
-}
-
-const channelList = [
-    'all',
-    'header',
-    'footer',
-    'generic',
-    'draft',
-    'draft-header',
-    'draft-footer',
-    'draft-generic',
-    'archived-all',
-    'archived-header',
-    'archived-footer',
-    'archived-generic',
+const statusOptions = [
+    { label: 'Draft', value: 'draft' },
+    { label: 'Published', value: 'published' },
+    { label: 'Archived', value: 'archived' },
 ]
 
-const validationSchema = z.object({
-    purchasedProducts: z.string(),
-    purchaseChannel: z.array(z.string()),
+const typeList = ['header', 'footer']
+
+const schema = z.object({
+    status: z.array(z.string()),
+    type: z.array(z.string()),
 })
+
+export type FormSchema = z.infer<typeof schema>
 
 const TemplateListTableFilter = () => {
     const [dialogIsOpen, setIsOpen] = useState(false)
 
-    const { filterData, setFilterData } = useTemplateList()
+    const { filterData, updateFilters, resetFilters } = useTemplateList()
 
     const openDialog = () => {
+        reset(filterData)
         setIsOpen(true)
     }
 
@@ -50,11 +41,17 @@ const TemplateListTableFilter = () => {
 
     const { handleSubmit, reset, control } = useForm<FormSchema>({
         defaultValues: filterData,
-        resolver: zodResolver(validationSchema),
+        resolver: zodResolver(schema),
     })
 
+    const onReset = () => {
+        resetFilters()
+        reset({ status: [], type: [] })
+        setIsOpen(false)
+    }
+
     const onSubmit = (values: FormSchema) => {
-        setFilterData(values)
+        updateFilters(values)
         setIsOpen(false)
     }
 
@@ -71,23 +68,32 @@ const TemplateListTableFilter = () => {
                 <div className="max-h-[70vh] overflow-y-auto pr-2">
                     <h4 className="mb-4">Filter</h4>
                     <Form onSubmit={handleSubmit(onSubmit)}>
-                        <FormItem label="Products">
+                        <FormItem label="Status">
                             <Controller
-                                name="purchasedProducts"
+                                name="status"
                                 control={control}
                                 render={({ field }) => (
-                                    <Input
-                                        type="text"
-                                        autoComplete="off"
-                                        placeholder="Search by purchased product"
-                                        {...field}
+                                    <Select
+                                        isMulti
+                                        placeholder="Select Status"
+                                        options={statusOptions}
+                                        value={statusOptions.filter((option) =>
+                                            field.value?.includes(option.value),
+                                        )}
+                                        onChange={(selected) =>
+                                            field.onChange(
+                                                selected.map(
+                                                    (item) => item.value,
+                                                ),
+                                            )
+                                        }
                                     />
                                 )}
                             />
                         </FormItem>
-                        <FormItem label="Purchase Channel">
+                        <FormItem label="Type">
                             <Controller
-                                name="purchaseChannel"
+                                name="type"
                                 control={control}
                                 render={({ field }) => (
                                     <Checkbox.Group
@@ -95,7 +101,7 @@ const TemplateListTableFilter = () => {
                                         className="flex mt-4"
                                         {...field}
                                     >
-                                        {channelList.map((source, index) => (
+                                        {typeList.map((source, index) => (
                                             <Checkbox
                                                 key={source + index}
                                                 name={field.name}
@@ -110,7 +116,7 @@ const TemplateListTableFilter = () => {
                             />
                         </FormItem>
                         <div className="flex justify-end items-center gap-2 mt-4">
-                            <Button type="button" onClick={() => reset()}>
+                            <Button type="button" onClick={() => onReset()}>
                                 Reset
                             </Button>
                             <Button type="submit" variant="solid">

@@ -1,21 +1,23 @@
 import Container from '@/components/shared/Container'
 import RolesPermissionsGroups from './components/RolesPermissionsGroups'
 import RolesPermissionsGroupsAction from './components/RolesPermissionsGroupsAction'
-import RolesPermissionsUserAction from './components/RolesPermissionsUserAction'
-import RolesPermissionsUserTable from './components/RolesPermissionsUserTable'
-import RolesPermissionsUserSelected from './components/RolesPermissionsUserSelected'
+// import RolesPermissionsUserAction from './components/RolesPermissionsUserAction'
+// import RolesPermissionsUserTable from './components/RolesPermissionsUserTable'
+// import RolesPermissionsUserSelected from './components/RolesPermissionsUserSelected'
 import RolesPermissionsAccessDialog from './components/RolesPermissionsAccessDialog'
-import useRolesList from '../roles/List/hooks/useList'
-import useUserList from '../user/List/hooks/useList'
+// import useUserList from '../user/List/hooks/useList'
+import useRolesList from './hooks/useList'
+import { useRoleLevelList } from './hooks/useRoleLevelList'
 
 const RolesPermissions = () => {
-    const { rolesList, mutate: roleMutate } = useRolesList()
-    const {
-        userList,
-        userListTotal,
-        mutate: userMutate,
-        isLoading: userLoading,
-    } = useUserList()
+    const { rolesList, mutate: roleMutate, accessModules } = useRolesList()
+    const { roleLevelsList, mutate: roleLevelMutate } = useRoleLevelList()
+    // const {
+    //     userList,
+    //     userListTotal,
+    //     mutate: userMutate,
+    //     isLoading: userLoading,
+    // } = useUserList()
 
     return (
         <>
@@ -29,7 +31,7 @@ const RolesPermissions = () => {
                         <RolesPermissionsGroups roleList={rolesList} />
                     </div>
                 </div>
-                <div>
+                {/* <div>
                     <div>
                         <div className="mb-6 flex flex-col gap-5">
                             <h3>All accounts</h3>
@@ -45,17 +47,19 @@ const RolesPermissions = () => {
                             roleList={rolesList}
                         />
                     </div>
-                </div>
+                </div> */}
             </Container>
             <RolesPermissionsAccessDialog
                 roleList={rolesList}
-                mutate={roleMutate}
+                roleLevelsList={roleLevelsList}
+                mutate={roleMutate && roleLevelMutate}
+                accessModules={accessModules}
             />
-            <RolesPermissionsUserSelected
+            {/* <RolesPermissionsUserSelected
                 userList={userList}
                 userListTotal={userListTotal}
                 mutate={userMutate}
-            />
+            /> */}
         </>
     )
 }

@@ -1,7 +1,7 @@
 import { TableQueries } from './common'
 
 import type { Control, FieldErrors } from 'react-hook-form'
-import { User } from './user'
+import { KeyedMutator } from 'swr'
 
 export type GetRolesListResponse = {
     list: Roles[]
@@ -12,6 +12,8 @@ export type Filter = {
     purchasedProducts: string
     purchaseChannel: Array<string>
 }
+
+type User = Record<string, string>
 
 export type Roles = {
     id: string
@@ -53,3 +55,5 @@ export type FormSectionBaseProps = {
     errors: FieldErrors<RolesFormSchema>
     readOnly?: boolean
 }
+
+export type MutateRolesPermissionsRolesResponse = KeyedMutator<Roles>

@@ -18,14 +18,17 @@ import {
     TbFileChart,
     TbCheck,
 } from 'react-icons/tb'
-import type { MutateRolesPermissionsRolesResponse, Roles } from '../types'
+import {
+    MutateRolesPermissionsRolesResponse,
+    Roles,
+    RolesFormSchema,
+} from '@/@types/roles'
 import type { ReactNode } from 'react'
 import { Controller, useForm } from 'react-hook-form'
-import { RolesFormSchema } from '@/@types/roles'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Notification, toast } from '@/components/ui'
-import useRolesList from '../../roles/List/hooks/useList'
+import useRolesList from '../hooks/useList'
 
 const validationSchema = z.object({
     name: z.string().trim().min(1, { message: 'Name is required' }),
@@ -39,6 +42,8 @@ const validationSchema = z.object({
 type RolesPermissionsAccessDialogProps = {
     roleList: Roles[]
     mutate: MutateRolesPermissionsRolesResponse
+    roleLevelsList: any
+    accessModules: any
 }
 
 const moduleIcon: Record<string, ReactNode> = {
@@ -63,15 +68,15 @@ const moduleIcon: Record<string, ReactNode> = {
 const RolesPermissionsAccessDialog = ({
     roleList,
     mutate,
+    roleLevelsList,
+    accessModules,
 }: RolesPermissionsAccessDialogProps) => {
-    const { accessModules, saveRolesData } = useRolesList()
+    const { saveRolesData } = useRolesList()
+
     const { selectedRole, setRoleDialog, roleDialog } =
         useRolePermissionsStore()
     const isEdit = roleDialog.type === 'edit'
-    const nextLevel = useMemo(() => {
-        if (!roleList || roleList.length === 0) return 1
-        return Math.max(...roleList.map((r) => r.level)) + 1
-    }, [roleList])
+    const nextLevel = roleLevelsList.length
 
     const {
         handleSubmit,

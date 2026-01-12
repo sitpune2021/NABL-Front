@@ -11,6 +11,7 @@ const apiEndpointConfig = {
     units: '/units',
     instruments: '/instruments',
     templates: '/templates',
+    templatesVerions: '/templates/versions',
     zones: '/zones',
     clusters: '/clusters',
     locations: '/locations',
@@ -26,6 +27,7 @@ const apiEndpointConfig = {
 
     navigationItems: '/navigation-items',
     accessModules: '/access-modules',
+    roleLevels: '/role-levels',
 }
 
 export default apiEndpointConfig

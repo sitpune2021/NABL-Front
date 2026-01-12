@@ -8,8 +8,8 @@ import { FormSectionBaseProps } from '@/@types/user'
 import { HiChevronDown, HiX } from 'react-icons/hi'
 import { TbSearch } from 'react-icons/tb'
 import useLabList from '../../lab/List/hooks/useList'
-import useRolesList from '../../roles/List/hooks/useList'
 import { useWatch } from 'react-hook-form'
+import useRolesList from '../../RolesPermissions/hooks/useList'
 
 type LabAssignmentSectionProps = FormSectionBaseProps & {
     setValue: any

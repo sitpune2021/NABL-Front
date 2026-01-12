@@ -1,144 +1,110 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import { useEffect, useState } from 'react'
+import { useMemo, useState, useCallback } from 'react'
 import { useParams, useNavigate, useLocation } from 'react-router'
 import Notification from '@/components/ui/Notification'
 import toast from '@/components/ui/toast'
 import ConfirmDialog from '@/components/shared/ConfirmDialog'
-import sleep from '@/utils/sleep'
-import endpointConfig from '@/configs/endpoint.config'
-import useTemplateList from '../List/hooks/useList'
-import TemplateForm from '../Form'
-import { TemplateFormSchema } from '@/@types/template'
 import BottomPanel from '@/components/form/bottomPanel'
+import { getMode } from '@/utils/getMode'
+import { useDiscardConfirm } from '@/utils/hooks/useDiscardConfirm'
+import { useEntityMutations } from '@/utils/hooks/useEntityMutations'
+import { useFormSubmit } from '@/utils/hoc/useFormSubmit'
+import endpointConfig from '@/configs/endpoint.config'
+import { useTemplateDetail } from '../List/hooks/useTemplateDetail'
+import TemplateForm from '../Form'
+import { TemplateFormSchema } from '@/schemas/template.schema'
+import { apiTemplate, apiUpdateTemplate } from '@/services/TemplateService'
+
+type RouteParams = {
+    id?: string
+    type?: 'header' | 'footer'
+}
 
 const TemplateAddEdit = () => {
     const navigate = useNavigate()
     const location = useLocation()
-    const { id: templateId, type } = useParams()
-    const { saveTemplateData, getTemplateById } = useTemplateList()
+    const { id, type } = useParams<RouteParams>()
 
-    const [discardConfirmationOpen, setDiscardConfirmationOpen] =
-        useState(false)
-    const [isSubmiting, setIsSubmiting] = useState(false)
-    const [templateData, setTemplateData] = useState<TemplateFormSchema | null>(
-        null,
+    const EMPTY_VALUES = useMemo<TemplateFormSchema>(
+        () => ({
+            name: '',
+            type: type ?? '',
+            template: {
+                html: '',
+                css: '',
+                json: '',
+            },
+            status: 'draft',
+        }),
+        [type],
     )
-    const [loadingData, setLoadingData] = useState(false)
 
-    const [dialogIsOpen, setDialogIsOpen] = useState(false)
+    const mode = useMemo(() => getMode(location.pathname), [location.pathname])
+    const isView = mode === 'view'
+    const isEdit = mode === 'edit'
 
-    const isEdit = location.pathname.includes('/edit')
-    const isView = location.pathname.includes('/view')
-    const isAdd = location.pathname.includes('/create')
+    const { template, isLoading } = useTemplateDetail(id)
+    const discard = useDiscardConfirm()
 
-    useEffect(() => {
-        if (!isAdd && templateId) {
-            setLoadingData(true)
-            getTemplateById(templateId)
-                .then((data) => {
-                    setTemplateData(data)
-                })
-                .finally(() => setLoadingData(false))
-        }
-    }, [templateId, isAdd])
+    const defaultValues = useMemo(
+        () => template ?? EMPTY_VALUES,
+        [template, EMPTY_VALUES],
+    )
 
-    const handleFormSubmit = async (values: TemplateFormSchema) => {
-        if (isView) return
-        setIsSubmiting(true)
-        try {
-            const payload = isEdit ? { ...values, id: templateId } : values
-            await saveTemplateData(payload)
-            await sleep(800)
-            setIsSubmiting(false)
-            setDialogIsOpen(false) // Close dialog after submit
-            toast.push(
-                <Notification type="success">
-                    {isEdit ? 'Template updated!' : 'Template created!'}
-                </Notification>,
-                { placement: 'top-center' },
-            )
-            navigate(`${endpointConfig.master.template.list}`)
-        } catch (error: any) {
-            const backendErrors = error?.response?.data?.errors
+    const { save } = useEntityMutations<TemplateFormSchema>({
+        apiCreate: apiTemplate,
+        apiUpdate: apiUpdateTemplate,
+    })
 
-            if (backendErrors) {
-                Object.entries(backendErrors).forEach(([messages]) => {
-                    const message = Array.isArray(messages)
-                        ? messages[0]
-                        : messages
-                    toast.push(
-                        <Notification type="danger">{message}</Notification>,
-                        { placement: 'top-center' },
-                    )
-                })
-            } else {
-                const errorMessage =
-                    error?.response?.data?.message ||
-                    `Failed to ${isEdit ? 'update' : 'create'} template.`
+    const { handleSubmit, isSubmitting } = useFormSubmit<TemplateFormSchema>({
+        apiCall: (values) =>
+            save({ ...values, ...(isEdit && id ? { id } : {}) }),
+        navigateTo: endpointConfig.master.template.list,
+    })
 
-                toast.push(
-                    <Notification type="danger">{errorMessage}</Notification>,
-                    { placement: 'top-center' },
-                )
-            }
-        } finally {
-            setIsSubmiting(false)
-        }
-    }
-
-    const handleConfirmDiscard = () => {
-        setDiscardConfirmationOpen(true)
+    const confirmDiscard = useCallback(() => {
         toast.push(
-            <Notification type="success">Changes discarded!</Notification>,
+            <Notification type="success">Changes discarded</Notification>,
             { placement: 'top-center' },
         )
-        navigate(`${endpointConfig.master.template.list}`)
-    }
+        discard.close()
+        navigate(endpointConfig.master.template.list)
+    }, [discard, navigate])
 
-    const handleDiscard = () => setDiscardConfirmationOpen(true)
-    const handleCancel = () => setDiscardConfirmationOpen(false)
-    const onDialogClose = () => setDialogIsOpen(false)
+    const [submitDialogOpen, setSubmitDialogOpen] = useState(false)
 
-    if (loadingData && !isAdd) {
-        return <p className="p-4">Loading template data...</p>
-    }
+    const closeSubmitDialog = () => setSubmitDialogOpen(false)
 
     return (
         <>
             <TemplateForm
-                newTemplate={isAdd}
-                defaultValues={
-                    templateData ?? {
-                        name: '',
-                        type: type || '',
-                        template: { html: '', css: '', json: '' },
-                        status: 'draft',
-                    }
-                }
+                defaultValues={defaultValues}
                 readOnly={isView}
-                dialogIsOpen={dialogIsOpen}
-                isSubmiting={isSubmiting}
+                dialogIsOpen={submitDialogOpen}
+                isSubmiting={isSubmitting}
                 isEdit={isEdit}
-                onFormSubmit={handleFormSubmit}
-                onDialogClose={onDialogClose}
+                EMPTY_VALUES={EMPTY_VALUES}
+                loading={isLoading}
+                onFormSubmit={handleSubmit}
+                onDialogClose={closeSubmitDialog}
             >
                 <BottomPanel
                     isView={isView}
                     isEdit={isEdit}
-                    isSubmitting={isSubmiting}
+                    isSubmitting={isSubmitting}
                     type="button"
-                    onDiscard={handleDiscard}
-                    onPrimaryClick={() => setDialogIsOpen(true)}
+                    onDiscard={discard.show}
+                    onPrimaryClick={() => setSubmitDialogOpen(true)}
                 />
             </TemplateForm>
+
             <ConfirmDialog
-                isOpen={discardConfirmationOpen}
+                isOpen={discard.open}
                 type="danger"
                 title="Discard changes"
-                onClose={handleCancel}
-                onRequestClose={handleCancel}
-                onCancel={handleCancel}
-                onConfirm={handleConfirmDiscard}
+                onClose={discard.close}
+                onRequestClose={discard.close}
+                onCancel={discard.close}
+                onConfirm={confirmDiscard}
             >
                 <p>
                     Are you sure you want discard this? This action can&apos;t
