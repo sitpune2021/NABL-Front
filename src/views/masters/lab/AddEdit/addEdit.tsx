@@ -96,6 +96,8 @@ const LabAddEdit = () => {
             },
         ],
         documents: [], // select all initially
+        standard_id: null,
+        selectedClauses: [],
     }
 
     const defaultValues = useMemo(() => {

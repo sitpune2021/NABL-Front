@@ -36,6 +36,9 @@ export type Lab = {
     phones: ContactField[]
     address?: string
     location: LocationField[]
+    standard_id?: number | null
+    selectedClauses?: string[]
+    documents: (string | number)[]
 }
 
 export type GetLabListResponse = {
