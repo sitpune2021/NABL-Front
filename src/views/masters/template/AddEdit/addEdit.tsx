@@ -10,45 +10,41 @@ import { useEntityMutations } from '@/utils/hooks/useEntityMutations'
 import { useFormSubmit } from '@/utils/hoc/useFormSubmit'
 import endpointConfig from '@/configs/endpoint.config'
 import { useTemplateDetail } from '../List/hooks/useTemplateDetail'
+import { useTemplateVersionDetail } from '../List/hooks/useTemplateVersionDetail'
 import TemplateForm from '../Form'
 import { TemplateFormSchema } from '@/schemas/template.schema'
 import { apiTemplate, apiUpdateTemplate } from '@/services/TemplateService'
+import { EMPTY_VALUES } from '@/constants/template.constants'
 
 type RouteParams = {
     id?: string
+    version_id?: string
     type?: 'header' | 'footer'
 }
 
 const TemplateAddEdit = () => {
     const navigate = useNavigate()
     const location = useLocation()
-    const { id, type } = useParams<RouteParams>()
-
-    const EMPTY_VALUES = useMemo<TemplateFormSchema>(
-        () => ({
-            name: '',
-            type: type ?? '',
-            template: {
-                html: '',
-                css: '',
-                json: '',
-            },
-            status: 'draft',
-        }),
-        [type],
-    )
+    const { id, version_id, type } = useParams<RouteParams>()
 
     const mode = useMemo(() => getMode(location.pathname), [location.pathname])
-    const isView = mode === 'view'
-    const isEdit = mode === 'edit'
+    const isVersionView = Boolean(version_id)
+    const isView = mode === 'view' || isVersionView
+    const isEdit = mode === 'edit' && !isVersionView
 
-    const { template, isLoading } = useTemplateDetail(id)
-    const discard = useDiscardConfirm()
+    const { template: templateDetail, isLoading: templateLoading } =
+        useTemplateDetail(id)
 
-    const defaultValues = useMemo(
-        () => template ?? EMPTY_VALUES,
-        [template, EMPTY_VALUES],
-    )
+    const { template: versionDetail, isLoading: versionLoading } =
+        useTemplateVersionDetail(id, version_id)
+
+    const template = isVersionView ? versionDetail : templateDetail
+    const isLoading = isVersionView ? versionLoading : templateLoading
+
+    const defaultValues: TemplateFormSchema = useMemo(() => {
+        if (template) return template
+        return { ...EMPTY_VALUES, type: type ?? '' }
+    }, [template, type])
 
     const { save } = useEntityMutations<TemplateFormSchema>({
         apiCreate: apiTemplate,
@@ -56,10 +52,17 @@ const TemplateAddEdit = () => {
     })
 
     const { handleSubmit, isSubmitting } = useFormSubmit<TemplateFormSchema>({
-        apiCall: (values) =>
-            save({ ...values, ...(isEdit && id ? { id } : {}) }),
+        apiCall: (values) => {
+            if (isVersionView) return Promise.resolve()
+            return save({ ...values, ...(isEdit && id ? { id } : {}) })
+        },
         navigateTo: endpointConfig.master.template.list,
     })
+
+    const discard = useDiscardConfirm()
+    const handlePrimaryClick = useCallback(() => setSubmitDialogOpen(true), [])
+    const handleDiscardClick = useCallback(() => discard.show(), [discard])
+    const canSubmit = !isView && !isVersionView
 
     const confirmDiscard = useCallback(() => {
         toast.push(
@@ -71,8 +74,9 @@ const TemplateAddEdit = () => {
     }, [discard, navigate])
 
     const [submitDialogOpen, setSubmitDialogOpen] = useState(false)
-
-    const closeSubmitDialog = () => setSubmitDialogOpen(false)
+    if (isLoading) {
+        return <div>Loading template...</div> // or a spinner
+    }
 
     return (
         <>
@@ -85,32 +89,33 @@ const TemplateAddEdit = () => {
                 EMPTY_VALUES={EMPTY_VALUES}
                 loading={isLoading}
                 onFormSubmit={handleSubmit}
-                onDialogClose={closeSubmitDialog}
+                onDialogClose={() => setSubmitDialogOpen(false)}
             >
                 <BottomPanel
                     isView={isView}
                     isEdit={isEdit}
                     isSubmitting={isSubmitting}
                     type="button"
-                    onDiscard={discard.show}
-                    onPrimaryClick={() => setSubmitDialogOpen(true)}
+                    onDiscard={!isVersionView ? handleDiscardClick : undefined}
+                    onPrimaryClick={canSubmit ? handlePrimaryClick : undefined}
                 />
             </TemplateForm>
 
-            <ConfirmDialog
-                isOpen={discard.open}
-                type="danger"
-                title="Discard changes"
-                onClose={discard.close}
-                onRequestClose={discard.close}
-                onCancel={discard.close}
-                onConfirm={confirmDiscard}
-            >
-                <p>
-                    Are you sure you want discard this? This action can&apos;t
-                    be undo.{' '}
-                </p>
-            </ConfirmDialog>
+            {!isVersionView && (
+                <ConfirmDialog
+                    isOpen={discard.open}
+                    type="danger"
+                    title="Discard changes"
+                    onClose={discard.close}
+                    onCancel={discard.close}
+                    onConfirm={confirmDiscard}
+                >
+                    <p>
+                        Are you sure you want to discard this? This action
+                        can&apos;t be undone.
+                    </p>
+                </ConfirmDialog>
+            )}
         </>
     )
 }

@@ -1,16 +1,17 @@
 import ActionColumn from '@/components/form/ActionColumn'
-import { TbPencil, TbEye } from 'react-icons/tb'
+import { TbEye } from 'react-icons/tb'
 import type { ColumnDef } from '@/components/shared/DataTable'
 import { Template } from '@/@types/template'
+import IsCurrentBadge from '@/views/masters/template/List/components/IsCurrentBadge'
 
 type ColumnActions = {
-    onEdit: (row: Template) => void
     onView: (row: Template) => void
+    handleSubmit: (templateId: number, versionId: number) => void
 }
 
 export const buildVersionTemplateColumns = ({
-    onEdit,
     onView,
+    handleSubmit,
 }: ColumnActions): ColumnDef<Template>[] => [
     {
         header: 'Id',
@@ -33,6 +34,16 @@ export const buildVersionTemplateColumns = ({
     {
         header: 'Is Current',
         accessorKey: 'is_current',
+        cell: ({ row }) => {
+            const { is_current, id: version_id } = row.original
+
+            return (
+                <IsCurrentBadge
+                    isCurrent={is_current}
+                    onMakeCurrent={() => handleSubmit(version_id)}
+                />
+            )
+        },
     },
     {
         header: 'Version',
@@ -44,11 +55,6 @@ export const buildVersionTemplateColumns = ({
         cell: ({ row }) => (
             <ActionColumn
                 buttons={[
-                    {
-                        icon: <TbPencil />,
-                        tooltip: 'Edit',
-                        onClick: () => onEdit(row.original),
-                    },
                     {
                         icon: <TbEye />,
                         tooltip: 'View',

@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 type EntityMutationsProps<T> = {
-    apiCreate: (payload: T) => Promise<any>
+    apiCreate?: (payload: T) => Promise<any>
     apiUpdate?: (id: string, payload: T) => Promise<any>
 }
 
@@ -13,7 +13,9 @@ export const useEntityMutations = <T>({
             const { id, ...payload } = entity
             return apiUpdate(id, payload as T)
         }
-        return apiCreate(entity as T)
+        if (apiCreate) {
+            return apiCreate(entity as T)
+        }
     }
 
     return { save }

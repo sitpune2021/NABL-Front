@@ -218,6 +218,19 @@ const masterRoute: Routes = [
             pageContainerType: 'gutterless',
         },
     },
+
+    {
+        key: 'masters.template.versions.view',
+        path: `${endpointConfig.master.template.versions.view}`,
+        component: lazy(() => import('@/views/masters/template/AddEdit')),
+        authority: [],
+        meta: {
+            layout: 'blank',
+            footer: false,
+            pageContainerType: 'gutterless',
+        },
+    },
+
     {
         key: 'masters.location.list',
         path: `${endpointConfig.master.location.list}`,

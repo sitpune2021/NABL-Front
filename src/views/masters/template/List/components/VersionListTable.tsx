@@ -7,6 +7,9 @@ import endpointConfig from '@/configs/endpoint.config'
 import { Template } from '@/@types/template'
 import useVersionsTemplateList from '../hooks/useVersionsList'
 import { buildVersionTemplateColumns } from '@/columns/version_template.columns'
+import { apiChangeCurrentTemplateVersion } from '@/services/TemplateService'
+import { useEntityMutations } from '@/utils/hooks/useEntityMutations'
+import { useFormSubmit } from '@/utils/hoc/useFormSubmit'
 
 const VersionListTable = () => {
     const navigate = useNavigate()
@@ -26,16 +29,6 @@ const VersionListTable = () => {
 
     const navigateTo = useCallback((path: string) => navigate(path), [navigate])
 
-    const handleEdit = useCallback(
-        (template: any) =>
-            navigateTo(
-                endpointConfig.master.template.versions.edit
-                    .replace(':id', String(template.temp_id))
-                    .replace(':version_id', String(template.id)),
-            ),
-        [navigateTo],
-    )
-
     const handleView = useCallback(
         (template: any) =>
             navigateTo(
@@ -46,13 +39,29 @@ const VersionListTable = () => {
         [navigateTo],
     )
 
+    const { save } = useEntityMutations({
+        apiUpdate: apiChangeCurrentTemplateVersion,
+    })
+
+    const { handleSubmit } = useFormSubmit<any>({
+        apiCall: (values) => {
+            console.log(values)
+
+            return save({ version_id: values, id })
+        },
+        navigateTo: endpointConfig.master.template.versions.list.replace(
+            ':id',
+            String(id),
+        ),
+    })
+
     const columns = useMemo(
         () =>
             buildVersionTemplateColumns({
-                onEdit: handleEdit,
                 onView: handleView,
+                handleSubmit,
             }),
-        [handleEdit, handleView],
+        [handleView],
     )
 
     const handlePaginationChange = (page: number) => {

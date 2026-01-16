@@ -12,8 +12,7 @@ export const locationSchema = z.object({
     ]),
     short_name: z.any(),
     identifier: z.string().regex(/^[A-Z]{1,4}-[A-Z]{1,4}-[A-Z]{1,4}$/, {
-        message:
-            'Prefix must be in format ZZZ-YYY-XXXX (zone prefix + cluster prefix + 1–4 uppercase letters only)',
+        message: 'Prefix must follow ZZZ-YYY-XXXX (1–4 uppercase letters)',
     }),
 })
 export type LocationFormSchema = z.infer<typeof locationSchema>
