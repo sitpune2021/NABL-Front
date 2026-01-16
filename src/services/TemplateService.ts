@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Fields, GetTemplateDetailResponse } from '@/@types/template'
 import ApiService from './ApiService'
 import apiEndpointConfig from '@/configs/api-endpoint.config'
@@ -41,6 +42,23 @@ export async function apiGetTemplateVersionsById<
 export async function apiUpdateTemplate(id: string, data: Fields) {
     return ApiService.fetchDataWithAxios<Fields>({
         url: `${apiEndpointConfig.templates}/${id}`,
+        method: 'put',
+        data,
+    })
+}
+
+export const apiGetTemplateVersionDetail = (
+    templateId: string,
+    versionId: string,
+) =>
+    ApiService.fetchDataWithAxios({
+        url: `/templates/${templateId}/versions/${versionId}`,
+        method: 'get',
+    })
+
+export async function apiChangeCurrentTemplateVersion(id: string, data: any) {
+    return ApiService.fetchDataWithAxios<Fields>({
+        url: `/templates/${id}/change-current-version`,
         method: 'put',
         data,
     })

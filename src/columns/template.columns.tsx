@@ -60,7 +60,7 @@ export const buildTemplateColumns = ({
         accessorKey: 'versions_count',
     },
     {
-        header: '',
+        header: 'Action',
         id: 'action',
         cell: ({ row }) => (
             <ActionColumn

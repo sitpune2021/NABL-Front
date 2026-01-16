@@ -64,7 +64,7 @@ export const buildLocationColumns = ({
         },
     },
     {
-        header: '',
+        header: 'Action',
         id: 'action',
         cell: (props) => (
             <ActionColumn

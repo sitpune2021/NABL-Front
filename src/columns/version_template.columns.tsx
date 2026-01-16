@@ -1,16 +1,16 @@
 import ActionColumn from '@/components/form/ActionColumn'
-import { TbPencil, TbEye } from 'react-icons/tb'
+import { TbEye } from 'react-icons/tb'
 import type { ColumnDef } from '@/components/shared/DataTable'
 import { Template } from '@/@types/template'
 
 type ColumnActions = {
-    onEdit: (row: Template) => void
     onView: (row: Template) => void
+    handleSubmit: (templateId: number, versionId: number) => void
 }
 
 export const buildVersionTemplateColumns = ({
-    onEdit,
     onView,
+    handleSubmit,
 }: ColumnActions): ColumnDef<Template>[] => [
     {
         header: 'Id',
@@ -33,22 +33,38 @@ export const buildVersionTemplateColumns = ({
     {
         header: 'Is Current',
         accessorKey: 'is_current',
+        cell: ({ row }) => {
+            const { is_current, id: version_id } = row.original
+
+            return (
+                <div
+                    className={`cursor-pointer rounded px-2 py-1 text-center
+                        ${
+                            is_current
+                                ? 'bg-green-100 text-green-700'
+                                : 'bg-gray-100 hover:bg-yellow-100'
+                        }`}
+                    onDoubleClick={() => {
+                        if (!is_current) {
+                            handleSubmit(version_id)
+                        }
+                    }}
+                >
+                    {is_current ? 'true' : 'false'}
+                </div>
+            )
+        },
     },
     {
         header: 'Version',
         accessorKey: 'version',
     },
     {
-        header: '',
+        header: 'Action',
         id: 'action',
         cell: ({ row }) => (
             <ActionColumn
                 buttons={[
-                    {
-                        icon: <TbPencil />,
-                        tooltip: 'Edit',
-                        onClick: () => onEdit(row.original),
-                    },
                     {
                         icon: <TbEye />,
                         tooltip: 'View',

@@ -41,7 +41,7 @@ export const buildInstrumentColumns = ({
         },
     },
     {
-        header: '',
+        header: 'Action',
         id: 'action',
         cell: ({ row }) => (
             <ActionColumn
