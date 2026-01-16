@@ -16,7 +16,7 @@ import { Card, Select } from '@/components/ui'
 
 type LabFormProps = {
     step?: number
-    onFormSubmit: (values: LabFormSchema) => void
+    onFormSubmit: (values: any) => void
     defaultValues?: LabFormSchema
     newLab?: boolean
     readOnly?: boolean
@@ -49,7 +49,13 @@ const LabForm = ({
         shouldUnregister: false,
     })
 
-    const { ClauseDocumentList, isLoading } = useStandardClauseList('current')
+    const [selectedStandardId, setSelectedStandardId] = useState<number | null>(
+        null,
+    )
+
+    const { ClauseDocumentList, isLoading } = useStandardClauseList(
+        selectedStandardId ?? 0,
+    )
     const [selectedClauses, setSelectedClauses] = useState<string[]>([])
 
     const {
@@ -67,20 +73,21 @@ const LabForm = ({
     useEffect(() => {
         if (!isEmpty(defaultValues)) {
             reset(defaultValues)
-        }
-    }, [defaultValues])
+            if ((defaultValues as any).standard_id) {
+                setSelectedStandardId((defaultValues as any).standard_id)
+            }
 
-    useEffect(() => {
-        if (!isEmpty(defaultValues) && (defaultValues as any).selectedClauses) {
-            setSelectedClauses((defaultValues as any).selectedClauses)
+            if ((defaultValues as any).selectedClauses) {
+                setSelectedClauses((defaultValues as any).selectedClauses)
+            }
         }
-    }, [defaultValues])
+    }, [defaultValues, reset])
 
     const onSubmit = (values: LabFormSchema) => {
         const payload = {
             ...values,
             selectedClauses,
-            standard_id: ClauseDocumentList.id, // Or pick dynamically if multiple standards
+            standard_id: selectedStandardId,
         }
         onFormSubmit?.(payload)
     }
@@ -124,11 +131,16 @@ const LabForm = ({
                         {step === 2 && (
                             <>
                                 <ClauseTree
-                                    data={ClauseDocumentList.clauses}
-                                    selectedItems={selectedClauses} // optional if you want controlled selection
-                                    onSelectionChange={(selected) =>
+                                    clauses={ClauseDocumentList?.clauses || []}
+                                    selectedItems={selectedClauses}
+                                    standardId={selectedStandardId}
+                                    onChange={(selected) =>
                                         setSelectedClauses(selected)
                                     }
+                                    onStandardChange={(id) => {
+                                        setSelectedStandardId(Number(id))
+                                        setSelectedClauses([])
+                                    }}
                                 />
                                 <Card>
                                     <FormItem
