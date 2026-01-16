@@ -53,8 +53,9 @@ const LabForm = ({
         null,
     )
 
-    const { ClauseDocumentList, isLoading } =
-        useStandardClauseList(selectedStandardId)
+    const { ClauseDocumentList, isLoading } = useStandardClauseList(
+        selectedStandardId ?? 0,
+    )
     const [selectedClauses, setSelectedClauses] = useState<string[]>([])
 
     const {
