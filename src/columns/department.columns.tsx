@@ -32,7 +32,7 @@ export const buildDepartmentColumns = ({
         },
     },
     {
-        header: 'Action',
+        header: '',
         id: 'action',
         cell: ({ row }) => (
             <ActionColumn

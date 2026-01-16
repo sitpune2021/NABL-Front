@@ -46,7 +46,7 @@ export const buildClusterColumns = ({
         },
     },
     {
-        header: 'Action',
+        header: '',
         id: 'action',
         cell: (props) => (
             <ActionColumn

@@ -31,7 +31,7 @@ export const buildCategoryColumns = ({
         },
     },
     {
-        header: 'Action',
+        header: '',
         id: 'action',
         cell: ({ row }) => (
             <ActionColumn

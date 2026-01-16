@@ -31,7 +31,7 @@ export const buildZoneColumns = ({
         },
     },
     {
-        header: 'Action',
+        header: '',
         id: 'action',
         cell: ({ row }) => (
             <ActionColumn

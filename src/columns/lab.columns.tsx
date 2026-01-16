@@ -38,7 +38,7 @@ export const buildLabColumns = ({
         accessorKey: 'labCode',
     },
     {
-        header: 'Action',
+        header: '',
         id: 'action',
         cell: ({ row }) => (
             <ActionColumn

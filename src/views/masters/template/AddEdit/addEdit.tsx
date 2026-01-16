@@ -14,6 +14,7 @@ import { useTemplateVersionDetail } from '../List/hooks/useTemplateVersionDetail
 import TemplateForm from '../Form'
 import { TemplateFormSchema } from '@/schemas/template.schema'
 import { apiTemplate, apiUpdateTemplate } from '@/services/TemplateService'
+import { EMPTY_VALUES } from '@/constants/template.constants'
 
 type RouteParams = {
     id?: string
@@ -31,20 +32,6 @@ const TemplateAddEdit = () => {
     const isView = mode === 'view' || isVersionView
     const isEdit = mode === 'edit' && !isVersionView
 
-    const EMPTY_VALUES = useMemo<TemplateFormSchema>(
-        () => ({
-            name: '',
-            type: type ?? '',
-            template: {
-                html: '',
-                css: '',
-                json: '',
-            },
-            status: 'draft',
-        }),
-        [type],
-    )
-
     const { template: templateDetail, isLoading: templateLoading } =
         useTemplateDetail(id)
 
@@ -54,10 +41,10 @@ const TemplateAddEdit = () => {
     const template = isVersionView ? versionDetail : templateDetail
     const isLoading = isVersionView ? versionLoading : templateLoading
 
-    const defaultValues = useMemo(
-        () => template ?? EMPTY_VALUES,
-        [template, EMPTY_VALUES],
-    )
+    const defaultValues: TemplateFormSchema = useMemo(() => {
+        if (template) return template
+        return { ...EMPTY_VALUES, type: type ?? '' }
+    }, [template, type])
 
     const { save } = useEntityMutations<TemplateFormSchema>({
         apiCreate: apiTemplate,
@@ -73,6 +60,9 @@ const TemplateAddEdit = () => {
     })
 
     const discard = useDiscardConfirm()
+    const handlePrimaryClick = useCallback(() => setSubmitDialogOpen(true), [])
+    const handleDiscardClick = useCallback(() => discard.show(), [discard])
+    const canSubmit = !isView && !isVersionView
 
     const confirmDiscard = useCallback(() => {
         toast.push(
@@ -106,12 +96,8 @@ const TemplateAddEdit = () => {
                     isEdit={isEdit}
                     isSubmitting={isSubmitting}
                     type="button"
-                    onDiscard={!isVersionView ? discard.show : undefined}
-                    onPrimaryClick={
-                        !isView && !isVersionView
-                            ? () => setSubmitDialogOpen(true)
-                            : undefined
-                    }
+                    onDiscard={!isVersionView ? handleDiscardClick : undefined}
+                    onPrimaryClick={canSubmit ? handlePrimaryClick : undefined}
                 />
             </TemplateForm>
 
@@ -121,13 +107,12 @@ const TemplateAddEdit = () => {
                     type="danger"
                     title="Discard changes"
                     onClose={discard.close}
-                    onRequestClose={discard.close}
                     onCancel={discard.close}
                     onConfirm={confirmDiscard}
                 >
                     <p>
-                        Are you sure you want discard this? This action
-                        can&apos;t be undo.{' '}
+                        Are you sure you want to discard this? This action
+                        can&apos;t be undone.
                     </p>
                 </ConfirmDialog>
             )}

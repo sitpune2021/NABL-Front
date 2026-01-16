@@ -2,6 +2,7 @@ import ActionColumn from '@/components/form/ActionColumn'
 import { TbEye } from 'react-icons/tb'
 import type { ColumnDef } from '@/components/shared/DataTable'
 import { Template } from '@/@types/template'
+import IsCurrentBadge from '@/views/masters/template/List/components/IsCurrentBadge'
 
 type ColumnActions = {
     onView: (row: Template) => void
@@ -37,21 +38,10 @@ export const buildVersionTemplateColumns = ({
             const { is_current, id: version_id } = row.original
 
             return (
-                <div
-                    className={`cursor-pointer rounded px-2 py-1 text-center
-                        ${
-                            is_current
-                                ? 'bg-green-100 text-green-700'
-                                : 'bg-gray-100 hover:bg-yellow-100'
-                        }`}
-                    onDoubleClick={() => {
-                        if (!is_current) {
-                            handleSubmit(version_id)
-                        }
-                    }}
-                >
-                    {is_current ? 'true' : 'false'}
-                </div>
+                <IsCurrentBadge
+                    isCurrent={is_current}
+                    onMakeCurrent={() => handleSubmit(version_id)}
+                />
             )
         },
     },
@@ -60,7 +50,7 @@ export const buildVersionTemplateColumns = ({
         accessorKey: 'version',
     },
     {
-        header: 'Action',
+        header: '',
         id: 'action',
         cell: ({ row }) => (
             <ActionColumn
