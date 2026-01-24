@@ -86,6 +86,18 @@ const settingNavigationConfig: NavigationTree[] = [
                 },
                 subMenu: [],
             },
+            {
+                key: 'settings.menu.list',
+                path: `${endpointConfig.setting.menu.list}`,
+                title: 'Menu',
+                translateKey: 'nav.settingsMenu.list',
+                icon: 'groupMenu',
+                type: NAV_ITEM_TYPE_ITEM,
+                for: 'both',
+                authority: [],
+                meta: {},
+                subMenu: [],
+            },
         ],
     },
 ]
