@@ -34,6 +34,23 @@ const clientNavigationConfig: NavigationTree[] = [
                 },
                 subMenu: [],
             },
+            {
+                key: 'clients.lab.assignments.list',
+                path: `${endpointConfig.client.labAssignment.list}`,
+                title: 'Lab Assignments',
+                translateKey: 'nav.clientsLab.list',
+                icon: 'sharedComponentDoc',
+                type: NAV_ITEM_TYPE_ITEM,
+                for: 'master',
+                authority: [],
+                meta: {
+                    description: {
+                        translateKey: 'nav.clientsLab.listDesc',
+                        label: 'AI-powered chat systems',
+                    },
+                },
+                subMenu: [],
+            },
         ],
     },
 ]

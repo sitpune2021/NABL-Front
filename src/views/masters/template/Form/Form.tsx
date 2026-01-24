@@ -34,7 +34,7 @@ const TemplateForm = ({
     EMPTY_VALUES,
     loading,
 }: TemplateFormProps) => {
-    const memoizedDefaults = useMemo<TemplateFormSchema>(
+    const memoizedDefaults = useMemo(
         () => defaultValues ?? EMPTY_VALUES,
         [defaultValues, EMPTY_VALUES],
     )
@@ -42,25 +42,22 @@ const TemplateForm = ({
     const methods = useForm<TemplateFormSchema>({
         defaultValues: memoizedDefaults,
         resolver: zodResolver(templateSchema),
-        mode: 'onSubmit',
-        reValidateMode: 'onChange',
         shouldUnregister: false,
     })
 
     const { handleSubmit, reset } = methods
+    useEffect(() => {
+        if (defaultValues && !loading) {
+            reset(defaultValues)
+        }
+    }, [defaultValues, loading, reset])
 
     const submitHandler = handleSubmit((values) => {
-        onFormSubmit(values)
-        onDialogClose()
-    })
-    useEffect(() => {
-        if (defaultValues) {
-            reset(defaultValues, {
-                keepDirty: false,
-                keepTouched: false,
-            })
+        if (!readOnly) {
+            onFormSubmit(values)
+            onDialogClose()
         }
-    }, [defaultValues, reset])
+    })
 
     return (
         <FormProvider {...methods}>
@@ -83,15 +80,17 @@ const TemplateForm = ({
                 <BottomStickyBar>{children}</BottomStickyBar>
             </Form>
 
-            <SaveBoxSection
-                readOnly={readOnly}
-                loading={loading}
-                isEdit={isEdit}
-                dialogIsOpen={dialogIsOpen}
-                isSubmiting={isSubmiting}
-                onDialogClose={onDialogClose}
-                onSubmit={submitHandler}
-            />
+            {!readOnly && (
+                <SaveBoxSection
+                    readOnly={readOnly}
+                    loading={loading}
+                    isEdit={isEdit}
+                    dialogIsOpen={dialogIsOpen}
+                    isSubmiting={isSubmiting}
+                    onDialogClose={onDialogClose}
+                    onSubmit={submitHandler}
+                />
+            )}
         </FormProvider>
     )
 }

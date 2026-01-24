@@ -46,4 +46,13 @@ export const protectedRoutes: Routes = [
         component: lazy(() => import('@/views/masters/lab/AddEdit')),
         authority: [],
     },
+
+    {
+        key: 'clients.lab.assignments.list',
+        path: endpointConfig.client.labAssignment.list,
+        component: lazy(
+            () => import('@/views/masters/labAssignments/Assignment'),
+        ),
+        authority: [],
+    },
 ]

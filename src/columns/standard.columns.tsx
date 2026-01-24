@@ -5,8 +5,8 @@ import { Standard } from '@/@types/standard'
 import { Tag } from '@/components/ui'
 
 const statusColor: Record<string, string> = {
-    active: 'bg-emerald-100 text-emerald-700',
-    inactive: 'bg-red-100 text-red-700',
+    draft: 'bg-yellow-100 text-yellow-700',
+    published: 'bg-emerald-100 text-emerald-700',
 }
 
 type ColumnActions = {
