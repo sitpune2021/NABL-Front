@@ -1,10 +1,13 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { TableQueries } from './common'
-import type { Control, FieldErrors } from 'react-hook-form'
 
 export type GetUserListResponse = {
     data: User[]
     total: number
+}
+export type GetUserDetailResponse = {
+    id: string
+    data: User
 }
 
 export type Filter = {
@@ -59,34 +62,7 @@ export type UserRole = {
     department?: Array<Department>
 }
 
-export type Fields = {
-    id?: string
-    name: string
-    username: string
-    email: string
-    phone: string
-    dialCode: string
-
-    address?: string
-    city?: string
-    postcode?: string
-
-    signature?: string
-    profileImage?: string
-    labAssignments?: LabAssignments
-    role: any
-    userRoles?: Array<UserRole>
-}
-
-export type TagsFields = {
-    tags: Array<{ value: string; userel: string }>
-}
-
-export type UserFormSchema = Fields
-
 export type FormSectionBaseProps = {
-    control: Control<UserFormSchema>
-    errors: FieldErrors<UserFormSchema>
     readOnly?: boolean
-    setValue?: any
+    loading: boolean
 }

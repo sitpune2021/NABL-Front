@@ -540,8 +540,8 @@ export function addDynamicFields(editor: any) {
                 label: 'Lab Field',
                 options: [
                     { value: 'name', name: 'Lab Name' },
-                    { value: 'labCode', name: 'Lab Code' },
-                    { value: 'labType', name: 'Lab Type' },
+                    { value: 'lab_code', name: 'Lab Code' },
+                    { value: 'lab_type', name: 'Lab Type' },
                     { value: 'address', name: 'Address' },
                 ],
                 default: 'name',

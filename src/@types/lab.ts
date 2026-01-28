@@ -30,8 +30,10 @@ export type LocationField = {
 export type Lab = {
     id?: string
     name: string
-    labType: string
-    labCode: string
+    lab_type: string
+    lab_code: string
+    loaction_count: number | string
+    user_count: number | string
     emails: ContactField[]
     phones: ContactField[]
     address?: string

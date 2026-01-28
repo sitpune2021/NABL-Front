@@ -48,8 +48,10 @@ const LabAddEdit = () => {
 
     const EMPTY_VALUES: LabFormSchema = {
         name: '',
-        labType: '',
-        labCode: !isSubmitting ? `LAB-${labList.length + 1}` : '',
+        lab_type: '',
+        lab_code: !isSubmitting ? `LAB-${labList.length + 1}` : '',
+        loaction_count: '',
+        user_count: '',
         emails: [
             {
                 type: 'eamil',

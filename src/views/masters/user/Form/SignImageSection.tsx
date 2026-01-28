@@ -3,13 +3,14 @@ import Avatar from '@/components/ui/Avatar'
 import Upload from '@/components/ui/Upload'
 import { Button } from '@/components/ui'
 import DoubleSidedImage from '@/components/shared/DoubleSidedImage'
-import { Controller } from 'react-hook-form'
+import { Controller, useFormContext } from 'react-hook-form'
 import { HiOutlineUser } from 'react-icons/hi'
 import { FormSectionBaseProps } from '@/@types/user'
+import { UserSchemaType } from '@/schemas/user.schema'
 
 type SignImageSectionProps = FormSectionBaseProps
 
-const SignImage = ({ control }: SignImageSectionProps) => {
+const SignImage = ({ readOnly, loading }: SignImageSectionProps) => {
     const beforeUpload = (files: FileList | null) => {
         let valid: string | boolean = true
 
@@ -24,6 +25,8 @@ const SignImage = ({ control }: SignImageSectionProps) => {
 
         return valid
     }
+
+    const { control } = useFormContext<UserSchemaType>()
 
     return (
         <Card>
@@ -67,6 +70,7 @@ const SignImage = ({ control }: SignImageSectionProps) => {
                                         variant="solid"
                                         className="mt-4"
                                         type="button"
+                                        disabled={readOnly || loading}
                                     >
                                         Upload Image
                                     </Button>
