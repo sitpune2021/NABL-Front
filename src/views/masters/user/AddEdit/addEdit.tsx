@@ -33,6 +33,7 @@ const UserAddEdit = () => {
                         ...data,
                         dialCode: data.dialCode || '+91',
                         labAssignments: data.labAssignments || {},
+                        role: data.role || '',
                         userRoles: data.userRoles || [],
                     })
                 })

@@ -1,60 +1,32 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React from 'react'
 import { FormItem } from '@/components/ui/Form'
-import { Controller, Control } from 'react-hook-form'
+import { Controller, useFormContext } from 'react-hook-form'
 import DatePicker from '@/components/ui/DatePicker'
 import { FormFieldConfig } from '@/@types/document'
 import { Input, Select, Checkbox } from '@/components/ui'
 import TimeInput from '@/components/ui/TimeInput'
+import { DocumentFormSchema } from '@/schemas/document.schema'
+import { wrapWithStyle } from '@/utils/styleWrapper'
 
 interface DynamicFormProps {
-    control: Control<any>
-    errors: any
     fields: FormFieldConfig[]
     readOnly?: boolean
-    formValues?: any
     extraProps?: any
 }
 
-const wrapWithStyle = (html: string, css: string) => `
-<html>
-  <head>
-    <style>
-      body { font-family: Arial, sans-serif; font-size: 14px; }
-      table {
-        width: 100%;
-        border-collapse: collapse;
-        margin-top: 8px;
-      }
-      th, td {
-        border: 1px solid #ccc;
-        padding: 6px 8px;
-        text-align: left;
-      }
-      thead {
-        background: #f5f5f5;
-        font-weight: bold;
-      }
-      tbody tr:nth-child(even) {
-        background: #fafafa;
-      }
-        ${css}
-    </style>
-  </head>
-  <body>
-    ${html}
-  </body>
-</html>
-`
-
 const DynamicForm: React.FC<DynamicFormProps> = ({
-    control,
-    errors,
     fields,
     readOnly,
-    formValues = {},
     extraProps,
 }) => {
+    const {
+        getValues,
+        control,
+        formState: { errors },
+    }: any = useFormContext<DocumentFormSchema>()
+
+    const values = getValues()
     return fields.map((fieldConfig) => {
         const {
             name,
@@ -69,22 +41,22 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
             defaultValue,
         } = fieldConfig
 
-        if (condition && !condition(formValues)) return null
+        if (condition && !condition(values)) return null
 
         return (
             <FormItem
                 key={name}
                 label={label}
-                invalid={Boolean(errors[name])}
+                invalid={!!errors[name]}
                 errorMessage={errors[name]?.message}
             >
                 <Controller
-                    name={name}
+                    name={name as any}
                     control={control}
                     defaultValue={defaultValue || ''}
                     render={({ field }) => {
                         if (customRender)
-                            return customRender(field, formValues, extraProps)
+                            return customRender(field, values, extraProps)
 
                         switch (type) {
                             case 'text':
@@ -211,6 +183,7 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                                                 })
 
                                                 const html = option?.html || ''
+
                                                 const css = option?.css || ''
                                                 setSelectedHtmlState?.(
                                                     html
@@ -222,7 +195,6 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                                                 )
                                             }}
                                         />
-
                                         {field.value && selectedHtmlState && (
                                             <iframe
                                                 style={{

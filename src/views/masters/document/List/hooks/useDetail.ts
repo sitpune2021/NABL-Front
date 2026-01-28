@@ -1,6 +1,7 @@
 import useSWR from 'swr'
 import { apiGetDocumentById } from '@/services/DocumentService'
-import { Document, GetDocumentResponse } from '@/@types/document'
+import { GetDocumentResponse } from '@/@types/document'
+import { DocumentFormSchema } from '@/schemas/document.schema'
 
 export const useDocumentDetail = (id?: string) => {
     const swr = useSWR<GetDocumentResponse>(
@@ -12,7 +13,7 @@ export const useDocumentDetail = (id?: string) => {
     )
 
     return {
-        document: swr.data?.data as Document | undefined,
+        document: swr.data?.data as DocumentFormSchema | undefined,
         isLoading: swr.isLoading,
         error: swr.error,
         mutate: swr.mutate,

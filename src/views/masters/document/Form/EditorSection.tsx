@@ -2,30 +2,29 @@
 import { useEffect, useRef, useState } from 'react'
 import grapesjs from 'grapesjs'
 import 'grapesjs/dist/css/grapes.min.css'
-import { Controller, useWatch } from 'react-hook-form'
+import { useWatch } from 'react-hook-form'
 import debounce from 'lodash/debounce'
 
 import {
     addCustomBlocks,
     addDynamicFields,
 } from '../../template/Form/BlockManager'
-import { GrapesEditorProps, Template } from '@/@types/document'
-import IframeContent from './IframeContent'
+import { EditorSectionProps, Template } from '@/@types/document'
+import IframeContent from '../List/components/IframeContent'
 import {
     extractMediaQueryStyles,
     lockTree,
     resolveFieldValue,
 } from '@/utils/resolveFieldValue'
 
-export default function GrapesEditor({
-    control,
-    setValue,
+const EditorSection = ({
     isEdit = false,
     readOnly = false,
     getTemplateById,
-}: GrapesEditorProps) {
-    const documentData = useWatch({ control }) || {}
-
+    control,
+    setValue,
+    defaultValues,
+}: EditorSectionProps) => {
     const containerRef = useRef<HTMLDivElement | null>(null)
     const editorRef = useRef<any | null>(null)
     const [isEditorReady, setIsEditorReady] = useState(false)
@@ -36,14 +35,18 @@ export default function GrapesEditor({
         section: { html: '', json: '', css: '' },
     })
 
-    // Load templates (header/footer/section)
     const prevTemplateIdsRef = useRef<{ header?: number; footer?: number }>({})
+    const parsedContent = { header: '', content: '', footer: '' }
+
+    const [Header, Footer, editorSchema] = useWatch({
+        control,
+        name: ['header', 'footer', 'editor_schema'],
+    })
 
     useEffect(() => {
         const loadTemplates = async () => {
-            if (!documentData) return
-            const headerId = documentData.header?.template_id
-            const footerId = documentData.footer?.template_id
+            const headerId = Header?.template_id
+            const footerId = Footer?.template_id
 
             if (
                 prevTemplateIdsRef.current.header === headerId &&
@@ -67,7 +70,7 @@ export default function GrapesEditor({
                 setTemplate({
                     header: header?.template || { html: '', json: '', css: '' },
                     footer: footer?.template || { html: '', json: '', css: '' },
-                    section: documentData.editor_schema || {
+                    section: editorSchema || {
                         html: '',
                         json: '',
                         css: '',
@@ -79,9 +82,8 @@ export default function GrapesEditor({
         }
 
         loadTemplates()
-    }, [documentData, getTemplateById])
+    }, [editorSchema, getTemplateById])
 
-    // Initialize GrapesJS editor once
     useEffect(() => {
         // Do not initialize in readOnly mode or if already initialized
         if (readOnly || editorRef.current || !containerRef.current) return
@@ -142,7 +144,6 @@ export default function GrapesEditor({
         }
     }, [readOnly, setValue])
 
-    // Insert templates into editor
     useEffect(() => {
         if (readOnly) return
 
@@ -194,9 +195,6 @@ export default function GrapesEditor({
         if (footer.json) insertJSON(footer.json, 'footer-section', footer.css)
     }, [template, isEditorReady, isEdit, readOnly])
 
-    // Parse content for read-only
-    const parsedContent = { header: '', content: '', footer: '' }
-
     if (readOnly && template.section?.html) {
         try {
             const parser = new DOMParser()
@@ -216,7 +214,7 @@ export default function GrapesEditor({
                         options[attr.name.replace(/-/g, '')] = attr.value
                     }
                 })
-                const value = resolveFieldValue(field, documentData, options)
+                const value = resolveFieldValue(field, defaultValues, options)
                 if (value) el.textContent = value
             })
 
@@ -263,19 +261,10 @@ export default function GrapesEditor({
                         id="gjs"
                         className="flex-1 h-full"
                     />
-                    <Controller
-                        name="documentId"
-                        control={control}
-                        render={({ field }) => (
-                            <input
-                                type="hidden"
-                                {...field}
-                                value={Number(field.value) || 0}
-                            />
-                        )}
-                    />
                 </div>
             )}
         </>
     )
 }
+
+export default EditorSection

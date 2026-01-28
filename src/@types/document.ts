@@ -1,11 +1,11 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { TableQueries } from './common'
+import { Option, TableQueries } from './common'
 
 import type { Control, FieldErrors, UseFormSetValue } from 'react-hook-form'
-import { z } from 'zod'
 import { Department } from './department'
 import { Category } from './category'
 import { Template as TemplateSh } from './template'
+import { DocumentFormSchema } from '@/schemas/document.schema'
 
 export type FrequencyType =
     | 'Daily'
@@ -23,15 +23,16 @@ export interface ItemConfig {
     considerLastDay?: boolean
 }
 
-export interface FrequencyPopupProps {
+export interface FrequencyProps {
     isOpen: boolean
     initialData?: any
-    control: Control<any>
+    control: any
     errors?: FieldErrors<any>
     setValue: UseFormSetValue<any>
     onClose: () => void
     onConfirm: () => void // ✅ NEW
     readOnly?: boolean
+    isEdit?: boolean
 }
 
 export type Trait = {
@@ -78,10 +79,17 @@ export type Document = {
     name: string
     status: string
     current_version: {
-        id: string
+        id: number
         schedule: any
         full_version: string
-        workflow_state?: string
+        workflow_state: string
+        workflow_logs?: Array<{
+            id: number
+            step_type: string
+            step_status: string
+            performed_by: string
+            performed_date: string
+        }>
     }
     category?: {
         name?: string
@@ -144,13 +152,13 @@ export type Fields = {
     amendment_no?: string
     amendment_date?: string
     schedule?: FrequencyConfig
+    amendment_type?: string
+    amendment_reason?: string
 }
 
 export type TagsFields = {
-    tags: Array<{ value: string; label: string }>
+    tags: Array<Option>
 }
-
-export type DocumentFormSchema = Fields | Document
 
 export type EditorFormSchema = {
     documentId: string
@@ -162,10 +170,7 @@ export type EditorFormSchema = {
 }
 
 export type FormSectionBaseProps = {
-    control: Control<DocumentFormSchema>
-    errors: FieldErrors<DocumentFormSchema>
     readOnly?: boolean
-    setValue: UseFormSetValue<DocumentFormSchema>
     departmentList: Department[]
     categoryList: Category[]
     templateList: TemplateSh[]
@@ -210,15 +215,21 @@ export function categorizeThDetails(components: any): CategorizedDetails {
     const oneTime: any[] = []
 
     const extractTraits = (comp: any): Trait[] =>
-        (comp.get?.('traits') || comp.traits || []).map((t: any) => ({
-            name: t.get?.('name') ?? t.name,
-            value:
+        (comp.get?.('traits') || comp.traits || []).map((t: any) => {
+            const value =
                 t.get?.('value') ??
                 t.attributes?.value ??
-                t.attributes?.default ??
                 t.default ??
-                '',
-        }))
+                t.attributes?.default ??
+                ''
+            return {
+                name: t.get?.('name') ?? t.name,
+                value:
+                    value === ''
+                        ? (t.default ?? t.attributes?.default ?? '')
+                        : value,
+            }
+        })
 
     const extractHeaderText = (comp: any): string => {
         const inner = comp.components?.() || comp.components || []
@@ -286,73 +297,6 @@ export function categorizeThDetails(components: any): CategorizedDetails {
     return { daily, oneTime }
 }
 
-export const documentFormSchema = z.object({
-    // From documentFieldOne
-    mode: z.enum(['create', 'upload']).optional(),
-    category_id: z.union([
-        z.string().min(1, 'Category is required'),
-        z.number(),
-    ]),
-    department: z.array(z.union([z.string(), z.number()])).optional(),
-    number: z.string(),
-    name: z.string().min(1, 'Document Name is required'),
-    status: z.enum(['controlled', 'uncontrolled']),
-
-    // From documentFieldTwo
-    header: z
-        .object({
-            template_id: z.union([z.string(), z.number()]),
-            type: z.literal('header'),
-            current_version: z.string(),
-        })
-        .optional(),
-    footer: z
-        .object({
-            template_id: z.union([z.string(), z.number()]),
-            type: z.literal('footer'),
-            current_version: z.string(),
-        })
-        .optional(),
-    copy_no: z.union([z.string(), z.number(), z.null()]).optional(),
-    quantity_prepared: z
-        .union([z.string(), z.number(), z.null()])
-        .optional()
-        .refine((val) => !val || Number(val) >= 0, {
-            message: 'Quantity must be a positive number',
-        }),
-
-    // From documentFieldThree
-    workflow_state: z.string(),
-    step_type: z.string(),
-    performed_by: z.string(),
-    performed_date: z.string(), // can add date parsing later if needed
-    effective_date: z.string().min(1, 'Effective Date is required'),
-    review_frequency: z.enum(
-        ['Weekly', 'Monthly', 'Yearly'],
-        'Select frequency',
-    ),
-    notification_unit: z.string(),
-    notification_value: z
-        .union([z.string(), z.number()])
-        .refine((val) => !val || Number(val) > 0, {
-            message: 'Duration Value must be positive',
-        }),
-    editor_schema: z.any(),
-    schedule: z.any(),
-    form_fields: z.any(),
-})
-
-export const editorSchema = z.object({
-    documentId: z.string().min(1, 'Document ID is required'),
-    document: z.any(),
-})
-
-export type DocumentFormValidationSchema = z.infer<typeof documentFormSchema>
-export type EditorFormValidationSchema = z.infer<typeof editorSchema>
-
-// types.ts
-export type Option = { value: string; label: string }
-
 export type FormFieldType =
     | 'text'
     | 'number'
@@ -379,19 +323,12 @@ export interface FormFieldConfig {
     defaultValue?: any
 }
 
-export type TemplateOption = {
-    value: string
-    label: string
+export type TemplateOption = Option & {
     html: string
     css: string
 }
 
-export type DepartmentOption = {
-    label: string
-    value: string
-}
-
-export interface GrapesEditorProps {
+export interface EditorSectionProps {
     control: Control<any>
     errors: any
     readOnly: boolean
@@ -399,6 +336,7 @@ export interface GrapesEditorProps {
     documentData?: DocumentFormSchema | null
     isEdit?: boolean
     getTemplateById: any
+    defaultValues?: any
 }
 
 export interface TemplatePart {
@@ -411,4 +349,15 @@ export interface Template {
     header: TemplatePart
     footer: TemplatePart
     section?: TemplatePart
+}
+
+export type DocumentFormProps = {
+    onFormSubmit: (values: DocumentFormSchema) => void
+    defaultValues: DocumentFormSchema
+    readOnly?: boolean
+    isEdit?: boolean
+    isForEditor?: boolean
+    isForEditorView?: boolean
+    loading?: boolean
+    isSubmitting?: boolean
 }

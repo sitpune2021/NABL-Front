@@ -74,6 +74,7 @@ export type Fields = {
     signature?: string
     profileImage?: string
     labAssignments?: LabAssignments
+    role: any
     userRoles?: Array<UserRole>
 }
 

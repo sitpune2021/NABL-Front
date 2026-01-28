@@ -20,40 +20,7 @@ import { useFormSubmit } from '@/utils/hoc/useFormSubmit'
 import { useEntityMutations } from '@/utils/hooks/useEntityMutations'
 import { apiDataEntry } from '@/services/DataEntryService'
 import endpointConfig from '@/configs/endpoint.config'
-import { useDocumentDetail } from '../List/hooks/useDetail'
-
-// const useDynamicOptions = (config: any) => {
-//     const [options, setOptions] = useState<any[]>([])
-//     const [isLoading, setLoading] = useState(false)
-
-//     useEffect(() => {
-//         if (!config?.dynamic || !config?.table || !config?.field) return
-
-//         const fetchOptions = async () => {
-//             setLoading(true)
-//             try {
-//                 const res = await axios.get(
-//                     `${import.meta.env.VITE_API_URL}/api/${config.table}`,
-//                 )
-//                 const rows = Array.isArray(res.data?.data) ? res.data.data : []
-//                 const extracted = rows
-//                     .map((item: any) => item[config.field])
-//                     .filter((v: any) => v !== null && v !== undefined)
-
-//                 setOptions(extracted)
-//             } catch (err) {
-//                 console.error('Dynamic dropdown fetch failed:', err)
-//                 setOptions([])
-//             } finally {
-//                 setLoading(false)
-//             }
-//         }
-
-//         fetchOptions()
-//     }, [config?.dynamic, config?.table, config?.field])
-
-//     return { options, isLoading }
-// }
+import { useDocumentDetail } from '../hooks/useDetail'
 
 const DynamicFormWrapper = () => {
     const readOnly = false
@@ -65,7 +32,7 @@ const DynamicFormWrapper = () => {
         control,
         handleSubmit,
         formState: { errors },
-    } = useForm({
+    } = useForm<Record<string, any>>({
         defaultValues: {},
     })
 
@@ -149,7 +116,11 @@ const DynamicFormWrapper = () => {
                     : {}
 
         return (
-            <FormItem label={label} invalid={Boolean(errors[fieldName])}>
+            <FormItem
+                label={label}
+                invalid={!!errors[fieldName]}
+                errorMessage={errors[fieldName]?.message as any}
+            >
                 <Controller
                     name={fieldName}
                     control={control}
@@ -259,7 +230,7 @@ const DynamicFormWrapper = () => {
                                             label: o,
                                         }))}
                                         placeholder={`Select ${label}`}
-                                        value={(field.value || []).map(
+                                        value={((field.value || []) as any).map(
                                             (v: any) =>
                                                 typeof v === 'string'
                                                     ? { value: v, label: v }
@@ -347,16 +318,10 @@ const DynamicFormWrapper = () => {
                                 )
 
                             default:
-                                return null
+                                return <div />
                         }
                     }}
                 />
-
-                {errors[fieldName] && (
-                    <p className="text-red-500 text-xs mt-1">
-                        {errors[fieldName]?.message as string}
-                    </p>
-                )}
             </FormItem>
         )
     }

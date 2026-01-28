@@ -41,4 +41,15 @@ export type IdentifierEntity = {
     identifier: string
 }
 
-export type PageMode = 'add' | 'edit' | 'view' | 'data-entry' | 'editor'
+export type PageMode =
+    | 'add'
+    | 'edit'
+    | 'view'
+    | 'data-entry'
+    | 'editor'
+    | 'editor-view'
+
+export type Option = {
+    label: string
+    value: string
+}

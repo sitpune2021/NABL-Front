@@ -27,28 +27,29 @@ export default function HeaderBlock() {
 
             {/* Dynamic Fields */}
             <div style={{ flex: '1 1 auto', textAlign: 'right' }}>
-                {/* Dynamic Name Field */}
                 <span
-                    data-field="name"
-                    data-gjs-type="field-name"
-                    name-type="lab"
+                    data-gjs-highlightable="true"
+                    data-gjs-type="field-lab"
+                    draggable="true"
+                    data-field="lab"
+                    lab-field="name"
+                    data-lab-field="name"
                     style={{ margin: 0, fontSize: '18px', display: 'block' }}
                 >
-                    {'{{name}}'}
+                    {'{{lab}}'}
                 </span>
-
-                {/* Dynamic Address Field */}
                 <span
-                    data-field="address"
-                    data-gjs-type="field-address"
+                    data-gjs-highlightable="true"
+                    data-gjs-type="field-labLocation"
+                    draggable="true"
+                    data-field="labLocation"
+                    lab-location-field="labLocation"
                     style={{
                         margin: '2px 0',
                         fontSize: '14px',
                         display: 'block',
                     }}
-                >
-                    {'{{address}}'}
-                </span>
+                >{`{{labLocation}}`}</span>
             </div>
         </header>
     )

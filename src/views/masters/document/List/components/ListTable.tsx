@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useMemo } from 'react'
 import ActionColumn from '@/components/form/ActionColumn'
 import DataTable from '@/components/shared/DataTable'
@@ -17,6 +18,9 @@ import endpointConfig from '@/configs/endpoint.config'
 import { Document } from '@/@types/document'
 import { useSessionUser } from '@/store/authStore'
 import WorkflowStateCell from './WorkflowStateCell'
+import { useEntityMutations } from '@/utils/hooks/useEntityMutations'
+import { apiDocumentWorkFlow } from '@/services/DocumentService'
+import { useFormSubmit } from '@/utils/hoc/useFormSubmit'
 
 const DocumentListTable = () => {
     const navigate = useNavigate()
@@ -32,6 +36,15 @@ const DocumentListTable = () => {
         setSelectedDocument,
         selectedDocument,
     } = useDocumentList()
+
+    const { save } = useEntityMutations<any>({
+        apiCreate: apiDocumentWorkFlow,
+    })
+
+    const { handleSubmit } = useFormSubmit<any>({
+        apiCall: (values) => save({ ...values }),
+        navigateTo: endpointConfig.master.document.list,
+    })
 
     const handleEdit = (document: Document) => {
         const path = endpointConfig.master.document.edit.replace(
@@ -85,40 +98,22 @@ const DocumentListTable = () => {
                 cell: (props) => {
                     const row = props.row.original
                     return (
-                        <span className="font-semibold heading-text">
-                            {row.name}
-                        </span>
+                        <>
+                            <span className="font-semibold heading-text">
+                                {row.name}
+                            </span>
+                            ({row?.category?.name})
+                        </>
                     )
                 },
             },
             {
-                header: 'Category',
-                accessorKey: 'category_id',
-                cell: (props) => {
-                    const row = props.row.original
-                    return (
-                        <span className="font-semibold">
-                            {row?.category?.name}
-                        </span>
-                    )
-                },
+                header: 'Version',
+                accessorKey: 'current_vrsn',
             },
             {
-                header: 'Status',
-                accessorKey: 'status',
-                cell: ({ row }) => (
-                    <span
-                        className={`px-2 py-1 rounded-full text-sm ${
-                            row.original.status === 'Controlled'
-                                ? 'bg-green-100 text-green-700'
-                                : row.original.status === 'Uncontrolled'
-                                  ? 'bg-red-100 text-red-700'
-                                  : 'bg-gray-100 text-gray-700'
-                        }`}
-                    >
-                        {row.original.status || '—'}
-                    </span>
-                ),
+                header: 'Version Count',
+                accessorKey: 'versions_count',
             },
             {
                 header: 'Mode',
@@ -128,10 +123,25 @@ const DocumentListTable = () => {
                 header: 'Workflow State',
                 accessorKey: 'workflow_state',
                 cell: ({ row }) => (
+                    <span>
+                        {row.original.mode == 'upload'
+                            ? '—'
+                            : row.original.current_version.workflow_state ||
+                              '—'}
+                    </span>
+                ),
+            },
+            {
+                header: 'Workflow State action',
+                accessorKey: 'workflow_state_action',
+                cell: ({ row }) => (
                     <WorkflowStateCell
                         document={row.original}
                         onSave={(id, value) => {
-                            console.log('Save workflow state', id, value)
+                            handleSubmit({
+                                document_version_id: id,
+                                action: value,
+                            })
                         }}
                     />
                 ),

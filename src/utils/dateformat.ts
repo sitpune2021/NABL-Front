@@ -1,14 +1,4 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-export const frequencyTypes = [
-    { value: 'Daily', label: 'Daily' },
-    { value: 'Weekly', label: 'Weekly' },
-    { value: 'Fortnightly', label: 'Fortnightly' },
-    { value: 'Monthly', label: 'Monthly' },
-    { value: 'Quarterly', label: 'Quarterly' },
-    { value: 'Half-Yearly', label: 'Half-Yearly' },
-    { value: 'Yearly', label: 'Yearly' },
-]
-
 export const getMonthOptions = (config: any) => {
     switch (config.type) {
         case 'Quarterly':
