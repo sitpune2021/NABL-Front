@@ -91,6 +91,25 @@ const settingRoute: Routes = [
             pageBackgroundType: 'plain',
         },
     },
+    {
+        key: 'settings.menu.list',
+        path: `${endpointConfig.setting.menu.list}`,
+        component: lazy(() => import('@/views/settings/menu/List')),
+        authority: [],
+    },
+
+    // {
+    //     key: 'settings.menu.list',
+    //     path: endpointConfig.setting.menu.edit,
+    //     component: lazy(() => import('@/views/settings/menu/AddEdit')),
+    //     authority: [],
+    // },
+    // {
+    //     key: 'settings.menu.list',
+    //     path: endpointConfig.setting.menu.view,
+    //     component: lazy(() => import('@/views/settings/menu/AddEdit')),
+    //     authority: [],
+    // },
 ]
 
 export default settingRoute

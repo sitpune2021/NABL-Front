@@ -93,6 +93,9 @@ const endpointConfig = {
             location: `${CLIENTS_PREFIX_PATH}/lab/location/:id`,
             view: `${CLIENTS_PREFIX_PATH}/lab/view/:id`,
         },
+        labAssignment: {
+            list: `${CLIENTS_PREFIX_PATH}/lab-assignments/list`,
+        },
     },
     setting: {
         rolesPermission: {
@@ -121,6 +124,11 @@ const endpointConfig = {
             security: `${SETTING_PREFIX_PATH}/account/security`,
             notification: `${SETTING_PREFIX_PATH}/account/notification`,
             integration: `${SETTING_PREFIX_PATH}/account/integration`,
+        },
+        menu: {
+            list: `${SETTING_PREFIX_PATH}/menu/list`,
+            edit: `${SETTING_PREFIX_PATH}/menu/edit/:id`,
+            view: `${SETTING_PREFIX_PATH}/menu/view/:id`,
         },
     },
 }

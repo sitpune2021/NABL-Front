@@ -29,6 +29,7 @@ const apiEndpointConfig = {
     navigationItems: '/navigation-items',
     accessModules: '/access-modules',
     roleLevels: '/role-levels',
+    menu: '/navigation-items',
 }
 
 export default apiEndpointConfig
