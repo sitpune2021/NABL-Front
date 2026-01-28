@@ -125,6 +125,11 @@ const endpointConfig = {
             notification: `${SETTING_PREFIX_PATH}/account/notification`,
             integration: `${SETTING_PREFIX_PATH}/account/integration`,
         },
+        menu: {
+            list: `${SETTING_PREFIX_PATH}/menu/list`,
+            edit: `${SETTING_PREFIX_PATH}/menu/edit/:id`,
+            view: `${SETTING_PREFIX_PATH}/menu/view/:id`,
+        },
     },
 }
 
