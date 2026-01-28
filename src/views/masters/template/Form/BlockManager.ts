@@ -503,27 +503,21 @@ export function addCustomBlocks(editor: any) {
 }
 
 export function addDynamicFields(editor: any) {
-    const personOptions = [
-        { value: 'user', name: 'User' },
-        { value: 'preparedBy', name: 'Prepared By' },
-        { value: 'approvedBy', name: 'Approved By' },
-        { value: 'issuedBy', name: 'Issued By' },
-    ]
-
-    const simpleFields = [
-        'date',
-        'number',
-        'person',
-        'designation',
-        'signatory',
-        'category',
-        'department',
-        'userDetails',
-        'name',
-    ]
-
-    const fieldTraits: { [key: string]: any[] } = {
+    const dateTraits: { [key: string]: any[] } = {
         date: [
+            {
+                type: 'select',
+                name: 'dateType',
+                label: 'Date Type',
+                options: [
+                    { value: 'issuedDate', name: 'Issued Date' },
+                    { value: 'effectiveDate', name: 'Effective Date' },
+                    { value: 'amendmentDate', name: 'Amendment Date' },
+                    { value: 'preparedDate', name: 'Prepared Date' },
+                    { value: 'approvedDate', name: 'Approved Date' },
+                ],
+                default: 'issuedDate',
+            },
             {
                 type: 'select',
                 name: 'format',
@@ -535,128 +529,183 @@ export function addDynamicFields(editor: any) {
                 ],
                 default: 'dd/MM/yyyy',
             },
+        ],
+    }
+
+    const tableFieldTraits: { [key: string]: any[] } = {
+        lab: [
             {
                 type: 'select',
-                name: 'dateType',
-                label: 'Date Type',
+                name: 'labField',
+                label: 'Lab Field',
                 options: [
-                    { value: 'genericDate', name: 'Generic Date' },
-                    { value: 'issueDate', name: 'Issue Date' },
-                    { value: 'amendmentDate', name: 'Amendment Date' },
-                    { value: 'effectiveDate', name: 'Effective Date' },
-                ],
-                default: 'issueDate',
-            },
-        ],
-        number: [
-            {
-                type: 'select',
-                name: 'numberType',
-                label: 'Number Type',
-                options: [
-                    { value: 'documentNo', name: 'Document Number' },
-                    { value: 'issuedNo', name: 'Issued Number' },
-                    { value: 'copyNo', name: 'Copy Number' },
-                    { value: 'amendmentNo', name: 'Amendment Number' },
-                ],
-                default: 'documentNo',
-            },
-        ],
-        person: [
-            {
-                type: 'select',
-                name: 'personRole',
-                label: 'Person Role',
-                options: personOptions,
-                default: 'preparedBy',
-            },
-        ],
-        designation: [
-            {
-                type: 'select',
-                name: 'personDesignation',
-                label: 'Person Designation',
-                options: personOptions,
-                default: 'preparedBy',
-            },
-        ],
-        signatory: [
-            {
-                type: 'select',
-                name: 'personSignatory',
-                label: 'Person Signatory',
-                options: personOptions,
-                default: 'preparedBy',
-            },
-            {
-                type: 'select',
-                name: 'signatoryType',
-                label: 'Signatory Type',
-                options: [
-                    { value: 'on', name: 'Signatory On' },
-                    { value: 'by', name: 'Signatory By' },
-                ],
-                default: 'on',
-            },
-        ],
-        category: [
-            {
-                type: 'select',
-                name: 'categoryLevel',
-                label: 'Category Level',
-                options: [
-                    { value: 'category', name: 'Main Category' },
-                    { value: 'subcategory', name: 'Subcategory' },
-                ],
-                default: 'category',
-            },
-        ],
-        userDetails: [
-            {
-                type: 'select',
-                name: 'userDetailType',
-                label: 'User Detail Type',
-                options: [
-                    { value: 'name', name: 'Name' },
-                    { value: 'role', name: 'Role' },
-                    { value: 'type', name: 'Type' },
-                    { value: 'location', name: 'Location' },
-                    { value: 'email', name: 'Email' },
-                    { value: 'phone', name: 'Phone' },
+                    { value: 'name', name: 'Lab Name' },
+                    { value: 'labCode', name: 'Lab Code' },
+                    { value: 'labType', name: 'Lab Type' },
+                    { value: 'address', name: 'Address' },
                 ],
                 default: 'name',
             },
         ],
-        name: [
+
+        document: [
             {
                 type: 'select',
-                name: 'nameType',
-                label: 'Name Type',
+                name: 'documentField',
+                label: 'Document Field',
                 options: [
-                    { value: 'lab', name: 'Lab Name' },
-                    { value: 'document', name: 'Document Name' },
-                    { value: 'user', name: 'User Name' },
+                    { value: 'name', name: 'Document Name' },
+                    { value: 'number', name: 'Document Number' },
+                    { value: 'status', name: 'Document Status' },
+                    { value: 'fullVersion', name: 'Version (Major.Minor)' },
+                    { value: 'major_version', name: 'Major Version' },
+                    { value: 'minor_version', name: 'Minor Version' },
                 ],
-                default: 'lab',
+                default: 'name',
+            },
+        ],
+
+        category: [
+            {
+                type: 'select',
+                name: 'categoryField',
+                label: 'Category Field',
+                options: [
+                    { value: 'name', name: 'Category Name' },
+                    { value: 'identifier', name: 'Identifier' },
+                ],
+                default: 'name',
+            },
+        ],
+
+        subCategory: [
+            {
+                type: 'select',
+                name: 'subCategoryField',
+                label: 'Sub Category Field',
+                options: [
+                    { value: 'name', name: 'Sub Category Name' },
+                    { value: 'identifier', name: 'Identifier' },
+                ],
+                default: 'name',
+            },
+        ],
+
+        unit: [
+            {
+                type: 'select',
+                name: 'unitField',
+                label: 'Unit Field',
+                options: [{ value: 'name', name: 'Unit Name' }],
+                default: 'name',
+            },
+        ],
+
+        labLocation: [
+            {
+                type: 'select',
+                name: 'labLocationField',
+                label: 'Lab Location Field',
+                options: [
+                    { value: 'prefix', name: 'Prefix' },
+                    { value: 'address', name: 'Address' },
+                    { value: 'name', name: 'Location Name' },
+                ],
+                default: 'prefix',
+            },
+        ],
+
+        labLocationDepartment: [
+            {
+                type: 'select',
+                name: 'labLocationDepartmentField',
+                label: 'Lab Location Department Field',
+                options: [
+                    { value: 'department.name', name: 'Department Name' },
+                ],
+                default: 'department.name',
             },
         ],
     }
 
-    simpleFields.forEach((key) => {
-        const traits = fieldTraits[key] || []
-        const label = key
-            .replace(/([A-Z])/g, ' $1')
-            .replace(/^./, (str) => str.toUpperCase())
+    const workflowUserTraits: { [key: string]: any[] } = {
+        preparedBy: [
+            {
+                type: 'select',
+                name: 'preparedByField',
+                label: 'Prepared By Field',
+                options: [
+                    { value: 'name', name: 'Name' },
+                    { value: 'designation', name: 'Designation' },
+                    { value: 'signature', name: 'Signature' },
+                ],
+                default: 'name',
+            },
+        ],
 
+        reviewedBy: [
+            {
+                type: 'select',
+                name: 'reviewedByField',
+                label: 'reviewed By Field',
+                options: [
+                    { value: 'name', name: 'Name' },
+                    { value: 'designation', name: 'Designation' },
+                    { value: 'signature', name: 'Signature' },
+                ],
+                default: 'name',
+            },
+        ],
+
+        approvedBy: [
+            {
+                type: 'select',
+                name: 'approvedByField',
+                label: 'Approved By Field',
+                options: [
+                    { value: 'name', name: 'Name' },
+                    { value: 'designation', name: 'Designation' },
+                    { value: 'signature', name: 'Signature' },
+                ],
+                default: 'name',
+            },
+        ],
+
+        issuedBy: [
+            {
+                type: 'select',
+                name: 'issuedByField',
+                label: 'Issued By Field',
+                options: [
+                    { value: 'name', name: 'Name' },
+                    { value: 'designation', name: 'Designation' },
+                ],
+                default: 'name',
+            },
+        ],
+
+        effectiveBY: [
+            {
+                type: 'select',
+                name: 'effectiveBYField',
+                label: 'effective By Field',
+                options: [
+                    { value: 'name', name: 'Name' },
+                    { value: 'designation', name: 'Designation' },
+                ],
+                default: 'name',
+            },
+        ],
+    }
+
+    Object.keys(dateTraits).forEach((key) => {
         editor.BlockManager.add(`field-${key}`, {
-            label,
-            category: 'Dynamic Fields',
+            label: 'DATE',
+            category: 'Dynamic Fields / Date',
             content: {
                 type: `field-${key}`,
                 tagName: 'span',
-                attributes: {
-                    'data-field': key,
-                },
+                attributes: { 'data-field': key },
                 content: `{{${key}}}`,
             },
         })
@@ -665,34 +714,59 @@ export function addDynamicFields(editor: any) {
             model: {
                 defaults: {
                     tagName: 'span',
-                    attributes: {
-                        'data-field': key,
-                    },
-                    traits,
+                    attributes: { 'data-field': key },
+                    traits: dateTraits[key],
                     content: `{{${key}}}`,
                 },
             },
-            view: {},
         })
     })
-}
-;(window as any).handleDynamicSelect = function (selectEl: HTMLSelectElement) {
-    const container = selectEl.nextElementSibling as HTMLElement
-    const rawValue = selectEl.value
 
-    if (!rawValue) {
-        container.innerHTML = ''
-        return
-    }
+    Object.keys(tableFieldTraits).forEach((key) => {
+        editor.BlockManager.add(`field-${key}`, {
+            label: key.replace(/([A-Z])/g, ' $1').toUpperCase(),
+            category: 'Dynamic Fields / Tables',
+            content: {
+                type: `field-${key}`,
+                tagName: 'span',
+                attributes: { 'data-field': key },
+                content: `{{${key}}}`,
+            },
+        })
 
-    try {
-        const parsed = JSON.parse(rawValue)
-        container.innerHTML = `
-      <div><b>Email:</b> ${parsed.email}</div>
-      <div><b>Phone:</b> ${parsed.phone}</div>
-      <div><b>Address:</b> ${parsed.address}</div>
-    `
-    } catch {
-        container.innerHTML = `<span>${rawValue}</span>`
-    }
+        editor.DomComponents.addType(`field-${key}`, {
+            model: {
+                defaults: {
+                    tagName: 'span',
+                    attributes: { 'data-field': key },
+                    traits: tableFieldTraits[key],
+                    content: `{{${key}}}`,
+                },
+            },
+        })
+    })
+
+    Object.keys(workflowUserTraits).forEach((key) => {
+        editor.BlockManager.add(`field-${key}`, {
+            label: key.replace(/([A-Z])/g, ' $1').toUpperCase(),
+            category: 'Dynamic Fields / Workflow',
+            content: {
+                type: `field-${key}`,
+                tagName: 'span',
+                attributes: { 'data-field': key },
+                content: `{{${key}}}`,
+            },
+        })
+
+        editor.DomComponents.addType(`field-${key}`, {
+            model: {
+                defaults: {
+                    tagName: 'span',
+                    attributes: { 'data-field': key },
+                    traits: workflowUserTraits[key],
+                    content: `{{${key}}}`,
+                },
+            },
+        })
+    })
 }

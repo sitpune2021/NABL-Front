@@ -1,6 +1,8 @@
-import { Fields, GetDocumentResponse } from '@/@types/document'
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { GetDocumentResponse } from '@/@types/document'
 import ApiService from './ApiService'
 import apiEndpointConfig from '@/configs/api-endpoint.config'
+import { DocumentFormSchema } from '@/schemas/document.schema'
 
 export async function apiGetDocumentList<T, U extends Record<string, unknown>>(
     params: U,
@@ -12,7 +14,7 @@ export async function apiGetDocumentList<T, U extends Record<string, unknown>>(
     })
 }
 
-export async function apiDocument(data: Fields) {
+export async function apiDocument(data: DocumentFormSchema) {
     return ApiService.fetchDataWithAxios<GetDocumentResponse>({
         url: apiEndpointConfig.documents,
         method: 'post',
@@ -27,10 +29,18 @@ export async function apiGetDocumentById(id: string) {
     })
 }
 
-export async function apiUpdateDocument(id: string, data: Fields) {
+export async function apiUpdateDocument(id: string, data: DocumentFormSchema) {
     return ApiService.fetchDataWithAxios<GetDocumentResponse>({
         url: `${apiEndpointConfig.documents}/${id}`,
         method: 'put',
+        data,
+    })
+}
+
+export async function apiDocumentWorkFlow(data: any) {
+    return ApiService.fetchDataWithAxios<any>({
+        url: apiEndpointConfig.documentsWorkflowAction,
+        method: 'post',
         data,
     })
 }

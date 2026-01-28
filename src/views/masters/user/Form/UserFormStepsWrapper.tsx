@@ -26,6 +26,7 @@ const UserFormStepsWrapper = ({ userFormProps }: UserFormStepsWrapperProps) => {
                 'username',
                 'email',
                 'phone',
+                'role',
             ])
             if (!valid) return
         }

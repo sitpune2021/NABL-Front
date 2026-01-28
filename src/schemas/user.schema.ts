@@ -15,6 +15,7 @@ export const userSchema = z.object({
     postcode: z.string().optional(),
     profileImage: z.string().optional(),
     signature: z.string().optional(),
+    role: z.any(),
     userRoles: z
         .array(
             z.object({

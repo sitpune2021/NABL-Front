@@ -5,7 +5,7 @@ import toast from '@/components/ui/toast'
 import ConfirmDialog from '@/components/shared/ConfirmDialog'
 import endpointConfig from '@/configs/endpoint.config'
 import DocumentForm from '../Form'
-import type { DocumentFormSchema } from '@/@types/document'
+import { DocumentFormSchema } from '@/schemas/document.schema'
 import { useDocumentDetail } from '../List/hooks/useDetail'
 import { getMode } from '@/utils/getMode'
 import { useDiscardConfirm } from '@/utils/hooks/useDiscardConfirm'
@@ -62,7 +62,6 @@ const DocumentAddEdit = () => {
                 isSubmitting={isSubmitting}
                 onFormSubmit={handleSubmit}
             />
-
             <ConfirmDialog
                 isOpen={discard.open}
                 type="danger"

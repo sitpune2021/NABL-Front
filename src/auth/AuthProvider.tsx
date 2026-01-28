@@ -1,7 +1,7 @@
 import { useRef, useImperativeHandle, useState } from 'react'
 import AuthContext from './AuthContext'
 import appConfig from '@/configs/app.config'
-import { useSessionUser, useToken } from '@/store/authStore'
+import { initialState, useSessionUser, useToken } from '@/store/authStore'
 import { apiSignIn, apiSignOut, apiSignUp } from '@/services/AuthService'
 import { REDIRECT_URL_KEY } from '@/constants/app.constant'
 import { useNavigate } from 'react-router'
@@ -70,7 +70,7 @@ function AuthProvider({ children }: AuthProviderProps) {
 
     const handleSignOut = () => {
         setToken('')
-        setUser({})
+        setUser(initialState.user)
         setSessionSignedIn(false)
     }
 
@@ -78,11 +78,11 @@ function AuthProvider({ children }: AuthProviderProps) {
         try {
             const resp = await apiSignIn(values)
             if (resp) {
-                handleSignIn({ accessToken: resp.token }, resp.user)
+                handleSignIn({ accessToken: resp.data.token }, resp.data.user)
                 redirect()
                 return {
-                    status: 'success',
-                    message: '',
+                    status: resp.status,
+                    message: resp.message,
                 }
             }
             return {
@@ -102,11 +102,11 @@ function AuthProvider({ children }: AuthProviderProps) {
         try {
             const resp = await apiSignUp(values)
             if (resp) {
-                handleSignIn({ accessToken: resp.token }, resp.user)
+                handleSignIn({ accessToken: resp.data.token }, resp.data.user)
                 redirect()
                 return {
-                    status: 'success',
-                    message: '',
+                    status: resp.status,
+                    message: resp.message,
                 }
             }
             return {

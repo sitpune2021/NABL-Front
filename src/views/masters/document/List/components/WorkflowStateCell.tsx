@@ -1,40 +1,57 @@
 import { useEffect, useState } from 'react'
 import { Document } from '@/@types/document'
+import { useSessionUser } from '@/store/authStore'
 
 type Props = {
     document: Document
-    onSave?: (id: number, value: string) => void
+    onSave?: (documentVersionId: number, action: string) => void
 }
 
-const WORKFLOW_STEPS = ['draft', 'prepared', 'reviewed', 'approved', 'issued']
+const ACTIONS_BY_STEP: Record<string, string[]> = {
+    prepared: ['pending', 'completed', 'sent_back', 'rejected'],
+    reviewed: ['pending', 'completed', 'sent_back', 'rejected'],
+    approved: ['pending', 'completed', 'sent_back', 'rejected'],
+    issued: ['pending', 'completed', 'sent_back', 'rejected'],
+    effective: ['pending', 'completed'],
+}
 
 const WorkflowStateCell = ({ document, onSave }: Props) => {
+    const { is_super_admin } = useSessionUser((state) => state.user)
+
+    const version = document.current_version
+    const currentStep = version.workflow_state
+    const lastLog = version.workflow_logs?.[version.workflow_logs.length - 1]
+    const lastAction = lastLog?.step_status ?? 'pending'
+    const allowedActions = ACTIONS_BY_STEP[currentStep] ?? []
+    const isFinal = currentStep === 'effective' && lastAction === 'completed'
+
     const [isEditing, setIsEditing] = useState(false)
-    const [value, setValue] = useState(document.current_version.workflow_state)
+    const [action, setAction] = useState(lastAction)
 
     useEffect(() => {
-        setValue(document.current_version.workflow_state)
-    }, [document.current_version.workflow_state])
+        setAction(lastAction)
+    }, [lastAction])
 
     const handleSave = () => {
         setIsEditing(false)
-        if (value !== document.current_version.workflow_state) {
-            onSave?.(document?.id, value)
+        if (action !== lastAction) {
+            onSave?.(version.id, action)
         }
     }
+    if (document.mode == 'upload') return <span>—</span>
 
-    if (isEditing) {
+    if (isEditing && !isFinal && is_super_admin) {
         return (
             <select
                 autoFocus
                 className="border rounded px-2 py-1 text-sm"
-                value={value}
-                onChange={(e) => setValue(e.target.value)}
+                value={action}
+                onChange={(e) => setAction(e.target.value)}
                 onBlur={handleSave}
             >
-                {WORKFLOW_STEPS.map((step) => (
-                    <option key={step} value={step}>
-                        {step}
+                {allowedActions.map((a) => (
+                    <option key={a} value={a}>
+                        {a}
                     </option>
                 ))}
             </select>
@@ -43,11 +60,19 @@ const WorkflowStateCell = ({ document, onSave }: Props) => {
 
     return (
         <span
-            className="cursor-pointer font-medium text-blue-600"
-            title="Double click to change"
-            onDoubleClick={() => setIsEditing(true)}
+            className={`font-medium ${
+                isFinal ? 'text-gray-500' : 'cursor-pointer text-blue-600'
+            }`}
+            title={
+                isFinal
+                    ? 'Workflow completed'
+                    : 'Double click to perform action'
+            }
+            onDoubleClick={() => {
+                if (!isFinal) setIsEditing(true)
+            }}
         >
-            {value}
+            {lastAction}
         </span>
     )
 }

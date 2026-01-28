@@ -26,7 +26,7 @@ const AssignPermissionSection = ({
                 control={control}
                 errors={errors}
                 readOnly={readOnly}
-                name="userRoles.roles"
+                name="role"
                 roleOptions={roleOptions}
             />
         </Card>

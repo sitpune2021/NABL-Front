@@ -24,6 +24,7 @@ const apiEndpointConfig = {
 
     dataEntry: '/data-entry',
     documents: '/documents',
+    documentsWorkflowAction: '/documents/workflow-action',
 
     navigationItems: '/navigation-items',
     accessModules: '/access-modules',

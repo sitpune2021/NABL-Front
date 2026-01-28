@@ -23,20 +23,20 @@ export function resolveFieldValue(
 
     switch (key) {
         case 'date': {
-            const dateType = options.datetype || 'issueDate'
+            const dateType = options.datetype || 'issuedDate'
             let dateValue: string
             switch (dateType) {
-                case 'issueDate':
-                    dateValue = data.issueDate || ''
+                case 'issuedDate':
+                    dateValue = data?.workflow?.issuedBy?.issued || ''
                     break
                 case 'amendmentDate':
-                    dateValue = data.amendmentDate || ''
+                    dateValue = data?.amendmentDate || ''
                     break
                 case 'effectiveDate':
-                    dateValue = data.effectiveDate || ''
+                    dateValue = data?.workflow?.effectiveBY?.effective || ''
                     break
                 default:
-                    dateValue = data.genericDate || ''
+                    dateValue = data?.genericDate || ''
                     break
             }
             if (options.format && dateValue) {
@@ -44,81 +44,93 @@ export function resolveFieldValue(
             }
             return dateValue
         }
-        case 'number': {
-            const numberType = options.numbertype || 'documentNo'
-            switch (numberType) {
-                case 'documentNo':
-                    return data.documentNo || ''
-                case 'issuedNo':
-                    return data.issuedNo || ''
-                case 'copyNo':
-                    return data.copyNo || ''
-                case 'amendmentNo':
-                    return data.amendmentNo || ''
-                default:
-                    return ''
-            }
-        }
-        case 'person':
-        case 'designation':
-        case 'signatory': {
-            const personRole =
-                options.personrole ||
-                options.persondesignation ||
-                options.personsignatory ||
-                'preparedBy'
-
-            switch (personRole) {
-                case 'preparedBy':
-                    return data.preparedBy || ''
-                case 'approvedBy':
-                    return data.approvedBy || ''
-                case 'issuedBy':
-                    return data.issuedBy || ''
-                case 'user':
-                    return data.user || ''
-                default:
-                    return ''
-            }
-        }
-        case 'category': {
-            const categoryLevel = options.categorylevel || 'category'
-            return categoryLevel === 'subcategory'
-                ? data.subcategory || ''
-                : data.category || ''
-        }
-        case 'department':
-            return Array.isArray(data.department)
-                ? data.department.join(', ')
-                : data.department || ''
-        case 'userDetails': {
-            const userDetailType = options.userdetailtype || 'name'
-            switch (userDetailType) {
-                case 'name':
-                    return data.name || ''
-                case 'role':
-                    return data.role || ''
-                case 'type':
-                    return data.type || ''
-                case 'location':
-                    return data.location || ''
-                case 'email':
-                    return data.email || ''
-                case 'phone':
-                    return data.phone || ''
-                default:
-                    return ''
-            }
-        }
-        case 'name': {
-            const nameType = options.nametype || 'lab'
+        case 'preparedBy': {
+            const nameType = options.preparedbyfield || 'name'
             switch (nameType) {
-                case 'lab':
-                    return data.labName || ''
-                case 'document':
-                    return data.documentName || ''
-                case 'user':
-                    return data.userName || ''
+                case 'name':
+                    return data.workflow?.preparedBy?.name || ''
+                case 'designation':
+                    return data.workflow?.preparedBy?.designation || ''
+                case 'signature':
+                    return data.workflow?.preparedBy?.signature || ''
+                default:
+                    return ''
+            }
+        }
+        case 'reviewedBy': {
+            const nameType = options.reviewedByfield || 'name'
+            switch (nameType) {
+                case 'name':
+                    return data.workflow?.reviewedBy?.name || ''
+                case 'designation':
+                    return data.workflow?.reviewedBy?.designation || ''
+                case 'signature':
+                    return data.workflow?.reviewedBy?.signature || ''
+                default:
+                    return ''
+            }
+        }
+        case 'approvedBy': {
+            const nameType = options.approvedByfield || 'name'
+            switch (nameType) {
+                case 'name':
+                    return data.workflow?.approvedBy?.name || ''
+                case 'designation':
+                    return data.workflow?.approvedBy?.designation || ''
+                case 'signature':
+                    return data.workflow?.approvedBy?.signature || ''
+                default:
+                    return ''
+            }
+        }
+        case 'issuedBy': {
+            const nameType = options.issuedByfield || 'name'
+            switch (nameType) {
+                case 'name':
+                    return data.workflow?.issuedBy?.name || ''
+                case 'designation':
+                    return data.workflow?.issuedBy?.designation || ''
+                case 'signature':
+                    return data.workflow?.issuedBy?.signature || ''
+                default:
+                    return ''
+            }
+        }
+        case 'effectiveBY': {
+            const nameType = options.effectiveByfield || 'name'
+            switch (nameType) {
+                case 'name':
+                    return data.workflow?.effectiveBy?.name || ''
+                case 'designation':
+                    return data.workflow?.effectiveBy?.designation || ''
+                case 'signature':
+                    return data.workflow?.effectiveBy?.signature || ''
+                default:
+                    return ''
+            }
+        }
+        case 'document': {
+            const nameType = options.documentfield || 'name'
+            switch (nameType) {
+                case 'name':
+                    return data?.name || ''
+                case 'number':
+                    return data?.number || ''
+                case 'status':
+                    return data?.status || ''
+                case 'major_version':
+                    return data?.issue_no || ''
+                case 'fullVersion':
+                    return data?.full_version || ''
+                default:
+                    return ''
+            }
+        }
+        case 'lab': {
+            const nameType = options.labfield || 'name'
+            switch (nameType) {
+                case 'name':
+                    return data?.labName || ''
                 default:
                     return ''
             }
@@ -189,114 +201,3 @@ export const generateDocumentNo = (
 
     return `${docPrefix}-${counter}`
 }
-// function resolveFieldValue(
-//     key: string,
-//     data: DocumentResolved,
-//     options: { [key: string]: string } = {},
-// ): string {
-//     if (!data) return ''
-//     switch (key) {
-//         case 'date': {
-//             const dateType = options.datetype || 'issueDate'
-//             let dateValue: string
-//             switch (dateType) {
-//                 case 'issueDate':
-//                     dateValue = data.issueDate || ''
-//                     break
-//                 case 'amendmentDate':
-//                     dateValue = data.amendmentDate || ''
-//                     break
-//                 case 'effectiveDate':
-//                     dateValue = data.effectiveDate || ''
-//                     break
-//                 default:
-//                     dateValue = new Date().toISOString()
-//                     break
-//             }
-//             if (options.format && dateValue) {
-//                 return formatDate(dateValue, options.format)
-//             }
-//             return dateValue
-//         }
-//         case 'number': {
-//             const numberType = options.numbertype || 'documentNo'
-//             switch (numberType) {
-//                 case 'documentNo':
-//                     return data.documentNo || ''
-//                 case 'issuedNo':
-//                     return data.issuedNo || ''
-//                 case 'copyNo':
-//                     return data.copyNo || ''
-//                 case 'amendmentNo':
-//                     return data.amendmentNo || ''
-//                 default:
-//                     return ''
-//             }
-//         }
-//         case 'person':
-//         case 'designation':
-//         case 'signatory': {
-//             const personRole =
-//                 options.personrole ||
-//                 options.persondesignation ||
-//                 options.personsignatory ||
-//                 'preparedBy'
-//             switch (personRole) {
-//                 case 'preparedBy':
-//                     return data.preparedBy || ''
-//                 case 'approvedBy':
-//                     return data.approvedBy || ''
-//                 case 'issuedBy':
-//                     return data.issuedBy || ''
-//                 case 'user':
-//                     return data.user || ''
-//                 default:
-//                     return ''
-//             }
-//         }
-//         case 'category': {
-//             const categoryLevel = options.categorylevel || 'category'
-//             return categoryLevel === 'subcategory'
-//                 ? data.subcategory || ''
-//                 : data.category || ''
-//         }
-//         case 'department':
-//             return Array.isArray(data.department)
-//                 ? data.department.join(', ')
-//                 : data.department || ''
-//         case 'userDetails': {
-//             const userDetailType = options.userdetailtype || 'name'
-//             switch (userDetailType) {
-//                 case 'name':
-//                     return data.name || ''
-//                 case 'role':
-//                     return data.role || ''
-//                 case 'type':
-//                     return data.type || ''
-//                 case 'location':
-//                     return data.location || ''
-//                 case 'email':
-//                     return data.email || ''
-//                 case 'phone':
-//                     return data.phone || ''
-//                 default:
-//                     return ''
-//             }
-//         }
-//         case 'name': {
-//             const nameType = options.nametype || 'lab'
-//             switch (nameType) {
-//                 case 'lab':
-//                     return data.labName || ''
-//                 case 'document':
-//                     return data.documentName || ''
-//                 case 'user':
-//                     return data.userName || ''
-//                 default:
-//                     return ''
-//             }
-//         }
-//         default:
-//             return ''
-//     }
-// }

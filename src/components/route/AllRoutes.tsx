@@ -20,6 +20,7 @@ const { authenticatedEntryPath } = appConfig
 
 const AllRoutes = (props: AllRoutesProps) => {
     const { user } = useAuth()
+    console.log(protectedRoutes)
 
     return (
         <Routes>

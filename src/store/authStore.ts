@@ -31,15 +31,20 @@ const getPersistStorage = () => {
     return cookiesStorage
 }
 
-const initialState: AuthState = {
+export const initialState: AuthState = {
     session: {
         signedIn: false,
     },
     user: {
-        avatar: '',
+        id: '',
+        is_super_admin: false,
+        name: '',
         username: '',
         email: '',
         authority: [],
+        signature: null,
+        lab: null,
+        assignments: [],
     },
 }
 

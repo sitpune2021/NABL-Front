@@ -8,6 +8,13 @@ const masterRoute: Routes = [
         path: `${endpointConfig.master.category.list}`,
         component: lazy(() => import('@/views/masters/category/List')),
         authority: [],
+        meta: {
+            header: {
+                title: 'Category',
+                description:
+                    'Manage customer details, purchase history, and preferences.',
+            },
+        },
     },
     {
         key: 'masters.category.list',
@@ -155,7 +162,10 @@ const masterRoute: Routes = [
         key: 'masters.document.list',
         path: endpointConfig.master.document.dataEntry,
         component: lazy(
-            () => import('@/views/masters/document/Form/DynamicWrapper'),
+            () =>
+                import(
+                    '@/views/masters/document/List/components/DynamicWrapper'
+                ),
         ),
         authority: [],
     },

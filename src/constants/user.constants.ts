@@ -12,5 +12,6 @@ export const USER_EMPTY_VALUES: UserFormSchema = {
     profileImage: '',
     signature: '',
     labAssignments: {},
+    role: '',
     userRoles: [],
 }

@@ -55,10 +55,12 @@ const LabAssignmentSection = ({
             })),
         [rolesList],
     )
+
     const totalLocations = useMemo(
         () => Object.values(labLocations).reduce((s, l) => s + l.length, 0),
         [labLocations],
     )
+
     const totalSelected = useMemo(
         () =>
             Object.values(selectedData).reduce(
@@ -219,8 +221,8 @@ const LabAssignmentSection = ({
                                                     labId={lab.id}
                                                     locationId={String(loc.id)}
                                                     locationName={
-                                                        loc.location_name ||
-                                                        `Location ${loc.id}`
+                                                        loc.location_name_og ||
+                                                        `Location ${loc.location_name_og}`
                                                     }
                                                     roleOptions={roleOptions}
                                                     updateSelection={
