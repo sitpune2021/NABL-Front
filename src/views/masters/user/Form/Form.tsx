@@ -1,61 +1,56 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import { useEffect } from 'react'
+import { useEffect, useMemo } from 'react'
 import { Form } from '@/components/ui/Form'
 import Container from '@/components/shared/Container'
 import BottomStickyBar from '@/components/template/BottomStickyBar'
 import OverviewSection from './OverviewSection'
-import isEmpty from 'lodash/isEmpty'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { FormProvider, useForm } from 'react-hook-form'
-import { UserFormSchema } from '@/@types/user'
 import AddressSection from './AddressSection'
 import SignImageSection from './SignImageSection'
 import ProfileImageSection from './ProfileImageSection'
 import AssignPermissionSection from './AssignPermissionSection'
-import LabAssignmentSection from './LabAssignmentSection'
 
-import { userSchema } from '@/schemas/user.schema'
+import { userSchema, UserSchemaType } from '@/schemas/user.schema'
+import { CommonProps } from '@/@types/common'
+import { EMPTY_VALUES } from '@/constants/user.constants'
+import { useSessionUser } from '@/store/authStore'
+import AssignLabPermissionSection from './AssignLabPermissionSection'
 
-interface UserFormProps {
-    step?: number
-    defaultValues?: UserFormSchema
+type UserFormProps = {
+    onFormSubmit: (values: UserSchemaType) => void
+    defaultValues?: UserSchemaType
     readOnly?: boolean
-    onFormSubmit: (values: UserFormSchema) => void
-    onMethodsReady?: (methods: any) => void
-    children?: React.ReactNode
-}
+    loading?: boolean
+} & CommonProps
 
 const UserForm = ({
-    step = 0,
+    onFormSubmit,
     defaultValues,
     readOnly = false,
-    onFormSubmit,
-    onMethodsReady,
+    loading = false,
     children,
 }: UserFormProps) => {
-    const methods = useForm<UserFormSchema>({
-        defaultValues,
+    const { lab } = useSessionUser((state) => state.user)
+
+    const memoizedDefaults = useMemo(
+        () => defaultValues ?? EMPTY_VALUES,
+        [defaultValues],
+    )
+
+    const methods = useForm<UserSchemaType>({
         resolver: zodResolver(userSchema),
-        shouldUnregister: false,
+        defaultValues: memoizedDefaults,
+        mode: 'onSubmit',
+        reValidateMode: 'onChange',
     })
 
-    const {
-        handleSubmit,
-        reset,
-        control,
-        setValue,
-        formState: { errors },
-    } = methods
+    const { handleSubmit, reset } = methods
 
     useEffect(() => {
-        onMethodsReady?.(methods)
-    }, [methods])
-
-    useEffect(() => {
-        if (!isEmpty(defaultValues)) {
+        if (defaultValues) {
             reset(defaultValues)
         }
-    }, [defaultValues])
+    }, [defaultValues, reset])
 
     return (
         <FormProvider {...methods}>
@@ -65,50 +60,40 @@ const UserForm = ({
                 onSubmit={handleSubmit(onFormSubmit)}
             >
                 <Container>
-                    {step === 0 && (
-                        <div className="flex flex-col md:flex-row gap-4">
-                            <div className="flex flex-col gap-4 flex-auto">
-                                <OverviewSection
-                                    control={control}
-                                    errors={errors}
+                    <div className="flex flex-col md:flex-row gap-4">
+                        <div className="flex flex-col gap-4 flex-auto">
+                            <OverviewSection
+                                readOnly={readOnly}
+                                loading={loading}
+                            />
+                            {lab ? (
+                                <AssignLabPermissionSection
                                     readOnly={readOnly}
+                                    loading={loading}
                                 />
+                            ) : (
                                 <AssignPermissionSection
-                                    control={control}
-                                    errors={errors}
                                     readOnly={readOnly}
-                                    setValue={setValue}
+                                    loading={loading}
                                 />
-                            </div>
-
-                            <div className="md:w-[370px] flex flex-col gap-4">
-                                <ProfileImageSection
-                                    control={control}
-                                    errors={errors}
-                                    readOnly={readOnly}
-                                />
-                                <SignImageSection
-                                    control={control}
-                                    errors={errors}
-                                    readOnly={readOnly}
-                                />
-                                <AddressSection
-                                    control={control}
-                                    errors={errors}
-                                    readOnly={readOnly}
-                                />
-                            </div>
+                            )}
                         </div>
-                    )}
 
-                    {step === 1 && (
-                        <LabAssignmentSection
-                            control={control}
-                            errors={errors}
-                            setValue={setValue}
-                            readOnly={readOnly}
-                        />
-                    )}
+                        <div className="md:w-[370px] flex flex-col gap-4">
+                            <ProfileImageSection
+                                readOnly={readOnly}
+                                loading={loading}
+                            />
+                            <SignImageSection
+                                readOnly={readOnly}
+                                loading={loading}
+                            />
+                            <AddressSection
+                                readOnly={readOnly}
+                                loading={loading}
+                            />
+                        </div>
+                    </div>
                 </Container>
 
                 <BottomStickyBar>{children}</BottomStickyBar>

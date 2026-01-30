@@ -47,11 +47,11 @@ const OverviewSection = ({
 
                     <FormItem
                         label="Lab Type"
-                        invalid={Boolean(errors.labType)}
-                        errorMessage={errors.labType?.message}
+                        invalid={Boolean(errors.lab_type)}
+                        errorMessage={errors.lab_type?.message}
                     >
                         <Controller
-                            name="labType"
+                            name="lab_type"
                             control={control}
                             render={({ field }) => (
                                 <Input
@@ -65,17 +65,51 @@ const OverviewSection = ({
 
                     <FormItem
                         label="Lab Code"
-                        invalid={Boolean(errors.labCode)}
-                        errorMessage={errors.labCode?.message}
+                        invalid={Boolean(errors.lab_code)}
+                        errorMessage={errors.lab_code?.message}
                     >
                         <Controller
-                            name="labCode"
+                            name="lab_code"
                             control={control}
                             render={({ field }) => (
                                 <Input
                                     {...field}
                                     readOnly={true} // Always readOnly as it's auto-generated; respects overall readOnly prop if needed
                                     placeholder="Auto-generated"
+                                />
+                            )}
+                        />
+                    </FormItem>
+                    <FormItem
+                        label="Lab Loaction Count"
+                        invalid={Boolean(errors.loaction_count)}
+                        errorMessage={errors.loaction_count?.message}
+                    >
+                        <Controller
+                            name="loaction_count"
+                            control={control}
+                            render={({ field }) => (
+                                <Input
+                                    {...field}
+                                    readOnly={readOnly}
+                                    placeholder="Lab Loaction Count"
+                                />
+                            )}
+                        />
+                    </FormItem>
+                    <FormItem
+                        label="Lab User Count"
+                        invalid={Boolean(errors.user_count)}
+                        errorMessage={errors.user_count?.message}
+                    >
+                        <Controller
+                            name="user_count"
+                            control={control}
+                            render={({ field }) => (
+                                <Input
+                                    {...field}
+                                    readOnly={readOnly}
+                                    placeholder="Lab User Count"
                                 />
                             )}
                         />

@@ -2,8 +2,10 @@ import { z } from 'zod'
 
 export const labSchema = z.object({
     name: z.string().min(1, { message: 'Name is required' }),
-    labType: z.string().min(1, { message: 'Lab Type is required' }),
-    labCode: z.string().min(1, { message: 'Lab Code is required' }),
+    lab_type: z.string().min(1, { message: 'Lab Type is required' }),
+    lab_code: z.string().min(1, { message: 'Lab Code is required' }),
+    loaction_count: z.union([z.string(), z.number()]),
+    user_count: z.union([z.string(), z.number()]),
     emails: z
         .array(
             z.object({

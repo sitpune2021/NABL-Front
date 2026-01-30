@@ -1,6 +1,6 @@
-import { UserFormSchema } from '@/@types/user'
+import { UserSchemaType } from '@/schemas/user.schema'
 
-export const USER_EMPTY_VALUES: UserFormSchema = {
+export const EMPTY_VALUES: UserSchemaType = {
     name: '',
     username: '',
     email: '',
@@ -11,7 +11,19 @@ export const USER_EMPTY_VALUES: UserFormSchema = {
     postcode: '',
     profileImage: '',
     signature: '',
-    labAssignments: {},
     role: '',
-    userRoles: [],
+    userRoles: [
+        {
+            zone_id: '',
+            cluster_id: '',
+            location_id: '',
+            department: [
+                {
+                    department_id: '',
+                    roles: [],
+                    // permissions: {},
+                },
+            ],
+        },
+    ],
 }

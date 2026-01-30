@@ -1,89 +1,77 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo } from 'react'
 import { useParams, useNavigate, useLocation } from 'react-router'
 import Notification from '@/components/ui/Notification'
 import toast from '@/components/ui/toast'
 import ConfirmDialog from '@/components/shared/ConfirmDialog'
 import endpointConfig from '@/configs/endpoint.config'
-import useUserList from '../List/hooks/useList'
 import { useDiscardConfirm } from '@/utils/hooks/useDiscardConfirm'
-import UserFormStepsWrapper from '../Form/UserFormStepsWrapper'
-import { UserFormSchema } from '@/@types/user'
-import { USER_EMPTY_VALUES } from '@/constants/user.constants'
+import { EMPTY_VALUES } from '@/constants/user.constants'
+import UserForm from '../Form'
+import BottomPanel from '@/components/form/bottomPanel'
+import { getMode } from '@/utils/getMode'
+import { useFormSubmit } from '@/utils/hoc/useFormSubmit'
+import { useEntityMutations } from '@/utils/hooks/useEntityMutations'
+import { useUserDetail } from '../List/hooks/useUserDetail'
+import { apiUpdateUser, apiUser } from '@/services/UserService'
+import { UserSchemaType } from '@/schemas/user.schema'
 
 const UserAddEdit = () => {
     const { id } = useParams<{ id: string }>()
     const navigate = useNavigate()
     const location = useLocation()
 
-    const isEdit = location.pathname.includes('edit')
-    const isView = location.pathname.includes('view')
+    const mode = useMemo(() => getMode(location.pathname), [location.pathname])
+    const isEdit = mode === 'edit'
+    const isView = mode === 'view'
 
     const discard = useDiscardConfirm()
-    const { saveUserData, getUserById } = useUserList()
+    const { user, isLoading } = useUserDetail(id)
 
-    const [user, setUser] = useState<UserFormSchema | null>(null)
-    const [loading, setLoading] = useState(false)
+    const defaultValues = useMemo(() => user ?? EMPTY_VALUES, [user])
 
-    useEffect(() => {
-        if ((isEdit || isView) && id) {
-            setLoading(true)
-            getUserById(id)
-                .then((data) => {
-                    setUser({
-                        ...data,
-                        dialCode: data.dialCode || '+91',
-                        labAssignments: data.labAssignments || {},
-                        role: data.role || '',
-                        userRoles: data.userRoles || [],
-                    })
-                })
-                .finally(() => setLoading(false))
-        }
-    }, [id, isEdit, isView])
+    const { save } = useEntityMutations<UserSchemaType>({
+        apiCreate: apiUser,
+        apiUpdate: apiUpdateUser,
+    })
 
-    const defaultValues = useMemo<UserFormSchema>(() => {
-        if (user) return user
-        return USER_EMPTY_VALUES
-    }, [user])
+    const { handleSubmit, isSubmitting } = useFormSubmit<UserSchemaType>({
+        apiCall: (values) =>
+            save({ ...values, ...(isEdit && id ? { id } : {}) }),
+        navigateTo: endpointConfig.setting.user.list,
+    })
 
-    const handleSubmit = async (values: UserFormSchema) => {
-        const res = await saveUserData({
-            ...values,
-            ...(isEdit && id ? { id } : {}),
-        })
-
+    const confirmDiscard = () => {
         toast.push(
-            <Notification type={res.success ? 'success' : 'danger'}>
-                {res.message}
-            </Notification>,
+            <Notification type="success">Changes discarded</Notification>,
             { placement: 'top-center' },
         )
-
-        if (res.success) {
-            navigate(endpointConfig.setting.user.list)
-        }
-    }
-    if (loading) {
-        return <p className="p-4">Loading user data...</p>
+        discard.close()
+        navigate(`${endpointConfig.master.category.list}`)
     }
 
     return (
         <>
-            <UserFormStepsWrapper
-                userFormProps={{
-                    defaultValues,
-                    readOnly: isView,
-                    isSubmitting: false,
-                    onFormSubmit: handleSubmit,
-                }}
-            />
+            <UserForm
+                defaultValues={defaultValues}
+                readOnly={isView}
+                loading={isLoading}
+                onFormSubmit={handleSubmit}
+            >
+                <BottomPanel
+                    isView={isView}
+                    isSubmitting={isSubmitting}
+                    isEdit={isEdit}
+                    onDiscard={discard.show}
+                />
+            </UserForm>
 
             <ConfirmDialog
                 isOpen={discard.open}
                 type="danger"
                 title="Discard changes"
                 onClose={discard.close}
-                onConfirm={() => navigate(endpointConfig.setting.user.list)}
+                onCancel={discard.close}
+                onConfirm={confirmDiscard}
             >
                 <p>Are you sure you want to discard changes?</p>
             </ConfirmDialog>

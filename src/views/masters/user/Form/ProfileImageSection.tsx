@@ -1,15 +1,16 @@
 import Card from '@/components/ui/Card'
 import Avatar from '@/components/ui/Avatar'
 import Upload from '@/components/ui/Upload'
-import { Button } from '@/components/ui'
+import { Button, FormItem } from '@/components/ui'
 import DoubleSidedImage from '@/components/shared/DoubleSidedImage'
-import { Controller } from 'react-hook-form'
+import { Controller, useFormContext } from 'react-hook-form'
 import { HiOutlineUser } from 'react-icons/hi'
 import { FormSectionBaseProps } from '@/@types/user'
+import { UserSchemaType } from '@/schemas/user.schema'
 
 type ProfileImageSectionProps = FormSectionBaseProps
 
-const ProfileImage = ({ control }: ProfileImageSectionProps) => {
+const ProfileImage = ({ readOnly, loading }: ProfileImageSectionProps) => {
     const beforeUpload = (files: FileList | null) => {
         let valid: string | boolean = true
 
@@ -25,11 +26,20 @@ const ProfileImage = ({ control }: ProfileImageSectionProps) => {
         return valid
     }
 
+    const {
+        control,
+        formState: { errors },
+    } = useFormContext<UserSchemaType>()
+
     return (
         <Card>
             <h4 className="mb-6">Image Upload</h4>
             <div className="bg-gray-100 dark:bg-gray-700 rounded-lg text-center p-4">
-                <div className="text-center">
+                <FormItem
+                    className="text-center"
+                    invalid={!!errors.profileImage}
+                    errorMessage={errors.profileImage?.message}
+                >
                     <Controller
                         name="profileImage"
                         control={control}
@@ -67,6 +77,7 @@ const ProfileImage = ({ control }: ProfileImageSectionProps) => {
                                         variant="solid"
                                         className="mt-4"
                                         type="button"
+                                        disabled={readOnly || loading}
                                     >
                                         Upload Image
                                     </Button>
@@ -74,7 +85,7 @@ const ProfileImage = ({ control }: ProfileImageSectionProps) => {
                             </>
                         )}
                     />
-                </div>
+                </FormItem>
             </div>
         </Card>
     )

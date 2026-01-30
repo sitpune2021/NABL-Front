@@ -1,7 +1,7 @@
 import Card from '@/components/ui/Card'
 import Input from '@/components/ui/Input'
 import { FormItem } from '@/components/ui/Form'
-import { Controller } from 'react-hook-form'
+import { Controller, useFormContext } from 'react-hook-form'
 import { countryList } from '@/constants/countries.constant'
 import Avatar from '@/components/ui/Avatar'
 import { FormSectionBaseProps } from '@/@types/user'
@@ -9,6 +9,7 @@ import { useMemo } from 'react'
 import { components, ControlProps, OptionProps } from 'react-select'
 import Select, { Option as DefaultOption } from '@/components/ui/Select'
 import { NumericInput } from '@/components/shared'
+import { UserSchemaType } from '@/schemas/user.schema'
 
 type CountryOption = {
     label: string
@@ -54,11 +55,7 @@ const CustomControl = ({ children, ...props }: ControlProps<CountryOption>) => {
 
 type OverviewSectionProps = FormSectionBaseProps
 
-const OverviewSection = ({
-    control,
-    errors,
-    readOnly,
-}: OverviewSectionProps) => {
+const OverviewSection = ({ readOnly, loading }: OverviewSectionProps) => {
     const dialCodeList = useMemo(() => {
         const newCountryList: Array<CountryOption> = JSON.parse(
             JSON.stringify(countryList),
@@ -69,66 +66,53 @@ const OverviewSection = ({
             return country
         })
     }, [])
+    const {
+        register,
+        control,
+        formState: { errors },
+    } = useFormContext<UserSchemaType>()
+    console.log(errors, 'errors')
 
     return (
         <Card>
             <div className="grid md:grid-cols-2 gap-4">
                 <FormItem
                     label="Name"
-                    invalid={Boolean(errors.name)}
+                    invalid={!!errors.name}
                     errorMessage={errors.name?.message}
                 >
-                    <Controller
-                        name="name"
-                        control={control}
-                        render={({ field }) => (
-                            <Input
-                                type="text"
-                                autoComplete="off"
-                                readOnly={readOnly}
-                                placeholder="Full Name"
-                                {...field}
-                            />
-                        )}
+                    <Input
+                        type="text"
+                        autoComplete="off"
+                        placeholder="Enter Name"
+                        disabled={readOnly || loading}
+                        {...register('name')}
                     />
                 </FormItem>
                 <FormItem
                     label="Username"
-                    invalid={Boolean(errors.username)}
+                    invalid={!!errors.username}
                     errorMessage={errors.username?.message}
                 >
-                    <Controller
-                        name="username"
-                        control={control}
-                        render={({ field }) => (
-                            <Input
-                                type="text"
-                                autoComplete="off"
-                                readOnly={readOnly}
-                                placeholder="Enter Username"
-                                {...field}
-                            />
-                        )}
+                    <Input
+                        type="text"
+                        autoComplete="off"
+                        placeholder="Enter Username"
+                        disabled={readOnly || loading}
+                        {...register('username')}
                     />
                 </FormItem>
-
                 <FormItem
                     label="Email"
-                    invalid={Boolean(errors.email)}
+                    invalid={!!errors.email}
                     errorMessage={errors.email?.message}
                 >
-                    <Controller
-                        name="email"
-                        control={control}
-                        render={({ field }) => (
-                            <Input
-                                type="email"
-                                autoComplete="off"
-                                readOnly={readOnly}
-                                placeholder="Enter Email"
-                                {...field}
-                            />
-                        )}
+                    <Input
+                        type="text"
+                        autoComplete="off"
+                        placeholder="Enter Email"
+                        disabled={readOnly || loading}
+                        {...register('email')}
                     />
                 </FormItem>
             </div>
@@ -158,7 +142,7 @@ const OverviewSection = ({
                                     }}
                                     placeholder=""
                                     value={selectedOption}
-                                    isDisabled={readOnly}
+                                    isDisabled={readOnly || loading}
                                     onChange={(option) =>
                                         field.onChange(
                                             option?.dialCode || '+91',

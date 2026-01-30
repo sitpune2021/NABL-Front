@@ -14,8 +14,8 @@ export const userSchema = z.object({
     city: z.string().optional(),
     postcode: z.string().optional(),
     profileImage: z.string().optional(),
-    signature: z.string().optional(),
-    role: z.any(),
+    signature: z.union([z.string(), z.null()]).optional(),
+    role: z.union([z.string(), z.null()]).optional(),
     userRoles: z
         .array(
             z.object({
@@ -41,25 +41,13 @@ export const userSchema = z.object({
                                 )
                                 .optional(),
 
-                            permissions: z
-                                .record(z.string(), z.array(z.string()))
-                                .optional(),
+                            // permissions: z
+                            //     .record(z.string(), z.array(z.string()))
+                            //     .optional(),
                         }),
                     )
                     .optional(),
             }),
-        )
-        .optional(),
-    labAssignments: z
-        .record(
-            z.string(), // zone / lab id
-            z.record(
-                z.string(), // location id
-                z.object({
-                    locationId: z.string(),
-                    roleId: z.string().optional(),
-                }),
-            ),
         )
         .optional(),
 })
