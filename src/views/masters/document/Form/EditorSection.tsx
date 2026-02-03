@@ -76,13 +76,55 @@ const EditorSection = ({
                         css: '',
                     },
                 })
+                // Update GrapesJS editor if ready
+                if (editorRef.current) {
+                    const editor = editorRef.current
+                    const wrapper = editor.getWrapper()
+
+                    // Remove old header/footer if exist
+                    ;['header-section', 'footer-section'].forEach((cls) => {
+                        const comp = wrapper.find(`.${cls}`)
+                        if (comp.length) comp.forEach((c) => c.remove())
+                    })
+
+                    // Insert new header at top
+                    if (header?.template?.json) {
+                        editor.addComponents(
+                            `<div class="header-section non-editable"></div>`,
+                            { at: 0 },
+                        )
+                        const container = wrapper.find('.header-section')[0]
+                        container?.append(header.template.json)
+                        lockTree(container)
+                        if (header.template.css)
+                            editor.addStyle(header.template.css)
+                    }
+
+                    // Insert new footer at bottom
+                    if (footer?.template?.json) {
+                        editor.addComponents(
+                            `<div class="footer-section non-editable"></div>`,
+                            { at: wrapper.components().length },
+                        )
+                        const container = wrapper.find('.footer-section')[0]
+                        container?.append(footer.template.json)
+                        lockTree(container)
+                        if (footer.template.css)
+                            editor.addStyle(footer.template.css)
+                    }
+                }
             } catch (err) {
                 console.error('Error loading templates:', err)
             }
         }
 
         loadTemplates()
-    }, [editorSchema, getTemplateById])
+    }, [
+        Header?.template_id,
+        Footer?.template_id,
+        editorSchema,
+        getTemplateById,
+    ])
 
     useEffect(() => {
         // Do not initialize in readOnly mode or if already initialized
@@ -156,27 +198,31 @@ const EditorSection = ({
 
         // Only add editable-section if it doesn't exist
         if (!wrapper.find('.editable-section').length) {
-            editor.addComponents(`<div class="editable-section"></div>`)
+            editor.addComponents(
+                `<div class="editable-section"></div>`,
+                { at: wrapper.find('.header-section').length }, // after header
+            )
         }
 
-        const insertJSON = (json: any, className: string, css?: string) => {
-            if (wrapper.find(`.${className}`).length) return // already exists
-            try {
-                // Create wrapper
-                editor.addComponents(
-                    `<div class="${className} non-editable"></div>`,
-                )
+        const insertJSON = (
+            json: any,
+            className: string,
+            css?: string,
+            atIndex?: number,
+        ) => {
+            const existing = wrapper.find(`.${className}`)
+            if (existing.length) existing.forEach((c) => c.remove())
+            if (!json) return
 
-                const container = wrapper.find(`.${className}`)[0]
-                if (!container) return
+            editor.addComponents(
+                `<div class="${className} non-editable"></div>`,
+                atIndex !== undefined ? { at: atIndex } : undefined,
+            )
+            const container = wrapper.find(`.${className}`)[0]
+            container?.append(json)
+            lockTree(container)
 
-                container.append(json)
-                lockTree(container)
-
-                if (css) editor.addStyle(css)
-            } catch (err) {
-                console.error(`Failed parsing JSON for ${className}:`, err)
-            }
+            if (css) editor.addStyle(css)
         }
 
         if (isEdit) {
@@ -184,15 +230,27 @@ const EditorSection = ({
             if (section?.css) editor.addStyle(section.css)
 
             if (header.json)
-                insertJSON(header.json, 'header-section', header.css)
+                insertJSON(header.json, 'header-section', header.css, 0)
             if (footer.json)
-                insertJSON(footer.json, 'footer-section', footer.css)
+                insertJSON(
+                    footer.json,
+                    'footer-section',
+                    footer.css,
+                    wrapper.components().length,
+                )
 
             return
         }
 
-        if (header.json) insertJSON(header.json, 'header-section', header.css)
-        if (footer.json) insertJSON(footer.json, 'footer-section', footer.css)
+        if (header.json)
+            insertJSON(header.json, 'header-section', header.css, 0)
+        if (footer.json)
+            insertJSON(
+                footer.json,
+                'footer-section',
+                footer.css,
+                wrapper.components().length,
+            )
     }, [template, isEditorReady, isEdit, readOnly])
 
     if (readOnly && template.section?.html) {

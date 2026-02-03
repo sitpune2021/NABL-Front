@@ -1,8 +1,8 @@
 import { memo } from 'react'
 import Input from '@/components/ui/Input'
 import { FormItem } from '@/components/ui/Form'
-import { Controller, useFormContext } from 'react-hook-form'
-import { Button, Dialog } from '@/components/ui'
+import { Controller, useFormContext, useWatch } from 'react-hook-form'
+import { Button, Dialog, Select, Checkbox } from '@/components/ui'
 import { TemplateFormSchema } from '@/schemas/template.schema'
 
 type SaveBoxSectionProps = {
@@ -14,6 +14,11 @@ type SaveBoxSectionProps = {
     onSubmit: () => void
     isSubmiting: boolean
 }
+
+const changeTypeOptions = [
+    { label: 'Minor', value: 'minor' },
+    { label: 'Major', value: 'major' },
+]
 
 const SaveBoxSection = ({
     readOnly,
@@ -35,6 +40,10 @@ const SaveBoxSection = ({
         setValue('status', status, { shouldDirty: true })
         onSubmit()
     }
+    const changeType = useWatch({
+        control,
+        name: 'change_type',
+    })
 
     return (
         <Dialog isOpen={dialogIsOpen} closable={false}>
@@ -68,17 +77,45 @@ const SaveBoxSection = ({
                             name="change_type"
                             control={control}
                             render={({ field }) => (
-                                <select
+                                <Select
                                     {...field}
-                                    className="border rounded-md px-3 py-2 w-full"
-                                >
-                                    <option value="">Select</option>
-                                    <option value="minor">Minor</option>
-                                    <option value="major">Major</option>
-                                </select>
+                                    options={changeTypeOptions}
+                                    value={changeTypeOptions.find(
+                                        (o) => o.value === field.value,
+                                    )}
+                                    placeholder="Select"
+                                    onChange={(option) =>
+                                        field.onChange(option?.value)
+                                    }
+                                />
                             )}
                         />
                     </FormItem>
+
+                    {changeType === 'minor' && (
+                        <FormItem>
+                            <Controller
+                                name="apply_all_documents"
+                                control={control}
+                                render={({ field }) => (
+                                    <Checkbox
+                                        checked={!!field.value}
+                                        onChange={(checked) =>
+                                            field.onChange(checked)
+                                        }
+                                    >
+                                        Forcefully apply for all documents ?
+                                    </Checkbox>
+                                )}
+                            />
+                        </FormItem>
+                    )}
+
+                    {changeType === 'major' && (
+                        <div className="rounded-md border border-red-300 bg-red-50 px-3 py-2 text-sm text-red-600">
+                            This template will be applied at document level.
+                        </div>
+                    )}
 
                     <FormItem
                         label="Message"
