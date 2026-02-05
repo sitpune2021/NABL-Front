@@ -7,6 +7,7 @@ export const templateSchema = z.object({
     status: z.any().optional(),
     change_type: z.string().optional(),
     message: z.string().optional(),
+    apply_all_documents: z.boolean().optional(),
 })
 
 export type TemplateFormSchema = z.infer<typeof templateSchema>
