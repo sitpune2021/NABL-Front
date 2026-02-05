@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { useMemo } from 'react'
 import { useAssignmentStore } from '../store/assignmentStore'
 import Tag from '@/components/ui/Tag'
 import {
@@ -7,26 +9,18 @@ import {
     TbClock,
     TbCertificate,
 } from 'react-icons/tb'
-import type { ReactNode } from 'react'
+import useLabList from '../../lab/List/hooks/useList'
+import useLocationList from '../../location/List/hooks/useList'
+import useUserList from '../../user/List/hooks/useList'
 
-interface StatProps {
-    title: string
-    count: number
-    icon: ReactNode
-    colorClass: string
-    label: string
-}
-
-const SummaryCard = ({ title, count, icon, colorClass, label }: StatProps) => (
-    <div className="flex items-center gap-4 p-4 bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm">
-        <div className={`p-3 rounded-xl ${colorClass}`}>
+const SummaryCard = ({ title, count, label, icon, color }: any) => (
+    <div className="flex items-center gap-4 p-4 bg-white rounded-2xl border shadow-sm">
+        <div className={`p-3 rounded-xl ${color}`}>
             <span className="text-2xl">{icon}</span>
         </div>
         <div>
-            <p className="text-xs font-bold text-gray-400 uppercase tracking-wider">
-                {title}
-            </p>
-            <h3 className="text-xl font-extrabold text-gray-900 dark:text-gray-100">
+            <p className="text-xs font-bold text-gray-400 uppercase">{title}</p>
+            <h3 className="text-xl font-extrabold">
                 {count}{' '}
                 <span className="text-sm font-medium text-gray-500">
                     {label}
@@ -37,27 +31,46 @@ const SummaryCard = ({ title, count, icon, colorClass, label }: StatProps) => (
 )
 
 const AssignmentBody = () => {
-    const { labList, locationList, userList } = useAssignmentStore()
+    const { labCount, locationCount, userCount } = useAssignmentStore()
 
-    const stats = [
+    const { labList = [] } = useLabList()
+    const { locationList = [] } = useLocationList()
+    const { userList = [] } = useUserList()
+
+    const stats = useMemo(
+        () => ({
+            labs: {
+                total: labCount,
+                assigned: labList.filter((l: any) => l.assigned).length,
+            },
+            locations: {
+                total: locationCount,
+                assigned: locationList.filter((l: any) => l.assigned).length,
+            },
+            users: {
+                total: userCount,
+                assigned: userList.filter((u: any) => u.assigned).length,
+            },
+        }),
+        [labList, locationList, userList, labCount, locationCount, userCount],
+    )
+
+    const cards = [
         {
-            title: 'Labs',
-            total: labList.length,
-            assigned: labList.filter((i) => i.assigned).length,
+            title: 'Total Labs',
+            data: stats.labs,
             icon: <TbCertificate />,
             color: 'bg-primary-subtle text-primary bg-primary-subtle',
         },
         {
-            title: 'Locations',
-            total: locationList.length,
-            assigned: locationList.filter((i) => i.assigned).length,
+            title: 'Total Locations',
+            data: stats.locations,
             icon: <TbMapPin />,
             color: 'bg-purple-50 text-purple-600 dark:bg-purple-900/20',
         },
         {
-            title: 'Users',
-            total: userList.length,
-            assigned: userList.filter((i) => i.assigned).length,
+            title: 'Total Users',
+            data: stats.users,
             icon: <TbUser />,
             color: 'bg-emerald-50 text-emerald-600 dark:bg-emerald-900/20',
         },
@@ -66,47 +79,39 @@ const AssignmentBody = () => {
     return (
         <div className="flex flex-col gap-8 p-2">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                {stats.map((s) => (
+                {cards.map((c) => (
                     <SummaryCard
-                        key={s.title}
-                        title={`Total ${s.title}`}
-                        count={s.total}
-                        label={s.title}
-                        icon={s.icon}
-                        colorClass={s.color}
+                        key={c.title}
+                        title={c.title}
+                        count={c.data.total}
+                        label={c.title.split(' ')[1]}
+                        icon={c.icon}
+                        color={c.color}
                     />
                 ))}
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 px-2">
-                {stats.map((s) => {
-                    const unassigned = s.total - s.assigned
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {cards.map((c) => {
+                    const pending = Math.max(c.data.total - c.data.assigned, 0)
                     return (
-                        <div key={s.title} className="flex flex-col gap-4">
-                            <h6 className="text-sm font-bold text-gray-400 uppercase tracking-widest px-1">
-                                {s.title} Status
-                            </h6>
-
-                            <div className="space-y-3">
-                                <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800/40 rounded-xl border border-transparent dark:hover:border-gray-700 transition-all">
-                                    <div className="flex items-center gap-2 text-gray-600 dark:text-gray-300 font-medium">
-                                        <TbCircleCheck className="text-emerald-500 text-lg" />
-                                        <span>Assigned</span>
-                                    </div>
-                                    <Tag className="bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200 border-gray-200 font-bold px-3">
-                                        {s.assigned}
-                                    </Tag>
+                        <div key={c.title} className="space-y-3">
+                            <div className="flex justify-between p-3 bg-gray-50 rounded-xl">
+                                <div className="flex items-center gap-2">
+                                    <TbCircleCheck className="text-emerald-500" />
+                                    Assigned
                                 </div>
+                                <Tag>{c.data.assigned}</Tag>
+                            </div>
 
-                                <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800/40 rounded-xl border border-transparent dark:hover:border-gray-700 transition-all">
-                                    <div className="flex items-center gap-2 text-gray-600 dark:text-gray-300 font-medium">
-                                        <TbClock className="text-amber-500 text-lg" />
-                                        <span>Pending</span>
-                                    </div>
-                                    <Tag className="bg-red-50 text-red-600 border-none font-bold px-3">
-                                        {unassigned}
-                                    </Tag>
+                            <div className="flex justify-between p-3 bg-gray-50 rounded-xl">
+                                <div className="flex items-center gap-2">
+                                    <TbClock className="text-amber-500" />
+                                    Pending
                                 </div>
+                                <Tag className="bg-red-50 text-red-600">
+                                    {pending}
+                                </Tag>
                             </div>
                         </div>
                     )
