@@ -1,29 +1,30 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { create } from 'zustand'
 
-export type AssignmentListState = {
-    labList: any[]
-    locationList: any[]
-    userList: any[]
+export type AssignmentStats = {
+    labCount: number
+    locationCount: number
+    userCount: number
 }
 
-type AssignmentListAction = {
-    setLabs: (payload: any[]) => void
-    setLocations: (payload: any[]) => void
-    setUsers: (payload: any[]) => void
+type AssignmentStore = AssignmentStats & {
+    setStats: (stats: Partial<AssignmentStats>) => void
+    reset: () => void
 }
 
-const initialState: AssignmentListState = {
-    labList: [],
-    locationList: [],
-    userList: [],
+const initialState: AssignmentStats = {
+    labCount: 0,
+    locationCount: 0,
+    userCount: 0,
 }
 
-export const useAssignmentStore = create<
-    AssignmentListState & AssignmentListAction
->((set) => ({
+export const useAssignmentStore = create<AssignmentStore>((set) => ({
     ...initialState,
-    setLabs: (payload) => set({ labList: payload }),
-    setLocations: (payload) => set({ locationList: payload }),
-    setUsers: (payload) => set({ userList: payload }),
+
+    setStats: (stats) =>
+        set((state) => ({
+            ...state,
+            ...stats,
+        })),
+
+    reset: () => set(initialState),
 }))

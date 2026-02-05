@@ -16,6 +16,7 @@ const apiEndpointConfig = {
     clusters: '/clusters',
     locations: '/locations',
     labs: '/labs',
+    labsAssignments: '/lab-assignments',
     standards: '/standards',
     clauses: '/clauses',
 

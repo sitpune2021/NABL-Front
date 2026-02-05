@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { GetLabDetailResponse, Lab } from '@/@types/lab'
 import ApiService from './ApiService'
 import apiEndpointConfig from '@/configs/api-endpoint.config'
@@ -42,5 +43,20 @@ export async function apiGetClauseDocumentsList(standardId: number | string) {
         params: {
             standard_id: standardId,
         },
+    })
+}
+
+export async function apiGetLabsAssignmentsList() {
+    return ApiService.fetchDataWithAxios<any>({
+        url: apiEndpointConfig.labsAssignments,
+        method: 'get',
+    })
+}
+
+export async function apiAssignUserRole(data: any) {
+    return ApiService.fetchDataWithAxios<any>({
+        url: apiEndpointConfig.labsAssignments,
+        method: 'post',
+        data,
     })
 }
