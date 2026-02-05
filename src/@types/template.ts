@@ -27,6 +27,7 @@ export type Template = {
         /* eslint-disable @typescript-eslint/no-explicit-any */
         json: any
     }
+    status?: 'published' | 'archived'
 }
 
 export type TemplateListState = {

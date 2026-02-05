@@ -63,3 +63,13 @@ export async function apiChangeCurrentTemplateVersion(id: string, data: any) {
         data,
     })
 }
+export async function apiChangeTemplateStatus(data: {
+    template_id: string | number
+    status: 'published' | 'archived'
+}) {
+    return ApiService.fetchDataWithAxios({
+        url: '/templates/change-status',
+        method: 'post',
+        data,
+    })
+}

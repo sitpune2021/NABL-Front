@@ -3,11 +3,16 @@ import { TbPencil, TbEye, TbList } from 'react-icons/tb'
 import type { ColumnDef } from '@/components/shared/DataTable'
 import { Template } from '@/@types/template'
 import { Tag } from '@/components/ui'
+import PublishArchiveCell from '@/views/masters/template/List/components/PublishArchiveCell'
 
 type ColumnActions = {
     onEdit: (row: Template) => void
     onView: (row: Template) => void
     onVersionsList: (row: Template) => void
+    handleSubmit: (data: {
+        template_id: string | number
+        status: 'published' | 'archived'
+    }) => Promise<void>
 }
 
 const typeColor: Record<string, string> = {
@@ -19,6 +24,7 @@ export const buildTemplateColumns = ({
     onEdit,
     onView,
     onVersionsList,
+    handleSubmit,
 }: ColumnActions): ColumnDef<Template>[] => [
     {
         header: 'Id',
@@ -58,6 +64,22 @@ export const buildTemplateColumns = ({
     {
         header: 'Version Count',
         accessorKey: 'versions_count',
+    },
+    {
+        header: 'Status',
+        accessorKey: 'status',
+        cell: ({ row }) => (
+            <PublishArchiveCell
+                status={row.original.status}
+                recordId={row.original.id}
+                onSave={(id, status) => {
+                    handleSubmit({
+                        template_id: id,
+                        status,
+                    })
+                }}
+            />
+        ),
     },
     {
         header: '',
