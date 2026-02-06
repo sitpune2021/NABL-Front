@@ -338,7 +338,11 @@ const LocationsItems = ({
                         <Button
                             size="xs"
                             onClick={() =>
-                                addDepartment({ name: '', instruments: [] })
+                                addDepartment({
+                                    id: null,
+                                    name: '',
+                                    instruments: [],
+                                })
                             }
                         >
                             + Add
@@ -464,7 +468,12 @@ const LocationsItems = ({
                                     type="button"
                                     size="xs"
                                     onClick={() =>
-                                        addEmail({ type: 'email', value: '' })
+                                        addEmail({
+                                            id: null,
+                                            user_id: null,
+                                            type: 'email',
+                                            value: '',
+                                        })
                                     }
                                 >
                                     <HiPlus />
@@ -535,7 +544,12 @@ const LocationsItems = ({
                                     type="button"
                                     size="xs"
                                     onClick={() =>
-                                        addPhone({ type: 'phone', value: '' })
+                                        addPhone({
+                                            id: null,
+                                            user_id: null,
+                                            type: 'phone',
+                                            value: '',
+                                        })
                                     }
                                 >
                                     <HiPlus />

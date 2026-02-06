@@ -28,6 +28,8 @@ const CategoryForm = ({
         [defaultValues],
     )
 
+    console.log(memoizedDefaults, defaultValues, EMPTY_VALUES)
+
     const methods = useForm<CategoryFormSchema>({
         resolver: zodResolver(categorySchema),
         defaultValues: memoizedDefaults,

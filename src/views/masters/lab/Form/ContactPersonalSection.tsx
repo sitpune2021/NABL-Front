@@ -38,6 +38,8 @@ const ContactPersonalSection = ({
     useEffect(() => {
         if (emailFields.length === 0)
             appendEmail({
+                id: null,
+                user_id: null,
                 type: 'email',
                 value: '',
                 label: 'alternate',
@@ -46,6 +48,8 @@ const ContactPersonalSection = ({
 
         if (phoneFields.length === 0)
             appendPhone({
+                id: null,
+                user_id: null,
                 type: 'phone',
                 value: '',
                 label: 'alternate',
@@ -87,6 +91,8 @@ const ContactPersonalSection = ({
                                 icon={<HiPlus />}
                                 onClick={() =>
                                     appendEmail({
+                                        id: null,
+                                        user_id: null,
                                         type: 'email',
                                         value: '',
                                         label: 'alternate',
@@ -171,6 +177,8 @@ const ContactPersonalSection = ({
                                 icon={<HiPlus />}
                                 onClick={() =>
                                     appendPhone({
+                                        id: null,
+                                        user_id: null,
                                         type: 'phone',
                                         value: '',
                                         label: 'alternate',
