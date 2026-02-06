@@ -8,6 +8,7 @@ import { useForm, FormProvider } from 'react-hook-form'
 import type { CommonProps } from '@/@types/common'
 import { CategoryFormSchema, categorySchema } from '@/schemas/category.schema'
 import { EMPTY_VALUES } from '@/constants/category.constant'
+import { useParams } from 'react-router'
 
 type CategoryFormProps = {
     onFormSubmit: (values: CategoryFormSchema) => void
@@ -23,6 +24,8 @@ const CategoryForm = ({
     loading = false,
     children,
 }: CategoryFormProps) => {
+    const { id } = useParams<{ id: string }>()
+
     const memoizedDefaults = useMemo(
         () => defaultValues ?? EMPTY_VALUES,
         [defaultValues],
@@ -40,10 +43,10 @@ const CategoryForm = ({
     const { handleSubmit, reset } = methods
 
     useEffect(() => {
-        if (defaultValues) {
+        if (id && defaultValues) {
             reset(defaultValues)
         }
-    }, [defaultValues, reset])
+    }, [id])
 
     return (
         <FormProvider {...methods}>
