@@ -34,3 +34,21 @@ export async function apiUpdateCategory(id: string, data: Fields) {
         data,
     })
 }
+
+export async function apiGetLabMasterCategories(labId: number) {
+    return ApiService.fetchDataWithAxios({
+        url: `${apiEndpointConfig.categories}/lab-master`,
+        method: 'get',
+        params: { lab_id: labId },
+    })
+}
+
+export async function apiAppendLabCategoryToMaster(labCategoryId: number) {
+    return ApiService.fetchDataWithAxios({
+        url: `${apiEndpointConfig.categories}/append-to-master`,
+        method: 'post',
+        data: {
+            lab_category_id: labCategoryId,
+        },
+    })
+}
