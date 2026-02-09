@@ -9,12 +9,19 @@ import useLabList from '@/views/masters/lab/List/hooks/useList'
 import useLabCategories from '../hooks/useLabCategories'
 import { apiAppendLabCategoryToMaster } from '@/services/CategoriesService'
 import { useCategoryList } from '../hooks/useList'
+import { useAuth } from '@/auth'
 
 type FormSchema = {
     labs: number[]
 }
 
 const CategoryListTableFilter = () => {
+    const { user } = useAuth()
+
+    if (!user) return null
+    const isMasterLevel = user.lab === null
+    if (!isMasterLevel) return null
+
     const [drawerOpen, setDrawerOpen] = useState(false)
     const [selectedCategoryIds, setSelectedCategoryIds] = useState<number[]>([])
     const [submitting, setSubmitting] = useState(false)
@@ -102,53 +109,75 @@ const CategoryListTableFilter = () => {
             <Drawer
                 title="Select Labs"
                 isOpen={drawerOpen}
+                bodyClass="p-0 h-full"
                 onClose={handleDrawerClose}
                 onRequestClose={() => setDrawerOpen(false)}
             >
-                <Form className="h-full flex flex-col justify-between">
-                    <FormItem label="Labs">
-                        <Controller
-                            name="labs"
-                            control={control}
-                            render={({ field }) => (
-                                <Select
-                                    placeholder="Select Lab"
-                                    options={labOptions}
-                                    value={labOptions.find(
-                                        (o) => o.value === field.value?.[0],
-                                    )}
-                                    onChange={(opt) => {
-                                        field.onChange(opt ? [opt.value] : [])
-                                        setSelectedCategoryIds([])
+                <div className="flex flex-col h-[calc(99vh-60px)]">
+                    <div className="flex-1 p-6 overflow-y-auto">
+                        <Form>
+                            <FormItem label="Labs">
+                                <Controller
+                                    name="labs"
+                                    control={control}
+                                    render={({ field }) => {
+                                        const selectedLabId = field
+                                            .value?.[0] as number | undefined
+
+                                        return (
+                                            <Select
+                                                placeholder="Select Lab"
+                                                options={labOptions}
+                                                value={
+                                                    labOptions.find(
+                                                        (o) =>
+                                                            o.value ===
+                                                            selectedLabId,
+                                                    ) ?? null
+                                                }
+                                                onChange={(opt) => {
+                                                    field.onChange(
+                                                        opt
+                                                            ? [
+                                                                  Number(
+                                                                      opt.value,
+                                                                  ),
+                                                              ]
+                                                            : [],
+                                                    )
+                                                    setSelectedCategoryIds([])
+                                                }}
+                                            />
+                                        )
                                     }}
                                 />
-                            )}
-                        />
-                    </FormItem>
+                            </FormItem>
 
-                    <FormItem label="Categories">
-                        <Select
-                            key={selectedLabId ?? 'no-lab'}
-                            isMulti
-                            options={categoryOptions}
-                            isLoading={loading}
-                            isDisabled={!selectedLabId}
-                            placeholder={
-                                loading
-                                    ? 'Loading...'
-                                    : categoryOptions.length
-                                      ? 'Select Categories'
-                                      : 'No categories found'
-                            }
-                            onChange={(values) =>
-                                setSelectedCategoryIds(
-                                    values.map((v) => v.value),
-                                )
-                            }
-                        />
-                    </FormItem>
+                            <FormItem label="Categories" className="mb-0">
+                                <Select
+                                    key={selectedLabId ?? 'no-lab'}
+                                    isMulti
+                                    options={categoryOptions}
+                                    isLoading={loading}
+                                    isDisabled={!selectedLabId}
+                                    placeholder={
+                                        loading
+                                            ? 'Loading...'
+                                            : categoryOptions.length
+                                              ? 'Select Categories'
+                                              : 'No categories found'
+                                    }
+                                    onChange={(values) =>
+                                        setSelectedCategoryIds(
+                                            values.map((v) => v.value),
+                                        )
+                                    }
+                                />
+                            </FormItem>
+                        </Form>
+                    </div>
 
-                    <div className="flex justify-end gap-2">
+                    <div className="p-4 flex justify-end gap-2">
                         <Button
                             type="button"
                             disabled={submitting}
@@ -166,7 +195,7 @@ const CategoryListTableFilter = () => {
                             Apply
                         </Button>
                     </div>
-                </Form>
+                </div>
             </Drawer>
         </>
     )

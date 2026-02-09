@@ -20,7 +20,8 @@ const useLabCategories = (labId?: number) => {
 
         apiGetLabMasterCategories(labId)
             .then((res) => {
-                setCategories(res.data ?? [])
+                const data = (res as { data: Category[] }).data
+                setCategories(data ?? [])
             })
             .catch(() => setCategories([]))
             .finally(() => setLoading(false))
