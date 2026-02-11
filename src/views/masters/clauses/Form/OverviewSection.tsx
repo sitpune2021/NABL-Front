@@ -152,14 +152,26 @@ const OverviewSection = ({
                                         control={control}
                                         render={({ field }) => (
                                             <Select
+                                                classNamePrefix="react-select"
                                                 options={categoryOptions}
                                                 isDisabled={readOnly}
+                                                menuPortalTarget={document.body}
+                                                menuPosition="fixed"
+                                                styles={{
+                                                    menuPortal: (base) => ({
+                                                        ...base,
+                                                        zIndex: 9999,
+                                                    }),
+                                                    menu: (base) => ({
+                                                        ...base,
+                                                        zIndex: 9999,
+                                                    }),
+                                                }}
                                                 value={categoryOptions.find(
                                                     (opt: any) =>
                                                         opt.value ===
                                                         field.value,
                                                 )}
-                                                menuPortalTarget={document.body}
                                                 onChange={(option: any) => {
                                                     field.onChange(
                                                         option?.value ?? '',
@@ -185,7 +197,20 @@ const OverviewSection = ({
                                         control={control}
                                         render={({ field }) => (
                                             <Select
+                                                classNamePrefix="react-select"
                                                 options={availableDocs}
+                                                menuPortalTarget={document.body}
+                                                menuPosition="fixed"
+                                                styles={{
+                                                    menuPortal: (base) => ({
+                                                        ...base,
+                                                        zIndex: 9999,
+                                                    }),
+                                                    menu: (base) => ({
+                                                        ...base,
+                                                        zIndex: 9999,
+                                                    }),
+                                                }}
                                                 value={
                                                     field.value?.id
                                                         ? {
@@ -196,7 +221,6 @@ const OverviewSection = ({
                                                           }
                                                         : null
                                                 }
-                                                menuPortalTarget={document.body}
                                                 isDisabled={
                                                     readOnly ||
                                                     !selectedCategoryId
@@ -231,16 +255,18 @@ const OverviewSection = ({
                                     <Input readOnly placeholder="Auto" />
                                 </FormItem>
 
-                                {!readOnly && index > 0 && (
-                                    <Button
-                                        type="button"
-                                        variant="solid"
-                                        size="sm"
-                                        icon={<TbTrash />}
-                                        className="bg-red-500 hover:bg-red-600"
-                                        onClick={() => remove(index)}
-                                    />
-                                )}
+                                <FormItem>
+                                    {!readOnly && index > 0 && (
+                                        <Button
+                                            type="button"
+                                            variant="solid"
+                                            size="xs"
+                                            icon={<TbTrash />}
+                                            className="bg-red-500 hover:bg-red-600 mb-2"
+                                            onClick={() => remove(index)}
+                                        />
+                                    )}
+                                </FormItem>
                             </div>
                         )
                     })}
