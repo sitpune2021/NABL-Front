@@ -4,7 +4,7 @@ import Button from '@/components/ui/Button'
 import Drawer from '@/components/ui/Drawer'
 import { Form, FormItem } from '@/components/ui/Form'
 import { Select } from '@/components/ui'
-import { TbFilter } from 'react-icons/tb'
+import { TbBolt } from 'react-icons/tb'
 import useLabList from '@/views/masters/lab/List/hooks/useList'
 import useLabCategories from '../hooks/useLabCategories'
 import { apiAppendLabCategoryToMaster } from '@/services/CategoriesService'
@@ -15,7 +15,7 @@ type FormSchema = {
     labs: number[]
 }
 
-const CategoryListTableFilter = () => {
+const CategoryListTableSync = () => {
     const { user } = useAuth()
 
     if (!user) return null
@@ -102,12 +102,12 @@ const CategoryListTableFilter = () => {
 
     return (
         <>
-            <Button icon={<TbFilter />} onClick={() => setDrawerOpen(true)}>
-                Filter
+            <Button icon={<TbBolt />} onClick={() => setDrawerOpen(true)}>
+                Sync
             </Button>
 
             <Drawer
-                title="Select Labs"
+                title="Sync Categories"
                 isOpen={drawerOpen}
                 bodyClass="p-0 h-full"
                 onClose={handleDrawerClose}
@@ -201,4 +201,4 @@ const CategoryListTableFilter = () => {
     )
 }
 
-export default CategoryListTableFilter
+export default CategoryListTableSync

@@ -1,10 +1,6 @@
 import { useEffect, useState } from 'react'
 import { apiGetLabMasterCategories } from '@/services/CategoriesService'
-
-interface Category {
-    id: number
-    name: string
-}
+import { Category } from '@/@types/category'
 
 const useLabCategories = (labId?: number) => {
     const [categories, setCategories] = useState<Category[]>([])
