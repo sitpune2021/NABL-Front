@@ -6,7 +6,7 @@ import { Controller, useFormContext } from 'react-hook-form'
 import { useZoneList } from '../../zone/List/hooks/useList'
 import { Select } from '@/components/ui'
 import { ClusterFormSchema } from '@/schemas/cluster.schema'
-import { useMemo } from 'react'
+import { useMemo, useEffect } from 'react'
 
 type OverviewSectionProps = {
     readOnly?: boolean
@@ -22,16 +22,31 @@ const OverviewSection = ({ readOnly, loading }: OverviewSectionProps) => {
         formState: { errors },
     } = useFormContext<ClusterFormSchema>()
 
-    const { zoneList } = useZoneList()
+    const { allZone, updateTable, tableData, hasMore, isLoading } =
+        useZoneList()
+    useEffect(() => {
+        if (tableData.pageIndex !== 1) {
+            updateTable({ pageIndex: 1, pageSize: 10 })
+        }
+    }, [])
+
+    const loadMoreZone = () => {
+        if (!hasMore || isLoading) return
+
+        updateTable({
+            pageIndex: (tableData.pageIndex ?? 1) + 1,
+            pageSize: 10,
+        })
+    }
 
     const options = useMemo(
         () =>
-            zoneList.map((zone) => ({
+            allZone.map((zone) => ({
                 value: zone.id,
                 label: zone.name.toUpperCase(),
                 identifier: zone.identifier,
             })),
-        [zoneList],
+        [allZone],
     )
 
     return (
@@ -56,6 +71,13 @@ const OverviewSection = ({ readOnly, loading }: OverviewSectionProps) => {
                                     (opt) => opt.value === field.value,
                                 )}
                                 isDisabled={readOnly || loading}
+                                isLoading={isLoading}
+                                noOptionsMessage={() =>
+                                    hasMore
+                                        ? 'Scroll to load more'
+                                        : 'No more categories'
+                                }
+                                onMenuScrollToBottom={loadMoreZone}
                                 onChange={(option) => {
                                     field.onChange(option?.value)
 
