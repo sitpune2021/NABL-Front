@@ -16,6 +16,7 @@ import { FormSectionBaseProps } from '@/@types/lab'
 export type FormSectionBasePropsTwo = {
     index: number
     item: any
+    removeLocation: (index: number) => void
 } & FormSectionBaseProps & {
         zoneList: any[]
         clusterList: any[]
@@ -30,6 +31,7 @@ const LocationsItems = ({
     readOnly = false,
     index,
     item,
+    removeLocation,
     zoneList,
     clusterList,
     locationList,
@@ -119,6 +121,20 @@ const LocationsItems = ({
 
     return (
         <Card key={item.id} className="mt-4">
+            <div className="flex justify-between items-center px-4 pt-4">
+                <h4>Location {index + 1}</h4>
+
+                {!readOnly && index > 0 && (
+                    <Button
+                        type="button"
+                        size="xs"
+                        icon={<HiMinus />}
+                        variant="solid"
+                        className="bg-red-500 hover:bg-red-600"
+                        onClick={() => removeLocation(index)}
+                    />
+                )}
+            </div>
             <div className="grid md:grid-cols-4 gap-4 p-3 mb-3">
                 <FormItem
                     label="Zone"
@@ -336,6 +352,7 @@ const LocationsItems = ({
                     <h5>Departments</h5>
                     {!readOnly && (
                         <Button
+                            type="button"
                             size="xs"
                             onClick={() =>
                                 addDepartment({
@@ -351,7 +368,22 @@ const LocationsItems = ({
                 </div>
 
                 {departmentFields.map((dept, deptIndex) => (
-                    <div key={dept.id} className="border p-3 mb-2 rounded">
+                    <div
+                        key={dept.id}
+                        className="bg-gray-50 border border-gray-200 p-3 mb-4 rounded-lg"
+                    >
+                        <div className="flex justify-end mb-2">
+                            {!readOnly && departmentFields.length > 1 && (
+                                <Button
+                                    type="button"
+                                    size="xs"
+                                    className="mt-2"
+                                    onClick={() => removeDepartment(deptIndex)}
+                                >
+                                    Remove
+                                </Button>
+                            )}
+                        </div>
                         <div className="grid md:grid-cols-2 gap-4">
                             <FormItem
                                 label="Department"
@@ -440,17 +472,6 @@ const LocationsItems = ({
                                 />
                             </FormItem>
                         </div>
-
-                        {!readOnly && (
-                            <Button
-                                type="button"
-                                size="xs"
-                                className="mt-2"
-                                onClick={() => removeDepartment(deptIndex)}
-                            >
-                                Remove
-                            </Button>
-                        )}
                     </div>
                 ))}
             </div>

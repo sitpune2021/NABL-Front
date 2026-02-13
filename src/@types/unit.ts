@@ -13,6 +13,7 @@ export type GetUnitDetailResponse = {
 export type Unit = {
     id: string
     name: string
+    appended_from_lab_id?: number | null
 }
 
 export type UnitListState = {

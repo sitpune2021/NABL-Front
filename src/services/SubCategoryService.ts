@@ -35,3 +35,27 @@ export async function apiUpdateSubCategory(id: string, data: Fields) {
         data,
     })
 }
+
+export async function apiGetLabSubCategories(
+    labId: number,
+    categoryId: number,
+) {
+    return ApiService.fetchDataWithAxios({
+        url: `${apiEndpointConfig.subCategories}/lab-master`,
+        method: 'get',
+        params: {
+            lab_id: labId,
+            category_id: categoryId,
+        },
+    })
+}
+
+export async function apiAppendLabSubCategoryToMaster(
+    labSubCategoryId: number,
+) {
+    return ApiService.fetchDataWithAxios({
+        url: `${apiEndpointConfig.subCategories}/append-to-master`,
+        method: 'post',
+        data: { lab_subcategory_id: labSubCategoryId },
+    })
+}

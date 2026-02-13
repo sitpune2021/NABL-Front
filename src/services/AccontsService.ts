@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import ApiService from './ApiService'
 
 export async function apiGetSettingsProfile<T>() {
@@ -7,7 +8,7 @@ export async function apiGetSettingsProfile<T>() {
     })
 }
 
-export async function apiUpdateSettingsProfile<T, U>(data: U) {
+export async function apiUpdateSettingsProfile<T>(data: any) {
     return ApiService.fetchDataWithAxios<T>({
         url: '/profile/update',
         method: 'put',

@@ -4,11 +4,11 @@ import useSWR from 'swr'
 
 const LIST_KEY = 'standard-clause-list'
 
-export const useStandardClauseList = (standardId: number) => {
+export const useStandardClauseList = (standardId?: number | null) => {
+    const shouldFetch = !!standardId
     const swr: any = useSWR(
-        [LIST_KEY, standardId],
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        ([_, id]) => apiGetClauseDocumentsList(id),
+        shouldFetch ? [LIST_KEY, standardId] : null,
+        ([id]) => apiGetClauseDocumentsList(id),
         { revalidateOnFocus: false },
     )
 

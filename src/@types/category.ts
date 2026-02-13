@@ -13,6 +13,8 @@ export type GetCategoryDetailResponse = {
 export type Category = {
     id: string
     name: string
+    appended_from_lab_id?: number | null
+    parent_id?: number | null
 } & IdentifierEntity
 
 export type Fields = {

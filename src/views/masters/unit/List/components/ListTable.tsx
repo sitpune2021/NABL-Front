@@ -6,9 +6,11 @@ import useUnitList from '../hooks/useList'
 import endpointConfig from '@/configs/endpoint.config'
 import { Unit } from '@/@types/unit'
 import { buildUnitColumns } from '@/columns/unit.columns'
+import useLabList from '@/views/masters/lab/List/hooks/useList'
 
 const UnitListTable = () => {
     const navigate = useNavigate()
+    const { labList = [] } = useLabList()
 
     const {
         unitList,
@@ -51,8 +53,9 @@ const UnitListTable = () => {
             buildUnitColumns({
                 onEdit: handleEdit,
                 onView: handleView,
+                labList,
             }),
-        [handleEdit, handleView],
+        [handleEdit, handleView, labList],
     )
 
     const handlePaginationChange = (page: number) => {

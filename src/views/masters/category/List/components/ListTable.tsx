@@ -6,9 +6,11 @@ import endpointConfig from '@/configs/endpoint.config'
 import { Category } from '@/@types/category'
 import { buildCategoryColumns } from '@/columns/category.columns'
 import { useCategoryList } from '../hooks/useList'
+import useLabList from '@/views/masters/lab/List/hooks/useList'
 
 const CategoryListTable = () => {
     const navigate = useNavigate()
+    const { labList = [] } = useLabList()
 
     const {
         categoryList,
@@ -51,8 +53,9 @@ const CategoryListTable = () => {
             buildCategoryColumns({
                 onEdit: handleEdit,
                 onView: handleView,
+                labList,
             }),
-        [handleEdit, handleView],
+        [handleEdit, handleView, labList],
     )
 
     const handlePaginationChange = (page: number) => {

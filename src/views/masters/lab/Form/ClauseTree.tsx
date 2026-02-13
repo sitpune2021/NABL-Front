@@ -96,18 +96,6 @@ const ClauseItem: React.FC<ClauseItemProps> = ({
                     >
                         {clause.title}
                     </label>
-
-                    {clause.message && (
-                        <p className="text-sm text-gray-600 mt-1 leading-relaxed">
-                            {clause.message}
-                        </p>
-                    )}
-
-                    {clause.note_message && (
-                        <p className="text-sm text-black mt-1 font-medium">
-                            {clause.note_message}
-                        </p>
-                    )}
                 </div>
             </div>
 

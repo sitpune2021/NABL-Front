@@ -1,6 +1,7 @@
 import {
     apiGetTemplateById,
     apiGetTemplateList,
+    apiChangeTemplateStatus,
 } from '@/services/TemplateService'
 import useSWR from 'swr'
 import { useTemplateListStore } from '../store/listStore'
@@ -35,6 +36,13 @@ export default function useTemplateList() {
         const { data } = await apiGetTemplateById(id)
         return data
     }
+    const handleSubmit = async (data: {
+        template_id: string | number
+        status: 'published' | 'archived'
+    }) => {
+        await apiChangeTemplateStatus(data)
+        swr.mutate()
+    }
 
     return {
         templateList: swr.data?.data ?? [],
@@ -55,5 +63,6 @@ export default function useTemplateList() {
         setAll,
         clearSelection,
         getTemplateById,
+        handleSubmit,
     }
 }

@@ -138,7 +138,7 @@ const LabForm = ({
                                         setSelectedClauses(selected)
                                     }
                                     onStandardChange={(id) => {
-                                        setSelectedStandardId(Number(id))
+                                        setSelectedStandardId(id)
                                         setSelectedClauses([])
                                     }}
                                 />
