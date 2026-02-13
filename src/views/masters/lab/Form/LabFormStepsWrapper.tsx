@@ -22,8 +22,10 @@ const LabFormStepsWrapper = ({ labFormProps }: LabFormStepsWrapperProps) => {
         if (step === 0) {
             const valid = await formMethods.trigger([
                 'name',
-                'labType',
-                'labCode',
+                'lab_type',
+                'lab_code',
+                'loaction_count',
+                'user_count',
                 'emails',
                 'phones',
             ])

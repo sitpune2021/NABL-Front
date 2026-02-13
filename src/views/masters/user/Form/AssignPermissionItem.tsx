@@ -1,36 +1,34 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import { Controller } from 'react-hook-form'
+import { Controller, useFormContext } from 'react-hook-form'
 import { Select } from '@/components/ui'
 import { FormItem } from '@/components/ui/Form'
+import { UserSchemaType } from '@/schemas/user.schema'
 
 type AssignPermissionItemProps = {
-    name: string
     roleOptions: {
         label: string
         value: string | number
     }[]
     readOnly?: boolean
     onRemove?: () => void
-    control: any
-    errors: any
 }
 
 const AssignPermissionItem = ({
-    control,
-    name,
-    errors,
     roleOptions,
     readOnly = false,
 }: AssignPermissionItemProps) => {
+    const {
+        control,
+        formState: { errors },
+    } = useFormContext<UserSchemaType>()
     return (
         <div className="mb-4 relative">
             <FormItem
                 label="Role"
-                invalid={!!errors?.userRoles?.roles}
-                errorMessage={errors?.userRoles?.roles?.message}
+                invalid={!!errors?.role}
+                errorMessage={errors?.role?.message as string}
             >
                 <Controller
-                    name={name}
+                    name="role"
                     control={control}
                     render={({ field }) => (
                         <Select

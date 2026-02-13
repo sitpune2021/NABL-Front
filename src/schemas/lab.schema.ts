@@ -2,11 +2,15 @@ import { z } from 'zod'
 
 export const labSchema = z.object({
     name: z.string().min(1, { message: 'Name is required' }),
-    labType: z.string().min(1, { message: 'Lab Type is required' }),
-    labCode: z.string().min(1, { message: 'Lab Code is required' }),
+    lab_type: z.string().min(1, { message: 'Lab Type is required' }),
+    lab_code: z.string().min(1, { message: 'Lab Code is required' }),
+    loaction_count: z.union([z.string(), z.number()]),
+    user_count: z.union([z.string(), z.number()]),
     emails: z
         .array(
             z.object({
+                id: z.union([z.null(), z.number(), z.any()]),
+                user_id: z.union([z.null(), z.number()]),
                 type: z.string(),
                 value: z
                     .string()
@@ -20,6 +24,8 @@ export const labSchema = z.object({
     phones: z
         .array(
             z.object({
+                id: z.union([z.null(), z.number(), z.any()]),
+                user_id: z.union([z.null(), z.number()]),
                 type: z.string(),
                 value: z.string().nonempty({ message: 'Phone is required' }),
                 is_primary: z.boolean().optional(),
@@ -31,13 +37,14 @@ export const labSchema = z.object({
     location: z
         .array(
             z.object({
+                id: z.union([z.null(), z.number(), z.any()]),
                 zone_name: z.union([z.string(), z.number()]),
                 cluster_name: z.union([z.string(), z.number()]),
                 location_name: z.union([z.string(), z.number()]),
-
                 departments: z
                     .array(
                         z.object({
+                            id: z.union([z.null(), z.number(), z.any()]),
                             name: z.union([z.string(), z.number()]),
                             instruments: z
                                 .array(z.union([z.string(), z.number()]))
@@ -53,6 +60,8 @@ export const labSchema = z.object({
                 emails: z
                     .array(
                         z.object({
+                            id: z.union([z.null(), z.number(), z.any()]),
+                            user_id: z.union([z.null(), z.number()]),
                             type: z.string(),
                             value: z
                                 .string()
@@ -66,6 +75,8 @@ export const labSchema = z.object({
                 phones: z
                     .array(
                         z.object({
+                            id: z.union([z.null(), z.number(), z.any()]),
+                            user_id: z.union([z.null(), z.number()]),
                             type: z.string(),
                             value: z
                                 .string()

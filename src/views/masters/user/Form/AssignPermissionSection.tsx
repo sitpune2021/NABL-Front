@@ -5,9 +5,8 @@ import AssignPermissionItem from './AssignPermissionItem'
 import useRolesList from '../../RolesPermissions/hooks/useList'
 
 const AssignPermissionSection = ({
-    control,
-    errors,
-    readOnly = false,
+    readOnly,
+    loading,
 }: FormSectionBaseProps) => {
     const { rolesList } = useRolesList()
 
@@ -23,10 +22,7 @@ const AssignPermissionSection = ({
             </div>
 
             <AssignPermissionItem
-                control={control}
-                errors={errors}
-                readOnly={readOnly}
-                name="role"
+                readOnly={readOnly || loading}
                 roleOptions={roleOptions}
             />
         </Card>

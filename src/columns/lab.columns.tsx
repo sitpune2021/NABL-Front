@@ -22,12 +22,12 @@ export const buildLabColumns = ({
         header: 'Name',
         accessorKey: 'name',
         cell: (props) => {
-            const { name, labType } = props.row.original
+            const { name, lab_type } = props.row.original
             return (
                 <div className="flex items-center gap-2">
                     <div>
                         <div className="font-bold heading-text">{name}</div>
-                        <div>{labType}</div>
+                        <div>{lab_type}</div>
                     </div>
                 </div>
             )
@@ -35,7 +35,7 @@ export const buildLabColumns = ({
     },
     {
         header: 'Lab Code',
-        accessorKey: 'labCode',
+        accessorKey: 'lab_code',
     },
     {
         header: '',

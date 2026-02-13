@@ -36,8 +36,10 @@ const CategoryAddEdit = () => {
     })
 
     const { handleSubmit, isSubmitting } = useFormSubmit<CategoryFormSchema>({
-        apiCall: (values) =>
-            save({ ...values, ...(isEdit && id ? { id } : {}) }),
+        apiCall: (values) => {
+            console.log('Submitting values 👉', values)
+            return save({ ...values, ...(isEdit && id ? { id } : {}) })
+        },
         navigateTo: endpointConfig.master.category.list,
     })
 

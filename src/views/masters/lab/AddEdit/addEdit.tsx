@@ -48,10 +48,14 @@ const LabAddEdit = () => {
 
     const EMPTY_VALUES: LabFormSchema = {
         name: '',
-        labType: '',
-        labCode: !isSubmitting ? `LAB-${labList.length + 1}` : '',
+        lab_type: '',
+        lab_code: !isSubmitting ? `LAB-${labList.length + 1}` : '',
+        loaction_count: '',
+        user_count: '',
         emails: [
             {
+                id: null,
+                user_id: null,
                 type: 'eamil',
                 value: '',
                 label: 'primary',
@@ -60,6 +64,8 @@ const LabAddEdit = () => {
         ],
         phones: [
             {
+                id: null,
+                user_id: null,
                 type: 'phone',
                 value: '',
                 label: 'primary',
@@ -69,14 +75,17 @@ const LabAddEdit = () => {
         address: '',
         location: [
             {
+                id: null,
                 zone_name: '',
                 cluster_name: '',
                 location_name: '',
-                departments: [{ name: '', instruments: [] }],
+                departments: [{ id: null, name: '', instruments: [] }],
                 prefix: '',
                 shortName: '',
                 emails: [
                     {
+                        id: null,
+                        user_id: null,
                         type: 'eamil',
                         value: '',
                         label: 'primary',
@@ -85,6 +94,8 @@ const LabAddEdit = () => {
                 ],
                 phones: [
                     {
+                        id: null,
+                        user_id: null,
                         type: 'phone',
                         value: '',
                         label: 'primary',

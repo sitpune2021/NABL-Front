@@ -14,6 +14,7 @@ const OverviewSection = ({ readOnly, loading }: OverviewSectionProps) => {
         register,
         formState: { errors },
     } = useFormContext<CategoryFormSchema>()
+    console.log(errors, 'errors')
 
     return (
         <Card>

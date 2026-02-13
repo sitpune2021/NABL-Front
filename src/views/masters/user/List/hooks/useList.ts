@@ -1,14 +1,8 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import {
-    apiUser,
-    apiGetUserList,
-    apiGetUserById,
-    apiUpdateUser,
-} from '@/services/UserService'
+import { apiGetUserList } from '@/services/UserService'
 import useSWR from 'swr'
 import { useUserListStore } from '../store/listStore'
 import type { TableQueries } from '@/@types/common'
-import { Fields, GetUserListResponse } from '@/@types/user'
+import { GetUserListResponse } from '@/@types/user'
 
 export default function useUserList() {
     const {
@@ -30,35 +24,6 @@ export default function useUserList() {
             revalidateOnFocus: false,
         },
     )
-    const saveUserData = async (user: Fields) => {
-        try {
-            let response
-
-            if (user.id) {
-                response = await apiUpdateUser(user.id, user)
-            } else {
-                response = await apiUser(user)
-            }
-            await mutate()
-
-            return response
-        } catch (error: any) {
-            // If API sends validation error in response
-            const message =
-                error?.response?.data?.message || 'Failed to save user data'
-
-            return {
-                success: false,
-                message,
-            }
-        }
-    }
-
-    // ✅ Get single user by ID (for edit or view)
-    const getUserById = async (id: string) => {
-        const user = await apiGetUserById(id)
-        return user
-    }
 
     const userList = data?.data || []
 
@@ -77,7 +42,5 @@ export default function useUserList() {
         setSelectedUser,
         setSelectAllUser,
         setFilterData,
-        saveUserData,
-        getUserById, // ✅ Now defined properly
     }
 }
