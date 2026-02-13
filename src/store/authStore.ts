@@ -9,14 +9,33 @@ type Session = {
     signedIn: boolean
 }
 
+type Role = {
+    id: number
+    name: string
+    level: number
+    description: string
+} | null
+
+type LabRoleGroup = {
+    lab_id: number
+    lab_name: string
+    roles: Role[]
+} | null
+
 type AuthState = {
     session: Session
     user: User
+    roles: LabRoleGroup[] // 👈 changed
+    activeLab?: LabRoleGroup | null
+    activeRole?: Role | null
 }
 
 type AuthAction = {
     setSessionSignedIn: (payload: boolean) => void
     setUser: (payload: User) => void
+    setRoles: (payload: LabRoleGroup[]) => void
+    setActiveLab: (payload: LabRoleGroup) => void
+    setActiveRole: (payload: Role) => void
 }
 
 const getPersistStorage = () => {
@@ -46,6 +65,7 @@ export const initialState: AuthState = {
         lab: null,
         assignments: [],
     },
+    roles: [],
 }
 
 export const useSessionUser = create<AuthState & AuthAction>()(
@@ -65,6 +85,20 @@ export const useSessionUser = create<AuthState & AuthAction>()(
                         ...state.user,
                         ...payload,
                     },
+                })),
+            setRoles: (payload) =>
+                set(() => ({
+                    roles: payload,
+                })),
+
+            setActiveLab: (payload) =>
+                set(() => ({
+                    activeLab: payload,
+                })),
+
+            setActiveRole: (payload) =>
+                set(() => ({
+                    activeRole: payload,
                 })),
         }),
         { name: 'sessionUser', storage: createJSONStorage(() => localStorage) },

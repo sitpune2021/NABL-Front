@@ -34,3 +34,20 @@ export async function apiUpdateUnit(id: string, data: Fields) {
         data,
     })
 }
+export async function apiGetLabMasterUnits(labId: number) {
+    return ApiService.fetchDataWithAxios({
+        url: `${apiEndpointConfig.units}/lab-master`,
+        method: 'get',
+        params: { lab_id: labId },
+    })
+}
+
+export async function apiAppendLabUnitToMaster(labUnitId: number) {
+    return ApiService.fetchDataWithAxios({
+        url: `${apiEndpointConfig.units}/append-to-master`,
+        method: 'post',
+        data: {
+            lab_unit_id: labUnitId,
+        },
+    })
+}

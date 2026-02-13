@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useState, useMemo, useCallback } from 'react'
+import { useState, useMemo, useCallback, useRef, useEffect } from 'react'
 import { useWatch } from 'react-hook-form'
 import { Input } from '@/components/ui'
 import { TbSearch } from 'react-icons/tb'
@@ -15,12 +15,45 @@ const LabLocationAssignmentSection = ({ control, setValue }: any) => {
     const [search, setSearch] = useState('')
     const labs = labsAssignmentsList?.labs ?? []
     const users = labsAssignmentsList?.users ?? []
+    const assingn = labsAssignmentsList?.assingn ?? []
 
     const assignments =
         useWatch({
             control,
             name: 'labAssignments',
         }) || {}
+
+    const initializedRef = useRef(false)
+
+    useEffect(() => {
+        if (!assingn.length) return
+        if (initializedRef.current) return
+
+        const initialAssignments = assingn.reduce((acc: any, item: any) => {
+            const labId = item.lab_id
+            const userId = String(item.user_id)
+
+            if (!acc[labId]) {
+                acc[labId] = { users: {} }
+            }
+
+            if (!acc[labId].users[userId]) {
+                acc[labId].users[userId] = { roles: [] }
+            }
+
+            acc[labId].users[userId].roles.push(item.role_id)
+
+            return acc
+        }, {})
+        console.log(initialAssignments)
+
+        setValue('labAssignments', initialAssignments, {
+            shouldDirty: false,
+            shouldValidate: false,
+        })
+
+        initializedRef.current = true
+    }, [assingn, setValue])
 
     const filteredLabs = useMemo(
         () =>
@@ -69,6 +102,7 @@ const LabLocationAssignmentSection = ({ control, setValue }: any) => {
                     <LabCard
                         key={lab.id}
                         lab={lab}
+                        assingn={assingn}
                         expanded={expandedLabId === lab.id}
                         users={users}
                         roles={rolesList}
