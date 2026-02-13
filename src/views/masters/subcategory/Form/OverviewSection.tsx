@@ -5,7 +5,7 @@ import { Controller, useFormContext } from 'react-hook-form'
 import { Select } from '@/components/ui'
 import { useCategoryList } from '../../category/List/hooks/useList'
 import { SubCategoryFormSchema } from '@/schemas/sub_category.schema'
-import { useMemo } from 'react'
+import { useMemo, useEffect } from 'react'
 
 type OverviewSectionProps = {
     readOnly?: boolean
@@ -21,16 +21,31 @@ const OverviewSection = ({ readOnly, loading }: OverviewSectionProps) => {
         formState: { errors },
     } = useFormContext<SubCategoryFormSchema>()
 
-    const { categoryList } = useCategoryList()
+    const { allCategories, updateTable, tableData, hasMore, isLoading } =
+        useCategoryList()
+    useEffect(() => {
+        if (tableData.pageIndex !== 1) {
+            updateTable({ pageIndex: 1, pageSize: 10 })
+        }
+    }, [])
+
+    const loadMoreCategories = () => {
+        if (!hasMore || isLoading) return
+
+        updateTable({
+            pageIndex: (tableData.pageIndex ?? 1) + 1,
+            pageSize: 10,
+        })
+    }
 
     const options = useMemo(
         () =>
-            categoryList.map((category) => ({
+            allCategories.map((category) => ({
                 value: category.id,
                 label: category.name.toUpperCase(),
                 identifier: category.identifier,
             })),
-        [categoryList],
+        [allCategories],
     )
 
     return (
@@ -53,6 +68,13 @@ const OverviewSection = ({ readOnly, loading }: OverviewSectionProps) => {
                                     (opt) => opt.value === field.value,
                                 )}
                                 isDisabled={readOnly || loading}
+                                isLoading={isLoading}
+                                noOptionsMessage={() =>
+                                    hasMore
+                                        ? 'Scroll to load more'
+                                        : 'No more categories'
+                                }
+                                onMenuScrollToBottom={loadMoreCategories}
                                 onChange={(option) => {
                                     field.onChange(option?.value)
 

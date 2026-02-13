@@ -4,6 +4,7 @@ import { useFieldArray } from 'react-hook-form'
 import { FormSectionBaseProps } from '@/@types/lab'
 import { Button } from '@/components/ui'
 import LocationsItems from './LocationsItems'
+import { HiPlus } from 'react-icons/hi'
 
 type LocationsSectionProps = FormSectionBaseProps & {
     zoneList: any[]
@@ -23,7 +24,7 @@ const LocationsSection = ({
     departmentList,
     instrumentList,
 }: LocationsSectionProps) => {
-    const { fields, append } = useFieldArray({
+    const { fields, append, remove } = useFieldArray({
         control,
         name: 'location',
     })
@@ -53,10 +54,11 @@ const LocationsSection = ({
                         <Button
                             type="button"
                             size="xs"
+                            icon={<HiPlus />}
+                            variant="solid"
+                            className="bg-green-500 hover:bg-green-600"
                             onClick={handleAddLocation}
-                        >
-                            +
-                        </Button>
+                        />
                     )}
                 </div>
             </Card>
@@ -69,6 +71,7 @@ const LocationsSection = ({
                     readOnly={readOnly}
                     index={index}
                     item={item}
+                    removeLocation={remove}
                     zoneList={zoneList}
                     clusterList={clusterList}
                     locationList={locationList}

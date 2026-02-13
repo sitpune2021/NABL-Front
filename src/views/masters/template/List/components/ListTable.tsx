@@ -56,6 +56,15 @@ const TemplateListTable = () => {
             ),
         [navigateTo],
     )
+    const handleSubmit = useCallback(
+        async (data: {
+            template_id: string | number
+            status: 'published' | 'archived'
+        }) => {
+            console.log('handleSubmit called with:', data)
+        },
+        [],
+    )
 
     const columns = useMemo(
         () =>
@@ -63,8 +72,9 @@ const TemplateListTable = () => {
                 onEdit: handleEdit,
                 onView: handleView,
                 onVersionsList: handleVersionsList,
+                handleSubmit: handleSubmit,
             }),
-        [handleEdit, handleView],
+        [handleEdit, handleView, handleSubmit],
     )
 
     const handlePaginationChange = (page: number) => {

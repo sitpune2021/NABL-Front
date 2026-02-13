@@ -5,7 +5,7 @@ import { Controller, useFormContext } from 'react-hook-form'
 import { Select } from '@/components/ui'
 import { useZoneList } from '../../zone/List/hooks/useList'
 import useClusterList from '../../cluster/List/hooks/useList'
-import { useMemo } from 'react'
+import { useMemo, useEffect } from 'react'
 import { LocationFormSchema } from '@/schemas/location.schema'
 
 type OverviewSectionProps = {
@@ -23,30 +23,65 @@ const OverviewSection = ({ readOnly, loading }: OverviewSectionProps) => {
         formState: { errors },
     } = useFormContext<LocationFormSchema>()
 
-    const { zoneList } = useZoneList()
-    const { clusterList } = useClusterList()
+    const { allZone, updateTable, tableData, hasMore, isLoading } =
+        useZoneList()
+    useEffect(() => {
+        if (tableData.pageIndex !== 1) {
+            updateTable({ pageIndex: 1, pageSize: 10 })
+        }
+    }, [])
 
+    const loadMoreZone = () => {
+        if (!hasMore || isLoading) return
+
+        updateTable({
+            pageIndex: (tableData.pageIndex ?? 1) + 1,
+            pageSize: 10,
+        })
+    }
+
+    const {
+        allCluster,
+        updateTable: updateClusterTable,
+        tableData: clusterTableData,
+        hasMore: hasMoreCluster,
+        isLoading: isLoadingCluster,
+    } = useClusterList()
+    useEffect(() => {
+        if (tableData.pageIndex !== 1) {
+            updateTable({ pageIndex: 1, pageSize: 10 })
+        }
+    }, [])
+
+    const loadMoreCluster = () => {
+        if (!hasMoreCluster || isLoadingCluster) return
+
+        updateClusterTable({
+            pageIndex: (clusterTableData.pageIndex ?? 1) + 1,
+            pageSize: 10,
+        })
+    }
     const zoneOptions = useMemo(
         () =>
-            zoneList.map((zone) => ({
+            allZone.map((zone) => ({
                 value: zone.id,
                 label: zone.name.toUpperCase(),
                 identifier: zone.identifier,
             })),
-        [zoneList],
+        [allZone],
     )
 
     const selectedZoneId = getValues('zone_id')
     const filteredClusterOptions = useMemo(
         () =>
-            clusterList
+            allCluster
                 .filter((cluster) => cluster.zone_id === selectedZoneId)
                 .map((cluster) => ({
                     value: cluster.id,
                     label: cluster.name.toUpperCase(),
                     identifier: cluster.identifier,
                 })),
-        [clusterList, selectedZoneId],
+        [allCluster, selectedZoneId],
     )
 
     return (
@@ -69,6 +104,13 @@ const OverviewSection = ({ readOnly, loading }: OverviewSectionProps) => {
                                     (opt) => opt.value === field.value,
                                 )}
                                 isDisabled={readOnly || loading}
+                                isLoading={isLoading}
+                                noOptionsMessage={() =>
+                                    hasMore
+                                        ? 'Scroll to load more'
+                                        : 'No more categories'
+                                }
+                                onMenuScrollToBottom={loadMoreZone}
                                 onChange={(option) => {
                                     field.onChange(option?.value)
                                     setValue('cluster_id', '', {
@@ -109,6 +151,13 @@ const OverviewSection = ({ readOnly, loading }: OverviewSectionProps) => {
                                 isDisabled={
                                     readOnly || loading || !selectedZoneId
                                 }
+                                isLoading={isLoading}
+                                noOptionsMessage={() =>
+                                    hasMore
+                                        ? 'Scroll to load more'
+                                        : 'No more categories'
+                                }
+                                onMenuScrollToBottom={loadMoreCluster}
                                 onChange={(option) => {
                                     field.onChange(option?.value)
                                     if (!option) return
