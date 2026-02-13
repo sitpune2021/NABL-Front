@@ -4,6 +4,7 @@ const apiEndpointConfig = {
     signUp: '/sign-up',
     forgotPassword: '/forgot-password',
     resetPassword: '/reset-password',
+    getCurrentProfile: '/profile',
     dashbord: '/home',
     categories: '/categories',
     subCategories: '/sub-categories',

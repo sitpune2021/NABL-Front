@@ -7,6 +7,7 @@ import UserAssignmentRow from './UserAssignmentRow'
 
 const LocationCard = ({
     labId,
+    assingn,
     location,
     users,
     roles,
@@ -53,6 +54,7 @@ const LocationCard = ({
             {expanded && (
                 <div className="p-5 border-t border-gray-200 bg-gray-50/30 rounded-b-xl">
                     <UserAssignmentRow
+                        assingn={assingn}
                         labId={labId}
                         locationId={location.id}
                         users={users}

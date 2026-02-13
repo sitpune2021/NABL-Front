@@ -3,6 +3,7 @@ import AxiosResponseIntrceptorErrorCallback from './AxiosResponseIntrceptorError
 import AxiosRequestIntrceptorConfigCallback from './AxiosRequestIntrceptorConfigCallback'
 import appConfig from '@/configs/app.config'
 import type { AxiosError } from 'axios'
+import { useSessionUser } from '@/store/authStore'
 
 const AxiosBase = axios.create({
     timeout: 60000,
@@ -11,6 +12,14 @@ const AxiosBase = axios.create({
 
 AxiosBase.interceptors.request.use(
     (config) => {
+        const { activeLab, activeRole } = useSessionUser.getState()
+
+        if (activeRole?.id) {
+            config.headers['X-Role-Id'] = activeRole.id
+        }
+
+        config.headers['X-Lab-Id'] = activeLab?.lab_id || 0
+
         return AxiosRequestIntrceptorConfigCallback(config)
     },
     (error) => {

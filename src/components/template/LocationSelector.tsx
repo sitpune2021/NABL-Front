@@ -1,128 +1,57 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import { useState, useMemo, useEffect } from 'react'
 import Avatar from '@/components/ui/Avatar'
 import Dropdown from '@/components/ui/Dropdown'
 import { HiCheck } from 'react-icons/hi'
 import { useSessionUser } from '@/store/authStore'
+import useRandomBgColor from '@/utils/hooks/useRandomBgColor'
+import acronym from '@/utils/acronym'
 
 const LocationSelector = () => {
-    const user: any = useSessionUser((state) => state.user)
-    if (user.is_super_admin) return null
-    const data = user.roles_structure || []
-
-    const [selectedLocation, setSelectedLocation] = useState<any>(null)
-    const [selectedDepartment, setSelectedDepartment] = useState<any>(null)
-    const [selectedRole, setSelectedRole] = useState<any>(null)
-
-    // ===== MAP LOCATIONS =====
-    const locations = useMemo(() => {
-        return data.map((item: any) => ({
-            id: item.location_id,
-            name: item.location_name,
-            icon: '/img/icons/location.png',
-            departments: item.departments,
-        }))
-    }, [data])
-
-    // ===== DEFAULT SELECTION =====
-    useEffect(() => {
-        if (locations.length > 0 && !selectedLocation) {
-            const firstLoc = locations[0]
-            setSelectedLocation(firstLoc)
-
-            const firstDept = firstLoc.departments?.[0]
-            setSelectedDepartment(firstDept || null)
-
-            const firstRole = firstDept?.roles?.[0]
-            setSelectedRole(firstRole || null)
-        }
-    }, [locations])
-
-    const departments = useMemo(() => {
-        if (!selectedLocation) return []
-        return selectedLocation.departments.map((d: any) => ({
-            ...d,
-            icon: '/img/icons/department.png',
-        }))
-    }, [selectedLocation])
-
-    const roles = useMemo(() => {
-        if (!selectedDepartment) return []
-        return selectedDepartment.roles.map((r: any) => ({
-            ...r,
-            icon: '/img/icons/role.png',
-        }))
-    }, [selectedDepartment])
+    const labs = useSessionUser((state) => state.roles)
+    const activeLab = useSessionUser((state) => state.activeLab)
+    const activeRole = useSessionUser((state) => state.activeRole)
+    const setActiveLab = useSessionUser((state) => state.setActiveLab)
+    const setActiveRole = useSessionUser((state) => state.setActiveRole)
+    const isLabSelectable = labs && labs.length > 1
+    const isRoleSelectable =
+        activeLab && activeLab.roles && activeLab.roles.length > 1
+    const bgColor = useRandomBgColor()
 
     return (
         <div className="flex gap-4">
-            {/* LOCATION DROPDOWN */}
+            {/* LAB DROPDOWN */}
             <Dropdown
+                disabled={!isLabSelectable}
                 placement="bottom-end"
                 renderTitle={
                     <span className="flex items-center">
-                        <Avatar size={20} src={selectedLocation?.icon} />
+                        <Avatar
+                            size={22}
+                            className={`cursor-pointer ${bgColor(activeLab?.lab_name || '')}`}
+                        >
+                            {acronym(activeLab?.lab_name || '')}
+                        </Avatar>
                         <span className="ml-2">
-                            {selectedLocation?.name || 'Location'}
+                            {activeLab?.lab_name || 'Location'}
                         </span>
                     </span>
                 }
             >
-                {locations.map((loc: any) => (
+                {labs.map((lab) => (
                     <Dropdown.Item
-                        key={loc.id}
-                        className="justify-between"
+                        key={lab?.lab_id}
                         onClick={() => {
-                            setSelectedLocation(loc)
-
-                            const firstDept = loc.departments?.[0]
-                            setSelectedDepartment(firstDept || null)
-
-                            const firstRole = firstDept?.roles?.[0]
-                            setSelectedRole(firstRole || null)
+                            setActiveLab(lab)
+                            if (lab?.roles?.[0]) {
+                                setActiveRole(lab.roles[0])
+                            }
                         }}
                     >
                         <span className="flex items-center">
-                            <Avatar size={18} src={loc.icon} />
-                            <span className="ml-2">{loc.name}</span>
+                            <Avatar size={18} />
+                            <span className="ml-2">{lab?.lab_name}</span>
                         </span>
 
-                        {selectedLocation?.id === loc.id && (
-                            <HiCheck className="text-emerald-500 text-lg" />
-                        )}
-                    </Dropdown.Item>
-                ))}
-            </Dropdown>
-
-            {/* DEPARTMENT DROPDOWN */}
-            <Dropdown
-                placement="bottom-end"
-                renderTitle={
-                    <span className="flex items-center">
-                        <Avatar size={20} src={selectedDepartment?.icon} />
-                        <span className="ml-2">
-                            {selectedDepartment?.department_name ||
-                                'Department'}
-                        </span>
-                    </span>
-                }
-            >
-                {departments.map((dept: any) => (
-                    <Dropdown.Item
-                        key={dept.department_id}
-                        className="justify-between"
-                        onClick={() => {
-                            setSelectedDepartment(dept)
-                            setSelectedRole(dept.roles?.[0] || null)
-                        }}
-                    >
-                        <span className="flex items-center">
-                            <Avatar size={18} src={dept.icon} />
-                            <span className="ml-2">{dept.department_name}</span>
-                        </span>
-
-                        {selectedDepartment?.department_id ===
-                            dept.department_id && (
+                        {activeLab?.lab_id === lab?.lab_id && (
                             <HiCheck className="text-emerald-500 text-lg" />
                         )}
                     </Dropdown.Item>
@@ -131,28 +60,35 @@ const LocationSelector = () => {
 
             {/* ROLE DROPDOWN */}
             <Dropdown
+                disabled={!isRoleSelectable}
                 placement="bottom-end"
                 renderTitle={
                     <span className="flex items-center">
-                        <Avatar size={20} src={selectedRole?.icon} />
+                        <Avatar
+                            size={22}
+                            className={`cursor-pointer ${bgColor(activeLab?.lab_name || '')}`}
+                        >
+                            {acronym(activeRole?.name || '')}
+                        </Avatar>
+
                         <span className="ml-2">
-                            {selectedRole?.role_name || 'Role'}
+                            {activeRole?.name || 'Role'}
                         </span>
                     </span>
                 }
             >
-                {roles.map((role: any) => (
+                {activeLab?.roles.map((role) => (
                     <Dropdown.Item
-                        key={role.role_id}
+                        key={role?.id}
                         className="justify-between"
-                        onClick={() => setSelectedRole(role)}
+                        onClick={() => setActiveRole(role)}
                     >
                         <span className="flex items-center">
-                            <Avatar size={18} src={role.icon} />
-                            <span className="ml-2">{role.role_name}</span>
+                            <Avatar size={18} />
+                            <span className="ml-2">{role?.name}</span>
                         </span>
 
-                        {selectedRole?.role_id === role.role_id && (
+                        {activeRole?.id === role?.id && (
                             <HiCheck className="text-emerald-500 text-lg" />
                         )}
                     </Dropdown.Item>
