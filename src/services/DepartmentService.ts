@@ -35,3 +35,21 @@ export async function apiUpdateDepartment(id: string, data: Fields) {
         data,
     })
 }
+
+export async function apiGetLabMasterDepartments(labId: number) {
+    return ApiService.fetchDataWithAxios({
+        url: `${apiEndpointConfig.departments}/lab-master`,
+        method: 'get',
+        params: { lab_id: labId },
+    })
+}
+
+export async function apiAppendLabDepartmentToMaster(labDepartmentId: number) {
+    return ApiService.fetchDataWithAxios({
+        url: `${apiEndpointConfig.departments}/append-to-master`,
+        method: 'post',
+        data: {
+            lab_department_id: labDepartmentId,
+        },
+    })
+}

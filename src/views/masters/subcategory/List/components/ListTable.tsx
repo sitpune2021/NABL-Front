@@ -6,9 +6,11 @@ import useSubCategoryList from '../hooks/useList'
 import endpointConfig from '@/configs/endpoint.config'
 import { SubCategory } from '@/@types/subcategory'
 import { buildSubCategoryColumns } from '@/columns/sub_category.columns'
+import useLabList from '@/views/masters/lab/List/hooks/useList'
 
 const SubCategoryListTable = () => {
     const navigate = useNavigate()
+    const { labList = [] } = useLabList()
 
     const {
         subcategoryList,
@@ -51,8 +53,9 @@ const SubCategoryListTable = () => {
             buildSubCategoryColumns({
                 onEdit: handleEdit,
                 onView: handleView,
+                labList,
             }),
-        [handleEdit, handleView],
+        [handleEdit, handleView, labList],
     )
 
     const handlePaginationChange = (page: number) => {
