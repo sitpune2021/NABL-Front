@@ -12,15 +12,17 @@ const UserAssignmentRow = ({
     roles,
     assignments,
     onUpdate,
+    assingn,
 }: any) => {
-    const [activeUser, setActiveUser] = useState<string | null>(null)
+    const [activeUser, setActiveUser] = useState<number | null>(null)
 
     const assignedUsers = assignments[labId]?.users || {}
+    console.log(assingn)
 
-    const getUserById = (id: string) =>
-        users.find((u: any) => String(u.id) === String(id))
+    const getUserById = (id: number) =>
+        users.find((u: any) => Number(u.id) === Number(id))
 
-    const handleRemoveUser = (userId: string) => {
+    const handleRemoveUser = (userId: number) => {
         const updatedUsers = { ...assignedUsers }
         delete updatedUsers[userId]
         onUpdate({
@@ -30,7 +32,7 @@ const UserAssignmentRow = ({
         if (activeUser === userId) setActiveUser(null)
     }
 
-    const addUser = (userId: string) => {
+    const addUser = (userId: number) => {
         onUpdate((prev: any) => ({
             ...prev,
             [labId]: {
@@ -56,15 +58,15 @@ const UserAssignmentRow = ({
                 <div className="flex items-center gap-2">
                     <Avatar.Group chained maxCount={6}>
                         {Object.keys(assignedUsers).map((userId) => {
-                            const user = getUserById(userId)
-                            const isActive = activeUser === userId
+                            const user = getUserById(Number(userId))
+                            const isActive = activeUser === Number(userId)
                             return (
                                 <div key={userId} className="relative group">
                                     <Tooltip title={user?.name}>
                                         <div
                                             className={`cursor-pointer transition-transform rounded-full border-2 w-[39px] h-[39px] flex items-center justify-center ${isActive ? 'border-primary' : 'border-transparent hover:scale-105'}`}
                                             onClick={() =>
-                                                setActiveUser(userId)
+                                                setActiveUser(Number(userId))
                                             }
                                         >
                                             <Avatar
@@ -83,7 +85,7 @@ const UserAssignmentRow = ({
                                         icon={<HiX size={8} />}
                                         onClick={(e) => {
                                             e.stopPropagation()
-                                            handleRemoveUser(userId)
+                                            handleRemoveUser(Number(userId))
                                         }}
                                     />
                                 </div>

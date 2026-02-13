@@ -6,6 +6,7 @@ import LocationCard from './LocationCard'
 
 const LabCard = ({
     lab,
+    assingn,
     expanded,
     onToggle,
     users,
@@ -53,6 +54,7 @@ const LabCard = ({
                     {locations.map((location: any) => (
                         <LocationCard
                             key={location.id}
+                            assingn={assingn}
                             labId={lab.id}
                             location={location}
                             users={users}

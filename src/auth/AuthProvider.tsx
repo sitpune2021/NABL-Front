@@ -2,7 +2,12 @@ import { useRef, useImperativeHandle, useState } from 'react'
 import AuthContext from './AuthContext'
 import appConfig from '@/configs/app.config'
 import { initialState, useSessionUser, useToken } from '@/store/authStore'
-import { apiSignIn, apiSignOut, apiSignUp } from '@/services/AuthService'
+import {
+    apiGetCurrentProfile,
+    apiSignIn,
+    apiSignOut,
+    apiSignUp,
+} from '@/services/AuthService'
 import { REDIRECT_URL_KEY } from '@/constants/app.constant'
 import { useNavigate } from 'react-router'
 import type {
@@ -38,6 +43,10 @@ function AuthProvider({ children }: AuthProviderProps) {
     const signedIn = useSessionUser((state) => state.session.signedIn)
     const user = useSessionUser((state) => state.user)
     const setUser = useSessionUser((state) => state.setUser)
+    const setRoles = useSessionUser((state) => state.setRoles)
+    const setActiveLab = useSessionUser((state) => state.setActiveLab)
+    const setActiveRole = useSessionUser((state) => state.setActiveRole)
+
     const setSessionSignedIn = useSessionUser(
         (state) => state.setSessionSignedIn,
     )
@@ -72,6 +81,9 @@ function AuthProvider({ children }: AuthProviderProps) {
         setToken('')
         setUser(initialState.user)
         setSessionSignedIn(false)
+        setRoles([])
+        setActiveLab(null)
+        setActiveRole(null)
     }
 
     const signIn = async (values: SignInCredential): AuthResult => {
@@ -79,6 +91,15 @@ function AuthProvider({ children }: AuthProviderProps) {
             const resp = await apiSignIn(values)
             if (resp) {
                 handleSignIn({ accessToken: resp.data.token }, resp.data.user)
+                const profileResp = await apiGetCurrentProfile()
+                if (profileResp?.data?.roles?.length > 0) {
+                    const labs = profileResp.data.roles
+                    setRoles(labs)
+                    const firstLab = labs[0]
+                    setActiveLab(firstLab)
+                    setActiveRole(firstLab.roles[0])
+                }
+
                 redirect()
                 return {
                     status: resp.status,

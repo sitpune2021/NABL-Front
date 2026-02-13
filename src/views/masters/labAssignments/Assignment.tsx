@@ -23,6 +23,20 @@ const Assignment = () => {
                 labCount: labsAssignmentsList.lab_count ?? 0,
                 locationCount: labsAssignmentsList.lab_location_count ?? 0,
                 userCount: labsAssignmentsList.user_count ?? 0,
+                labAssignment: {
+                    assigned: labsAssignmentsList.lab_assignment.assigned ?? 0,
+                    pending: labsAssignmentsList.lab_assignment.pending ?? 0,
+                },
+                locationAssignment: {
+                    assigned:
+                        labsAssignmentsList.location_assignment.assigned ?? 0,
+                    pending:
+                        labsAssignmentsList.location_assignment.pending ?? 0,
+                },
+                userAssignment: {
+                    assigned: labsAssignmentsList.user_assignment.assigned ?? 0,
+                    pending: labsAssignmentsList.user_assignment.pending ?? 0,
+                },
             })
         }
     }, [isLoading, labsAssignmentsList, setStats])

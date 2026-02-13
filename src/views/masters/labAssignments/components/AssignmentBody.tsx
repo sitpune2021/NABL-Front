@@ -31,7 +31,14 @@ const SummaryCard = ({ title, count, label, icon, color }: any) => (
 )
 
 const AssignmentBody = () => {
-    const { labCount, locationCount, userCount } = useAssignmentStore()
+    const {
+        labCount,
+        locationCount,
+        userCount,
+        labAssignment,
+        locationAssignment,
+        userAssignment,
+    } = useAssignmentStore()
 
     const { labList = [] } = useLabList()
     const { locationList = [] } = useLocationList()
@@ -41,15 +48,18 @@ const AssignmentBody = () => {
         () => ({
             labs: {
                 total: labCount,
-                assigned: labList.filter((l: any) => l.assigned).length,
+                assigned: labAssignment.assigned ?? 0,
+                pending: labAssignment.pending ?? 0,
             },
             locations: {
                 total: locationCount,
-                assigned: locationList.filter((l: any) => l.assigned).length,
+                assigned: locationAssignment.assigned ?? 0,
+                pending: locationAssignment.pending ?? 0,
             },
             users: {
                 total: userCount,
-                assigned: userList.filter((u: any) => u.assigned).length,
+                assigned: userAssignment.assigned ?? 0,
+                pending: userAssignment.pending ?? 0,
             },
         }),
         [labList, locationList, userList, labCount, locationCount, userCount],
@@ -93,7 +103,6 @@ const AssignmentBody = () => {
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 {cards.map((c) => {
-                    const pending = Math.max(c.data.total - c.data.assigned, 0)
                     return (
                         <div key={c.title} className="space-y-3">
                             <div className="flex justify-between p-3 bg-gray-50 rounded-xl">
@@ -110,7 +119,7 @@ const AssignmentBody = () => {
                                     Pending
                                 </div>
                                 <Tag className="bg-red-50 text-red-600">
-                                    {pending}
+                                    {c.data.pending}
                                 </Tag>
                             </div>
                         </div>

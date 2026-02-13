@@ -47,3 +47,10 @@ export async function apiResetPassword<T>(data: ResetPassword) {
         data,
     })
 }
+
+export async function apiGetCurrentProfile<T>() {
+    return ApiService.fetchDataWithAxios<T>({
+        url: apiEndpointConfig.getCurrentProfile,
+        method: 'get',
+    })
+}
