@@ -8,7 +8,8 @@ export const useStandardClauseList = (standardId?: number | null) => {
     const shouldFetch = !!standardId
     const swr: any = useSWR(
         shouldFetch ? [LIST_KEY, standardId] : null,
-        ([id]) => apiGetClauseDocumentsList(id),
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        ([_, id]) => apiGetClauseDocumentsList(id),
         { revalidateOnFocus: false },
     )
 
