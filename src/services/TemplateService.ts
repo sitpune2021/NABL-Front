@@ -73,3 +73,18 @@ export async function apiChangeTemplateStatus(data: {
         data,
     })
 }
+export async function apiGetLabMasterTemplates(labId: number) {
+    return ApiService.fetchDataWithAxios({
+        url: `${apiEndpointConfig.templates}/lab-master`,
+        method: 'get',
+        params: { lab_id: labId },
+    })
+}
+
+export async function apiAppendLabTemplateToMaster(id: number) {
+    return ApiService.fetchDataWithAxios({
+        url: `${apiEndpointConfig.templates}/append-to-master`,
+        method: 'post',
+        data: { lab_template_id: id },
+    })
+}

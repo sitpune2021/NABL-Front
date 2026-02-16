@@ -29,7 +29,7 @@ const DepartmentListTableSync = () => {
     const [submitting, setSubmitting] = useState(false)
 
     const { labList = [] } = useLabList()
-    const { departmentList = [], mutate } = useDepartmentList()
+    const { mutate } = useDepartmentList()
 
     const { control, watch, reset } = useForm<FormSchema>({
         defaultValues: { labs: [] },
@@ -37,7 +37,11 @@ const DepartmentListTableSync = () => {
 
     const selectedLabId = watch('labs')[0]
 
-    const { departments = [], loading } = useLabDepartments(selectedLabId)
+    const {
+        departments = [],
+        setDepartments,
+        loading,
+    } = useLabDepartments(selectedLabId)
 
     const labOptions = useMemo(
         () =>
@@ -48,25 +52,13 @@ const DepartmentListTableSync = () => {
         [labList],
     )
 
-    const appendedLabDepartmentIds = useMemo(
-        () =>
-            new Set(
-                departmentList
-                    .filter((d) => d.parent_id)
-                    .map((d) => d.parent_id!),
-            ),
-        [departmentList],
-    )
-
     const departmentOptions = useMemo(
         () =>
-            departments
-                .filter((d) => !appendedLabDepartmentIds.has(d.id))
-                .map((d) => ({
-                    value: d.id,
-                    label: d.name,
-                })),
-        [departments, appendedLabDepartmentIds],
+            departments.map((d) => ({
+                value: d.id,
+                label: d.name,
+            })),
+        [departments],
     )
 
     const handleApply = async () => {
@@ -83,7 +75,9 @@ const DepartmentListTableSync = () => {
                     apiAppendLabDepartmentToMaster(id),
                 ),
             )
-
+            setDepartments((prev) =>
+                prev.filter((t) => !selectedDepartmentIds.includes(t.id)),
+            )
             mutate()
             handleDrawerClose()
         } catch (err) {
@@ -95,7 +89,6 @@ const DepartmentListTableSync = () => {
 
     const handleDrawerClose = () => {
         setDrawerOpen(false)
-        reset({ labs: [] })
         setSelectedDepartmentIds([])
     }
 

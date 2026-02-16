@@ -23,7 +23,7 @@ const useLabCategories = (labId?: number) => {
             .finally(() => setLoading(false))
     }, [labId])
 
-    return { categories, loading }
+    return { categories, setCategories, loading }
 }
 
 export default useLabCategories

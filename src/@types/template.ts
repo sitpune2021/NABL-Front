@@ -28,6 +28,8 @@ export type Template = {
         json: any
     }
     status?: 'published' | 'archived'
+    appended_from_lab_id?: number | null
+    parent_id?: number | null
 }
 
 export type TemplateListState = {
@@ -59,6 +61,8 @@ export type Fields = {
     status?: string
     change_type?: string
     message?: string
+    appended_from_lab_id?: number | null
+    parent_id?: number | null
 }
 
 export type TagsFields = {

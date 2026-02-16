@@ -6,16 +6,16 @@ import { Form, FormItem } from '@/components/ui/Form'
 import { Select } from '@/components/ui'
 import { TbBolt } from 'react-icons/tb'
 import useLabList from '@/views/masters/lab/List/hooks/useList'
-import useLabCategories from '../hooks/useLabCategories'
-import { apiAppendLabCategoryToMaster } from '@/services/CategoriesService'
-import { useCategoryList } from '../hooks/useList'
+import useLabTemplates from '../hooks/useLabTemplates'
+import { apiAppendLabTemplateToMaster } from '@/services/TemplateService'
+import useTemplateList from '../hooks/useList'
 import { useAuth } from '@/auth'
 
 type FormSchema = {
     labs: number[]
 }
 
-const CategoryListTableSync = () => {
+const TemplateListTableSync = () => {
     const { user } = useAuth()
 
     if (!user) return null
@@ -23,11 +23,11 @@ const CategoryListTableSync = () => {
     if (!isMasterLevel) return null
 
     const [drawerOpen, setDrawerOpen] = useState(false)
-    const [selectedCategoryIds, setSelectedCategoryIds] = useState<number[]>([])
+    const [selectedTemplateIds, setSelectedTemplateIds] = useState<number[]>([])
     const [submitting, setSubmitting] = useState(false)
 
     const { labList = [] } = useLabList()
-    const { mutate } = useCategoryList()
+    const { mutate } = useTemplateList()
 
     const { control, watch, reset } = useForm<FormSchema>({
         defaultValues: { labs: [] },
@@ -36,10 +36,10 @@ const CategoryListTableSync = () => {
     const selectedLabId = watch('labs')[0]
 
     const {
-        categories = [],
-        setCategories,
+        templates = [],
+        setTemplates,
         loading,
-    } = useLabCategories(selectedLabId)
+    } = useLabTemplates(selectedLabId)
 
     const labOptions = useMemo(
         () =>
@@ -50,17 +50,17 @@ const CategoryListTableSync = () => {
         [labList],
     )
 
-    const categoryOptions = useMemo(
+    const templateOptions = useMemo(
         () =>
-            categories.map((c) => ({
+            templates.map((c) => ({
                 value: c.id,
                 label: c.name,
             })),
-        [categories],
+        [templates],
     )
 
     const handleApply = async () => {
-        if (!selectedCategoryIds.length) {
+        if (!selectedTemplateIds.length) {
             handleDrawerClose()
             return
         }
@@ -69,12 +69,13 @@ const CategoryListTableSync = () => {
             setSubmitting(true)
 
             await Promise.all(
-                selectedCategoryIds.map((id) =>
-                    apiAppendLabCategoryToMaster(id),
+                selectedTemplateIds.map((id) =>
+                    apiAppendLabTemplateToMaster(id),
                 ),
             )
-            setCategories((prev) =>
-                prev.filter((t) => !selectedCategoryIds.includes(t.id)),
+
+            setTemplates((prev) =>
+                prev.filter((t) => !selectedTemplateIds.includes(t.id)),
             )
 
             mutate()
@@ -88,12 +89,12 @@ const CategoryListTableSync = () => {
 
     const handleDrawerClose = () => {
         setDrawerOpen(false)
-        setSelectedCategoryIds([])
+        setSelectedTemplateIds([])
     }
 
     const handleReset = () => {
         reset({ labs: [] })
-        setSelectedCategoryIds([])
+        setSelectedTemplateIds([])
     }
 
     return (
@@ -103,7 +104,7 @@ const CategoryListTableSync = () => {
             </Button>
 
             <Drawer
-                title="Sync Categories"
+                title="Sync Templates"
                 isOpen={drawerOpen}
                 bodyClass="p-0 h-full"
                 onClose={handleDrawerClose}
@@ -141,7 +142,7 @@ const CategoryListTableSync = () => {
                                                               ]
                                                             : [],
                                                     )
-                                                    setSelectedCategoryIds([])
+                                                    setSelectedTemplateIds([])
                                                 }}
                                             />
                                         )
@@ -149,22 +150,22 @@ const CategoryListTableSync = () => {
                                 />
                             </FormItem>
 
-                            <FormItem label="Categories" className="mb-0">
+                            <FormItem label="Templates" className="mb-0">
                                 <Select
                                     key={selectedLabId ?? 'no-lab'}
                                     isMulti
-                                    options={categoryOptions}
+                                    options={templateOptions}
                                     isLoading={loading}
                                     isDisabled={!selectedLabId}
                                     placeholder={
                                         loading
                                             ? 'Loading...'
-                                            : categoryOptions.length
-                                              ? 'Select Categories'
-                                              : 'No categories found'
+                                            : templateOptions.length
+                                              ? 'Select Templates'
+                                              : 'No templates found'
                                     }
                                     onChange={(values) =>
-                                        setSelectedCategoryIds(
+                                        setSelectedTemplateIds(
                                             values.map((v) => v.value),
                                         )
                                     }
@@ -197,4 +198,4 @@ const CategoryListTableSync = () => {
     )
 }
 
-export default CategoryListTableSync
+export default TemplateListTableSync
