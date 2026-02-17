@@ -5,8 +5,6 @@ import OauthSignIn from './components/OauthSignIn'
 import ActionLink from '@/components/shared/ActionLink'
 import useTimeOutMessage from '@/utils/hooks/useTimeOutMessage'
 import { useThemeStore } from '@/store/themeStore'
-import appConfig from '@/configs/app.config'
-import { apiNavigationItems } from '@/services/NavigationItemsService'
 import endpointConfig from '@/configs/endpoint.config'
 
 type SignInProps = {
@@ -23,24 +21,6 @@ export const SignInBase = ({
     const [message, setMessage] = useTimeOutMessage()
 
     const mode = useThemeStore((state) => state.mode)
-
-    if (appConfig.enableNav) {
-        const uploadFullNavigationTree = async () => {
-            try {
-                const response = await apiNavigationItems()
-                const savedItem = response.data
-                return savedItem
-            } catch (error) {
-                console.error(
-                    'Failed to send item:',
-                    error.response?.data || error.message,
-                )
-            }
-
-            console.log('✅ All navigation items uploaded')
-        }
-        uploadFullNavigationTree()
-    }
 
     return (
         <>

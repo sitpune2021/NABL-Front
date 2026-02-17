@@ -55,4 +55,14 @@ export const protectedRoutes: Routes = [
         ),
         authority: [],
     },
+    {
+        key: 'accessDenied',
+        path: `/access-denied`,
+        component: lazy(() => import('@/views/others/AccessDenied')),
+        authority: [],
+        meta: {
+            pageBackgroundType: 'plain',
+            pageContainerType: 'contained',
+        },
+    },
 ]

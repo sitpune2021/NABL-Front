@@ -14,6 +14,7 @@ type Role = {
     name: string
     level: number
     description: string
+    permissions: string[]
 } | null
 
 type LabRoleGroup = {

@@ -7,6 +7,7 @@ import { Category } from '@/@types/category'
 import { buildCategoryColumns } from '@/columns/category.columns'
 import { useCategoryList } from '../hooks/useList'
 import useLabList from '@/views/masters/lab/List/hooks/useList'
+import useAuth from '@/auth/useAuth'
 
 const CategoryListTable = () => {
     const navigate = useNavigate()
@@ -25,6 +26,7 @@ const CategoryListTable = () => {
     } = useCategoryList()
 
     const navigateTo = useCallback((path: string) => navigate(path), [navigate])
+    const { can } = useAuth()
 
     const handleEdit = useCallback(
         (category: Category) =>
@@ -54,6 +56,7 @@ const CategoryListTable = () => {
                 onEdit: handleEdit,
                 onView: handleView,
                 labList,
+                can,
             }),
         [handleEdit, handleView, labList],
     )
@@ -81,7 +84,7 @@ const CategoryListTable = () => {
 
     return (
         <DataTable
-            selectable
+            selectable={can('masters.category.delete')}
             columns={columns}
             data={categoryList}
             loading={isLoading}

@@ -16,7 +16,6 @@ import {
 } from '@/constants/theme.constant'
 import type { Mode } from '@/@types/theme'
 import useNavigationItemsList from '@/utils/hooks/useNavigationItem'
-// import navigationConfig from '@/configs/navigation.config'
 
 type SideNavProps = {
     translationSetup?: boolean

@@ -4,6 +4,7 @@ import { HiCheck } from 'react-icons/hi'
 import { useSessionUser } from '@/store/authStore'
 import useRandomBgColor from '@/utils/hooks/useRandomBgColor'
 import acronym from '@/utils/acronym'
+import { apiGetNavigationItemsList } from '@/services/NavigationItemsService'
 
 const LocationSelector = () => {
     const labs = useSessionUser((state) => state.roles)
@@ -43,6 +44,7 @@ const LocationSelector = () => {
                             setActiveLab(lab)
                             if (lab?.roles?.[0]) {
                                 setActiveRole(lab.roles[0])
+                                apiGetNavigationItemsList()
                             }
                         }}
                     >

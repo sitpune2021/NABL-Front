@@ -18,7 +18,12 @@ import { getDayOptions, getMonthOptions } from '@/utils/dateformat'
 import AamendmentSection from './AamendmentSection'
 import FieldConfigurationSection from './FieldConfigurationSection'
 
-const FrequencySection = ({ isOpen, onClose, onConfirm }: FrequencyProps) => {
+const FrequencySection = ({
+    isOpen,
+    onClose,
+    onConfirm,
+    isEdit,
+}: FrequencyProps) => {
     const {
         register,
         control,
@@ -839,7 +844,7 @@ const FrequencySection = ({ isOpen, onClose, onConfirm }: FrequencyProps) => {
                     </>
                 </>
                 <FieldConfigurationSection />
-                <AamendmentSection isEdit />
+                <AamendmentSection isEdit={isEdit} />
                 <div className="flex gap-2 flex-row-reverse">
                     <Button
                         variant="solid"
