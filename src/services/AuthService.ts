@@ -7,6 +7,7 @@ import type {
     ResetPassword,
     SignInResponse,
     SignUpResponse,
+    RoleResponse,
 } from '@/@types/auth'
 
 export async function apiSignIn(data: SignInCredential) {
@@ -48,8 +49,8 @@ export async function apiResetPassword<T>(data: ResetPassword) {
     })
 }
 
-export async function apiGetCurrentProfile<T>() {
-    return ApiService.fetchDataWithAxios<T>({
+export async function apiGetCurrentProfile() {
+    return ApiService.fetchDataWithAxios<RoleResponse>({
         url: apiEndpointConfig.getCurrentProfile,
         method: 'get',
     })

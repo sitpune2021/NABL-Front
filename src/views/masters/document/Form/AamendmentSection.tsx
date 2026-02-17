@@ -2,13 +2,13 @@
 import { Card, FormItem, Input } from '@/components/ui'
 import { Controller, useFormContext } from 'react-hook-form'
 
-const AamendmentSection = ({ isEdit = false }: any) => {
+const AamendmentSection = ({ isEdit }: any) => {
     const {
         control,
         formState: { errors },
     } = useFormContext<any>()
 
-    if (isEdit) return ''
+    if (!isEdit) return ''
 
     return (
         <Card className="mb-2">

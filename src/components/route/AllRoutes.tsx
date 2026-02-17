@@ -5,7 +5,6 @@ import AppRoute from './AppRoute'
 import PageContainer from '@/components/template/PageContainer'
 import { protectedRoutes, publicRoutes } from '@/configs/routes.config'
 import appConfig from '@/configs/app.config'
-import { useAuth } from '@/auth'
 import { Routes, Route, Navigate } from 'react-router'
 import type { LayoutType } from '@/@types/theme'
 
@@ -19,9 +18,6 @@ type AllRoutesProps = ViewsProps
 const { authenticatedEntryPath } = appConfig
 
 const AllRoutes = (props: AllRoutesProps) => {
-    const { user } = useAuth()
-    console.log(protectedRoutes)
-
     return (
         <Routes>
             <Route path="/" element={<ProtectedRoute />}>
@@ -35,7 +31,7 @@ const AllRoutes = (props: AllRoutesProps) => {
                         path={route.path}
                         element={
                             <AuthorityGuard
-                                userAuthority={user.authority}
+                                permission={route.key}
                                 authority={route.authority}
                             >
                                 <PageContainer {...props} {...route.meta}>

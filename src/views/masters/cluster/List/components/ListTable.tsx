@@ -6,6 +6,7 @@ import useClusterList from '../hooks/useList'
 import endpointConfig from '@/configs/endpoint.config'
 import { Cluster } from '@/@types/cluster'
 import { buildClusterColumns } from '@/columns/cluster.columns'
+import useAuth from '@/auth/useAuth'
 
 const ClusterListTable = () => {
     const navigate = useNavigate()
@@ -23,6 +24,7 @@ const ClusterListTable = () => {
     } = useClusterList()
 
     const navigateTo = useCallback((path: string) => navigate(path), [navigate])
+    const { can } = useAuth()
 
     const handleEdit = useCallback(
         (cluster: Cluster) =>
@@ -47,7 +49,12 @@ const ClusterListTable = () => {
     )
 
     const columns = useMemo(
-        () => buildClusterColumns({ onEdit: handleEdit, onView: handleView }),
+        () =>
+            buildClusterColumns({
+                onEdit: handleEdit,
+                onView: handleView,
+                can,
+            }),
         [handleEdit, handleView],
     )
 

@@ -12,6 +12,26 @@ export type SignInResponse = {
     message: string
 }
 
+type Role = {
+    id: number
+    name: string
+    level: number
+    description: string
+    permissions: string[]
+} | null
+
+type LabRoleGroup = {
+    lab_id: number
+    lab_name: string
+    roles: Role[]
+} | null
+
+export type RoleResponse = {
+    data: {
+        roles: LabRoleGroup[]
+    }
+}
+
 export type SignUpResponse = SignInResponse
 
 export type SignUpCredential = {

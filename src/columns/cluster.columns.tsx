@@ -6,10 +6,12 @@ import { Cluster } from '@/@types/cluster'
 type ColumnActions = {
     onEdit: (row: Cluster) => void
     onView: (row: Cluster) => void
+    can: (permission: string) => boolean
 }
 export const buildClusterColumns = ({
     onEdit,
     onView,
+    can,
 }: ColumnActions): ColumnDef<Cluster>[] => [
     {
         header: 'Id',
@@ -55,11 +57,13 @@ export const buildClusterColumns = ({
                         icon: <TbPencil />,
                         tooltip: 'Edit',
                         onClick: () => onEdit(props.row.original),
+                        show: can('masters.cluster.write'),
                     },
                     {
                         icon: <TbEye />,
                         tooltip: 'View',
                         onClick: () => onView(props.row.original),
+                        show: can('masters.cluster.list'),
                     },
                 ]}
             />

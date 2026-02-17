@@ -4,11 +4,11 @@ import Drawer from '@/components/ui/Drawer'
 import NavToggle from '@/components/shared/NavToggle'
 import { DIR_RTL } from '@/constants/theme.constant'
 import withHeaderItem, { WithHeaderItemProps } from '@/utils/hoc/withHeaderItem'
-import navigationConfig from '@/configs/navigation.config'
 import appConfig from '@/configs/app.config'
 import { useThemeStore } from '@/store/themeStore'
 import { useRouteKeyStore } from '@/store/routeKeyStore'
 import { useSessionUser } from '@/store/authStore'
+import useNavigationItemsList from '@/utils/hooks/useNavigationItem'
 
 const VerticalMenuContent = lazy(
     () => import('@/components/template/VerticalMenuContent'),
@@ -43,6 +43,7 @@ const MobileNav = ({
     const currentRouteKey = useRouteKeyStore((state) => state.currentRouteKey)
 
     const userAuthority = useSessionUser((state) => state.user.authority)
+    const { navigationItems } = useNavigationItemsList()
 
     return (
         <>
@@ -62,7 +63,7 @@ const MobileNav = ({
                     {isOpen && (
                         <VerticalMenuContent
                             collapsed={false}
-                            navigationTree={navigationConfig}
+                            navigationTree={navigationItems}
                             routeKey={currentRouteKey}
                             userAuthority={userAuthority as string[]}
                             direction={direction}

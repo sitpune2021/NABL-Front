@@ -1,11 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import useSWR from 'swr'
-import type { TableQueries } from '@/@types/common'
 import type { GetMenuListResponse } from '@/@types/menu'
 import { useMenuListStore } from '../store/listStore'
-import { apiGetMenuList } from '@/services/MenuService'
+import { apiGetNavigationItemsList } from '@/services/NavigationItemsService'
 
-const LIST_KEY = 'menu-list'
+const LIST_KEY = 'navigation-list'
 
 const flatten = (items: any[], parentTitle = ''): any[] => {
     let result: any[] = []
@@ -44,9 +43,9 @@ export const useMenuList = () => {
     } = useMenuListStore()
 
     const swr = useSWR(
-        [LIST_KEY, tableData.pageIndex, tableData.pageSize, tableData.query],
+        [LIST_KEY],
         async (): Promise<GetMenuListResponse> => {
-            const res: any = await apiGetMenuList<any, TableQueries>(tableData)
+            const res: any = await apiGetNavigationItemsList()
             const tree = Array.isArray(res) ? res : (res?.data ?? [])
 
             let all = flatten(tree)
