@@ -6,6 +6,7 @@ import endpointConfig from '@/configs/endpoint.config'
 import { useStandardList } from '../hooks/useList'
 import { Standard } from '@/@types/standard'
 import { buildStandardColumns } from '@/columns/standard.columns'
+import useAuth from '@/auth/useAuth'
 
 const ClausesListTable = () => {
     const navigate = useNavigate()
@@ -23,6 +24,7 @@ const ClausesListTable = () => {
     } = useStandardList()
 
     const navigateTo = useCallback((path: string) => navigate(path), [navigate])
+    const { can } = useAuth()
 
     const handleEdit = useCallback(
         (standard: Standard) =>
@@ -70,8 +72,9 @@ const ClausesListTable = () => {
                 onEdit: handleEdit,
                 onView: handleView,
                 onClause: handleClause,
+                can,
             }),
-        [handleEdit, handleView],
+        [handleEdit, handleView, can],
     )
 
     const handlePaginationChange = (page: number) => {
@@ -97,7 +100,7 @@ const ClausesListTable = () => {
 
     return (
         <DataTable
-            selectable
+            selectable={can('settings.standard.delete')}
             columns={columns}
             data={standardList}
             loading={isLoading}

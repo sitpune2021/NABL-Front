@@ -7,11 +7,13 @@ import { Zone } from '@/@types/zone'
 type ColumnActions = {
     onEdit: (row: Zone) => void
     onView: (row: Zone) => void
+    can: (permission: string) => boolean
 }
 
 export const buildZoneColumns = ({
     onEdit,
     onView,
+    can,
 }: ColumnActions): ColumnDef<Zone>[] => [
     {
         header: 'Id',
@@ -40,11 +42,13 @@ export const buildZoneColumns = ({
                         icon: <TbPencil />,
                         tooltip: 'Edit',
                         onClick: () => onEdit(row.original),
+                        show: can('masters.zone.write'),
                     },
                     {
                         icon: <TbEye />,
                         tooltip: 'View',
                         onClick: () => onView(row.original),
+                        show: can('masters.zone.list'),
                     },
                 ]}
             />

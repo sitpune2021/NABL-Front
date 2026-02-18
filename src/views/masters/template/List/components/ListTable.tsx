@@ -6,6 +6,7 @@ import useTemplateList from '../hooks/useList'
 import endpointConfig from '@/configs/endpoint.config'
 import { Template } from '@/@types/template'
 import { buildTemplateColumns } from '@/columns/template.columns'
+import useAuth from '@/auth/useAuth'
 
 const TemplateListTable = () => {
     const navigate = useNavigate()
@@ -23,6 +24,7 @@ const TemplateListTable = () => {
     } = useTemplateList()
 
     const navigateTo = useCallback((path: string) => navigate(path), [navigate])
+    const { can } = useAuth()
 
     const handleEdit = useCallback(
         (template: Template) =>
@@ -73,8 +75,9 @@ const TemplateListTable = () => {
                 onView: handleView,
                 onVersionsList: handleVersionsList,
                 handleSubmit: handleSubmit,
+                can,
             }),
-        [handleEdit, handleView, handleSubmit],
+        [handleEdit, handleView, handleSubmit, can],
     )
 
     const handlePaginationChange = (page: number) => {
@@ -100,7 +103,7 @@ const TemplateListTable = () => {
 
     return (
         <DataTable
-            selectable
+            selectable={can('masters.template.delete')}
             columns={columns}
             data={templateList}
             noData={!isLoading && templateList.length === 0}
