@@ -7,6 +7,7 @@ import endpointConfig from '@/configs/endpoint.config'
 import { Department } from '@/@types/department'
 import { buildDepartmentColumns } from '@/columns/department.columns'
 import useLabList from '@/views/masters/lab/List/hooks/useList'
+import useAuth from '@/auth/useAuth'
 
 const DepartmentListTable = () => {
     const navigate = useNavigate()
@@ -25,6 +26,7 @@ const DepartmentListTable = () => {
     } = useDepartmentList()
 
     const navigateTo = useCallback((path: string) => navigate(path), [navigate])
+    const { can } = useAuth()
 
     const handleEdit = useCallback(
         (category: Department) =>
@@ -54,6 +56,7 @@ const DepartmentListTable = () => {
                 onEdit: handleEdit,
                 onView: handleView,
                 labList,
+                can,
             }),
         [handleEdit, handleView, labList],
     )

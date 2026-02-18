@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useMemo, useState } from 'react'
 import type { Menu } from '@/@types/menu'
 import { TbDotsVertical } from 'react-icons/tb'
 import { useMenuList } from '../hooks/useList'
@@ -19,24 +19,24 @@ const MenuListTable = () => {
     const [renaming, setRenaming] = useState<string | null>(null)
     const [moduleValue, setModuleValue] = useState('')
     const [moduleOrder, setModuleOrder] = useState<string[]>([])
-    const [cards, setCards] = useState<Grouped>({})
 
-    useEffect(() => {
+    const groupedCards: Grouped = useMemo(() => {
         const grouped: Grouped = {}
-        const order: string[] = []
 
         menuList.forEach((m) => {
             const key = m.parent || 'Other'
-            if (!grouped[key]) {
-                grouped[key] = []
-                order.push(key)
-            }
+            if (!grouped[key]) grouped[key] = []
             grouped[key].push(m)
         })
 
-        setModuleOrder(order)
-        setCards(grouped)
+        return grouped
     }, [menuList])
+
+    useMemo(() => {
+        if (moduleOrder.length === 0 && Object.keys(groupedCards).length) {
+            setModuleOrder(Object.keys(groupedCards))
+        }
+    }, [groupedCards])
 
     const onDragEnd = (result: DropResult) => {
         const { source, destination, type } = result
@@ -44,8 +44,8 @@ const MenuListTable = () => {
 
         if (type === 'MODULE') {
             const next = Array.from(moduleOrder)
-            const [m] = next.splice(source.index, 1)
-            next.splice(destination.index, 0, m)
+            const [removed] = next.splice(source.index, 1)
+            next.splice(destination.index, 0, removed)
             setModuleOrder(next)
             return
         }
@@ -53,22 +53,34 @@ const MenuListTable = () => {
         const from = source.droppableId
         const to = destination.droppableId
 
-        const next = { ...cards }
-        const srcItems = Array.from(next[from])
-        const [moved] = srcItems.splice(source.index, 1)
+        const sourceItems = Array.from(groupedCards[from] || [])
+        const [moved] = sourceItems.splice(source.index, 1)
 
         if (from === to) {
-            srcItems.splice(destination.index, 0, moved)
-            next[from] = srcItems
+            sourceItems.splice(destination.index, 0, moved)
         } else {
-            const destItems = Array.from(next[to] || [])
-            moved.parent = to
-            destItems.splice(destination.index, 0, moved)
-            next[from] = srcItems
-            next[to] = destItems
+            const destItems = Array.from(groupedCards[to] || [])
+            const updatedMoved = { ...moved, parent: to }
+            destItems.splice(destination.index, 0, updatedMoved)
+            groupedCards[to] = destItems
         }
 
-        setCards(next)
+        groupedCards[from] = sourceItems
+    }
+
+    const handleRename = (oldName: string) => {
+        const newName = moduleValue.trim()
+        if (!newName || newName === oldName) {
+            setRenaming(null)
+            return
+        }
+
+        const updatedOrder = moduleOrder.map((m) =>
+            m === oldName ? newName : m,
+        )
+
+        setModuleOrder(updatedOrder)
+        setRenaming(null)
     }
 
     if (isLoading) return <div className="p-6">Loading...</div>
@@ -114,8 +126,8 @@ const MenuListTable = () => {
                                                                 )
                                                             }
                                                             onBlur={() =>
-                                                                setRenaming(
-                                                                    null,
+                                                                handleRename(
+                                                                    module,
                                                                 )
                                                             }
                                                             onKeyDown={(e) => {
@@ -123,8 +135,8 @@ const MenuListTable = () => {
                                                                     e.key ===
                                                                     'Enter'
                                                                 )
-                                                                    setRenaming(
-                                                                        null,
+                                                                    handleRename(
+                                                                        module,
                                                                     )
                                                             }}
                                                         />
@@ -192,7 +204,9 @@ const MenuListTable = () => {
                                                         className="flex flex-col gap-3"
                                                     >
                                                         {(
-                                                            cards[module] || []
+                                                            groupedCards[
+                                                                module
+                                                            ] || []
                                                         ).map((item, i) => (
                                                             <Draggable
                                                                 key={item.id}

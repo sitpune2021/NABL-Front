@@ -1,10 +1,9 @@
 import { useState } from 'react'
 import type { Menu } from '@/@types/menu'
-import { apiUpdateMenu } from '@/services/MenuService'
 import { useSWRConfig } from 'swr'
 import { useMenuList } from '@/views/settings/menu/List/hooks/useList'
 
-export const EditableName = ({ id, name }: { id: string; name: string }) => {
+export const EditableName = ({ name }: { name: string }) => {
     const [editing, setEditing] = useState(false)
     const [value, setValue] = useState(name)
 
@@ -15,9 +14,9 @@ export const EditableName = ({ id, name }: { id: string; name: string }) => {
         setEditing(false)
 
         if (value !== name) {
-            await apiUpdateMenu(id, { name: value })
+            // await apiUpdateMenu(id, { name: value })
             mutate()
-            globalMutate('menu-list')
+            globalMutate('navigation-list')
         }
     }
 
@@ -58,7 +57,7 @@ export const MenuCard = ({ item }: { item: Menu }) => {
                     </span>
                 )}
 
-                <EditableName id={item.id} name={item.name} />
+                <EditableName name={item.name} />
 
                 {item.icon && (
                     <div className="text-[13px] text-orange-400 ">

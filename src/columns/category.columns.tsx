@@ -8,12 +8,14 @@ type ColumnActions = {
     onEdit: (row: Category) => void
     onView: (row: Category) => void
     labList: Lab[]
+    can: (permission: string) => boolean
 }
 
 export const buildCategoryColumns = ({
     onEdit,
     onView,
     labList,
+    can,
 }: ColumnActions): ColumnDef<Category>[] => {
     const labMap = new Map<number, string>()
 
@@ -69,11 +71,13 @@ export const buildCategoryColumns = ({
                             icon: <TbPencil />,
                             tooltip: 'Edit',
                             onClick: () => onEdit(row.original),
+                            show: can('masters.category.write'),
                         },
                         {
                             icon: <TbEye />,
                             tooltip: 'View',
                             onClick: () => onView(row.original),
+                            show: can('masters.category.list'),
                         },
                     ]}
                 />

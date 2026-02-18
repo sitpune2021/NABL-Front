@@ -11,7 +11,7 @@ import useResponsive from '@/utils/hooks/useResponsive'
 import { useThemeStore } from '@/store/themeStore'
 import { useRouteKeyStore } from '@/store/routeKeyStore'
 import { useSessionUser } from '@/store/authStore'
-import navigationConfig from '@/configs/navigation.config'
+import useNavigationItemsList from '@/utils/hooks/useNavigationItem'
 import appConfig from '@/configs/app.config'
 import isEmpty from 'lodash/isEmpty'
 import useTranslation from '@/utils/hooks/useTranslation'
@@ -37,6 +37,7 @@ const StackedSideNav = ({
     const currentRouteKey = useRouteKeyStore((state) => state.currentRouteKey)
 
     const userAuthority = useSessionUser((state) => state.user.authority)
+    const { navigationItems } = useNavigationItemsList()
 
     const { larger } = useResponsive()
 
@@ -85,7 +86,7 @@ const StackedSideNav = ({
                         activeKeys={activeKeys}
                         mode={mode}
                         direction={direction}
-                        navigationTree={navigationConfig}
+                        navigationTree={navigationItems}
                         userAuthority={userAuthority || []}
                         selectedMenu={selectedMenu}
                         t={t as TraslationFn}

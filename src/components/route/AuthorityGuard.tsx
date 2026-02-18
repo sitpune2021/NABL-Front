@@ -1,18 +1,27 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { PropsWithChildren } from 'react'
 import { Navigate } from 'react-router'
-import useAuthority from '@/utils/hooks/useAuthority'
+import useAuth from '@/auth/useAuth'
 
 type AuthorityGuardProps = PropsWithChildren<{
-    userAuthority?: string[]
     authority?: string[]
+    permission: any
 }>
-
 const AuthorityGuard = (props: AuthorityGuardProps) => {
-    const { userAuthority = [], authority = [], children } = props
+    const { permission, children } = props
+    const { can, authLoading } = useAuth()
 
-    const roleMatched = useAuthority(userAuthority, authority)
+    if (authLoading) {
+        return null
+    }
 
-    return <>{roleMatched ? children : <Navigate to="/access-denied" />}</>
+    if (permission) {
+        if (!can(permission)) {
+            return <Navigate to="/access-denied" />
+        }
+    }
+
+    return <>{children}</>
 }
 
 export default AuthorityGuard
