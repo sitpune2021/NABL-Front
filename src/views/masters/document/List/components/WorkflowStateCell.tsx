@@ -5,6 +5,7 @@ import { useSessionUser } from '@/store/authStore'
 type Props = {
     document: Document
     onSave?: (documentVersionId: number, action: string) => void
+    show?: boolean
 }
 
 const ACTIONS_BY_STEP: Record<string, string[]> = {

@@ -7,6 +7,7 @@ import endpointConfig from '@/configs/endpoint.config'
 import { SubCategory } from '@/@types/subcategory'
 import { buildSubCategoryColumns } from '@/columns/sub_category.columns'
 import useLabList from '@/views/masters/lab/List/hooks/useList'
+import useAuth from '@/auth/useAuth'
 
 const SubCategoryListTable = () => {
     const navigate = useNavigate()
@@ -25,6 +26,7 @@ const SubCategoryListTable = () => {
     } = useSubCategoryList()
 
     const navigateTo = useCallback((path: string) => navigate(path), [navigate])
+    const { can } = useAuth()
 
     const handleEdit = useCallback(
         (subcategory: SubCategory) =>
@@ -54,8 +56,9 @@ const SubCategoryListTable = () => {
                 onEdit: handleEdit,
                 onView: handleView,
                 labList,
+                can,
             }),
-        [handleEdit, handleView, labList],
+        [handleEdit, handleView, labList, can],
     )
 
     const handlePaginationChange = (page: number) => {
@@ -81,7 +84,7 @@ const SubCategoryListTable = () => {
 
     return (
         <DataTable
-            selectable
+            selectable={can('masters.subcategory.delete')}
             columns={columns}
             data={subcategoryList}
             noData={!isLoading && subcategoryList.length === 0}

@@ -10,6 +10,7 @@ import { buildVersionTemplateColumns } from '@/columns/version_template.columns'
 import { apiChangeCurrentTemplateVersion } from '@/services/TemplateService'
 import { useEntityMutations } from '@/utils/hooks/useEntityMutations'
 import { useFormSubmit } from '@/utils/hoc/useFormSubmit'
+import useAuth from '@/auth/useAuth'
 
 const VersionListTable = () => {
     const navigate = useNavigate()
@@ -28,6 +29,7 @@ const VersionListTable = () => {
     } = useVersionsTemplateList(id)
 
     const navigateTo = useCallback((path: string) => navigate(path), [navigate])
+    const { can } = useAuth()
 
     const handleView = useCallback(
         (template: any) =>
@@ -60,8 +62,9 @@ const VersionListTable = () => {
             buildVersionTemplateColumns({
                 onView: handleView,
                 handleSubmit,
+                can,
             }),
-        [handleView],
+        [handleView, can],
     )
 
     const handlePaginationChange = (page: number) => {
@@ -87,7 +90,7 @@ const VersionListTable = () => {
 
     return (
         <DataTable
-            selectable
+            selectable={can('masters.template.version.delete')}
             columns={columns}
             data={templateVersionsList}
             noData={!isLoading && templateVersionsList.length === 0}

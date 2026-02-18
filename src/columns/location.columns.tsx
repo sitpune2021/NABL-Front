@@ -6,11 +6,13 @@ import { Location } from '@/@types/location'
 type ColumnActions = {
     onEdit: (row: Location) => void
     onView: (row: Location) => void
+    can: (permission: string) => boolean
 }
 
 export const buildLocationColumns = ({
     onEdit,
     onView,
+    can,
 }: ColumnActions): ColumnDef<Location>[] => [
     {
         header: 'Id',
@@ -73,11 +75,13 @@ export const buildLocationColumns = ({
                         icon: <TbPencil />,
                         tooltip: 'Edit',
                         onClick: () => onEdit(props.row.original),
+                        show: can('masters.location.write'),
                     },
                     {
                         icon: <TbEye />,
                         tooltip: 'View',
                         onClick: () => onView(props.row.original),
+                        show: can('masters.location.list'),
                     },
                 ]}
             />

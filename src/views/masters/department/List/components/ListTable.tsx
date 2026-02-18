@@ -84,7 +84,7 @@ const DepartmentListTable = () => {
 
     return (
         <DataTable
-            selectable
+            selectable={can('masters.department.delete')}
             columns={columns}
             data={departmentList}
             noData={!isLoading && departmentList.length === 0}

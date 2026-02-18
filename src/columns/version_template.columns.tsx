@@ -7,11 +7,13 @@ import IsCurrentBadge from '@/views/masters/template/List/components/IsCurrentBa
 type ColumnActions = {
     onView: (row: Template) => void
     handleSubmit: (templateId: number, versionId: number) => void
+    can: (permission: string) => boolean
 }
 
 export const buildVersionTemplateColumns = ({
     onView,
     handleSubmit,
+    can,
 }: ColumnActions): ColumnDef<Template>[] => [
     {
         header: 'Id',
@@ -59,6 +61,7 @@ export const buildVersionTemplateColumns = ({
                         icon: <TbEye />,
                         tooltip: 'View',
                         onClick: () => onView(row.original),
+                        show: can('masters.template.version.write'),
                     },
                 ]}
             />

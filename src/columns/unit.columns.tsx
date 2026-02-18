@@ -8,12 +8,14 @@ type ColumnActions = {
     onEdit: (row: Unit) => void
     onView: (row: Unit) => void
     labList: Lab[]
+    can: (permission: string) => boolean
 }
 
 export const buildUnitColumns = ({
     onEdit,
     onView,
     labList,
+    can,
 }: ColumnActions): ColumnDef<Unit>[] => {
     const labMap = new Map<number, string>()
 
@@ -68,11 +70,13 @@ export const buildUnitColumns = ({
                             icon: <TbPencil />,
                             tooltip: 'Edit',
                             onClick: () => onEdit(row.original),
+                            show: can('masters.unit.write'),
                         },
                         {
                             icon: <TbEye />,
                             tooltip: 'View',
                             onClick: () => onView(row.original),
+                            show: can('masters.unit.list'),
                         },
                     ]}
                 />

@@ -7,12 +7,14 @@ type ColumnActions = {
     onEdit: (row: Lab) => void
     onView: (row: Lab) => void
     onLocation: (row: Lab) => void
+    can: (permission: string) => boolean
 }
 
 export const buildLabColumns = ({
     onEdit,
     onView,
     onLocation,
+    can,
 }: ColumnActions): ColumnDef<Lab>[] => [
     {
         header: 'Id',
@@ -47,11 +49,13 @@ export const buildLabColumns = ({
                         icon: <TbPencil />,
                         tooltip: 'Edit',
                         onClick: () => onEdit(row.original),
+                        show: can('client.lab.write'),
                     },
                     {
                         icon: <TbEye />,
                         tooltip: 'View',
                         onClick: () => onView(row.original),
+                        show: can('client.lab.list'),
                     },
                     {
                         icon: <TbLocationBolt />,

@@ -58,7 +58,7 @@ const CategoryListTable = () => {
                 labList,
                 can,
             }),
-        [handleEdit, handleView, labList],
+        [handleEdit, handleView, labList, can],
     )
 
     const handlePaginationChange = (page: number) => {
