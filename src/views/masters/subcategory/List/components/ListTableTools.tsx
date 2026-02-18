@@ -4,9 +4,11 @@ import SubCategoryListTableFilter from './ListTableFilter'
 import { useCallback } from 'react'
 import debounce from 'lodash/debounce'
 import SubCategoryListTableSync from './ListTableSync'
+import useAuth from '@/auth/useAuth'
 
 const SubCategoryListTableTools = () => {
     const { updateTable } = useSubCategoryList()
+    const { can } = useAuth()
 
     const handleInputChange = useCallback(
         debounce((val: string) => {
@@ -22,7 +24,7 @@ const SubCategoryListTableTools = () => {
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2">
             <Search onInputChange={handleInputChange} />
             <SubCategoryListTableFilter />
-            <SubCategoryListTableSync />
+            {can('masters.subcategory.sync') && <SubCategoryListTableSync />}
         </div>
     )
 }

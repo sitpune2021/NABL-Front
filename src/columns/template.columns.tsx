@@ -15,6 +15,7 @@ type ColumnActions = {
         status: 'published' | 'archived'
     }) => Promise<void>
     labList: Lab[]
+    can: (permission: string) => boolean
 }
 
 const typeColor: Record<string, string> = {
@@ -28,6 +29,7 @@ export const buildTemplateColumns = ({
     onVersionsList,
     handleSubmit,
     labList,
+    can,
 }: ColumnActions): ColumnDef<Template>[] => {
     const labMap = new Map<number, string>()
 
@@ -117,16 +119,19 @@ export const buildTemplateColumns = ({
                             icon: <TbPencil />,
                             tooltip: 'Edit',
                             onClick: () => onEdit(row.original),
+                            show: can('masters.template.write'),
                         },
                         {
                             icon: <TbEye />,
                             tooltip: 'View',
                             onClick: () => onView(row.original),
+                            show: can('masters.template.list'),
                         },
                         {
                             icon: <TbList />,
                             tooltip: 'Versions List',
                             onClick: () => onVersionsList(row.original),
+                            show: can('masters.template.write.version.list'),
                         },
                     ]}
                 />

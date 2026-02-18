@@ -13,12 +13,14 @@ type ColumnActions = {
     onEdit: (row: Standard) => void
     onView: (row: Standard) => void
     onClause: (row: Standard) => void
+    can: (permission: string) => boolean
 }
 
 export const buildStandardColumns = ({
     onEdit,
     onView,
     onClause,
+    can,
 }: ColumnActions): ColumnDef<Standard>[] => [
     {
         header: 'Name',
@@ -72,16 +74,19 @@ export const buildStandardColumns = ({
                         icon: <TbPencil />,
                         tooltip: 'Edit',
                         onClick: () => onEdit(row.original),
+                        show: can('settings.standard.write'),
                     },
                     {
                         icon: <TbEye />,
                         tooltip: 'View',
                         onClick: () => onView(row.original),
+                        show: can('settings.standard.list'),
                     },
                     {
                         icon: <TbAB />,
                         tooltip: 'Clause',
                         onClick: () => onClause(row.original),
+                        show: can('settings.standard.clause.write'),
                     },
                 ]}
             />

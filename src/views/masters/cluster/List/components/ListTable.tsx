@@ -55,7 +55,7 @@ const ClusterListTable = () => {
                 onView: handleView,
                 can,
             }),
-        [handleEdit, handleView],
+        [handleEdit, handleView, can],
     )
 
     const handlePaginationChange = (page: number) => {
@@ -83,7 +83,7 @@ const ClusterListTable = () => {
 
     return (
         <DataTable
-            selectable
+            selectable={can('masters.cluster.delete')}
             columns={columns}
             data={clusterList}
             noData={!isLoading && clusterList.length === 0}

@@ -7,6 +7,7 @@ import endpointConfig from '@/configs/endpoint.config'
 import { Unit } from '@/@types/unit'
 import { buildUnitColumns } from '@/columns/unit.columns'
 import useLabList from '@/views/masters/lab/List/hooks/useList'
+import useAuth from '@/auth/useAuth'
 
 const UnitListTable = () => {
     const navigate = useNavigate()
@@ -25,6 +26,7 @@ const UnitListTable = () => {
     } = useUnitList()
 
     const navigateTo = useCallback((path: string) => navigate(path), [navigate])
+    const { can } = useAuth()
 
     const handleEdit = useCallback(
         (category: Unit) =>
@@ -54,8 +56,9 @@ const UnitListTable = () => {
                 onEdit: handleEdit,
                 onView: handleView,
                 labList,
+                can,
             }),
-        [handleEdit, handleView, labList],
+        [handleEdit, handleView, labList, can],
     )
 
     const handlePaginationChange = (page: number) => {
@@ -81,7 +84,7 @@ const UnitListTable = () => {
 
     return (
         <DataTable
-            selectable
+            selectable={can('masters.unit.delete')}
             columns={columns}
             data={unitList}
             noData={!isLoading && unitList.length === 0}

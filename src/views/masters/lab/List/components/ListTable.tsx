@@ -8,6 +8,7 @@ import useLabList from '../hooks/useList'
 import endpointConfig from '@/configs/endpoint.config'
 import { Lab } from '@/@types/lab'
 import { buildLabColumns } from '@/columns/lab.columns'
+import useAuth from '@/auth/useAuth'
 
 const LabListTable = () => {
     const navigate = useNavigate()
@@ -24,6 +25,7 @@ const LabListTable = () => {
     } = useLabList()
 
     const navigateTo = useCallback((path: string) => navigate(path), [navigate])
+    const { can } = useAuth()
 
     const handleEdit = useCallback(
         (lab: Lab) =>
@@ -58,8 +60,9 @@ const LabListTable = () => {
                 onEdit: handleEdit,
                 onView: handleView,
                 onLocation: handleLocation,
+                can,
             }),
-        [handleEdit, handleView],
+        [handleEdit, handleView, can],
     )
 
     const handleSetTableData = (data: TableQueries) => {
@@ -103,7 +106,7 @@ const LabListTable = () => {
 
     return (
         <DataTable
-            selectable
+            selectable={can('client.lab.delete')}
             columns={columns}
             data={labList}
             noData={!isLoading && labList.length === 0}

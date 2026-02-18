@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import { apiGenerateDocumentNumber } from '@/services/DocumentService'
 
 export function formatDate(dateStr: string, format: string): string {
     const date = new Date(dateStr)
@@ -177,14 +178,13 @@ export function extractMediaQueryStyles(css: string, mediaQuery: string) {
     return cleanedCss + '\n' + extractedStyles
 }
 
-export const generateDocumentNo = (
+export const generateDocumentNo = async (
     categoryOption: { value: string; label: string } | null,
     departmentOptions: { value: string; label: string }[],
     categoryList: any[],
-    counter: number,
 ) => {
     if (!categoryOption) return ''
-    let categoryPrefix
+    let categoryPrefix: string | undefined
 
     categoryList.forEach((cat) => {
         if (cat.id === categoryOption.value) {
@@ -192,12 +192,21 @@ export const generateDocumentNo = (
         }
     })
 
-    let docPrefix: any = categoryPrefix
+    let docPrefix: string = categoryPrefix || ''
 
     if (departmentOptions.length === 1) {
-        const deptPrefix = departmentOptions[0].label.split(' - ')[1]
+        const parts = departmentOptions[0].label.split(' - ')
+        const deptPrefix = parts.length > 1 ? parts[1] : parts[0]
         docPrefix = `${deptPrefix}-${categoryPrefix}`
     }
 
-    return `${docPrefix}-${counter}`
+    try {
+        const res = await apiGenerateDocumentNumber({
+            departmentName: docPrefix,
+        })
+        return res.documentNumber // ✅ RETURN FROM BACKEND
+    } catch (err) {
+        console.log(err)
+        return ''
+    }
 }

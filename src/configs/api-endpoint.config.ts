@@ -27,6 +27,7 @@ const apiEndpointConfig = {
     dataEntry: '/data-entry',
     documents: '/documents',
     documentsWorkflowAction: '/documents/workflow-action',
+    generateDocumentNumber: '/generate-document-number',
 
     navigationItems: '/navigation-items',
     accessModules: '/access-modules',

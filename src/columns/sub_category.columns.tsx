@@ -8,12 +8,14 @@ type ColumnActions = {
     onEdit: (row: SubCategory) => void
     onView: (row: SubCategory) => void
     labList: Lab[]
+    can: (permission: string) => boolean
 }
 
 export const buildSubCategoryColumns = ({
     onEdit,
     onView,
     labList,
+    can,
 }: ColumnActions): ColumnDef<SubCategory>[] => {
     const labMap = new Map<number, string>()
 
@@ -87,11 +89,13 @@ export const buildSubCategoryColumns = ({
                             icon: <TbPencil />,
                             tooltip: 'Edit',
                             onClick: () => onEdit(row.original),
+                            show: can('masters.subcategory.write'),
                         },
                         {
                             icon: <TbEye />,
                             tooltip: 'View',
                             onClick: () => onView(row.original),
+                            show: can('masters.subcategory.list'),
                         },
                     ]}
                 />

@@ -17,6 +17,7 @@ import {
 import { useFormSubmit } from '@/utils/hoc/useFormSubmit'
 import { SubCategoryFormSchema } from '@/schemas/sub_category.schema'
 import { EMPTY_VALUES } from '@/constants/sub_category.constant'
+import { FormSkeleton } from '@/components/form'
 
 const SubCategoryAddEdit = () => {
     const navigate = useNavigate()
@@ -29,10 +30,6 @@ const SubCategoryAddEdit = () => {
 
     const { subCategory, isLoading } = useSubCategoryDetail(id)
     const discard = useDiscardConfirm()
-    const defaultValues = useMemo(
-        () => subCategory ?? EMPTY_VALUES,
-        [subCategory],
-    )
 
     const { save } = useEntityMutations<SubCategoryFormSchema>({
         apiCreate: apiSubCategory,
@@ -56,12 +53,16 @@ const SubCategoryAddEdit = () => {
         navigate(`${endpointConfig.master.subcategory.list}`)
     }
 
+    if ((isEdit || isView) && isLoading) {
+        return <FormSkeleton count={3} title="Sub Category" />
+    }
+
     return (
         <>
             <SubCategoryForm
-                defaultValues={defaultValues}
+                key={id || 'new'}
+                defaultValues={subCategory ?? EMPTY_VALUES}
                 readOnly={isView}
-                loading={isLoading}
                 onFormSubmit={handleSubmit}
             >
                 <BottomPanel

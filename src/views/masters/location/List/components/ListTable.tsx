@@ -6,6 +6,7 @@ import useLocationList from '../hooks/useList'
 import endpointConfig from '@/configs/endpoint.config'
 import { Location } from '@/@types/location'
 import { buildLocationColumns } from '@/columns/location.columns'
+import useAuth from '@/auth/useAuth'
 
 const LocationListTable = () => {
     const navigate = useNavigate()
@@ -23,6 +24,7 @@ const LocationListTable = () => {
     } = useLocationList()
 
     const navigateTo = useCallback((path: string) => navigate(path), [navigate])
+    const { can } = useAuth()
 
     const handleEdit = useCallback(
         (location: Location) =>
@@ -51,8 +53,9 @@ const LocationListTable = () => {
             buildLocationColumns({
                 onEdit: handleEdit,
                 onView: handleView,
+                can,
             }),
-        [handleEdit, handleView],
+        [handleEdit, handleView, can],
     )
 
     const handlePaginationChange = (page: number) => {
@@ -80,7 +83,7 @@ const LocationListTable = () => {
 
     return (
         <DataTable
-            selectable
+            selectable={can('masters.location.delete')}
             columns={columns}
             data={locationList}
             noData={!isLoading && locationList.length === 0}

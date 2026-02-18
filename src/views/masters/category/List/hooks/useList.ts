@@ -55,6 +55,6 @@ export const useCategoryList = () => {
         toggleRow,
         setAll,
         clearSelection,
-        allCategories,
+        record: allCategories,
     }
 }
