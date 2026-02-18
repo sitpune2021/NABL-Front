@@ -16,16 +16,23 @@ interface MapOptionsConfig<T, TValue> {
 /**
  * Generic, reusable, type-safe option mapper
  */
-export const mapToOptions = <T, TValue = string>(
+export const mapToOptions = <
+    T,
+    TValue = string,
+    TExtra extends Record<string, unknown> = Record<string, never>,
+>(
     items: T[],
-    config: MapOptionsConfig<T, TValue>,
-): SelectOption<TValue>[] => {
-    return items.filter(config.filter ?? (() => true)).map((item) => ({
-        value:
-            typeof config.value === 'function'
-                ? config.value(item)
-                : (item[config.value] as TValue),
-        label: config.label(item),
-        ...(config.extra?.(item) ?? {}),
-    }))
+    config: MapOptionsConfig<T, TValue> & { extra?: (item: T) => TExtra },
+): (SelectOption<TValue> & TExtra)[] => {
+    return items.filter(config.filter ?? (() => true)).map(
+        (item) =>
+            ({
+                value:
+                    typeof config.value === 'function'
+                        ? config.value(item)
+                        : (item[config.value] as TValue),
+                label: config.label(item),
+                ...(config.extra?.(item) ?? ({} as TExtra)),
+            }) as SelectOption<TValue> & TExtra,
+    )
 }

@@ -16,6 +16,7 @@ import { useEntityMutations } from '@/utils/hooks/useEntityMutations'
 import { apiCategory, apiUpdateCategory } from '@/services/CategoriesService'
 import { CategoryFormSchema } from '@/schemas/category.schema'
 import { EMPTY_VALUES } from '@/constants/category.constant'
+import { FormSkeleton } from '@/components/form'
 
 const CategoryAddEdit = () => {
     const navigate = useNavigate()
@@ -28,8 +29,6 @@ const CategoryAddEdit = () => {
     const { category, isLoading } = useCategoryDetail(id)
     const discard = useDiscardConfirm()
 
-    const defaultValues = useMemo(() => category ?? EMPTY_VALUES, [category])
-
     const { save } = useEntityMutations<CategoryFormSchema>({
         apiCreate: apiCategory,
         apiUpdate: apiUpdateCategory,
@@ -37,7 +36,6 @@ const CategoryAddEdit = () => {
 
     const { handleSubmit, isSubmitting } = useFormSubmit<CategoryFormSchema>({
         apiCall: (values) => {
-            console.log('Submitting values 👉', values)
             return save({ ...values, ...(isEdit && id ? { id } : {}) })
         },
         navigateTo: endpointConfig.master.category.list,
@@ -52,12 +50,16 @@ const CategoryAddEdit = () => {
         navigate(`${endpointConfig.master.category.list}`)
     }
 
+    if ((isEdit || isView) && isLoading) {
+        return <FormSkeleton count={2} title={'Category'} />
+    }
+
     return (
         <>
             <CategoryForm
-                defaultValues={defaultValues}
+                key={id || 'new'}
+                defaultValues={category || EMPTY_VALUES}
                 readOnly={isView}
-                loading={isLoading}
                 onFormSubmit={handleSubmit}
             >
                 <BottomPanel

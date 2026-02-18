@@ -40,7 +40,6 @@ export const useOverviewLogic = ({ categoryList }: Props) => {
     const [reviewNotificationDate, setReviewNotificationDate] = useState<
         string | null
     >(null)
-    const counter = 1
 
     /* ---------------- Review Frequency → Unit Options ---------------- */
     useEffect(() => {
@@ -106,30 +105,28 @@ export const useOverviewLogic = ({ categoryList }: Props) => {
     }, [nextReviewDate, notificationValue, notificationUnit])
 
     /* ---------------- Handlers ---------------- */
-    const handleCategoryChange = (option: Option) => {
+    const handleCategoryChange = async (option: Option) => {
         setSelectedCategory(option)
-        setValue(
-            'number',
-            generateDocumentNo(
-                option,
-                selectedDepartments,
-                categoryList,
-                counter,
-            ),
+
+        const number = await generateDocumentNo(
+            option,
+            selectedDepartments,
+            categoryList,
         )
+
+        setValue('number', number)
     }
 
-    const handleDepartmentChange = (options: Option[]) => {
+    const handleDepartmentChange = async (options: Option[]) => {
         setSelectedDepartments(options || [])
-        setValue(
-            'number',
-            generateDocumentNo(
-                selectedCategory,
-                options || [],
-                categoryList,
-                counter,
-            ),
+
+        const number = await generateDocumentNo(
+            selectedCategory,
+            options || [],
+            categoryList,
         )
+
+        setValue('number', number)
     }
 
     return {
