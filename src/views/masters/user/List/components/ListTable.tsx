@@ -10,9 +10,11 @@ import type { TableQueries } from '@/@types/common'
 import useUserList from '../hooks/useList'
 import endpointConfig from '@/configs/endpoint.config'
 import { User } from '@/@types/user'
+import useAuth from '@/auth/useAuth'
 
 const UserListTable = () => {
     const navigate = useNavigate()
+    const { can } = useAuth()
 
     const {
         userList,
@@ -142,12 +144,14 @@ const UserListTable = () => {
                                 icon: <TbPencil />,
                                 tooltip: 'Edit',
                                 onClick: () => handleEdit(props.row.original),
+                                show: can('settings.user.write'),
                             },
                             {
                                 icon: <TbEye />,
                                 tooltip: 'View',
                                 onClick: () =>
                                     handleViewDetails(props.row.original),
+                                show: can('settings.user.list'),
                             },
                         ]}
                     />
@@ -199,7 +203,7 @@ const UserListTable = () => {
 
     return (
         <DataTable
-            selectable
+            selectable={can('settings.user.delete')}
             columns={columns}
             data={userList}
             noData={!isLoading && userList.length === 0}

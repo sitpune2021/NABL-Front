@@ -6,6 +6,7 @@ import endpointConfig from '@/configs/endpoint.config'
 import { Zone } from '@/@types/zone'
 import { buildZoneColumns } from '@/columns/zone.columns'
 import { useZoneList } from '../hooks/useList'
+import useAuth from '@/auth/useAuth'
 
 const ZoneListTable = () => {
     const navigate = useNavigate()
@@ -23,6 +24,7 @@ const ZoneListTable = () => {
     } = useZoneList()
 
     const navigateTo = useCallback((path: string) => navigate(path), [navigate])
+    const { can } = useAuth()
 
     const handleEdit = useCallback(
         (zone: Zone) =>
@@ -45,8 +47,9 @@ const ZoneListTable = () => {
             buildZoneColumns({
                 onEdit: handleEdit,
                 onView: handleView,
+                can,
             }),
-        [handleEdit, handleView],
+        [handleEdit, handleView, can],
     )
 
     const handlePaginationChange = (page: number) => {
@@ -72,7 +75,7 @@ const ZoneListTable = () => {
 
     return (
         <DataTable
-            selectable
+            selectable={can('masters.zone.delete')}
             columns={columns}
             data={zoneList}
             loading={isLoading}

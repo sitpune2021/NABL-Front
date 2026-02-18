@@ -21,10 +21,12 @@ import WorkflowStateCell from './WorkflowStateCell'
 import { useEntityMutations } from '@/utils/hooks/useEntityMutations'
 import { apiDocumentWorkFlow } from '@/services/DocumentService'
 import { useFormSubmit } from '@/utils/hoc/useFormSubmit'
+import { useAuth } from '@/auth'
 
 const DocumentListTable = () => {
     const navigate = useNavigate()
     const { lab } = useSessionUser((state) => state.user)
+    const { can } = useAuth()
 
     const {
         documentList,
@@ -137,6 +139,7 @@ const DocumentListTable = () => {
                 cell: ({ row }) => (
                     <WorkflowStateCell
                         document={row.original}
+                        show={can('masters.document.workflow-logs.action')}
                         onSave={(id, value) => {
                             handleSubmit({
                                 document_version_id: id,
@@ -157,6 +160,7 @@ const DocumentListTable = () => {
                                 icon: <TbEdit />,
                                 tooltip: 'Edit',
                                 onClick: () => handleEdit(props.row.original),
+                                show: can('masters.document.write'),
                             },
 
                             {
@@ -164,6 +168,7 @@ const DocumentListTable = () => {
                                 tooltip: 'View',
                                 onClick: () =>
                                     handleViewDetails(props.row.original),
+                                show: can('masters.document.list'),
                             },
                             props.row.original.mode == 'create'
                                 ? {
@@ -173,6 +178,7 @@ const DocumentListTable = () => {
                                           handleEditorViewDetails(
                                               props.row.original,
                                           ),
+                                      show: can('masters.document.write'),
                                   }
                                 : null,
                             lab
@@ -183,6 +189,7 @@ const DocumentListTable = () => {
                                           handleEntryDetails(
                                               props.row.original,
                                           ),
+                                      show: can('masters.document.write'),
                                   }
                                 : null,
                             {
@@ -190,6 +197,7 @@ const DocumentListTable = () => {
                                 tooltip: 'Data Entry Form',
                                 onClick: () =>
                                     handleDataEntryForm(props.row.original),
+                                show: can('masters.document.write'),
                             },
                         ].filter(Boolean)} // remove null entries
                     />

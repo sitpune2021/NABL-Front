@@ -6,6 +6,7 @@ import endpointConfig from '@/configs/endpoint.config'
 import { Instrument } from '@/@types/instrument'
 import { buildInstrumentColumns } from '@/columns/instrument.columns'
 import { useInstrumentList } from '../hooks/useList'
+import useAuth from '@/auth/useAuth'
 
 const InstrumentListTable = () => {
     const navigate = useNavigate()
@@ -24,6 +25,7 @@ const InstrumentListTable = () => {
     } = useInstrumentList()
 
     const navigateTo = useCallback((path: string) => navigate(path), [navigate])
+    const { can } = useAuth()
 
     const handleEdit = useCallback(
         (instrument: Instrument) =>
@@ -52,8 +54,9 @@ const InstrumentListTable = () => {
             buildInstrumentColumns({
                 onEdit: handleEdit,
                 onView: handleView,
+                can,
             }),
-        [handleEdit, handleView],
+        [handleEdit, handleView, can],
     )
 
     const handlePaginationChange = (page: number) => {
@@ -79,7 +82,7 @@ const InstrumentListTable = () => {
 
     return (
         <DataTable
-            selectable
+            selectable={can('masters.instrument.delete')}
             columns={columns}
             data={instrumentList}
             loading={isLoading}

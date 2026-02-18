@@ -7,11 +7,13 @@ import { Instrument } from '@/@types/instrument'
 type ColumnActions = {
     onEdit: (row: Instrument) => void
     onView: (row: Instrument) => void
+    can: (permission: string) => boolean
 }
 
 export const buildInstrumentColumns = ({
     onEdit,
     onView,
+    can,
 }: ColumnActions): ColumnDef<Instrument>[] => [
     {
         header: 'Id',
@@ -50,11 +52,13 @@ export const buildInstrumentColumns = ({
                         icon: <TbPencil />,
                         tooltip: 'Edit',
                         onClick: () => onEdit(row.original),
+                        show: can('masters.instrument.write'),
                     },
                     {
                         icon: <TbEye />,
                         tooltip: 'View',
                         onClick: () => onView(row.original),
+                        show: can('masters.instrument.list'),
                     },
                 ]}
             />
