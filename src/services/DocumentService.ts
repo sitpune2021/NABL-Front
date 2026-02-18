@@ -44,3 +44,13 @@ export async function apiDocumentWorkFlow(data: any) {
         data,
     })
 }
+
+export async function apiGenerateDocumentNumber(params: {
+    departmentName: string
+}) {
+    return ApiService.fetchDataWithAxios<{ documentNumber: string }>({
+        url: apiEndpointConfig.generateDocumentNumber,
+        method: 'get',
+        params,
+    })
+}
