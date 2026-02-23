@@ -55,6 +55,6 @@ export const useZoneList = () => {
         toggleRow,
         setAll,
         clearSelection,
-        allZone,
+        record: allZone,
     }
 }

@@ -16,6 +16,7 @@ import { useEntityMutations } from '@/utils/hooks/useEntityMutations'
 import { apiZone, apiUpdateZone } from '@/services/ZoneService'
 import { ZoneFormSchema } from '@/schemas/zone.schema'
 import { EMPTY_VALUES } from '@/constants/zone.constant'
+import { FormSkeleton } from '@/components/form'
 
 const ZoneAddEdit = () => {
     const navigate = useNavigate()
@@ -27,8 +28,6 @@ const ZoneAddEdit = () => {
 
     const { zone, isLoading } = useZoneDetail(id)
     const discard = useDiscardConfirm()
-
-    const defaultValues = useMemo(() => zone ?? EMPTY_VALUES, [zone])
 
     const { save } = useEntityMutations<ZoneFormSchema>({
         apiCreate: apiZone,
@@ -49,13 +48,15 @@ const ZoneAddEdit = () => {
         discard.close()
         navigate(`${endpointConfig.master.zone.list}`)
     }
-
+    if ((isEdit || isView) && isLoading) {
+        return <FormSkeleton count={2} title={'Category'} />
+    }
     return (
         <>
             <ZoneForm
-                defaultValues={defaultValues}
+                key={id || 'new'}
+                defaultValues={zone || EMPTY_VALUES}
                 readOnly={isView}
-                loading={isLoading}
                 onFormSubmit={handleSubmit}
             >
                 <BottomPanel

@@ -17,6 +17,7 @@ import DepartmentForm from '../Form'
 import { useDepartmentDetail } from '../List/hooks/useDetail'
 import { useDiscardConfirm } from '@/utils/hooks/useDiscardConfirm'
 import { EMPTY_VALUES } from '@/constants/department.constant'
+import { FormSkeleton } from '@/components/form'
 
 const DepartmentAddEdit = () => {
     const navigate = useNavigate()
@@ -28,11 +29,6 @@ const DepartmentAddEdit = () => {
 
     const { department, isLoading } = useDepartmentDetail(id)
     const discard = useDiscardConfirm()
-
-    const defaultValues = useMemo(
-        () => department ?? EMPTY_VALUES,
-        [department],
-    )
 
     const { save } = useEntityMutations<DepartmentFormSchema>({
         apiCreate: apiDepartment,
@@ -54,12 +50,16 @@ const DepartmentAddEdit = () => {
         navigate(endpointConfig.master.department.list)
     }
 
+    if ((isEdit || isView) && isLoading) {
+        return <FormSkeleton count={2} title={'Department'} />
+    }
+
     return (
         <>
             <DepartmentForm
-                defaultValues={defaultValues}
+                key={id || 'new'}
+                defaultValues={department || EMPTY_VALUES}
                 readOnly={isView}
-                loading={isLoading}
                 onFormSubmit={handleSubmit}
             >
                 <BottomPanel

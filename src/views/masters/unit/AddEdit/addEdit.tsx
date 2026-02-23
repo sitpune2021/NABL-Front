@@ -14,6 +14,7 @@ import { UnitFormSchema } from '@/schemas/unit.schema'
 import { apiUnit, apiUpdateUnit } from '@/services/UnitService'
 import { useFormSubmit } from '@/utils/hoc/useFormSubmit'
 import { useUnitDetail } from '../List/hooks/useDetail'
+import { FormSkeleton } from '@/components/form'
 
 const UnitAddEdit = () => {
     const navigate = useNavigate()
@@ -25,8 +26,6 @@ const UnitAddEdit = () => {
 
     const { unit, isLoading } = useUnitDetail(id)
     const discard = useDiscardConfirm()
-
-    const defaultValues = useMemo(() => unit ?? EMPTY_VALUES, [unit])
 
     const { save } = useEntityMutations<UnitFormSchema>({
         apiCreate: apiUnit,
@@ -47,13 +46,16 @@ const UnitAddEdit = () => {
         discard.close()
         navigate(endpointConfig.master.unit.list)
     }
+    if ((isEdit || isView) && isLoading) {
+        return <FormSkeleton count={1} title={'Unit'} />
+    }
 
     return (
         <>
             <UnitForm
-                defaultValues={defaultValues}
+                key={id || 'new'}
+                defaultValues={unit || EMPTY_VALUES}
                 readOnly={isView}
-                loading={isLoading}
                 onFormSubmit={handleSubmit}
             >
                 <BottomPanel

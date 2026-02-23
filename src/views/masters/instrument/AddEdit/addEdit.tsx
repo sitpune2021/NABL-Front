@@ -17,6 +17,7 @@ import {
 } from '@/services/InstrumentService'
 import { InstrumentFormSchema } from '@/schemas/instrument.schema'
 import { EMPTY_VALUES } from '@/constants/instrument.constant'
+import { FormSkeleton } from '@/components/form'
 
 const InstrumentAddEdit = () => {
     const navigate = useNavigate()
@@ -28,11 +29,6 @@ const InstrumentAddEdit = () => {
 
     const { instrument, isLoading } = useInstrumentDetail(id)
     const discard = useDiscardConfirm()
-
-    const defaultValues = useMemo(
-        () => instrument ?? EMPTY_VALUES,
-        [instrument],
-    )
 
     const { save } = useEntityMutations<InstrumentFormSchema>({
         apiCreate: apiInstrument,
@@ -53,13 +49,16 @@ const InstrumentAddEdit = () => {
         discard.close()
         navigate(`${endpointConfig.master.instrument.list}`)
     }
+    if ((isEdit || isView) && isLoading) {
+        return <FormSkeleton count={5} title={'Instrument'} />
+    }
 
     return (
         <>
             <InstrumentForm
-                defaultValues={defaultValues}
+                key={id || 'new'}
+                defaultValues={instrument || EMPTY_VALUES}
                 readOnly={isView}
-                loading={isLoading}
                 onFormSubmit={handleSubmit}
             >
                 <BottomPanel

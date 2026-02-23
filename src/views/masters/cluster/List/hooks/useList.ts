@@ -60,6 +60,6 @@ export default function useClusterList() {
         toggleRow,
         setAll,
         clearSelection,
-        allCluster,
+        record: allCluster,
     }
 }

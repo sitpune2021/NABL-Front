@@ -13,5 +13,6 @@ export const useClusterDetail = (id?: string) => {
         isLoading: swr.isLoading,
         error: swr.error,
         mutate: swr.mutate,
+        data: swr.data?.data as Fields | undefined,
     }
 }
