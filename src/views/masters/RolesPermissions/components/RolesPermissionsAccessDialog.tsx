@@ -102,9 +102,11 @@ const RolesPermissionsAccessDialog = ({
 
             if (role?.accessRight) {
                 Object.values(role.accessRight).forEach((group) => {
-                    Object.entries(group).forEach(([moduleId, actions]) => {
-                        flatAccess[moduleId] = actions
-                    })
+                    Object.entries(group).forEach(
+                        ([moduleId, actions]: any) => {
+                            flatAccess[moduleId] = actions
+                        },
+                    )
                 })
             }
 
@@ -113,9 +115,9 @@ const RolesPermissionsAccessDialog = ({
             const defaultAccess: Record<string, string[]> = {}
             Object.values(accessModules)
                 .flat()
-                .forEach((module) => {
+                .forEach((module: any) => {
                     defaultAccess[module.id] = module.accessor.map(
-                        (item) => item.value,
+                        (item: any) => item.value,
                     )
                 })
             setAccessRight(defaultAccess)
@@ -129,7 +131,7 @@ const RolesPermissionsAccessDialog = ({
     }
 
     const onSubmit = async (values: RolesFormSchema) => {
-        const payload = isEdit
+        const payload: any = isEdit
             ? { id: selectedRole, accessRight }
             : {
                   name: values.name,
@@ -161,12 +163,14 @@ const RolesPermissionsAccessDialog = ({
         setAccessRight((prev) => ({ ...prev, [moduleId]: selected }))
 
         if (roleDialog.type === 'edit') {
-            const newRoleList = structuredClone(roleList).map((role) => {
-                if (role.id === selectedRole) {
-                    role.accessRight[moduleId] = selected
-                }
-                return role
-            })
+            const newRoleList: any = structuredClone(roleList).map(
+                (role: any) => {
+                    if (role.id === selectedRole) {
+                        role.accessRight[moduleId] = selected
+                    }
+                    return role
+                },
+            )
             mutate(newRoleList, false)
         }
     }
@@ -279,91 +283,104 @@ const RolesPermissionsAccessDialog = ({
                         </>
                     )}
 
-                    {Object.entries(accessModules).map(([group, modules]) => (
-                        <div key={group} className="mb-8">
-                            <h5 className="font-bold text-lg mb-4 capitalize">
-                                {group}
-                            </h5>
-                            {modules.map((module: any, index: number) => (
-                                <div
-                                    key={module.id}
-                                    className={classNames(
-                                        'flex flex-col md:flex-row md:items-center justify-between gap-4 py-6 border-gray-200 dark:border-gray-600',
-                                        !isLastChild(modules, index) &&
-                                            'border-b',
-                                    )}
-                                >
-                                    <div className="flex items-center gap-4">
-                                        <Avatar
-                                            className="bg-transparent dark:bg-transparent p-2 border-2 border-gray-200 dark:border-gray-600 text-primary"
-                                            size={50}
-                                            icon={moduleIcon[module.id]}
-                                            shape="round"
-                                        />
-                                        <div>
-                                            <h6 className="font-bold">
-                                                {module.name}
-                                            </h6>
-                                            <span>{module.description}</span>
+                    {Object.entries(accessModules).map(
+                        ([group, modules]: any) => (
+                            <div key={group} className="mb-8">
+                                <h5 className="font-bold text-lg mb-4 capitalize">
+                                    {group}
+                                </h5>
+                                {modules.map((module: any, index: number) => (
+                                    <div
+                                        key={module.id}
+                                        className={classNames(
+                                            'flex flex-col md:flex-row md:items-center justify-between gap-4 py-6 border-gray-200 dark:border-gray-600',
+                                            !isLastChild(modules, index) &&
+                                                'border-b',
+                                        )}
+                                    >
+                                        <div className="flex items-center gap-4">
+                                            <Avatar
+                                                className="bg-transparent dark:bg-transparent p-2 border-2 border-gray-200 dark:border-gray-600 text-primary"
+                                                size={50}
+                                                icon={moduleIcon[module.id]}
+                                                shape="round"
+                                            />
+                                            <div>
+                                                <h6 className="font-bold">
+                                                    {module.name}
+                                                </h6>
+                                                <span>
+                                                    {module.description}
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <div className="flex items-center gap-4">
+                                            <Segment
+                                                className="bg-transparent dark:bg-transparent flex-wrap justify-end"
+                                                selectionType="multiple"
+                                                value={
+                                                    accessRight[module.id] || []
+                                                }
+                                                onChange={(val) =>
+                                                    handleChange(
+                                                        val as string[],
+                                                        module.id,
+                                                    )
+                                                }
+                                            >
+                                                {module.accessor.map(
+                                                    (access: any) => (
+                                                        <Segment.Item
+                                                            key={
+                                                                module.id +
+                                                                access.value
+                                                            }
+                                                            value={access.value}
+                                                        >
+                                                            {({
+                                                                active,
+                                                                onSegmentItemClick,
+                                                            }) => (
+                                                                <Button
+                                                                    variant="default"
+                                                                    icon={
+                                                                        active ? (
+                                                                            <TbCheck className="text-primary text-xl" />
+                                                                        ) : null
+                                                                    }
+                                                                    active={
+                                                                        active
+                                                                    }
+                                                                    type="button"
+                                                                    className="md:min-w-[100px]"
+                                                                    size="sm"
+                                                                    customColorClass={({
+                                                                        active,
+                                                                    }) =>
+                                                                        classNames(
+                                                                            active &&
+                                                                                'bg-transparent dark:bg-transparent text-primary border-primary ring-1 ring-primary',
+                                                                        )
+                                                                    }
+                                                                    onClick={
+                                                                        onSegmentItemClick
+                                                                    }
+                                                                >
+                                                                    {
+                                                                        access.label
+                                                                    }
+                                                                </Button>
+                                                            )}
+                                                        </Segment.Item>
+                                                    ),
+                                                )}
+                                            </Segment>
                                         </div>
                                     </div>
-                                    <div className="flex items-center gap-4">
-                                        <Segment
-                                            className="bg-transparent dark:bg-transparent"
-                                            selectionType="multiple"
-                                            value={accessRight[module.id] || []}
-                                            onChange={(val) =>
-                                                handleChange(
-                                                    val as string[],
-                                                    module.id,
-                                                )
-                                            }
-                                        >
-                                            {module.accessor.map((access) => (
-                                                <Segment.Item
-                                                    key={
-                                                        module.id + access.value
-                                                    }
-                                                    value={access.value}
-                                                >
-                                                    {({
-                                                        active,
-                                                        onSegmentItemClick,
-                                                    }) => (
-                                                        <Button
-                                                            variant="default"
-                                                            icon={
-                                                                active ? (
-                                                                    <TbCheck className="text-primary text-xl" />
-                                                                ) : null
-                                                            }
-                                                            active={active}
-                                                            type="button"
-                                                            className="md:min-w-[100px]"
-                                                            size="sm"
-                                                            customColorClass={({
-                                                                active,
-                                                            }) =>
-                                                                classNames(
-                                                                    active &&
-                                                                        'bg-transparent dark:bg-transparent text-primary border-primary ring-1 ring-primary',
-                                                                )
-                                                            }
-                                                            onClick={
-                                                                onSegmentItemClick
-                                                            }
-                                                        >
-                                                            {access.label}
-                                                        </Button>
-                                                    )}
-                                                </Segment.Item>
-                                            ))}
-                                        </Segment>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    ))}
+                                ))}
+                            </div>
+                        ),
+                    )}
 
                     <div className="flex justify-end mt-6">
                         <Button

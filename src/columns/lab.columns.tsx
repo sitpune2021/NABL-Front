@@ -49,13 +49,13 @@ export const buildLabColumns = ({
                         icon: <TbPencil />,
                         tooltip: 'Edit',
                         onClick: () => onEdit(row.original),
-                        show: can('client.lab.write'),
+                        show: can('clients.lab.write'),
                     },
                     {
                         icon: <TbEye />,
                         tooltip: 'View',
                         onClick: () => onView(row.original),
-                        show: can('client.lab.list'),
+                        show: can('clients.lab.list'),
                     },
                     {
                         icon: <TbLocationBolt />,
