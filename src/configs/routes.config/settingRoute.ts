@@ -82,7 +82,7 @@ const settingRoute: Routes = [
         },
     },
     {
-        key: 'settings.account',
+        key: 'settings.account.list',
         path: `${endpointConfig.setting.account.profile}`,
         component: lazy(() => import('@/views/settings/account/Settings')),
         authority: [],

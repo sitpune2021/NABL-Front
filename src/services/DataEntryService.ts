@@ -16,3 +16,10 @@ export async function apiDataEntryList(id: any) {
         method: 'get',
     })
 }
+
+export async function apiDataEntryTaskList() {
+    return ApiService.fetchDataWithAxios<any>({
+        url: `${apiEndpointConfig.dataEntry}`,
+        method: 'get',
+    })
+}

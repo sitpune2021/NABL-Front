@@ -17,6 +17,12 @@ export const protectedRoutes: Routes = [
     ...masterRoute,
     ...settingRoute,
     {
+        key: 'works.tasks.list',
+        path: endpointConfig.works.tasks.list,
+        component: lazy(() => import('@/views/works/tasks/List')),
+        authority: [],
+    },
+    {
         key: 'clients.lab.list',
         path: endpointConfig.client.lab.list,
         component: lazy(() => import('@/views/masters/lab/List')),
