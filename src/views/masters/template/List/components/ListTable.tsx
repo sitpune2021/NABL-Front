@@ -6,10 +6,12 @@ import useTemplateList from '../hooks/useList'
 import endpointConfig from '@/configs/endpoint.config'
 import { Template } from '@/@types/template'
 import { buildTemplateColumns } from '@/columns/template.columns'
+import useLabList from '@/views/masters/lab/List/hooks/useList'
 import useAuth from '@/auth/useAuth'
 
 const TemplateListTable = () => {
     const navigate = useNavigate()
+    const { labList = [] } = useLabList()
 
     const {
         templateList,
@@ -75,9 +77,10 @@ const TemplateListTable = () => {
                 onView: handleView,
                 onVersionsList: handleVersionsList,
                 handleSubmit: handleSubmit,
+                labList,
                 can,
             }),
-        [handleEdit, handleView, handleSubmit, can],
+        [handleEdit, handleView, handleSubmit, labList, can],
     )
 
     const handlePaginationChange = (page: number) => {

@@ -40,7 +40,7 @@ const SubCategoryListTableSync = () => {
     const selectedLabId = watch('labs')
     const selectedCategoryId = watch('category')
 
-    const { categories = [] } = useLabCategories(selectedLabId)
+    const { categories = [] } = useLabCategories(selectedLabId, 'all')
     const { subCategories = [], loading } = useLabSubCategories(
         selectedLabId,
         selectedCategoryId,

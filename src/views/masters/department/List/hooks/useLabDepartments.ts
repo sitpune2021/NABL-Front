@@ -23,7 +23,7 @@ const useLabDepartments = (labId?: number) => {
             .finally(() => setLoading(false))
     }, [labId])
 
-    return { departments, loading }
+    return { departments, setDepartments, loading }
 }
 
 export default useLabDepartments

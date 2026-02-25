@@ -52,3 +52,23 @@ export async function apiAppendLabCategoryToMaster(labCategoryId: number) {
         },
     })
 }
+export async function apiGetLabAllCategories(labId: number) {
+    return ApiService.fetchDataWithAxios({
+        url: `${apiEndpointConfig.categories}/lab-all`,
+        method: 'get',
+        params: { lab_id: labId },
+    })
+}
+export async function apiAppendMasterCategoryToLab(
+    masterCategoryId: number,
+    labId: number,
+) {
+    return ApiService.fetchDataWithAxios({
+        url: `${apiEndpointConfig.categories}/append-to-lab`,
+        method: 'post',
+        data: {
+            master_category_id: masterCategoryId,
+            lab_id: labId,
+        },
+    })
+}

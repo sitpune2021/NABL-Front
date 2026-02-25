@@ -3,6 +3,7 @@ import useTemplateList from '../hooks/useList'
 import TemplateListTableFilter from './ListTableFilter'
 import { useCallback } from 'react'
 import debounce from 'lodash/debounce'
+import TemplateListTableSync from './ListTableSync'
 
 const TemplateListTableTools = () => {
     const { updateTable } = useTemplateList()
@@ -21,6 +22,7 @@ const TemplateListTableTools = () => {
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2">
             <Search onInputChange={handleInputChange} />
             <TemplateListTableFilter />
+            <TemplateListTableSync />
         </div>
     )
 }

@@ -1,8 +1,13 @@
 import { useEffect, useState } from 'react'
-import { apiGetLabMasterCategories } from '@/services/CategoriesService'
+import {
+    apiGetLabMasterCategories,
+    apiGetLabAllCategories,
+} from '@/services/CategoriesService'
 import { Category } from '@/@types/category'
 
-const useLabCategories = (labId?: number) => {
+type Mode = 'master' | 'all'
+
+const useLabCategories = (labId?: number, mode: Mode = 'master') => {
     const [categories, setCategories] = useState<Category[]>([])
     const [loading, setLoading] = useState(false)
 
@@ -14,16 +19,18 @@ const useLabCategories = (labId?: number) => {
 
         setLoading(true)
 
-        apiGetLabMasterCategories(labId)
+        const api =
+            mode === 'all' ? apiGetLabAllCategories : apiGetLabMasterCategories
+
+        api(labId)
             .then((res) => {
-                const data = (res as { data: Category[] }).data
-                setCategories(data ?? [])
+                setCategories(res.data ?? [])
             })
             .catch(() => setCategories([]))
             .finally(() => setLoading(false))
-    }, [labId])
+    }, [labId, mode])
 
-    return { categories, loading }
+    return { categories, setCategories, loading }
 }
 
 export default useLabCategories

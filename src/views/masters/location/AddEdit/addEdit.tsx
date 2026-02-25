@@ -14,6 +14,7 @@ import { useEntityMutations } from '@/utils/hooks/useEntityMutations'
 import { apiLocation, apiUpdateLocation } from '@/services/LocationService'
 import { useFormSubmit } from '@/utils/hoc/useFormSubmit'
 import { EMPTY_VALUES } from '@/constants/location.constant'
+import { FormSkeleton } from '@/components/form'
 
 const LocationAddEdit = () => {
     const navigate = useNavigate()
@@ -30,7 +31,6 @@ const LocationAddEdit = () => {
 
     const { location, isLoading } = useLocationDetail(id)
     const discard = useDiscardConfirm()
-    const defaultValues = useMemo(() => location ?? EMPTY_VALUES, [location])
 
     const { save } = useEntityMutations<LocationFormSchema>({
         apiCreate: apiLocation,
@@ -50,12 +50,15 @@ const LocationAddEdit = () => {
         discard.close()
         navigate(`${endpointConfig.master.location.list}`)
     }
+    if ((isEdit || isView) && isLoading) {
+        return <FormSkeleton count={5} title={'Location'} />
+    }
     return (
         <>
             <LocationForm
-                defaultValues={defaultValues}
+                key={id || 'new'}
+                defaultValues={location ?? EMPTY_VALUES}
                 readOnly={isView}
-                loading={isLoading}
                 onFormSubmit={handleSubmit}
             >
                 <BottomPanel

@@ -39,13 +39,7 @@ const AddEdit = () => {
     const { handleSubmit, isSubmitting } = useFormSubmit<StandardFormSchema>({
         apiCall: (values) =>
             save({ ...values, ...(isEdit && id ? { id } : {}) }),
-        onSuccess: (response) => {
-            navigate(
-                `${endpointConfig.setting.clauses.create}/${
-                    isEdit ? id : response.id
-                }`,
-            )
-        },
+        navigateTo: endpointConfig.setting.standard.list,
     })
 
     const confirmDiscard = () => {

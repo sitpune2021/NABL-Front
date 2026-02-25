@@ -14,6 +14,7 @@ import { useEntityMutations } from '@/utils/hooks/useEntityMutations'
 import { apiCluster, apiUpdateCluster } from '@/services/ClusterService'
 import { useFormSubmit } from '@/utils/hoc/useFormSubmit'
 import { EMPTY_VALUES } from '@/constants/cluster.constant'
+import { FormSkeleton } from '@/components/form'
 
 const ClusterAddEdit = () => {
     const navigate = useNavigate()
@@ -26,7 +27,6 @@ const ClusterAddEdit = () => {
 
     const { cluster, isLoading } = useClusterDetail(id)
     const discard = useDiscardConfirm()
-    const defaultValues = useMemo(() => cluster ?? EMPTY_VALUES, [cluster])
 
     const { save } = useEntityMutations<ClusterFormSchema>({
         apiCreate: apiCluster,
@@ -46,13 +46,16 @@ const ClusterAddEdit = () => {
         discard.close()
         navigate(endpointConfig.master.cluster.list)
     }
+    if ((isEdit || isView) && isLoading) {
+        return <FormSkeleton count={3} title={'Cluster'} />
+    }
 
     return (
         <>
             <ClusterForm
-                defaultValues={defaultValues}
+                key={id || 'new'}
+                defaultValues={cluster ?? EMPTY_VALUES}
                 readOnly={isView}
-                loading={isLoading}
                 onFormSubmit={handleSubmit}
             >
                 <BottomPanel
