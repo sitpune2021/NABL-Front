@@ -16,6 +16,8 @@ const AuthorityGuard = (props: AuthorityGuardProps) => {
     }
 
     if (permission) {
+        console.log(permission)
+
         if (!can(permission)) {
             return <Navigate to="/access-denied" />
         }

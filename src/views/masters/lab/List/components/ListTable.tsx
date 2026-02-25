@@ -106,7 +106,7 @@ const LabListTable = () => {
 
     return (
         <DataTable
-            selectable={can('client.lab.delete')}
+            selectable={can('clients.lab.delete')}
             columns={columns}
             data={labList}
             noData={!isLoading && labList.length === 0}

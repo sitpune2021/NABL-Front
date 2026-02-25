@@ -122,7 +122,7 @@ const ClausesAddEdit = () => {
         return <p className="p-4">Loading clause data…</p>
     }
 
-    if (!standard) return null
+    if (!standard) return <></>
 
     return (
         <>
