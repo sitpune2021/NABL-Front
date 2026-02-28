@@ -21,7 +21,7 @@ export default function useLabList() {
     } = useLabListStore((state) => state)
 
     const { data, error, isLoading, mutate } = useSWR(
-        ['/api/lab', { ...tableData, ...filterData }],
+        ['/api/v1/lab', { ...tableData, ...filterData }],
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         ([_, params]) =>
             apiGetLabList<GetLabListResponse, TableQueries>(params),

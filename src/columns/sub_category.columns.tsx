@@ -2,29 +2,18 @@ import ActionColumn from '@/components/form/ActionColumn'
 import { TbPencil, TbEye } from 'react-icons/tb'
 import type { ColumnDef } from '@/components/shared/DataTable'
 import { SubCategory } from '@/@types/subcategory'
-import type { Lab } from '@/@types/lab'
 
 type ColumnActions = {
     onEdit: (row: SubCategory) => void
     onView: (row: SubCategory) => void
-    labList: Lab[]
     can: (permission: string) => boolean
 }
 
 export const buildSubCategoryColumns = ({
     onEdit,
     onView,
-    labList,
     can,
 }: ColumnActions): ColumnDef<SubCategory>[] => {
-    const labMap = new Map<number, string>()
-
-    labList.forEach((lab) => {
-        if (lab.id) {
-            labMap.set(Number(lab.id), lab.name)
-        }
-    })
-
     return [
         {
             header: 'Id',
@@ -49,13 +38,7 @@ export const buildSubCategoryColumns = ({
             header: 'Sub Category',
             accessorKey: 'Sub Category',
             cell: (props) => {
-                const { name, identifier, appended_from_lab_id } =
-                    props.row.original
-
-                const labName =
-                    appended_from_lab_id != null
-                        ? labMap.get(Number(appended_from_lab_id))
-                        : null
+                const { name, identifier, lab } = props.row.original
 
                 return (
                     <div className="flex flex-col gap-1">
@@ -64,14 +47,14 @@ export const buildSubCategoryColumns = ({
                             {identifier}
                         </div>
 
-                        {labName && (
+                        {lab != null && (
                             <div>
                                 <span className="inline-flex items-center gap-1.5 rounded-md bg-slate-900 px-2 py-1 text-[11px] font-semibold text-white shadow-md">
                                     <span className="relative flex h-2 w-2">
                                         <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
                                         <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
                                     </span>
-                                    {labName}
+                                    {lab.name}
                                 </span>
                             </div>
                         )}

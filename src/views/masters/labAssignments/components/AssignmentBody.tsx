@@ -14,7 +14,7 @@ import useLocationList from '../../location/List/hooks/useList'
 import useUserList from '../../user/List/hooks/useList'
 
 const SummaryCard = ({ title, count, label, icon, color }: any) => (
-    <div className="flex items-center gap-4 p-4 bg-white rounded-2xl border shadow-sm">
+    <div className="flex items-center gap-4 p-4 bg-white rounded-2xl border border-gray-300 shadow-md">
         <div className={`p-3 rounded-xl ${color}`}>
             <span className="text-2xl">{icon}</span>
         </div>

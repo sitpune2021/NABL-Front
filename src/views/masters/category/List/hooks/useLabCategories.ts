@@ -1,36 +1,27 @@
-import { useEffect, useState } from 'react'
-import {
-    apiGetLabMasterCategories,
-    apiGetLabAllCategories,
-} from '@/services/CategoriesService'
-import { Category } from '@/@types/category'
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import useSWR from 'swr'
+import { apiGetLabMasterCategories } from '@/services/CategoriesService'
 
-type Mode = 'master' | 'all'
+const useLabCategories = (params: any) => {
+    const shouldFetch = !!params?.id
 
-const useLabCategories = (labId?: number, mode: Mode = 'master') => {
-    const [categories, setCategories] = useState<Category[]>([])
-    const [loading, setLoading] = useState(false)
+    const LIST_KEY = shouldFetch ? `lab-cat-detail-${params.id}` : null // 👈 THIS prevents API call
 
-    useEffect(() => {
-        if (!labId) {
-            setCategories([])
-            return
-        }
+    const swr = useSWR(
+        shouldFetch ? [LIST_KEY, params] : null,
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        ([_, queryParams]) => apiGetLabMasterCategories<any, any>(queryParams),
+        {
+            revalidateOnFocus: false,
+        },
+    )
 
-        setLoading(true)
-
-        const api =
-            mode === 'all' ? apiGetLabAllCategories : apiGetLabMasterCategories
-
-        api(labId)
-            .then((res) => {
-                setCategories(res.data ?? [])
-            })
-            .catch(() => setCategories([]))
-            .finally(() => setLoading(false))
-    }, [labId, mode])
-
-    return { categories, setCategories, loading }
+    return {
+        isLoading: swr.isLoading,
+        error: swr.error,
+        mutate: swr.mutate,
+        data: swr.data?.data,
+    }
 }
 
 export default useLabCategories

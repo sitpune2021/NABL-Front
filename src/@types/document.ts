@@ -112,7 +112,7 @@ export type DocumentListAction = {
 export type Fields = {
     id?: string
     mode: 'create' | 'upload'
-    category_id?: string
+    category_id?: string | number
     department?: string[]
     number?: string // documentNo
     name: string // documentName
