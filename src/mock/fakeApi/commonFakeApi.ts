@@ -3,18 +3,18 @@ import { mock } from '../MockAdapter'
 import { notificationListData, searchQueryPoolData } from '../data/commonData'
 import wildCardSearch from '@/utils/wildCardSearch'
 
-mock.onGet(`/api/notification/list`).reply(() => {
+mock.onGet(`/api/v1/notification/list`).reply(() => {
     return [200, notificationListData]
 })
 
-mock.onGet(`/api/notification/count`).reply(() => {
+mock.onGet(`/api/v1/notification/count`).reply(() => {
     const unreadNotification = notificationListData.filter(
         (notification) => !(notification as any).readed,
     )
     return [200, { count: unreadNotification.length }]
 })
 
-mock.onGet(`/api/search/query`).reply((config) => {
+mock.onGet(`/api/v1/search/query`).reply((config) => {
     const { query } = config.params
 
     const result = wildCardSearch(searchQueryPoolData, query, 'title')

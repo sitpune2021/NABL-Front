@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useMemo, useState } from 'react'
 import { useForm, Controller } from 'react-hook-form'
 import Button from '@/components/ui/Button'
@@ -5,26 +6,23 @@ import Drawer from '@/components/ui/Drawer'
 import { Form, FormItem } from '@/components/ui/Form'
 import { Select } from '@/components/ui'
 import { TbBolt } from 'react-icons/tb'
+
 import useLabList from '@/views/masters/lab/List/hooks/useList'
 import useLabCategories from '../hooks/useLabCategories'
 import { apiAppendLabCategoryToMaster } from '@/services/CategoriesService'
 import { useCategoryList } from '../hooks/useList'
-import { useAuth } from '@/auth'
 
-type FormSchema = {
+import useSync from '@/utils/hooks/useSync'
+import { mapToOptions } from '@/helpers/optionMappers'
+import { Option } from '@/@types/common'
+
+interface FormSchema {
     labs: number[]
 }
 
 const CategoryListTableSync = () => {
-    const { user } = useAuth()
-
-    if (!user) return null
-    const isMasterLevel = user.lab === null
-    if (!isMasterLevel) return null
-
     const [drawerOpen, setDrawerOpen] = useState(false)
-    const [selectedCategoryIds, setSelectedCategoryIds] = useState<number[]>([])
-    const [submitting, setSubmitting] = useState(false)
+    const [selectedIds, setSelectedIds] = useState<number[]>([])
 
     const { labList = [] } = useLabList()
     const { mutate } = useCategoryList()
@@ -33,67 +31,47 @@ const CategoryListTableSync = () => {
         defaultValues: { labs: [] },
     })
 
-    const selectedLabId = watch('labs')[0]
+    const labId = watch('labs')?.[0]
 
-    const {
-        categories = [],
-        setCategories,
-        loading,
-    } = useLabCategories(selectedLabId)
+    const { data, isLoading } = useLabCategories({ id: labId })
 
-    const labOptions = useMemo(
+    // 🔥 GENERIC SYNC
+    const { submitting, applySync } = useSync({
+        mutate,
+        appendApi: apiAppendLabCategoryToMaster,
+    })
+
+    const labOptions: Option[] = useMemo(
         () =>
-            labList.map((lab) => ({
-                value: lab.id,
-                label: lab.name.toUpperCase(),
-            })),
+            mapToOptions(labList, {
+                value: 'id',
+                label: (l) => l.name.toUpperCase(),
+            }),
         [labList],
     )
 
-    const categoryOptions = useMemo(
+    const categoryOptions: Option[] = useMemo(
         () =>
-            categories.map((c) => ({
-                value: c.id,
-                label: c.name,
-            })),
-        [categories],
+            mapToOptions(data ?? [], {
+                value: 'id',
+                label: (c: any) => c.name,
+            }),
+        [data],
     )
 
     const handleApply = async () => {
-        if (!selectedCategoryIds.length) {
-            handleDrawerClose()
-            return
-        }
-
-        try {
-            setSubmitting(true)
-
-            await Promise.all(
-                selectedCategoryIds.map((id) =>
-                    apiAppendLabCategoryToMaster(id),
-                ),
-            )
-            setCategories((prev) =>
-                prev.filter((t) => !selectedCategoryIds.includes(t.id)),
-            )
-
-            mutate()
-            handleDrawerClose()
-        } catch (err) {
-            console.error('Append failed', err)
-        } finally {
-            setSubmitting(false)
-        }
+        await applySync(selectedIds)
+        handleDrawerClose()
     }
 
     const handleDrawerClose = () => {
         setDrawerOpen(false)
-        setSelectedCategoryIds([])
+        setSelectedIds([])
     }
 
     const handleReset = () => {
         reset({ labs: [] })
-        setSelectedCategoryIds([])
+        setSelectedIds([])
     }
 
     return (
@@ -107,7 +85,7 @@ const CategoryListTableSync = () => {
                 isOpen={drawerOpen}
                 bodyClass="p-0 h-full"
                 onClose={handleDrawerClose}
-                onRequestClose={() => setDrawerOpen(false)}
+                onRequestClose={handleDrawerClose}
             >
                 <div className="flex flex-col h-[calc(99vh-60px)]">
                     <div className="flex-1 p-6 overflow-y-auto">
@@ -117,8 +95,7 @@ const CategoryListTableSync = () => {
                                     name="labs"
                                     control={control}
                                     render={({ field }) => {
-                                        const selectedLabId = field
-                                            .value?.[0] as number | undefined
+                                        const selected = field.value?.[0]
 
                                         return (
                                             <Select
@@ -128,7 +105,7 @@ const CategoryListTableSync = () => {
                                                     labOptions.find(
                                                         (o) =>
                                                             o.value ===
-                                                            selectedLabId,
+                                                            selected,
                                                     ) ?? null
                                                 }
                                                 onChange={(opt) => {
@@ -141,7 +118,7 @@ const CategoryListTableSync = () => {
                                                               ]
                                                             : [],
                                                     )
-                                                    setSelectedCategoryIds([])
+                                                    setSelectedIds([])
                                                 }}
                                             />
                                         )
@@ -149,23 +126,16 @@ const CategoryListTableSync = () => {
                                 />
                             </FormItem>
 
-                            <FormItem label="Categories" className="mb-0">
+                            <FormItem label="Categories">
                                 <Select
-                                    key={selectedLabId ?? 'no-lab'}
+                                    key={labId ?? 'no-lab'}
                                     isMulti
                                     options={categoryOptions}
-                                    isLoading={loading}
-                                    isDisabled={!selectedLabId}
-                                    placeholder={
-                                        loading
-                                            ? 'Loading...'
-                                            : categoryOptions.length
-                                              ? 'Select Categories'
-                                              : 'No categories found'
-                                    }
-                                    onChange={(values) =>
-                                        setSelectedCategoryIds(
-                                            values.map((v) => v.value),
+                                    isLoading={isLoading}
+                                    isDisabled={!labId}
+                                    onChange={(values: any) =>
+                                        setSelectedIds(
+                                            values.map((v: any) => v.value),
                                         )
                                     }
                                 />
@@ -174,16 +144,11 @@ const CategoryListTableSync = () => {
                     </div>
 
                     <div className="p-4 flex justify-end gap-2">
-                        <Button
-                            type="button"
-                            disabled={submitting}
-                            onClick={handleReset}
-                        >
+                        <Button disabled={submitting} onClick={handleReset}>
                             Reset
                         </Button>
 
                         <Button
-                            type="button"
                             variant="solid"
                             loading={submitting}
                             onClick={handleApply}

@@ -7,12 +7,9 @@ import {
 import useSWR from 'swr'
 import { useDocumentListStore } from '../store/listStore'
 import type { TableQueries } from '@/@types/common'
-import {
-    Fields,
-    GetDocumentListResponse,
-    GetDocumentResponse,
-} from '@/@types/document'
+import { GetDocumentListResponse, GetDocumentResponse } from '@/@types/document'
 import { EMPTY_VALUES } from '@/constants/document.constant'
+import { DocumentFormSchema } from '@/schemas/document.schema'
 
 export default function useDocumentList(documentId?: string) {
     const {
@@ -26,7 +23,7 @@ export default function useDocumentList(documentId?: string) {
     } = useDocumentListStore((state) => state)
 
     const { data, error, isLoading, mutate } = useSWR(
-        ['/api/document', { ...tableData, ...filterData }],
+        ['/api/v1/document', { ...tableData, ...filterData }],
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         ([_, params]) =>
             apiGetDocumentList<GetDocumentListResponse, TableQueries>(params),
@@ -41,12 +38,12 @@ export default function useDocumentList(documentId?: string) {
         isLoading: isDetailLoading,
         mutate: mutateDetail,
     } = useSWR<GetDocumentResponse>(
-        documentId ? `/api/document/${documentId}` : null,
+        documentId ? `/api/v1/document/${documentId}` : null,
         () => apiGetDocumentById(documentId!),
         { revalidateOnFocus: false },
     )
 
-    const saveDocumentData = async (document: Fields) => {
+    const saveDocumentData = async (document: DocumentFormSchema) => {
         let response
         if (document.id) {
             response = await apiUpdateDocument(document.id, document)

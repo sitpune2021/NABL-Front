@@ -72,7 +72,7 @@ const SettingsNotification = () => {
         },
         mutate,
     } = useSWR(
-        '/api/settings/notification/',
+        '/api/v1/settings/notification/',
         () => apiGetSettingsNotification<GetSettingsNotificationResponse>(),
         {
             revalidateOnFocus: false,

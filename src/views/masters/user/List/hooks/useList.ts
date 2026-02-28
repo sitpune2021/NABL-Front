@@ -16,7 +16,7 @@ export default function useUserList() {
     } = useUserListStore((state) => state)
 
     const { data, error, isLoading, mutate } = useSWR(
-        ['/api/user', { ...tableData, ...filterData }],
+        ['/api/v1/user', { ...tableData, ...filterData }],
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         ([_, params]) =>
             apiGetUserList<GetUserListResponse, TableQueries>(params),

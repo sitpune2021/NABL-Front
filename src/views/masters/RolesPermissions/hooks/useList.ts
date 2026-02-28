@@ -22,7 +22,7 @@ export default function useRolesList() {
     } = useRolesListStore((state) => state)
 
     const { data, error, isLoading, mutate } = useSWR(
-        ['/api/roles', { ...tableData, ...filterData }],
+        ['/api/v1/roles', { ...tableData, ...filterData }],
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         ([_, params]) => apiGetRolesList<Roles[], TableQueries>(params),
         {
@@ -36,7 +36,7 @@ export default function useRolesList() {
         isLoading: modulesLoading,
         mutate: mutateModules,
     } = useSWR(
-        '/api/access-modules', // key for SWR caching
+        '/api/v1/access-modules', // key for SWR caching
         () => apiGetAccesModulesList(),
         {
             revalidateOnFocus: false,
