@@ -12,6 +12,6 @@ export const signInWithFirebaseGoogle = async () => {
             user: resp.user,
         }
     } catch (error) {
-        throw new Error(`Google sign-in failed: ${error}`)
+        throw new Error(`Google auth/login failed: ${error}`)
     }
 }

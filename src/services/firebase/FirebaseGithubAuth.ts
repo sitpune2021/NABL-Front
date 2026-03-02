@@ -12,6 +12,6 @@ export const signInWithFirebaseGithub = async () => {
             user: resp.user,
         }
     } catch (error) {
-        throw new Error(`GitHub sign-in failed: ${error}`)
+        throw new Error(`GitHub auth/login failed: ${error}`)
     }
 }

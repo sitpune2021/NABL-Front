@@ -24,6 +24,8 @@ export const mapToOptions = <
     items: T[],
     config: MapOptionsConfig<T, TValue> & { extra?: (item: T) => TExtra },
 ): (SelectOption<TValue> & TExtra)[] => {
+    if (!Array.isArray(items)) return []
+
     return items.filter(config.filter ?? (() => true)).map(
         (item) =>
             ({

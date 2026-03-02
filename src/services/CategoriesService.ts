@@ -35,11 +35,14 @@ export async function apiUpdateCategory(id: string, data: Fields) {
     })
 }
 
-export async function apiGetLabMasterCategories(labId: number) {
-    return ApiService.fetchDataWithAxios({
-        url: `${apiEndpointConfig.categories}/lab-master`,
+export async function apiGetLabMasterCategories<
+    T,
+    U extends Record<string, unknown>,
+>(params: U) {
+    return ApiService.fetchDataWithAxios<T>({
+        url: `${apiEndpointConfig.categories}${apiEndpointConfig.syncMaster}`,
         method: 'get',
-        params: { lab_id: labId },
+        params,
     })
 }
 
@@ -52,6 +55,7 @@ export async function apiAppendLabCategoryToMaster(labCategoryId: number) {
         },
     })
 }
+
 export async function apiGetLabAllCategories(labId: number) {
     return ApiService.fetchDataWithAxios({
         url: `${apiEndpointConfig.categories}/lab-all`,

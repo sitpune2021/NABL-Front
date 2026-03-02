@@ -1,32 +1,34 @@
-import { useEffect, useState } from 'react'
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import useSWR from 'swr'
 import { apiGetLabSubCategories } from '@/services/SubCategoryService'
-import { SubCategory } from '@/@types/subcategory'
 
-const useLabSubCategories = (labId?: number, categoryId?: number) => {
-    const [subCategories, setSubCategories] = useState<SubCategory[]>([])
-    const [loading, setLoading] = useState(false)
+interface Params {
+    id?: number
+    catId?: number
+}
 
-    useEffect(() => {
-        if (!labId || !categoryId) {
-            setSubCategories([])
-            return
-        }
+const useLabSubCategories = (params: Params) => {
+    const shouldFetch = !!params?.id && !!params?.catId
 
-        console.log('CALLING API WITH', labId, categoryId)
+    const LIST_KEY = shouldFetch
+        ? `lab-subcat-detail-${params.id}-${params.catId}`
+        : null // 👈 prevents API call
 
-        setLoading(true)
+    const swr = useSWR(
+        shouldFetch ? [LIST_KEY, params] : null,
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        ([_, queryParams]) => apiGetLabSubCategories<any, any>(queryParams),
+        {
+            revalidateOnFocus: false,
+        },
+    )
 
-        apiGetLabSubCategories(labId, categoryId)
-            .then((res) => {
-                setSubCategories(
-                    Array.isArray(res.data) ? res.data : (res.data.data ?? []),
-                )
-            })
-            .catch(() => setSubCategories([]))
-            .finally(() => setLoading(false))
-    }, [labId, categoryId])
-
-    return { subCategories, loading }
+    return {
+        isLoading: swr.isLoading,
+        error: swr.error,
+        mutate: swr.mutate,
+        data: swr.data?.data ?? [],
+    }
 }
 
 export default useLabSubCategories

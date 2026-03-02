@@ -38,7 +38,7 @@ export async function apiUpdateLab(id: string, data: Lab) {
 
 export async function apiGetClauseDocumentsList(standardId: number | string) {
     return ApiService.fetchDataWithAxios({
-        url: `/standards-current`,
+        url: `/standards/current`,
         method: 'get',
         params: {
             standard_id: standardId,

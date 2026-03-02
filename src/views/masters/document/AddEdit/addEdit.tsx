@@ -13,6 +13,7 @@ import { EMPTY_VALUES } from '@/constants/document.constant'
 import { apiDocument, apiUpdateDocument } from '@/services/DocumentService'
 import { useEntityMutations } from '@/utils/hooks/useEntityMutations'
 import { useFormSubmit } from '@/utils/hoc/useFormSubmit'
+import { FormSkeleton } from '@/components/form'
 
 const DocumentAddEdit = () => {
     const navigate = useNavigate()
@@ -48,6 +49,29 @@ const DocumentAddEdit = () => {
         )
         discard.close()
         navigate(`${endpointConfig.master.document.list}`)
+    }
+
+    if ((isEdit || isView) && isLoading) {
+        return (
+            <div className="flex flex-col md:flex-row gap-4">
+                <div className="gap-4 flex flex-col flex-auto">
+                    <FormSkeleton count={5} title={'Document Information'} />
+                    <FormSkeleton count={2} title={'Template Configuration'} />
+                </div>
+                <div className="md:w-[370px] gap-4 flex flex-col">
+                    <FormSkeleton
+                        count={6}
+                        title={'Review Schedule'}
+                        cols={1}
+                    />
+                    <FormSkeleton
+                        count={3}
+                        title={'Preparation Details'}
+                        cols={1}
+                    />
+                </div>
+            </div>
+        )
     }
 
     return (

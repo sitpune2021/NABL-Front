@@ -6,7 +6,7 @@ import {
 } from '@/constants/route.constant'
 
 const endpointConfig = {
-    signIn: '/sign-in',
+    signIn: '/auth/login',
     signUp: '/sign-up',
     forgotPassword: '/forgot-password',
     resetPassword: '/reset-password',

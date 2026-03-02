@@ -51,5 +51,5 @@ export type PageMode =
 
 export type Option = {
     label: string
-    value: string
+    value: string | number
 }

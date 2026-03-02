@@ -1,6 +1,7 @@
 import { z } from 'zod'
 
 export const documentSchema = z.object({
+    id: z.union([z.null(), z.number(), z.any()]),
     // From documentFieldOne
     mode: z.enum(['create', 'upload']).optional(),
     category_id: z.union([

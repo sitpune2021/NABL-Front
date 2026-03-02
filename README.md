@@ -129,8 +129,8 @@ Routes and menu items are dynamically loaded based on user roles.
 
 > The backend API is a **separate Laravel project**. This frontend expects:
 
-- **Login Endpoint**: `POST /api/login`
-- **User Info Endpoint**: `GET /api/user`
+- **Login Endpoint**: `POST /api/v1/login`
+- **User Info Endpoint**: `GET /api/v1/user`
 - **Token-based Authentication**: JWT or Sanctum
 - **Role included in response**
 

@@ -1,6 +1,6 @@
 const apiEndpointConfig = {
-    signIn: '/sign-in',
-    signOut: '/sign-out',
+    signIn: '/auth/login',
+    signOut: '/auth/logout',
     signUp: '/sign-up',
     forgotPassword: '/forgot-password',
     resetPassword: '/reset-password',
@@ -27,11 +27,12 @@ const apiEndpointConfig = {
     dataEntry: '/data-entry',
     documents: '/documents',
     documentsWorkflowAction: '/documents/workflow-action',
-    generateDocumentNumber: '/generate-document-number',
+    generateDocumentNumber: '/generate-number',
 
     navigationItems: '/navigation-items',
     accessModules: '/access-modules',
-    roleLevels: '/role-levels',
+    roleLevels: '/roles/levels',
+    syncMaster: '/sync-master',
 }
 
 export default apiEndpointConfig

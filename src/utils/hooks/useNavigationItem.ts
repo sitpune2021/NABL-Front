@@ -37,7 +37,7 @@ function cleanNavigationItems(items: any[]): any[] {
 
 export default function useNavigationItemsList() {
     const { data, error, isLoading, mutate } = useSWR(
-        ['/api/navigation-items'],
+        ['/api/v1/navigation-items'],
         () => apiGetNavigationItemsList<any>(),
         {
             revalidateOnFocus: false,

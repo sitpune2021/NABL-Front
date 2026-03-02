@@ -11,7 +11,7 @@ import type { GetEcommerceDashboardResponse } from '@/views/dashboard/types'
 
 const Home = () => {
     const { data, isLoading } = useSWR(
-        ['/api/dashboard/ecommerce'],
+        ['/api/v1/dashboard/ecommerce'],
         () => apiGetEcommerceDashboard<GetEcommerceDashboardResponse>(),
         {
             revalidateOnFocus: false,

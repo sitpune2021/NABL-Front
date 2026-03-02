@@ -17,7 +17,7 @@ export default ({ mode }) => {
         },
         server: {
             proxy: {
-                '/api': {
+                '/api/v1': {
                     target: env.VITE_API_URL, // use the loaded env variable
                     changeOrigin: true,
                     secure: false,
