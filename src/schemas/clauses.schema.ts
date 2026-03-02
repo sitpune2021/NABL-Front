@@ -3,8 +3,14 @@ import { z } from 'zod'
 // Document schema: version required only if a document is selected
 export const ClauseDocumentSchema = z
     .object({
-        id: z.coerce.number().int().optional(),
-        version_id: z.coerce.number().int().optional(),
+        id: z.union([
+            z.coerce.number().int().optional(),
+            z.coerce.string().optional(),
+        ]),
+        version_id: z.union([
+            z.coerce.number().int().optional(),
+            z.coerce.string().optional(),
+        ]),
         label: z.string().optional(),
     })
     .refine(
@@ -25,7 +31,10 @@ export const ClauseDocumentSchema = z
 // Category schema: category required only if a document is selected
 export const ClauseDocumentTaggingSchema = z
     .object({
-        category_id: z.coerce.number().int().optional(),
+        category_id: z.union([
+            z.coerce.number().int().optional(),
+            z.coerce.string().optional(),
+        ]),
         documents: ClauseDocumentSchema.optional(),
     })
     .refine(

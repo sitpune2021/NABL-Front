@@ -33,7 +33,6 @@ const OverviewSection = ({
 }: OverviewSectionProps) => {
     const {
         control,
-        register,
         setValue,
         formState: { errors },
     } = useFormContext<ClausesFormSchema>()
@@ -53,6 +52,7 @@ const OverviewSection = ({
     const documentsByCategory = useMemo(() => {
         return documentOptions.reduce<Record<string, DocumentOption[]>>(
             (acc, doc) => {
+                if (!doc.category_id) return acc
                 acc[doc.category_id] ??= []
                 acc[doc.category_id].push(doc)
                 return acc
@@ -131,18 +131,23 @@ const OverviewSection = ({
                 </div>
 
                 <div className="grid gap-4 mt-4">
-                    {fields.map((field, index) => {
+                    {fields.map((fieldItem, index) => {
                         const selectedCategoryId = useWatch({
                             control,
                             name: `standard_clauses.${clauseIndex}.clause_documents_tagging.${index}.category_id`,
                         })
 
                         const availableDocs =
-                            documentsByCategory[selectedCategoryId] ?? []
+                            selectedCategoryId &&
+                            documentsByCategory[String(selectedCategoryId)]
+                                ? documentsByCategory[
+                                      String(selectedCategoryId)
+                                  ]
+                                : []
 
                         return (
                             <div
-                                key={field.id}
+                                key={fieldItem.id}
                                 className="grid grid-cols-4 gap-3 items-end"
                             >
                                 {/* Category */}
@@ -233,7 +238,7 @@ const OverviewSection = ({
                                                                   id: doc.id,
                                                                   version_id:
                                                                       doc
-                                                                          .current_version
+                                                                          ?.current_version
                                                                           ?.id ??
                                                                       '',
                                                                   label: doc.name,
@@ -301,20 +306,26 @@ const OverviewSection = ({
                             </p>
                         </div>
 
-                        <input
-                            type="hidden"
-                            {...register(
-                                `standard_clauses.${clauseIndex}.clause_id`,
+                        <Controller
+                            name={`standard_clauses.${clauseIndex}.clause_id`}
+                            control={control}
+                            defaultValue={Number(clause.id)}
+                            render={({ field }) => (
+                                <Input {...field} type="hidden" />
                             )}
-                            value={clause.id}
                         />
 
-                        <input
-                            type="hidden"
-                            {...register(
-                                `standard_clauses.${clauseIndex}.clause_parent_id`,
+                        <Controller
+                            name={`standard_clauses.${clauseIndex}.clause_parent_id`}
+                            control={control}
+                            defaultValue={
+                                clause.parent_id
+                                    ? Number(clause.parent_id)
+                                    : undefined
+                            }
+                            render={({ field }) => (
+                                <Input {...field} type="hidden" />
                             )}
-                            value={clause.parent_id ?? ''}
                         />
 
                         <ClauseDocuments clauseIndex={clauseIndex} />
@@ -329,10 +340,11 @@ const OverviewSection = ({
     return (
         <Card>
             <Menu>
-                <input
-                    type="hidden"
-                    {...register(`standard_id`)}
-                    value={standardId}
+                <Controller
+                    name="standard_id"
+                    control={control}
+                    defaultValue={Number(standardId)}
+                    render={({ field }) => <Input {...field} type="hidden" />}
                 />
                 {renderClauses(accordionData, { current: 0 })}
             </Menu>

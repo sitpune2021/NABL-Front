@@ -10,12 +10,15 @@ import {
     DropResult,
 } from '@hello-pangea/dnd'
 
+import Input from '@/components/ui/Input'
+import Button from '@/components/ui/Button'
+import Dropdown from '@/components/ui/Dropdown'
+
 type Grouped = Record<string, Menu[]>
 
 const MenuListTable = () => {
     const { menuList, isLoading } = useMenuList()
 
-    const [openMenu, setOpenMenu] = useState<string | null>(null)
     const [renaming, setRenaming] = useState<string | null>(null)
     const [moduleValue, setModuleValue] = useState('')
     const [moduleOrder, setModuleOrder] = useState<string[]>([])
@@ -83,10 +86,15 @@ const MenuListTable = () => {
         setRenaming(null)
     }
 
-    if (isLoading) return <div className="p-6">Loading...</div>
+    if (isLoading)
+        return (
+            <div className="p-6 text-gray-700 dark:text-gray-300">
+                Loading...
+            </div>
+        )
 
     return (
-        <div className="overflow-x-auto p-4">
+        <div className="overflow-x-auto p-4 bg-white dark:bg-gray-950 min-h-screen transition-colors">
             <DragDropContext onDragEnd={onDragEnd}>
                 <Droppable
                     droppableId="modules"
@@ -110,14 +118,18 @@ const MenuListTable = () => {
                                             ref={mp.innerRef}
                                             {...mp.draggableProps}
                                             {...mp.dragHandleProps}
-                                            className="relative rounded-2xl bg-gray-50 p-4 min-h-[70vh] cursor-grab active:cursor-grabbing"
+                                            className="relative rounded-2xl 
+                                                    bg-gray-50 dark:bg-gray-900
+                                                    border border-gray-200 dark:border-gray-700
+                                                    p-4 min-h-[70vh]
+                                                    cursor-grab active:cursor-grabbing
+                                                    shadow-sm transition-colors"
                                         >
-                                            <div className="mb-4 flex items-center justify-between">
+                                            <div className="mb-4 flex items-center justify-between gap-2">
                                                 {renaming === module ? (
                                                     <div className="flex items-center gap-2 w-full">
-                                                        <input
+                                                        <Input
                                                             autoFocus
-                                                            className="w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm font-medium shadow-sm outline-none"
                                                             value={moduleValue}
                                                             onChange={(e) =>
                                                                 setModuleValue(
@@ -140,8 +152,9 @@ const MenuListTable = () => {
                                                                     )
                                                             }}
                                                         />
-                                                        <button
-                                                            className="h-8 w-8 rounded-md border border-slate-300 text-slate-500"
+                                                        <Button
+                                                            size="sm"
+                                                            variant="plain"
                                                             onClick={() =>
                                                                 setRenaming(
                                                                     null,
@@ -149,48 +162,30 @@ const MenuListTable = () => {
                                                             }
                                                         >
                                                             ✕
-                                                        </button>
+                                                        </Button>
                                                     </div>
                                                 ) : (
-                                                    <h3 className="text-base font-semibold text-gray-800">
+                                                    <h3 className="text-base font-semibold text-gray-800 dark:text-gray-100">
                                                         {module}
                                                     </h3>
                                                 )}
 
-                                                <div className="relative">
-                                                    <TbDotsVertical
-                                                        className="cursor-pointer"
-                                                        onClick={(e) => {
-                                                            e.stopPropagation()
-                                                            setOpenMenu(
-                                                                openMenu ===
-                                                                    module
-                                                                    ? null
-                                                                    : module,
+                                                <Dropdown
+                                                    renderTitle={
+                                                        <TbDotsVertical className="cursor-pointer text-gray-600 dark:text-gray-300" />
+                                                    }
+                                                >
+                                                    <Dropdown.Item
+                                                        onClick={() => {
+                                                            setRenaming(module)
+                                                            setModuleValue(
+                                                                module,
                                                             )
                                                         }}
-                                                    />
-                                                    {openMenu === module && (
-                                                        <div className="absolute right-0 top-6 z-10 w-28 rounded-lg bg-white border shadow">
-                                                            <button
-                                                                className="w-full px-3 py-2 text-left text-sm hover:bg-gray-100"
-                                                                onClick={() => {
-                                                                    setRenaming(
-                                                                        module,
-                                                                    )
-                                                                    setModuleValue(
-                                                                        module,
-                                                                    )
-                                                                    setOpenMenu(
-                                                                        null,
-                                                                    )
-                                                                }}
-                                                            >
-                                                                Rename
-                                                            </button>
-                                                        </div>
-                                                    )}
-                                                </div>
+                                                    >
+                                                        Rename
+                                                    </Dropdown.Item>
+                                                </Dropdown>
                                             </div>
 
                                             <Droppable

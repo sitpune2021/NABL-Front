@@ -75,7 +75,7 @@ const LabLocationAssignmentSection = ({ control, setValue }: any) => {
 
     if (isLoading) {
         return (
-            <div className="p-6 text-sm text-gray-500">
+            <div className="p-6 text-sm text-gray-500 dark:text-gray-400">
                 Loading lab assignments…
             </div>
         )
@@ -83,18 +83,24 @@ const LabLocationAssignmentSection = ({ control, setValue }: any) => {
 
     if (!labs.length) {
         return (
-            <div className="p-6 text-sm text-gray-500">No labs available</div>
+            <div className="p-6 text-sm text-gray-500 dark:text-gray-400">
+                No labs available
+            </div>
         )
     }
 
     return (
         <div className="flex flex-col gap-6">
-            <h5 className="font-bold">Lab & User Access</h5>
+            <h5 className="font-bold text-gray-800 dark:text-gray-100">
+                Lab & User Access
+            </h5>
             <Input
                 placeholder="Search labs..."
                 value={search}
-                prefix={<TbSearch className="text-lg opacity-40" />}
-                className="w-full bg-gray-50 border-transparent focus:bg-white"
+                prefix={
+                    <TbSearch className="text-lg text-gray-400 dark:text-gray-500" />
+                }
+                className="w-full bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 focus:bg-white dark:focus:bg-gray-700"
                 onChange={(e) => setSearch(e.target.value)}
             />
             <div className="flex flex-col gap-4">

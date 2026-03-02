@@ -18,7 +18,7 @@ const LocationCard = ({
 
     return (
         <div
-            className={`border rounded-xl transition-all duration-300 bg-white ${expanded ? 'shadow-md border-gray-300' : 'border-gray-200 hover:border-gray-300'}`}
+            className={`border rounded-xl transition-all duration-300 bg-white dark:bg-gray-800 ${expanded ? 'shadow-md border-gray-300 dark:border-gray-600' : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-500'}`}
         >
             <div
                 className="flex justify-between items-center p-3 cursor-pointer"
@@ -26,11 +26,11 @@ const LocationCard = ({
             >
                 <div className="flex items-center gap-2">
                     <div
-                        className={`w-10 h-10 rounded-lg flex items-center justify-center transition-colors ${expanded ? 'bg-primary-subtle text-primary' : 'bg-gray-100 text-gray-500'}`}
+                        className={`w-10 h-10 rounded-lg flex items-center justify-center transition-colors ${expanded ? 'bg-primary-subtle text-primary' : 'dark:bg-gray-700 text-gray-500 dark:text-gray-300'}`}
                     >
                         <TbMapPin className="text-purple-500" />
                     </div>
-                    <span className="font-semibold text-gray-700">
+                    <span className="font-semibold text-gray-700 dark:text-gray-100">
                         {location.location_record.name}
                     </span>
                 </div>
@@ -44,7 +44,7 @@ const LocationCard = ({
                             className={`text-xl transition-transform duration-300 ${
                                 expanded
                                     ? 'rotate-180 text-primary'
-                                    : 'text-gray-400'
+                                    : 'text-gray-400 dark:text-gray-500'
                             }`}
                         />
                     }
@@ -52,7 +52,7 @@ const LocationCard = ({
             </div>
 
             {expanded && (
-                <div className="p-5 border-t border-gray-200 bg-gray-50/30 rounded-b-xl">
+                <div className="p-5 border-t border-gray-200 bg-gray-50/30 rounded-b-xl dark:border-gray-700 dark:bg-gray-800/40">
                     <UserAssignmentRow
                         assingn={assingn}
                         labId={labId}

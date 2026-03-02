@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useRef, useCallback, memo } from 'react'
 import { useFieldArray, useFormContext, useWatch } from 'react-hook-form'
-import { HiPlus } from 'react-icons/hi'
+import { HiPlus, HiTrash } from 'react-icons/hi'
 import Button from '@/components/ui/Button'
 import StandardCard from './StandardCard'
 import { StandardChildFormSchema } from '@/schemas/standard.schema'
@@ -39,10 +39,12 @@ const StandardRecursiveSection = ({
 }: StandardRecursiveSectionProps) => {
     const {
         control,
+        setValue,
+        getValues,
         formState: { errors },
     } = useFormContext<StandardChildFormSchema>()
 
-    const { fields, append, update } = useFieldArray({
+    const { fields, append, update, remove } = useFieldArray({
         control,
         name,
         keyName: 'reactId',
@@ -83,6 +85,23 @@ const StandardRecursiveSection = ({
             update(i, { ...item, children: nextChildren })
         })
     }, [watched, update])
+    const handleRemove = useCallback(
+        (index: number) => {
+            remove(index)
+
+            if (isRoot) return
+
+            const parentPath = name.replace(/\.children$/, '')
+            const count = getValues(`${parentPath}.children_count` as any) ?? 0
+
+            if (count)
+                setValue(`${parentPath}.children_count` as any, count - 1, {
+                    shouldValidate: true,
+                    shouldDirty: true,
+                })
+        },
+        [remove, isRoot, name, getValues, setValue],
+    )
 
     const handleAdd = useCallback(() => {
         append(createDefaultStandard(depth))
@@ -103,17 +122,30 @@ const StandardRecursiveSection = ({
             )}
 
             {fields.map((field, index) => (
-                <StandardCard
-                    key={field.reactId}
-                    index={index}
-                    standard={field}
-                    errors={errors}
-                    readOnly={readOnly}
-                    control={control}
-                    watchedStandards={watched}
-                    baseName={name}
-                    depth={depth}
-                />
+                <div key={field.reactId} className="relative pl-4">
+                    {!readOnly && (
+                        <Button
+                            size="xs"
+                            shape="circle"
+                            type="button"
+                            className="absolute -right-2 -top-2 z-10 shadow-sm hover:scale-110 transition-transform"
+                            onClick={() => handleRemove(index)}
+                        >
+                            <HiTrash size={12} />
+                        </Button>
+                    )}
+                    <StandardCard
+                        key={field.reactId}
+                        index={index}
+                        standard={field}
+                        errors={errors}
+                        readOnly={readOnly}
+                        control={control}
+                        watchedStandards={watched}
+                        baseName={name}
+                        depth={depth}
+                    />
+                </div>
             ))}
         </div>
     )

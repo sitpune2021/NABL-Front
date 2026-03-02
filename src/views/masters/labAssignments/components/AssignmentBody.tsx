@@ -14,15 +14,17 @@ import useLocationList from '../../location/List/hooks/useList'
 import useUserList from '../../user/List/hooks/useList'
 
 const SummaryCard = ({ title, count, label, icon, color }: any) => (
-    <div className="flex items-center gap-4 p-4 bg-white rounded-2xl border shadow-sm">
+    <div className="flex items-center gap-4 p-4 bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm">
         <div className={`p-3 rounded-xl ${color}`}>
             <span className="text-2xl">{icon}</span>
         </div>
         <div>
-            <p className="text-xs font-bold text-gray-400 uppercase">{title}</p>
+            <p className="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase">
+                {title}
+            </p>
             <h3 className="text-xl font-extrabold">
                 {count}{' '}
-                <span className="text-sm font-medium text-gray-500">
+                <span className="text-sm font-medium text-gray-500 dark:text-gray-400">
                     {label}
                 </span>
             </h3>
@@ -76,13 +78,13 @@ const AssignmentBody = () => {
             title: 'Total Locations',
             data: stats.locations,
             icon: <TbMapPin />,
-            color: 'bg-purple-50 text-purple-600 dark:bg-purple-900/20',
+            color: 'bg-purple-50 text-purple-600 dark:bg-purple-900/20 dark:text-purple-300',
         },
         {
             title: 'Total Users',
             data: stats.users,
             icon: <TbUser />,
-            color: 'bg-emerald-50 text-emerald-600 dark:bg-emerald-900/20',
+            color: 'bg-emerald-50 text-emerald-600 dark:bg-emerald-900/20 dark:text-emerald-300',
         },
     ]
 
@@ -105,7 +107,7 @@ const AssignmentBody = () => {
                 {cards.map((c) => {
                     return (
                         <div key={c.title} className="space-y-3">
-                            <div className="flex justify-between p-3 bg-gray-50 rounded-xl">
+                            <div className="flex justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-xl">
                                 <div className="flex items-center gap-2">
                                     <TbCircleCheck className="text-emerald-500" />
                                     Assigned
@@ -113,12 +115,12 @@ const AssignmentBody = () => {
                                 <Tag>{c.data.assigned}</Tag>
                             </div>
 
-                            <div className="flex justify-between p-3 bg-gray-50 rounded-xl">
+                            <div className="flex justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-xl">
                                 <div className="flex items-center gap-2">
                                     <TbClock className="text-amber-500" />
                                     Pending
                                 </div>
-                                <Tag className="bg-red-50 text-red-600">
+                                <Tag className="bg-red-50 text-red-600 dark:bg-red-900/20 dark:text-red-300">
                                     {c.data.pending}
                                 </Tag>
                             </div>
