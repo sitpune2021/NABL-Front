@@ -486,22 +486,22 @@ const FrequencySection = ({
                             <div
                                 className={`mt-6 p-4 rounded-lg border ${
                                     isType.isDay
-                                        ? 'bg-green-50 border-green-200'
-                                        : 'bg-blue-50 border-blue-200'
+                                        ? 'bg-green-50 border-green-200 dark:bg-green-900/20 dark:border-green-700'
+                                        : 'bg-blue-50 border-blue-200 dark:bg-blue-900/20 dark:border-blue-700'
                                 }`}
                             >
                                 <h4
                                     className={`text-md font-semibold mb-4 flex items-center ${
                                         isType.isDay
-                                            ? 'text-green-900'
-                                            : 'text-blue-900'
+                                            ? 'text-green-900 dark:text-green-300'
+                                            : 'text-blue-900 dark:text-blue-300'
                                     }`}
                                 >
                                     <span
                                         className={`w-4 h-4 rounded-full mr-2 ${
                                             isType.isDay
-                                                ? 'bg-green-500'
-                                                : 'bg-blue-500'
+                                                ? 'bg-green-500 dark:bg-green-400'
+                                                : 'bg-blue-500 dark:bg-blue-400'
                                         }`}
                                     />
                                     {isType.isDay
@@ -548,7 +548,8 @@ const FrequencySection = ({
                                                       : 'Select Month'
                                             }
                                             invalid={
-                                                !!errors.schedule?.selectedMonth
+                                                !!(errors.schedule as any)
+                                                    ?.selectedMonth
                                             }
                                         >
                                             <Controller
@@ -608,7 +609,7 @@ const FrequencySection = ({
                         )}
 
                         {!isType.show && (
-                            <div className="mt-6 p-4 bg-purple-50 rounded-lg border border-purple-200">
+                            <div className="mt-6 p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg border border-purple-20 dark:border-purple-700">
                                 <FormItem label="Interval">
                                     <Input
                                         type="number"
@@ -636,7 +637,7 @@ const FrequencySection = ({
                                 return (
                                     <Card>
                                         <div className="flex items-center justify-between mb-4">
-                                            <h4 className="text-lg font-semibold text-gray-800">
+                                            <h4 className="text-lg font-semibold text-gray-800 dark:text-gray-100">
                                                 {`Per-Day Settings (${schedule.type} - ${schedule.selectedMonth} - Day ${schedule.selectedDay})`}
                                             </h4>
 
@@ -705,7 +706,7 @@ const FrequencySection = ({
 
                         {isType.isDay && schedule.selectedItems?.length > 0 && (
                             <Card className="mb-2">
-                                <h4 className="text-lg font-semibold mb-4">
+                                <h4 className="text-lg font-semibold mb-4 text-gray-800 dark:text-gray-100">
                                     Per-Day Settings
                                 </h4>
 
@@ -800,7 +801,7 @@ const FrequencySection = ({
                                                     ) => (
                                                         <div
                                                             key={i}
-                                                            className="flex items-center gap-3 p-3 bg-gradient-to-r from-purple-50 to-violet-50 rounded-lg border border-purple-200"
+                                                            className="flex items-center gap-3 p-3 bg-gradient-to-r from-purple-50 to-violet-50 dark:from-purple-900/20 dark:to-violet-900/20 rounded-lg border border-purple-200 dark:border-purple-700"
                                                         >
                                                             <TimeInput
                                                                 format="12"
@@ -864,11 +865,11 @@ const FrequencySection = ({
                 onClose={() => setShowLastDayConfirm(false)}
                 onRequestClose={() => setShowLastDayConfirm(false)}
             >
-                <div className="p-6">
-                    <h3 className="text-lg font-semibold mb-4">
+                <div className="p-6 bg-white dark:bg-gray-800 rounded-lg">
+                    <h3 className="text-lg font-semibold mb-4 text-gray-800 dark:text-gray-100">
                         Last Day Consideration
                     </h3>
-                    <p className="mb-4">
+                    <p className="mb-4 text-gray-600 dark:text-gray-300">
                         You have selected day <strong>{pendingDay}</strong>
                         {pendingConfigType === 'Monthly'
                             ? ' for monthly frequency.'

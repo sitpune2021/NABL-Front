@@ -1,6 +1,8 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useState } from 'react'
 import { Document } from '@/@types/document'
 import { useSessionUser } from '@/store/authStore'
+import { Select } from '@/components/ui'
 
 type Props = {
     document: Document
@@ -41,21 +43,31 @@ const WorkflowStateCell = ({ document, onSave }: Props) => {
     }
     if (document.mode == 'upload') return <span>—</span>
 
+    const options = allowedActions.map((a) => ({
+        value: a,
+        label: a,
+    }))
+
+    const selectedOption = options.find((opt) => opt.value === action) || null
+
     if (isEditing && !isFinal && is_super_admin) {
         return (
-            <select
+            <Select
                 autoFocus
-                className="border rounded px-2 py-1 text-sm"
-                value={action}
-                onChange={(e) => setAction(e.target.value)}
+                size="sm"
+                value={selectedOption}
+                options={options}
+                menuPortalTarget={window.document.body}
+                menuPosition="fixed"
+                styles={{
+                    menuPortal: (base: any) => ({
+                        ...base,
+                        zIndex: 9999,
+                    }),
+                }}
+                onChange={(option: any) => setAction(option?.value)}
                 onBlur={handleSave}
-            >
-                {allowedActions.map((a) => (
-                    <option key={a} value={a}>
-                        {a}
-                    </option>
-                ))}
-            </select>
+            />
         )
     }
 

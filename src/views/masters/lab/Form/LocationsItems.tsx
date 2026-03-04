@@ -9,7 +9,7 @@ import {
 import Card from '@/components/ui/Card'
 import Input from '@/components/ui/Input'
 import { FormItem } from '@/components/ui/Form'
-import { Button, Select } from '@/components/ui'
+import { Button, Checkbox, Select } from '@/components/ui'
 import { HiPlus, HiMinus } from 'react-icons/hi'
 import { FormSectionBaseProps } from '@/@types/lab'
 
@@ -120,9 +120,14 @@ const LocationsItems = ({
     }
 
     return (
-        <Card key={item.id} className="mt-4">
+        <Card
+            key={item.id}
+            className="mt-4 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700"
+        >
             <div className="flex justify-between items-center px-4 pt-4">
-                <h4>Location {index + 1}</h4>
+                <h4 className="text-gray-800 dark:text-gray-100">
+                    Location {index + 1}
+                </h4>
 
                 {!readOnly && index > 0 && (
                     <Button
@@ -349,7 +354,9 @@ const LocationsItems = ({
 
             <div className="mt-4">
                 <div className="flex justify-between mb-2">
-                    <h5>Departments</h5>
+                    <h5 className="text-gray-800 dark:text-gray-200">
+                        Departments
+                    </h5>
                     {!readOnly && (
                         <Button
                             type="button"
@@ -370,7 +377,7 @@ const LocationsItems = ({
                 {departmentFields.map((dept, deptIndex) => (
                     <div
                         key={dept.id}
-                        className="bg-gray-50 border border-gray-200 p-3 mb-4 rounded-lg"
+                        className="bg-gray-50 dark:bg-gray-800/40 border border-gray-200 dark:border-gray-700 p-3 mb-4 rounded-lg"
                     >
                         <div className="flex justify-end mb-2">
                             {!readOnly && departmentFields.length > 1 && (
@@ -477,13 +484,17 @@ const LocationsItems = ({
             </div>
 
             <div className="mt-6">
-                <h4 className="mb-6">Contact Person</h4>
+                <h4 className="mb-6 text-gray-800 dark:text-gray-100">
+                    Contact Person
+                </h4>
 
                 <div className="grid md:grid-cols-2 gap-6">
                     {/* Emails */}
                     <div>
                         <div className="flex justify-between mb-4">
-                            <label>Emails</label>
+                            <label className="text-gray-700 dark:text-gray-300">
+                                Emails
+                            </label>
                             {!readOnly && (
                                 <Button
                                     type="button"
@@ -519,15 +530,15 @@ const LocationsItems = ({
                                         name={`location.${index}.emails.${emailIndex}.is_primary`}
                                         control={control}
                                         render={({ field }) => (
-                                            <input
-                                                type="checkbox"
+                                            <Checkbox
                                                 checked={field.value}
                                                 disabled={readOnly}
-                                                onChange={(e) =>
+                                                aria-label="Primary Email"
+                                                onChange={(checked) =>
                                                     handlePrimaryChange(
                                                         true,
-                                                        index,
-                                                        e.target.checked,
+                                                        emailIndex,
+                                                        checked,
                                                     )
                                                 }
                                             />
@@ -595,15 +606,15 @@ const LocationsItems = ({
                                         name={`location.${index}.phones.${phoneIndex}.is_primary`}
                                         control={control}
                                         render={({ field }) => (
-                                            <input
-                                                type="checkbox"
+                                            <Checkbox
                                                 checked={field.value}
                                                 disabled={readOnly}
-                                                onChange={(e) =>
+                                                aria-label="Primary Phone"
+                                                onChange={(checked) =>
                                                     handlePrimaryChange(
                                                         false,
-                                                        index,
-                                                        e.target.checked,
+                                                        phoneIndex,
+                                                        checked,
                                                     )
                                                 }
                                             />

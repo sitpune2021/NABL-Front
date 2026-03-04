@@ -2,7 +2,7 @@ import React, { useMemo, useState, useCallback, useEffect } from 'react'
 import { ChevronDown, ChevronRight, FileText } from 'lucide-react'
 import Card from '@/components/ui/Card'
 import { FormItem } from '@/components/ui/Form'
-import { Select } from '@/components/ui'
+import { Select, Checkbox, Button } from '@/components/ui'
 import { useStandardList } from '@/views/settings/standard/List/hooks/useList'
 
 interface DocumentType {
@@ -59,43 +59,43 @@ const ClauseItem: React.FC<ClauseItemProps> = ({
         (clause.documents?.length ?? 0) > 0 ||
         (clause.children?.length ?? 0) > 0
 
-    const indentClass = `ml-${Math.min(level * 4, 16)}`
+    const indentStyle = { marginLeft: `${Math.min(level * 20, 80)}px` }
 
     return (
-        <div className={`${indentClass} mt-2 border-l-2 border-gray-200 pl-4`}>
-            <div className="flex items-start gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors">
+        <div
+            style={indentStyle}
+            className="mt-3 border-l-2 border-gray-200 dark:border-gray-700 pl-4"
+        >
+            <div className="flex items-start gap-3 p-3 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-800 transition-all">
                 {hasChildren ? (
-                    <button
+                    <Button
+                        size="xs"
+                        variant="plain"
                         type="button"
-                        className="flex items-center justify-center w-6 h-6 text-gray-500 hover:text-gray-700 focus:outline-none rounded"
-                        aria-expanded={open}
+                        disabled={readOnly}
+                        className="p-1"
                         onClick={() => setOpen(!open)}
                     >
                         {open ? (
-                            <ChevronDown size={20} />
+                            <ChevronDown size={18} />
                         ) : (
-                            <ChevronRight size={20} />
+                            <ChevronRight size={18} />
                         )}
-                    </button>
+                    </Button>
                 ) : (
                     <div className="w-6" />
                 )}
 
-                <input
-                    type="checkbox"
+                <Checkbox
                     disabled={readOnly}
-                    className="h-5 w-5 mt-0.5 text-blue-600 border-gray-300 rounded"
                     checked={selectedItems.includes(`clause-${clause.id}`)}
                     onChange={() => handleToggle(`clause-${clause.id}`, clause)}
                 />
 
                 <div className="flex-1 min-w-0">
-                    <label
-                        htmlFor={`clause-${clause.id}`}
-                        className="cursor-pointer text-sm font-extrabold text-gray-900 tracking-wide"
-                    >
+                    <p className="text-sm font-bold text-gray-900 dark:text-gray-100 tracking-wide">
                         {clause.title}
-                    </label>
+                    </p>
                 </div>
             </div>
 
@@ -104,14 +104,12 @@ const ClauseItem: React.FC<ClauseItemProps> = ({
                     {clause.documents && (
                         <div className="ml-10 mt-3 space-y-2">
                             {clause.documents.map((doc) => (
-                                <label
+                                <div
                                     key={doc.id}
-                                    className="flex items-center gap-3 p-2 rounded-lg cursor-pointer hover:bg-gray-50"
+                                    className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-all"
                                 >
-                                    <input
-                                        type="checkbox"
+                                    <Checkbox
                                         disabled={readOnly}
-                                        className="h-4 w-4 text-blue-600 border-gray-300 rounded"
                                         checked={selectedItems.includes(
                                             `doc-${clause.id}-${doc.id}`,
                                         )}
@@ -123,12 +121,12 @@ const ClauseItem: React.FC<ClauseItemProps> = ({
                                     />
                                     <FileText
                                         size={16}
-                                        className="text-gray-500"
+                                        className="text-gray-500 dark:text-gray-400"
                                     />
-                                    <span className="text-gray-700 text-sm">
+                                    <span className="text-gray-700 dark:text-gray-300 text-sm">
                                         {doc.name}
                                     </span>
-                                </label>
+                                </div>
                             ))}
                         </div>
                     )}
@@ -225,7 +223,7 @@ const ClauseTree: React.FC<ClauseTreeProps> = ({
 
     return (
         <div className="space-y-6">
-            <Card className="p-4">
+            <Card className="p-5 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-2xl shadow-sm">
                 <FormItem label="Standard">
                     <Select
                         options={standardOptions}
@@ -247,12 +245,12 @@ const ClauseTree: React.FC<ClauseTreeProps> = ({
             </Card>
 
             {clauses.length > 0 && (
-                <Card className="w-full p-6 space-y-4 border border-gray-200 shadow-sm">
-                    <div className="border-b border-gray-200 pb-4">
-                        <h3 className="text-xl font-semibold text-gray-900">
+                <Card className="w-full p-6 space-y-5 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-2xl shadow-sm">
+                    <div className="border-b border-gray-200 dark:border-gray-700 pb-4">
+                        <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
                             Clause Documents
                         </h3>
-                        <p className="text-sm text-gray-600 mt-1">
+                        <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
                             Select the clauses and documents
                         </p>
                     </div>
