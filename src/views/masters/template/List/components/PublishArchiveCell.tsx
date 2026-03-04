@@ -1,25 +1,29 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useState } from 'react'
 import { useSessionUser } from '@/store/authStore'
+import { Select } from '@/components/ui'
+
+type StatusType = 'published' | 'archived'
 
 type Props = {
-    status?: 'published' | 'archived' | 'draft'
+    status?: StatusType | 'draft'
     recordId: number | string
-    onSave?: (id: number | string, status: 'published' | 'archived') => void
+    onSave?: (id: number | string, status: StatusType) => void
 }
 
-const ACTIONS = ['published', 'archived'] as const
+const ACTIONS: StatusType[] = ['published', 'archived']
 
 const PublishArchiveCell = ({ status, recordId, onSave }: Props) => {
     const { is_super_admin } = useSessionUser((state) => state.user)
 
     const [isEditing, setIsEditing] = useState(false)
-    const [value, setValue] = useState<'published' | 'archived' | undefined>(
-        status === 'draft' ? undefined : status,
+    const [value, setValue] = useState<StatusType | null>(
+        status === 'draft' ? null : (status as StatusType),
     )
 
     useEffect(() => {
-        if (status !== 'draft') {
-            setValue(status)
+        if (status && status !== 'draft') {
+            setValue(status as StatusType)
         }
     }, [status])
 
@@ -33,24 +37,30 @@ const PublishArchiveCell = ({ status, recordId, onSave }: Props) => {
             onSave?.(recordId, value)
         }
     }
+    const options = ACTIONS.map((action) => ({
+        value: action,
+        label: action,
+    }))
+
+    const selectedOption = options.find((opt) => opt.value === value) || null
 
     if (isEditing && is_super_admin) {
         return (
-            <select
+            <Select
                 autoFocus
-                className="border rounded px-2 py-1 text-sm"
-                value={value}
-                onChange={(e) =>
-                    setValue(e.target.value as 'published' | 'archived')
+                size="sm"
+                value={selectedOption}
+                options={options}
+                menuPortalTarget={document.body}
+                menuPosition="fixed"
+                styles={{
+                    menuPortal: (base: any) => ({ ...base, zIndex: 9999 }),
+                }}
+                onChange={(option: any) =>
+                    setValue(option?.value as StatusType)
                 }
                 onBlur={handleSave}
-            >
-                {ACTIONS.map((action) => (
-                    <option key={action} value={action}>
-                        {action}
-                    </option>
-                ))}
-            </select>
+            />
         )
     }
 

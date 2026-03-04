@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/Button'
 import { FormSectionBaseProps } from '@/@types/lab'
 import { useEffect } from 'react'
 import { HiMinus, HiPlus } from 'react-icons/hi'
+import { Checkbox } from '@/components/ui'
 
 const ContactPersonalSection = ({
     control,
@@ -128,18 +129,17 @@ const ContactPersonalSection = ({
                                         name={`emails.${index}.is_primary`}
                                         control={control}
                                         render={({ field }) => (
-                                            <input
-                                                type="checkbox"
-                                                checked={field.value}
+                                            <Checkbox
+                                                checked={!!field.value}
                                                 disabled={readOnly}
-                                                onChange={(e) =>
+                                                onChange={(checked) =>
                                                     handlePrimaryChange(
                                                         true,
                                                         index,
-                                                        e.target.checked,
+                                                        checked,
                                                     )
                                                 }
-                                            />
+                                            ></Checkbox>
                                         )}
                                     />
                                     <Controller
@@ -214,25 +214,24 @@ const ContactPersonalSection = ({
                                         name={`phones.${index}.is_primary`}
                                         control={control}
                                         render={({ field }) => (
-                                            <input
-                                                type="checkbox"
-                                                checked={field.value}
+                                            <Checkbox
+                                                checked={!!field.value}
                                                 disabled={readOnly}
-                                                onChange={(e) =>
+                                                onChange={(checked) =>
                                                     handlePrimaryChange(
                                                         false,
                                                         index,
-                                                        e.target.checked,
+                                                        checked,
                                                     )
                                                 }
-                                            />
+                                            ></Checkbox>
                                         )}
                                     />
                                     <Controller
                                         name={`phones.${index}.label`}
                                         control={control}
                                         render={({ field }) => (
-                                            <input type="hidden" {...field} />
+                                            <Input type="hidden" {...field} />
                                         )}
                                     />
                                     {!readOnly &&
