@@ -1,29 +1,29 @@
-import { useEffect, useState } from 'react'
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import useSWR from 'swr'
 import { apiGetLabMasterUnits } from '@/services/UnitService'
-import { Unit } from '@/@types/unit'
 
-const useLabUnits = (labId?: number) => {
-    const [units, setUnits] = useState<Unit[]>([])
-    const [loading, setLoading] = useState(false)
+const useLabUnits = (params: any) => {
+    const shouldFetch = !!params?.id
 
-    useEffect(() => {
-        if (!labId) {
-            setUnits([])
-            return
-        }
+    const LIST_KEY = shouldFetch
+        ? `lab-unit-detail-${params.id}-${params.start_date}-${params.end_date}`
+        : null
 
-        setLoading(true)
+    const swr = useSWR(
+        shouldFetch ? [LIST_KEY, params] : null,
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        ([_, queryParams]) => apiGetLabMasterUnits<any, any>(queryParams),
+        {
+            revalidateOnFocus: false,
+        },
+    )
 
-        apiGetLabMasterUnits(labId)
-            .then((res) => {
-                const data = (res as { data: Unit[] }).data
-                setUnits(data ?? [])
-            })
-            .catch(() => setUnits([]))
-            .finally(() => setLoading(false))
-    }, [labId])
-
-    return { units, loading }
+    return {
+        isLoading: swr.isLoading,
+        error: swr.error,
+        mutate: swr.mutate,
+        data: swr.data?.data,
+    }
 }
 
 export default useLabUnits
