@@ -6,12 +6,10 @@ import useDepartmentList from '../hooks/useList'
 import endpointConfig from '@/configs/endpoint.config'
 import { Department } from '@/@types/department'
 import { buildDepartmentColumns } from '@/columns/department.columns'
-import useLabList from '@/views/masters/lab/List/hooks/useList'
 import useAuth from '@/auth/useAuth'
 
 const DepartmentListTable = () => {
     const navigate = useNavigate()
-    const { labList = [] } = useLabList()
 
     const {
         departmentList,
@@ -55,10 +53,9 @@ const DepartmentListTable = () => {
             buildDepartmentColumns({
                 onEdit: handleEdit,
                 onView: handleView,
-                labList,
                 can,
             }),
-        [handleEdit, handleView, labList],
+        [handleEdit, handleView],
     )
 
     const handlePaginationChange = (page: number) => {

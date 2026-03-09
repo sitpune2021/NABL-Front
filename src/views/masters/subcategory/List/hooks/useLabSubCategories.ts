@@ -5,13 +5,15 @@ import { apiGetLabSubCategories } from '@/services/SubCategoryService'
 interface Params {
     id?: number
     catId?: number
+    start_date?: string | null
+    end_date?: string | null
 }
 
 const useLabSubCategories = (params: Params) => {
     const shouldFetch = !!params?.id && !!params?.catId
 
     const LIST_KEY = shouldFetch
-        ? `lab-subcat-detail-${params.id}-${params.catId}`
+        ? `lab-subcat-detail-${params.id}-${params.catId}-${params.start_date}-${params.end_date}`
         : null // 👈 prevents API call
 
     const swr = useSWR(

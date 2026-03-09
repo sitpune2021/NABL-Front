@@ -1,105 +1,129 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useMemo, useState } from 'react'
 import { useForm, Controller } from 'react-hook-form'
 import Button from '@/components/ui/Button'
 import Drawer from '@/components/ui/Drawer'
 import { Form, FormItem } from '@/components/ui/Form'
-import { Select } from '@/components/ui'
+import { DatePicker, Select } from '@/components/ui'
 import { TbBolt } from 'react-icons/tb'
+
 import useLabList from '@/views/masters/lab/List/hooks/useList'
 import useLabDepartments from '../hooks/useLabDepartments'
 import { apiAppendLabDepartmentToMaster } from '@/services/DepartmentService'
 import useDepartmentList from '../hooks/useList'
-import { useAuth } from '@/auth'
 
-type FormSchema = {
+import useSync from '@/utils/hooks/useSync'
+import { mapToOptions } from '@/helpers/optionMappers'
+import { Option } from '@/@types/common'
+
+interface FormSchema {
     labs: number[]
+    start_date: string | null
+    end_date: string | null
+}
+const formatDate = (date: Date) => {
+    const y = date.getFullYear()
+    const m = String(date.getMonth() + 1).padStart(2, '0')
+    const d = String(date.getDate()).padStart(2, '0')
+    return `${y}-${m}-${d}`
+}
+
+const getDefaultDates = () => {
+    const today = new Date()
+
+    const end = formatDate(today)
+
+    const oneMonthBefore = new Date()
+    oneMonthBefore.setMonth(oneMonthBefore.getMonth() - 1)
+
+    const start = formatDate(oneMonthBefore)
+
+    return { start, end }
 }
 
 const DepartmentListTableSync = () => {
-    const { user } = useAuth()
-
-    if (!user) return null
-    const isMasterLevel = user.lab === null
-    if (!isMasterLevel) return null
-
     const [drawerOpen, setDrawerOpen] = useState(false)
-    const [selectedDepartmentIds, setSelectedDepartmentIds] = useState<
-        number[]
-    >([])
-    const [submitting, setSubmitting] = useState(false)
+    const [selectedIds, setSelectedIds] = useState<number[]>([])
 
     const { labList = [] } = useLabList()
     const { mutate } = useDepartmentList()
+    const { start, end } = getDefaultDates()
 
     const { control, watch, reset } = useForm<FormSchema>({
-        defaultValues: { labs: [] },
+        defaultValues: { labs: [], start_date: start, end_date: end },
     })
 
-    const selectedLabId = watch('labs')[0]
+    const labId = watch('labs')?.[0]
+    const startDate = watch('start_date')
+    const endDate = watch('end_date')
 
-    const {
-        departments = [],
-        setDepartments,
-        loading,
-    } = useLabDepartments(selectedLabId)
+    const { data, isLoading } = useLabDepartments({
+        id: labId,
+        start_date: startDate,
+        end_date: endDate,
+    })
 
-    const labOptions = useMemo(
+    // 🔥 GENERIC SYNC
+    const { submitting, applySync } = useSync({
+        mutate,
+        appendApi: apiAppendLabDepartmentToMaster,
+    })
+
+    const labOptions: Option[] = useMemo(
         () =>
-            labList.map((lab) => ({
-                value: lab.id,
-                label: lab.name.toUpperCase(),
-            })),
+            mapToOptions(labList, {
+                value: 'id',
+                label: (l) => l.name.toUpperCase(),
+            }),
         [labList],
     )
 
-    const departmentOptions = useMemo(
+    const departmentOptions: Option[] = useMemo(
         () =>
-            departments.map((d) => ({
-                value: d.id,
-                label: d.name,
-            })),
-        [departments],
+            mapToOptions(data ?? [], {
+                value: 'id',
+                label: (c: any) => c.name,
+            }),
+        [data],
     )
 
     const handleApply = async () => {
-        if (!selectedDepartmentIds.length) {
-            handleDrawerClose()
-            return
-        }
+        await applySync(selectedIds)
+        handleDrawerClose()
+    }
+    const handleDrawerOpen = () => {
+        const { start, end } = getDefaultDates()
 
-        try {
-            setSubmitting(true)
+        reset({
+            labs: [],
+            start_date: start,
+            end_date: end,
+        })
 
-            await Promise.all(
-                selectedDepartmentIds.map((id) =>
-                    apiAppendLabDepartmentToMaster(id),
-                ),
-            )
-            setDepartments((prev) =>
-                prev.filter((t) => !selectedDepartmentIds.includes(t.id)),
-            )
-            mutate()
-            handleDrawerClose()
-        } catch (err) {
-            console.error('Append failed', err)
-        } finally {
-            setSubmitting(false)
-        }
+        setSelectedIds([])
+        setDrawerOpen(true)
     }
 
     const handleDrawerClose = () => {
         setDrawerOpen(false)
-        setSelectedDepartmentIds([])
+        setSelectedIds([])
     }
 
     const handleReset = () => {
-        reset({ labs: [] })
-        setSelectedDepartmentIds([])
+        const { start, end } = getDefaultDates()
+
+        reset({
+            labs: [],
+            start_date: start,
+            end_date: end,
+        })
+
+        setSelectedIds([])
     }
 
     return (
         <>
-            <Button icon={<TbBolt />} onClick={() => setDrawerOpen(true)}>
+            <Button icon={<TbBolt />} onClick={handleDrawerOpen}>
                 Sync
             </Button>
 
@@ -108,18 +132,64 @@ const DepartmentListTableSync = () => {
                 isOpen={drawerOpen}
                 bodyClass="p-0 h-full"
                 onClose={handleDrawerClose}
-                onRequestClose={() => setDrawerOpen(false)}
+                onRequestClose={handleDrawerClose}
             >
                 <div className="flex flex-col h-[calc(99vh-60px)]">
                     <div className="flex-1 p-6 overflow-y-auto">
                         <Form>
+                            <FormItem label="Start Date">
+                                <Controller
+                                    name="start_date"
+                                    control={control}
+                                    render={({ field }) => (
+                                        <DatePicker
+                                            value={
+                                                field.value
+                                                    ? new Date(field.value)
+                                                    : null
+                                            }
+                                            onChange={(date: any) => {
+                                                if (!date)
+                                                    return field.onChange(null)
+                                                field.onChange(formatDate(date))
+                                            }}
+                                        />
+                                    )}
+                                />
+                            </FormItem>
+
+                            <FormItem label="End Date">
+                                <Controller
+                                    name="end_date"
+                                    control={control}
+                                    render={({ field }) => (
+                                        <DatePicker
+                                            value={
+                                                field.value
+                                                    ? new Date(field.value)
+                                                    : null
+                                            }
+                                            minDate={
+                                                startDate
+                                                    ? new Date(startDate)
+                                                    : undefined
+                                            }
+                                            onChange={(date: any) => {
+                                                if (!date)
+                                                    return field.onChange(null)
+                                                field.onChange(formatDate(date))
+                                            }}
+                                        />
+                                    )}
+                                />
+                            </FormItem>
+
                             <FormItem label="Labs">
                                 <Controller
                                     name="labs"
                                     control={control}
                                     render={({ field }) => {
-                                        const selectedLabId = field
-                                            .value?.[0] as number | undefined
+                                        const selected = field.value?.[0]
 
                                         return (
                                             <Select
@@ -129,7 +199,7 @@ const DepartmentListTableSync = () => {
                                                     labOptions.find(
                                                         (o) =>
                                                             o.value ===
-                                                            selectedLabId,
+                                                            selected,
                                                     ) ?? null
                                                 }
                                                 onChange={(opt) => {
@@ -142,7 +212,7 @@ const DepartmentListTableSync = () => {
                                                               ]
                                                             : [],
                                                     )
-                                                    setSelectedDepartmentIds([])
+                                                    setSelectedIds([])
                                                 }}
                                             />
                                         )
@@ -150,23 +220,16 @@ const DepartmentListTableSync = () => {
                                 />
                             </FormItem>
 
-                            <FormItem label="Departments" className="mb-0">
+                            <FormItem label="Departments">
                                 <Select
-                                    key={selectedLabId ?? 'no-lab'}
+                                    key={labId ?? 'no-lab'}
                                     isMulti
                                     options={departmentOptions}
-                                    isLoading={loading}
-                                    isDisabled={!selectedLabId}
-                                    placeholder={
-                                        loading
-                                            ? 'Loading...'
-                                            : departmentOptions.length
-                                              ? 'Select Departments'
-                                              : 'No departments found'
-                                    }
-                                    onChange={(values) =>
-                                        setSelectedDepartmentIds(
-                                            values.map((v) => v.value),
+                                    isLoading={isLoading}
+                                    isDisabled={!labId}
+                                    onChange={(values: any) =>
+                                        setSelectedIds(
+                                            values.map((v: any) => v.value),
                                         )
                                     }
                                 />
@@ -175,16 +238,11 @@ const DepartmentListTableSync = () => {
                     </div>
 
                     <div className="p-4 flex justify-end gap-2">
-                        <Button
-                            type="button"
-                            disabled={submitting}
-                            onClick={handleReset}
-                        >
+                        <Button disabled={submitting} onClick={handleReset}>
                             Reset
                         </Button>
 
                         <Button
-                            type="button"
                             variant="solid"
                             loading={submitting}
                             onClick={handleApply}

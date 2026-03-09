@@ -36,11 +36,14 @@ export async function apiUpdateDepartment(id: string, data: Fields) {
     })
 }
 
-export async function apiGetLabMasterDepartments(labId: number) {
-    return ApiService.fetchDataWithAxios({
+export async function apiGetLabMasterDepartments<
+    T,
+    U extends Record<string, unknown>,
+>(params: U) {
+    return ApiService.fetchDataWithAxios<T>({
         url: `${apiEndpointConfig.departments}/lab-master`,
         method: 'get',
-        params: { lab_id: labId },
+        params,
     })
 }
 
@@ -51,5 +54,18 @@ export async function apiAppendLabDepartmentToMaster(labDepartmentId: number) {
         data: {
             lab_department_id: labDepartmentId,
         },
+    })
+}
+export async function apiGetPendingDepartments() {
+    return ApiService.fetchDataWithAxios({
+        url: `${apiEndpointConfig.departments}/pending`,
+        method: 'get',
+    })
+}
+export async function apiApproveDepartments(ids: number[]) {
+    return ApiService.fetchDataWithAxios({
+        url: `${apiEndpointConfig.departments}/approve`,
+        method: 'post',
+        data: { ids },
     })
 }
