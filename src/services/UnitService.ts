@@ -34,11 +34,14 @@ export async function apiUpdateUnit(id: string, data: Fields) {
         data,
     })
 }
-export async function apiGetLabMasterUnits(labId: number) {
-    return ApiService.fetchDataWithAxios({
+export async function apiGetLabMasterUnits<
+    T,
+    U extends Record<string, unknown>,
+>(params: U) {
+    return ApiService.fetchDataWithAxios<T>({
         url: `${apiEndpointConfig.units}/lab-master`,
         method: 'get',
-        params: { lab_id: labId },
+        params,
     })
 }
 
@@ -49,5 +52,19 @@ export async function apiAppendLabUnitToMaster(labUnitId: number) {
         data: {
             lab_unit_id: labUnitId,
         },
+    })
+}
+
+export async function apiGetPendingUnit() {
+    return ApiService.fetchDataWithAxios({
+        url: `${apiEndpointConfig.units}/pending`,
+        method: 'get',
+    })
+}
+export async function apiApproveUnit(ids: number[]) {
+    return ApiService.fetchDataWithAxios({
+        url: `${apiEndpointConfig.units}/approve`,
+        method: 'post',
+        data: { ids },
     })
 }

@@ -5,6 +5,7 @@ import { useCallback } from 'react'
 import debounce from 'lodash/debounce'
 import SubCategoryListTableSync from './ListTableSync'
 import useAuth from '@/auth/useAuth'
+import SubCategoryPendingDrawer from './SubCategoryPendingDrawer'
 
 const SubCategoryListTableTools = () => {
     const { updateTable } = useSubCategoryList()
@@ -25,6 +26,7 @@ const SubCategoryListTableTools = () => {
             <Search onInputChange={handleInputChange} />
             <SubCategoryListTableFilter />
             {can('masters.subcategory.sync') && <SubCategoryListTableSync />}
+            {can('masters.subcategory.sync') && <SubCategoryPendingDrawer />}
         </div>
     )
 }

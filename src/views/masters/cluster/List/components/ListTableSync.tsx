@@ -8,19 +8,19 @@ import { DatePicker, Select } from '@/components/ui'
 import { TbBolt } from 'react-icons/tb'
 
 import useLabList from '@/views/masters/lab/List/hooks/useList'
-import useLabCategories from '@/views/masters/category/List/hooks/useLabCategories'
-import useLabSubCategories from '../hooks/useLabSubCategories'
-import useSubCategoryList from '../hooks/useList'
+import useLabClusters from '../hooks/useLabClusters'
+import useClusterList from '../hooks/useList'
 
-import { apiAppendLabSubCategoryToMaster } from '@/services/SubCategoryService'
+import { apiAppendLabClusterToMaster } from '@/services/ClusterService'
 import useSync from '@/utils/hooks/useSync'
 
 import { mapToOptions } from '@/helpers/optionMappers'
 import { Option } from '@/@types/common'
+import useLabZones from '@/views/masters/zone/List/hooks/useLabZones'
 
 interface FormSchema {
     labs: number[]
-    category?: number
+    zone?: number
     start_date: string | null
     end_date: string | null
 }
@@ -44,45 +44,46 @@ const getDefaultDates = () => {
     return { start, end }
 }
 
-const SubCategoryListTableSync = () => {
+const ClusterListTableSync = () => {
     const [drawerOpen, setDrawerOpen] = useState(false)
     const [selectedIds, setSelectedIds] = useState<number[]>([])
 
     const { labList = [] } = useLabList()
-    const { mutate } = useSubCategoryList()
+    const { mutate } = useClusterList()
     const { start, end } = getDefaultDates()
 
     const { control, watch, reset, setValue } = useForm<FormSchema>({
         defaultValues: {
             labs: [],
-            category: undefined,
+            zone: undefined,
             start_date: start,
             end_date: end,
         },
     })
 
     const labId = watch('labs')?.[0]
-    const categoryId = watch('category')
+    const zoneId = watch('zone')
     const startDate = watch('start_date')
     const endDate = watch('end_date')
 
-    const { data: categories = [], isLoading: categoryLoading } =
-        useLabCategories({ id: labId, key: 'all' })
+    const { data: zones = [], isLoading: zoneLoading } = useLabZones({
+        id: labId,
+        key: 'all',
+    })
 
-    const { data: subCategories = [], isLoading: loading } =
-        useLabSubCategories({
-            id: labId,
-            catId: categoryId,
-            start_date: startDate,
-            end_date: endDate,
-        })
+    const { data: clusters = [], isLoading: loading } = useLabClusters({
+        id: labId,
+        zoneId: zoneId,
+        start_date: startDate,
+        end_date: endDate,
+    })
 
     const { submitting, applySync } = useSync({
         mutate,
-        appendApi: apiAppendLabSubCategoryToMaster,
+        appendApi: apiAppendLabClusterToMaster,
         onDependencyConfirm: async () => {
             return window.confirm(
-                'Parent category not appended. Append both category and subcategory?',
+                'Parent zone not appended. Append both zone and clusters?',
             )
         },
     })
@@ -96,22 +97,22 @@ const SubCategoryListTableSync = () => {
         [labList],
     )
 
-    const categoryOptions: Option[] = useMemo(
+    const zoneOptions: Option[] = useMemo(
         () =>
-            mapToOptions(categories, {
+            mapToOptions(zones, {
                 value: 'id',
                 label: (c: any) => c.name,
             }),
-        [categories],
+        [zones],
     )
 
-    const subCategoryOptions: Option[] = useMemo(
+    const clusterOptions: Option[] = useMemo(
         () =>
-            subCategories.map((s: any) => ({
+            clusters.map((s: any) => ({
                 value: Number(s.id),
                 label: s.name,
             })),
-        [subCategories],
+        [clusters],
     )
 
     const handleApply = async () => {
@@ -124,7 +125,7 @@ const SubCategoryListTableSync = () => {
 
         reset({
             labs: [],
-            category: undefined,
+            zone: undefined,
             start_date: start,
             end_date: end,
         })
@@ -135,14 +136,14 @@ const SubCategoryListTableSync = () => {
 
     const handleDrawerClose = () => {
         setDrawerOpen(false)
-        reset({ labs: [], category: undefined })
+        reset({ labs: [], zone: undefined })
         setSelectedIds([])
     }
 
     const handleReset = () => {
         reset({
             labs: [],
-            category: undefined,
+            zone: undefined,
             start_date: start,
             end_date: end,
         })
@@ -156,7 +157,7 @@ const SubCategoryListTableSync = () => {
             </Button>
 
             <Drawer
-                title="Sync SubCategories"
+                title="Sync Cluster"
                 isOpen={drawerOpen}
                 bodyClass="p-0 h-full"
                 onClose={handleDrawerClose}
@@ -239,10 +240,7 @@ const SubCategoryListTableSync = () => {
                                                               ]
                                                             : [],
                                                     )
-                                                    setValue(
-                                                        'category',
-                                                        undefined,
-                                                    )
+                                                    setValue('zone', undefined)
                                                     setSelectedIds([])
                                                 }}
                                             />
@@ -251,17 +249,17 @@ const SubCategoryListTableSync = () => {
                                 />
                             </FormItem>
 
-                            <FormItem label="Category">
+                            <FormItem label="Zone">
                                 <Controller
-                                    name="category"
+                                    name="zone"
                                     control={control}
                                     render={({ field }) => (
                                         <Select
                                             isDisabled={!labId}
-                                            isLoading={categoryLoading}
-                                            options={categoryOptions}
+                                            isLoading={zoneLoading}
+                                            options={zoneOptions}
                                             value={
-                                                categoryOptions.find(
+                                                zoneOptions.find(
                                                     (o) =>
                                                         o.value === field.value,
                                                 ) ?? null
@@ -275,13 +273,13 @@ const SubCategoryListTableSync = () => {
                                 />
                             </FormItem>
 
-                            <FormItem label="SubCategories">
+                            <FormItem label="Cluster">
                                 <Select
                                     isMulti
-                                    isDisabled={!categoryId}
+                                    isDisabled={!zoneId}
                                     isLoading={loading}
-                                    options={subCategoryOptions}
-                                    value={subCategoryOptions.filter((o: any) =>
+                                    options={clusterOptions}
+                                    value={clusterOptions.filter((o: any) =>
                                         selectedIds.includes(o.value),
                                     )}
                                     onChange={(values: any) =>
@@ -315,4 +313,4 @@ const SubCategoryListTableSync = () => {
     )
 }
 
-export default SubCategoryListTableSync
+export default ClusterListTableSync

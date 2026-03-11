@@ -1,9 +1,10 @@
 import Container from '@/components/shared/Container'
 import BottomStickyBar from '@/components/template/BottomStickyBar'
-import OverviewSection from './OverviewSection'
 import type { CommonProps } from '@/@types/common'
 import { ZoneFormSchema, zoneSchema } from '@/schemas/zone.schema'
 import MasterForm from '@/components/form/MasterForm'
+import FormSectionLayout from '@/components/layouts/FormSectionLayout'
+import TextField from '@/components/form/fields/TextField'
 
 type ZoneFormProps = {
     onFormSubmit: (values: ZoneFormSchema) => void
@@ -26,7 +27,21 @@ const ZoneForm = ({
             <Container>
                 <div className="flex flex-col md:flex-row gap-4">
                     <div className="flex flex-col gap-4 flex-auto">
-                        <OverviewSection readOnly={readOnly} />
+                        <FormSectionLayout title="Zone">
+                            <TextField
+                                name="name"
+                                label="Zone"
+                                placeholder="Enter Zone"
+                                readOnly={readOnly}
+                            />
+
+                            <TextField
+                                name="identifier"
+                                label="Prefix"
+                                placeholder="Enter Prefix"
+                                readOnly={readOnly}
+                            />
+                        </FormSectionLayout>
                     </div>
                 </div>
             </Container>

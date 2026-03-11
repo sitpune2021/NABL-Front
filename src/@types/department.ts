@@ -12,7 +12,7 @@ export type GetDepartmentDetailResponse = {
 export type Department = {
     id: string
     name: string
-    appended_from_lab_id?: number | null
+    lab: null | { name: string }
 } & IdentifierEntity
 
 export type Fields = {

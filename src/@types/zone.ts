@@ -12,6 +12,7 @@ export type GetZoneDetailResponse = {
 export type Zone = {
     id: string
     name: string
+    lab: null | { name: string }
 } & IdentifierEntity
 
 export type ZoneListState = {

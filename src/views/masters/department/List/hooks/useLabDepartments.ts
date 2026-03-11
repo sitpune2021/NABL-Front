@@ -1,29 +1,29 @@
-import { useEffect, useState } from 'react'
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import useSWR from 'swr'
 import { apiGetLabMasterDepartments } from '@/services/DepartmentService'
-import { Department } from '@/@types/department'
 
-const useLabDepartments = (labId?: number) => {
-    const [departments, setDepartments] = useState<Department[]>([])
-    const [loading, setLoading] = useState(false)
+const useLabDepartments = (params: any) => {
+    const shouldFetch = !!params?.id
 
-    useEffect(() => {
-        if (!labId) {
-            setDepartments([])
-            return
-        }
+    const LIST_KEY = shouldFetch
+        ? `lab-dep-detail-${params.id}-${params.start_date}-${params.end_date}`
+        : null
 
-        setLoading(true)
+    const swr = useSWR(
+        shouldFetch ? [LIST_KEY, params] : null,
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        ([_, queryParams]) => apiGetLabMasterDepartments<any, any>(queryParams),
+        {
+            revalidateOnFocus: false,
+        },
+    )
 
-        apiGetLabMasterDepartments(labId)
-            .then((res) => {
-                const data = (res as { data: Department[] }).data
-                setDepartments(data ?? [])
-            })
-            .catch(() => setDepartments([]))
-            .finally(() => setLoading(false))
-    }, [labId])
-
-    return { departments, setDepartments, loading }
+    return {
+        isLoading: swr.isLoading,
+        error: swr.error,
+        mutate: swr.mutate,
+        data: swr.data?.data,
+    }
 }
 
 export default useLabDepartments

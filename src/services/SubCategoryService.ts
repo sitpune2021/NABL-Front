@@ -70,3 +70,17 @@ export async function apiAppendLabSubCategoryToMaster(
         },
     })
 }
+export async function apiGetPendingSubCategories<T>() {
+    return ApiService.fetchDataWithAxios<T>({
+        url: `${apiEndpointConfig.subCategories}/pending`,
+        method: 'get',
+    })
+}
+
+export async function apiApproveSubCategories(ids: number[]) {
+    return ApiService.fetchDataWithAxios({
+        url: `${apiEndpointConfig.subCategories}/approve`,
+        method: 'post',
+        data: { ids },
+    })
+}
