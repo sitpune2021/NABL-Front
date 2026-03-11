@@ -5,45 +5,47 @@ import Checkbox from '@/components/ui/Checkbox'
 import { HiOutlineInbox, HiCheckCircle } from 'react-icons/hi'
 
 import {
-    apiApproveSubCategories,
-    apiGetPendingSubCategories,
-} from '@/services/SubCategoryService'
+    apiApproveLocation,
+    apiGetPendingLocation,
+} from '@/services/LocationService'
 
-import { SubCategory, GetSubCategoryListResponse } from '@/@types/subcategory'
-import useSubCategoryList from '../hooks/useList'
+import { Location, GetLocationListResponse } from '@/@types/location'
+import useLocationList from '../hooks/useList'
 
-const SubCategoryPendingDrawer = () => {
+const LocationPendingDrawer = () => {
     const [isOpen, setIsOpen] = useState(false)
     const [loading, setLoading] = useState(false)
-    const [subCategories, setSubCategories] = useState<SubCategory[]>([])
+    const [location, setLocation] = useState<Location[]>([])
     const [selectedIds, setSelectedIds] = useState<number[]>([])
     const [pendingCount, setPendingCount] = useState(0)
 
-    const { mutate } = useSubCategoryList()
+    const { mutate } = useLocationList()
 
-    const fetchSubCategories = useCallback(async () => {
+    const fetchLocation = useCallback(async () => {
         try {
             setLoading(true)
 
             const res =
-                (await apiGetPendingSubCategories()) as GetSubCategoryListResponse
+                (await apiGetPendingLocation()) as GetLocationListResponse
+
             const data = res?.data ?? []
 
-            setSubCategories(data)
+            setLocation(data)
             setPendingCount(data.length)
         } finally {
             setLoading(false)
         }
     }, [])
+
     useEffect(() => {
-        fetchSubCategories()
-    }, [fetchSubCategories])
+        fetchLocation()
+    }, [fetchLocation])
 
     useEffect(() => {
         if (isOpen) {
-            fetchSubCategories()
+            fetchLocation()
         }
-    }, [isOpen, fetchSubCategories])
+    }, [isOpen, fetchLocation])
 
     const handleOpen = useCallback(() => {
         setIsOpen(true)
@@ -65,30 +67,30 @@ const SubCategoryPendingDrawer = () => {
 
         try {
             setLoading(true)
-            await apiApproveSubCategories(selectedIds)
+
+            await apiApproveLocation(selectedIds)
+
             mutate()
-            await fetchSubCategories()
+            await fetchLocation()
+
             setSelectedIds([])
             setIsOpen(false)
         } finally {
             setLoading(false)
         }
-    }, [selectedIds, mutate, fetchSubCategories])
+    }, [selectedIds, mutate, fetchLocation])
 
-    const allIds = useMemo(
-        () => subCategories.map((c) => Number(c.id)),
-        [subCategories],
-    )
+    const allIds = useMemo(() => location.map((l) => Number(l.id)), [location])
 
     const isAllSelected =
-        subCategories.length > 0 && selectedIds.length === subCategories.length
+        location.length > 0 && selectedIds.length === location.length
 
     const isIndeterminate = selectedIds.length > 0 && !isAllSelected
 
     const handleSelectAll = useCallback(() => {
         setSelectedIds(isAllSelected ? [] : allIds)
     }, [isAllSelected, allIds])
-    console.log(subCategories)
+
     return (
         <>
             <Button
@@ -102,7 +104,7 @@ const SubCategoryPendingDrawer = () => {
             <Drawer
                 title={
                     <span className="font-semibold text-gray-900 text-lg">
-                        Pending SubCategories
+                        Pending Location
                     </span>
                 }
                 isOpen={isOpen}
@@ -132,22 +134,23 @@ const SubCategoryPendingDrawer = () => {
                 }
                 onClose={handleClose}
             >
-                {loading && !subCategories.length && (
+                {loading && !location.length && (
                     <div className="flex flex-col items-center justify-center py-20 gap-3">
                         <div className="animate-spin rounded-full h-8 w-8 border-2 border-blue-600 border-t-transparent" />
                         <p className="text-gray-500 text-sm">
-                            Fetching pending subcategories...
+                            Fetching pending locations...
                         </p>
                     </div>
                 )}
 
-                {!loading && subCategories.length > 0 && (
+                {!loading && location.length > 0 && (
                     <>
                         <div className="flex items-center justify-between p-4 bg-gray-50 border-b border-gray-100 top-0 z-10">
                             <span className="text-xs text-gray-500 font-medium uppercase tracking-wide">
-                                {selectedIds.length} of {subCategories.length}{' '}
+                                {selectedIds.length} of {location.length}{' '}
                                 Selected
                             </span>
+
                             <Checkbox
                                 checked={isAllSelected}
                                 indeterminate={isIndeterminate}
@@ -156,8 +159,8 @@ const SubCategoryPendingDrawer = () => {
                         </div>
 
                         <div className="flex-1 overflow-y-auto p-4 space-y-3">
-                            {subCategories.map((subCategory) => {
-                                const id = Number(subCategory.id)
+                            {location.map((loc) => {
+                                const id = Number(loc.id)
                                 const isSelected = selectedIds.includes(id)
 
                                 return (
@@ -180,14 +183,21 @@ const SubCategoryPendingDrawer = () => {
                                         />
 
                                         <div className="ml-4 flex-1">
-                                            {/* CATEGORY */}
+                                            {/* ZONE */}
                                             <p className="text-xs font-semibold text-gray-500 uppercase">
-                                                Category :{' '}
-                                                {subCategory.category?.name ??
-                                                    'Unknown Category'}
+                                                Zone :{' '}
+                                                {loc.zone?.name ??
+                                                    'Unknown Zone'}
                                             </p>
 
-                                            {/* SUBCATEGORY */}
+                                            {/* CLUSTER */}
+                                            <p className="text-xs text-gray-500">
+                                                Cluster :{' '}
+                                                {loc.cluster?.name ??
+                                                    'Unknown Cluster'}
+                                            </p>
+
+                                            {/* LOCATION */}
                                             <p
                                                 className={`font-semibold text-sm mt-1 ${
                                                     isSelected
@@ -195,14 +205,13 @@ const SubCategoryPendingDrawer = () => {
                                                         : 'text-gray-800'
                                                 }`}
                                             >
-                                                SubCategory : {subCategory.name}
+                                                Location : {loc.name}
                                             </p>
 
-                                            {/* LAB NAME */}
+                                            {/* LAB */}
                                             <p className="text-xs text-gray-400 mt-1">
                                                 Lab :{' '}
-                                                {subCategory.lab?.name ??
-                                                    'Unknown Lab'}
+                                                {loc.lab?.name ?? 'Unknown Lab'}
                                             </p>
                                         </div>
                                     </div>
@@ -212,18 +221,18 @@ const SubCategoryPendingDrawer = () => {
                     </>
                 )}
 
-                {!loading && !subCategories.length && (
+                {!loading && !location.length && (
                     <div className="flex flex-col items-center justify-center py-24 text-center px-6">
                         <div className="bg-gray-50 p-4 rounded-full mb-4">
                             <HiOutlineInbox className="text-3xl text-gray-400" />
                         </div>
 
                         <h4 className="text-lg font-semibold text-gray-900">
-                            No Pending SubCategories
+                            No Pending Location
                         </h4>
 
                         <p className="text-gray-500 text-sm mt-1">
-                            All subcategories are already approved.
+                            All locations are already approved.
                         </p>
                     </div>
                 )}
@@ -232,4 +241,4 @@ const SubCategoryPendingDrawer = () => {
     )
 }
 
-export default SubCategoryPendingDrawer
+export default LocationPendingDrawer

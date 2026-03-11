@@ -34,3 +34,57 @@ export async function apiUpdateCluster(id: string, data: Fields) {
         data,
     })
 }
+export async function apiGetLabMasterCluster<
+    T,
+    U extends Record<string, unknown>,
+>(params: U) {
+    return ApiService.fetchDataWithAxios<T>({
+        url: `${apiEndpointConfig.clusters}${apiEndpointConfig.syncMaster}`,
+        method: 'get',
+        params,
+    })
+}
+
+export async function apiAppendLabClusterToMaster(labClusterId: number) {
+    return ApiService.fetchDataWithAxios({
+        url: `${apiEndpointConfig.clusters}/append-to-master`,
+        method: 'post',
+        data: {
+            lab_cluster_id: labClusterId,
+        },
+    })
+}
+
+export async function apiGetLabAllCluster(labId: number) {
+    return ApiService.fetchDataWithAxios({
+        url: `${apiEndpointConfig.clusters}/lab-all`,
+        method: 'get',
+        params: { lab_id: labId },
+    })
+}
+export async function apiAppendMasterClusterToLab(
+    masterClusterId: number,
+    labId: number,
+) {
+    return ApiService.fetchDataWithAxios({
+        url: `${apiEndpointConfig.clusters}/append-to-lab`,
+        method: 'post',
+        data: {
+            master_cluster_id: masterClusterId,
+            lab_id: labId,
+        },
+    })
+}
+export async function apiGetPendingCluster() {
+    return ApiService.fetchDataWithAxios({
+        url: `${apiEndpointConfig.clusters}/pending`,
+        method: 'get',
+    })
+}
+export async function apiApproveCluster(ids: number[]) {
+    return ApiService.fetchDataWithAxios({
+        url: `${apiEndpointConfig.clusters}/approve`,
+        method: 'post',
+        data: { ids },
+    })
+}

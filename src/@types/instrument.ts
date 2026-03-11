@@ -15,6 +15,7 @@ export type Instrument = {
     short_name: string
     manufacturer: string
     serial_no: string
+    lab: null | { name: string }
 } & IdentifierEntity
 
 export type InstrumentListState = {
