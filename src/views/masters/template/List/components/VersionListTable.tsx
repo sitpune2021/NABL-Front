@@ -47,8 +47,6 @@ const VersionListTable = () => {
 
     const { handleSubmit } = useFormSubmit<any>({
         apiCall: (values) => {
-            console.log(values)
-
             return save({ version_id: values, id })
         },
         navigateTo: endpointConfig.master.template.versions.list.replace(

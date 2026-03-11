@@ -14,10 +14,11 @@ const UserAssignmentRow = ({
     onUpdate,
     assingn,
 }: any) => {
+    console.log(assingn)
+
     const [activeUser, setActiveUser] = useState<number | null>(null)
 
     const assignedUsers = assignments[labId]?.users || {}
-    console.log(assingn)
 
     const getUserById = (id: number) =>
         users.find((u: any) => Number(u.id) === Number(id))

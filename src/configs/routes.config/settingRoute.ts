@@ -34,7 +34,7 @@ const settingRoute: Routes = [
         authority: [],
     },
     {
-        key: 'settings.standard.lis',
+        key: 'settings.standard.list',
         path: `${endpointConfig.setting.clauses.edit}`,
         component: lazy(() => import('@/views/masters/clauses/AddEdit')),
         authority: [],

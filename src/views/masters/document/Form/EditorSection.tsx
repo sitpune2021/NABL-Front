@@ -4,11 +4,6 @@ import grapesjs from 'grapesjs'
 import 'grapesjs/dist/css/grapes.min.css'
 import { useWatch } from 'react-hook-form'
 import debounce from 'lodash/debounce'
-
-import {
-    addCustomBlocks,
-    addDynamicFields,
-} from '../../template/Form/BlockManager'
 import { EditorSectionProps, Template } from '@/@types/document'
 import IframeContent from '../List/components/IframeContent'
 import {
@@ -16,6 +11,7 @@ import {
     lockTree,
     resolveFieldValue,
 } from '@/utils/resolveFieldValue'
+import { loadEditorPlugins } from '@/configs/editor.config/index.config'
 
 const EditorSection = ({
     isEdit = false,
@@ -84,7 +80,7 @@ const EditorSection = ({
                     // Remove old header/footer if exist
                     ;['header-section', 'footer-section'].forEach((cls) => {
                         const comp = wrapper.find(`.${cls}`)
-                        if (comp.length) comp.forEach((c) => c.remove())
+                        if (comp.length) comp.forEach((c: any) => c.remove())
                     })
 
                     // Insert new header at top
@@ -160,8 +156,7 @@ const EditorSection = ({
             },
         })
 
-        addCustomBlocks(editor)
-        addDynamicFields(editor)
+        loadEditorPlugins(editor)
 
         const handleChange = debounce(() => {
             setValue('editor_schema', {
@@ -211,7 +206,7 @@ const EditorSection = ({
             atIndex?: number,
         ) => {
             const existing = wrapper.find(`.${className}`)
-            if (existing.length) existing.forEach((c) => c.remove())
+            if (existing.length) existing.forEach((c: any) => c.remove())
             if (!json) return
 
             editor.addComponents(

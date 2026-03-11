@@ -15,8 +15,6 @@ export const ClauseDocumentSchema = z
     })
     .refine(
         (doc) => {
-            console.log(doc)
-
             if (doc.id) {
                 return !!doc.version_id
             }

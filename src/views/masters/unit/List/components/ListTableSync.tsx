@@ -19,7 +19,8 @@ const UnitListTableSync = () => {
     const { user } = useAuth()
 
     if (!user) return null
-    const isMasterLevel = user.lab === null
+    const isMasterLevel = user.role_type === 'one_step'
+
     if (!isMasterLevel) return null
 
     const [drawerOpen, setDrawerOpen] = useState(false)

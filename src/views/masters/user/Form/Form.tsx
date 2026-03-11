@@ -30,7 +30,7 @@ const UserForm = ({
     loading = false,
     children,
 }: UserFormProps) => {
-    const { lab } = useSessionUser((state) => state.user)
+    const { role_type } = useSessionUser((state) => state.user)
 
     const memoizedDefaults = useMemo(
         () => defaultValues ?? EMPTY_VALUES,
@@ -66,7 +66,7 @@ const UserForm = ({
                                 readOnly={readOnly}
                                 loading={loading}
                             />
-                            {lab ? (
+                            {role_type == 'lab' ? (
                                 <AssignLabPermissionSection
                                     readOnly={readOnly}
                                     loading={loading}

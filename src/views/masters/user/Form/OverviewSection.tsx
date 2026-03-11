@@ -71,7 +71,6 @@ const OverviewSection = ({ readOnly, loading }: OverviewSectionProps) => {
         control,
         formState: { errors },
     } = useFormContext<UserSchemaType>()
-    console.log(errors, 'errors')
 
     return (
         <Card>

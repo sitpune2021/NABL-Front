@@ -24,10 +24,10 @@ const apiEndpointConfig = {
     roles: '/roles',
     users: '/users',
 
-    dataEntry: '/data-entry',
+    dataEntry: '/documents/data-entry',
     documents: '/documents',
     documentsWorkflowAction: '/documents/workflow-action',
-    generateDocumentNumber: '/generate-number',
+    generateDocumentNumber: '/documents/generate-number',
 
     navigationItems: '/navigation-items',
     accessModules: '/access-modules',

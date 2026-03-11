@@ -63,8 +63,8 @@ export const initialState: AuthState = {
         email: '',
         authority: [],
         signature: null,
-        lab: null,
         assignments: [],
+        role_type: null,
     },
     roles: [],
 }

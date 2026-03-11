@@ -315,7 +315,6 @@ const FrequencySection = ({
         onConfirm()
     }
 
-    console.log(schedule)
     useEffect(() => {
         if (!schedule.interval || schedule.interval < 1) return
         const current = schedule.cutOffTimes ?? []

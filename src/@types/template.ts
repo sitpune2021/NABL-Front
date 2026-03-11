@@ -1,3 +1,4 @@
+import { TemplateFormSchema } from '@/schemas/template.schema'
 import { TableQueries } from './common'
 
 import type { Control, FieldErrors } from 'react-hook-form'
@@ -69,10 +70,18 @@ export type TagsFields = {
     tags: Array<{ value: string; label: string }>
 }
 
-export type TemplateFormSchema = Fields
-
 export type FormSectionBaseProps = {
     control: Control<TemplateFormSchema>
     errors: FieldErrors<TemplateFormSchema>
     readOnly?: boolean
+}
+
+export type SaveBoxSectionProps = {
+    readOnly?: boolean
+    loading?: boolean
+    isEdit: boolean
+    dialogIsOpen: boolean
+    onDialogClose: () => void
+    onSubmit: (values: TemplateFormSchema) => void
+    isSubmiting: boolean
 }
