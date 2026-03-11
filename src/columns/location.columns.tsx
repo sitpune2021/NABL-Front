@@ -52,7 +52,7 @@ export const buildLocationColumns = ({
         header: 'Location',
         accessorKey: 'location',
         cell: (props) => {
-            const { name, identifier, short_name } = props.row.original
+            const { name, identifier, short_name, lab } = props.row.original
             return (
                 <div className="flex items-center gap-2">
                     <div>
@@ -60,6 +60,17 @@ export const buildLocationColumns = ({
                             {name} - ({short_name})
                         </div>
                         <div>{identifier}</div>
+                        {lab != null && (
+                            <div className="mt-2">
+                                <span className="inline-flex items-center gap-1.5 rounded-md bg-slate-900 px-2 py-1 text-[11px] font-semibold text-white shadow-md">
+                                    <span className="relative flex h-2 w-2">
+                                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                                        <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                                    </span>
+                                    {lab.name}
+                                </span>
+                            </div>
+                        )}
                     </div>
                 </div>
             )

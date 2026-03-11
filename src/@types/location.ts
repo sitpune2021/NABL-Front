@@ -14,10 +14,14 @@ export type GetLocationDetailResponse = {
 export type Location = {
     id: string
     name: string
-    zone_id: string | number
+    zone?: {
+        id: number | string
+        name: string
+    }
     cluster_id: string | number
     cluster: Cluster
     short_name: string
+    lab: null | { name: string }
 } & IdentifierEntity
 
 export type LocationListState = {

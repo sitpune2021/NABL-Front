@@ -76,3 +76,16 @@ export async function apiAppendMasterCategoryToLab(
         },
     })
 }
+export async function apiGetPendingCategories() {
+    return ApiService.fetchDataWithAxios({
+        url: `${apiEndpointConfig.categories}/pending`,
+        method: 'get',
+    })
+}
+export async function apiApproveCategories(ids: number[]) {
+    return ApiService.fetchDataWithAxios({
+        url: `${apiEndpointConfig.categories}/approve`,
+        method: 'post',
+        data: { ids },
+    })
+}

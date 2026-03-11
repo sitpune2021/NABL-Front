@@ -19,6 +19,7 @@ export type Cluster = {
         identifier: string
     }
     name: string
+    lab: null | { name: string }
 } & IdentifierEntity
 
 export type ClusterListState = {

@@ -5,7 +5,9 @@ import { apiGetLabMasterCategories } from '@/services/CategoriesService'
 const useLabCategories = (params: any) => {
     const shouldFetch = !!params?.id
 
-    const LIST_KEY = shouldFetch ? `lab-cat-detail-${params.id}` : null // 👈 THIS prevents API call
+    const LIST_KEY = shouldFetch
+        ? `lab-cat-detail-${params.id}-${params.start_date}-${params.end_date}`
+        : null // 👈 THIS prevents API call
 
     const swr = useSWR(
         shouldFetch ? [LIST_KEY, params] : null,

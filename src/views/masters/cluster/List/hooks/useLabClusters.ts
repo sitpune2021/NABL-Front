@@ -1,25 +1,25 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import useSWR from 'swr'
-import { apiGetLabSubCategories } from '@/services/SubCategoryService'
+import { apiGetLabMasterCluster } from '@/services/ClusterService'
 
 interface Params {
     id?: number
-    catId?: number
+    zoneId?: number
     start_date?: string | null
     end_date?: string | null
 }
 
-const useLabSubCategories = (params: Params) => {
-    const shouldFetch = !!params?.id && !!params?.catId
+const useLabClusters = (params: Params) => {
+    const shouldFetch = !!params?.id && !!params?.zoneId
 
     const LIST_KEY = shouldFetch
-        ? `lab-subcat-detail-${params.id}-${params.catId}-${params.start_date}-${params.end_date}`
+        ? `lab-cluster-detail-${params.id}-${params.zoneId}-${params.start_date}-${params.end_date}`
         : null // 👈 prevents API call
 
     const swr = useSWR(
         shouldFetch ? [LIST_KEY, params] : null,
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        ([_, queryParams]) => apiGetLabSubCategories<any, any>(queryParams),
+        ([_, queryParams]) => apiGetLabMasterCluster<any, any>(queryParams),
         {
             revalidateOnFocus: false,
         },
@@ -33,4 +33,4 @@ const useLabSubCategories = (params: Params) => {
     }
 }
 
-export default useLabSubCategories
+export default useLabClusters

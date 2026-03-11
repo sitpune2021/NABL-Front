@@ -17,7 +17,6 @@ export type SubCategory = {
     cat_id: string | number
     category: Category
     parent_id?: number | null
-    appended_from_lab_id?: number | null
     lab: null | { name: string }
 } & IdentifierEntity
 

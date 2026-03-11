@@ -34,3 +34,57 @@ export async function apiUpdateLocation(id: string, data: Fields) {
         data,
     })
 }
+export async function apiGetLabMasterLocation<
+    T,
+    U extends Record<string, unknown>,
+>(params: U) {
+    return ApiService.fetchDataWithAxios<T>({
+        url: `${apiEndpointConfig.locations}${apiEndpointConfig.syncMaster}`,
+        method: 'get',
+        params,
+    })
+}
+
+export async function apiAppendLabLocationToMaster(labLocationId: number) {
+    return ApiService.fetchDataWithAxios({
+        url: `${apiEndpointConfig.locations}/append-to-master`,
+        method: 'post',
+        data: {
+            lab_location_id: labLocationId,
+        },
+    })
+}
+
+export async function apiGetLabAllLocation(labId: number) {
+    return ApiService.fetchDataWithAxios({
+        url: `${apiEndpointConfig.locations}/lab-all`,
+        method: 'get',
+        params: { lab_id: labId },
+    })
+}
+export async function apiAppendMasterLocationToLab(
+    masterLocationId: number,
+    labId: number,
+) {
+    return ApiService.fetchDataWithAxios({
+        url: `${apiEndpointConfig.locations}/append-to-lab`,
+        method: 'post',
+        data: {
+            master_location_id: masterLocationId,
+            lab_id: labId,
+        },
+    })
+}
+export async function apiGetPendingLocation() {
+    return ApiService.fetchDataWithAxios({
+        url: `${apiEndpointConfig.locations}/pending`,
+        method: 'get',
+    })
+}
+export async function apiApproveLocation(ids: number[]) {
+    return ApiService.fetchDataWithAxios({
+        url: `${apiEndpointConfig.locations}/approve`,
+        method: 'post',
+        data: { ids },
+    })
+}
