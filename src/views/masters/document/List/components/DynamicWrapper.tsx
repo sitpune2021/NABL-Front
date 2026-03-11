@@ -36,7 +36,7 @@ const DynamicFormWrapper = () => {
         defaultValues: {},
     })
 
-    const { lab } = useSessionUser((state) => state.user)
+    const { role_type } = useSessionUser((state) => state.user)
 
     const { save } = useEntityMutations<any>({
         apiCreate: apiDataEntry,
@@ -366,7 +366,7 @@ const DynamicFormWrapper = () => {
                     </div>
                 </div>
             </Container>
-            {lab ? (
+            {role_type == 'lab' ? (
                 <BottomPanel
                     isView={false}
                     isSubmitting={isSubmitting}

@@ -9,6 +9,9 @@ export const EMPTY_VALUES: TemplateFormSchema = {
         json: '',
     },
     status: 'draft',
+    change_type: '',
+    message: '',
+    apply_all_documents: false,
 }
 
 export const TEMPLATE_LIST_KEY = 'template-list'

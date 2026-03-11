@@ -59,7 +59,6 @@ const SettingsSecurity = () => {
     const formRef = useRef<HTMLFormElement>(null)
 
     const {
-        getValues,
         handleSubmit,
         formState: { errors },
         control,
@@ -70,7 +69,6 @@ const SettingsSecurity = () => {
     const handlePostSubmit = async () => {
         setIsSubmitting(true)
         await sleep(1000)
-        console.log('getValues', getValues())
         setConfirmationOpen(false)
         setIsSubmitting(false)
     }

@@ -13,6 +13,7 @@ import useUnitList from '../hooks/useList'
 import useSync from '@/utils/hooks/useSync'
 import { mapToOptions } from '@/helpers/optionMappers'
 import { Option } from '@/@types/common'
+import { useAuth } from '@/auth'
 
 interface FormSchema {
     labs: number[]
@@ -40,6 +41,13 @@ const getDefaultDates = () => {
 }
 
 const UnitListTableSync = () => {
+    const { user } = useAuth()
+
+    if (!user) return null
+    const isMasterLevel = user.role_type === 'one_step'
+
+    if (!isMasterLevel) return null
+
     const [drawerOpen, setDrawerOpen] = useState(false)
     const [selectedIds, setSelectedIds] = useState<number[]>([])
 

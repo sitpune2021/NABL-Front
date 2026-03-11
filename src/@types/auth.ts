@@ -63,8 +63,8 @@ export type User = {
     email?: string
     authority?: string[]
     signature?: string | null
-    lab?: number[] | null
     assignments?: []
+    role_type?: null | 'lab' | 'one_step'
 }
 
 export type Token = {

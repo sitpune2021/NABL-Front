@@ -4,16 +4,17 @@ import {
     FormProvider,
     useForm,
     FieldValues,
-    SubmitHandler,
     DefaultValues,
 } from 'react-hook-form'
 import { Form } from '../ui'
 
 type Props<T extends FieldValues> = {
     schema: any
-    defaultValues: DefaultValues<T>
+    defaultValues?: DefaultValues<T>
     onSubmit: (values: T) => void
     children: React.ReactNode
+    className?: string
+    containerClassName?: string
 }
 
 export default function MasterForm<T extends FieldValues>({
@@ -21,6 +22,8 @@ export default function MasterForm<T extends FieldValues>({
     defaultValues,
     onSubmit,
     children,
+    className = 'flex w-full h-full',
+    containerClassName = 'flex flex-col w-full justify-between',
 }: Props<T>) {
     const methods = useForm<T>({
         resolver: zodResolver(schema),
@@ -32,11 +35,9 @@ export default function MasterForm<T extends FieldValues>({
     return (
         <FormProvider {...methods}>
             <Form
-                className="flex w-full h-full"
-                containerClassName="flex flex-col w-full justify-between"
-                onSubmit={methods.handleSubmit(
-                    onSubmit as SubmitHandler<FieldValues>,
-                )}
+                className={className}
+                containerClassName={containerClassName}
+                onSubmit={methods.handleSubmit(onSubmit)}
             >
                 {children}
             </Form>

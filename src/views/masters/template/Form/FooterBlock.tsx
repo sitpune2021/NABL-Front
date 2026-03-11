@@ -1,16 +1,12 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+
 const footerContent = {
     tagName: 'footer',
-    style: {
-        textAlign: 'center',
-        padding: '20px',
-        background: '#f0f0f0',
-        borderTop: '1px solid #ccc',
-    },
+    classes: ['footer'],
     components: [
         {
             tagName: 'table',
-            classes: ['solution-table'],
+            classes: ['footer-table', 'solution-table'],
             type: 'table',
             traits: [
                 {
@@ -45,21 +41,13 @@ const footerContent = {
                                 colSpan: 1,
                                 style: { fontWeight: 'bold' },
                             },
-                            {
-                                content: '',
-                                colSpan: 1,
-                                editable: true,
-                            },
+                            { content: '', colSpan: 1, editable: true },
                             {
                                 content: 'Document Name',
                                 colSpan: 1,
                                 style: { fontWeight: 'bold' },
                             },
-                            {
-                                content: '',
-                                colSpan: 3,
-                                editable: true,
-                            },
+                            { content: '', colSpan: 3, editable: true },
                         ],
                     },
                     {
@@ -67,29 +55,15 @@ const footerContent = {
                             {
                                 content: 'Prepared By',
                                 colSpan: 1,
-                                style: {
-                                    textAlign: 'left',
-                                    fontWeight: 'bold',
-                                },
+                                style: { fontWeight: 'bold' },
                             },
+                            { content: 'Name:', colSpan: 2, editable: true },
                             {
-                                content: 'Name: ',
+                                content: 'Designation:',
                                 colSpan: 2,
-                                style: { textAlign: 'left' },
                                 editable: true,
                             },
-                            {
-                                content: 'Designation: ',
-                                colSpan: 2,
-                                style: { textAlign: 'left' },
-                                editable: true,
-                            },
-                            {
-                                content: 'Sign: ',
-                                colSpan: 1,
-                                style: { textAlign: 'left' },
-                                editable: true,
-                            },
+                            { content: 'Sign:', colSpan: 1, editable: true },
                         ],
                     },
                     {
@@ -97,29 +71,15 @@ const footerContent = {
                             {
                                 content: 'Approved By',
                                 colSpan: 1,
-                                style: {
-                                    textAlign: 'left',
-                                    fontWeight: 'bold',
-                                },
+                                style: { fontWeight: 'bold' },
                             },
+                            { content: 'Name:', colSpan: 2, editable: true },
                             {
-                                content: 'Name: ',
+                                content: 'Designation:',
                                 colSpan: 2,
-                                style: { textAlign: 'left' },
                                 editable: true,
                             },
-                            {
-                                content: 'Designation: ',
-                                colSpan: 2,
-                                style: { textAlign: 'left' },
-                                editable: true,
-                            },
-                            {
-                                content: 'Sign: ',
-                                colSpan: 1,
-                                style: { textAlign: 'left' },
-                                editable: true,
-                            },
+                            { content: 'Sign:', colSpan: 1, editable: true },
                         ],
                     },
                     {
@@ -127,113 +87,46 @@ const footerContent = {
                             {
                                 content: 'Issued By',
                                 colSpan: 1,
-                                style: {
-                                    textAlign: 'left',
-                                    fontWeight: 'bold',
-                                },
+                                style: { fontWeight: 'bold' },
                             },
+                            { content: 'Name:', colSpan: 2, editable: true },
                             {
-                                content: 'Name: ',
+                                content: 'Designation:',
                                 colSpan: 2,
-                                style: { textAlign: 'left' },
                                 editable: true,
                             },
-                            {
-                                content: 'Designation: ',
-                                colSpan: 2,
-                                style: { textAlign: 'left' },
-                                editable: true,
-                            },
-                            {
-                                content: 'Sign: ',
-                                colSpan: 1,
-                                style: { textAlign: 'left' },
-                                editable: true,
-                            },
+                            { content: 'Sign:', colSpan: 1, editable: true },
                         ],
                     },
+
                     {
                         cells: [
-                            {
-                                content: 'Issue No.',
-                                colSpan: 1,
-                            },
-                            {
-                                content: '',
-                                colSpan: 1,
-                                editable: true,
-                            },
-                            {
-                                content: 'Issue Date',
-                                colSpan: 1,
-                            },
-                            {
-                                content: '',
-                                colSpan: 1,
-                                editable: true,
-                            },
+                            { content: 'Issue No.', colSpan: 1 },
+                            { content: '', colSpan: 1, editable: true },
+                            { content: 'Issue Date', colSpan: 1 },
+                            { content: '', colSpan: 1, editable: true },
                             { content: 'Status', colSpan: 1 },
-                            {
-                                content: '',
-                                colSpan: 1,
-                                editable: true,
-                            },
+                            { content: '', colSpan: 1, editable: true },
                         ],
                     },
                     {
                         cells: [
-                            {
-                                content: 'Amendment No.',
-                                colSpan: 1,
-                            },
-                            {
-                                content: '',
-                                colSpan: 1,
-                                editable: true,
-                            },
-                            {
-                                content: 'Amendment Date',
-                                colSpan: 1,
-                            },
-                            {
-                                content: '',
-                                colSpan: 1,
-                                editable: true,
-                            },
-                            {
-                                content: 'Effective Date',
-                                colSpan: 1,
-                            },
-                            {
-                                content: '',
-                                colSpan: 1,
-                                editable: true,
-                            },
+                            { content: 'Amendment No.', colSpan: 1 },
+                            { content: '', colSpan: 1, editable: true },
+                            { content: 'Amendment Date', colSpan: 1 },
+                            { content: '', colSpan: 1, editable: true },
+                            { content: 'Effective Date', colSpan: 1 },
+                            { content: '', colSpan: 1, editable: true },
                         ],
                     },
                     {
                         cells: [
                             { content: 'Copy No.', colSpan: 1 },
-                            {
-                                content: '',
-                                colSpan: 1,
-                                editable: true,
-                            },
-                            {
-                                content: 'Copy Location',
-                                colSpan: 1,
-                            },
-                            {
-                                content: '',
-                                colSpan: 1,
-                                editable: true,
-                            },
+                            { content: '', colSpan: 1, editable: true },
+                            { content: 'Copy Location', colSpan: 1 },
+                            { content: '', colSpan: 1, editable: true },
                             { content: 'Page No.', colSpan: 1 },
-                            {
-                                content: '',
-                                colSpan: 1,
-                                editable: true,
-                            },
+                            { content: '', colSpan: 1, editable: true },
                         ],
                     },
                 ]
@@ -241,7 +134,6 @@ const footerContent = {
                 return [
                     {
                         tagName: 'tbody',
-                        type: 'tbody',
                         components: footerRows
                             .slice(0, num_rows)
                             .map((row) => ({
@@ -250,15 +142,7 @@ const footerContent = {
                                 components: row.cells.map((cell: any) => ({
                                     tagName: 'td',
                                     type: 'td',
-                                    classes: ['solution-td'],
-                                    style: cell.style
-                                        ? Object.keys(cell.style)
-                                              .map(
-                                                  (key) =>
-                                                      `${key.replace(/([A-Z])/g, '-$1').toLowerCase()}:${cell.style[key]}`,
-                                              )
-                                              .join(';')
-                                        : '',
+                                    classes: ['footer-td', 'solution-td'],
                                     attributes: {
                                         colSpan: cell.colSpan,
                                     },
@@ -270,7 +154,7 @@ const footerContent = {
                                             label: 'Colspan',
                                             min: 1,
                                             max: numCols,
-                                            default: cell.colSpan, // Default to the cell's defined colSpan
+                                            default: cell.colSpan,
                                         },
                                         {
                                             type: 'number',
@@ -298,42 +182,6 @@ const footerContent = {
                     },
                 ]
             },
-        },
-        {
-            tagName: 'div',
-            type: 'default', // Or 'div' if you have a custom type
-            style: { marginTop: '20px' }, // Optional styling for the div
-            components: [
-                {
-                    tagName: 'p',
-                    style: {
-                        'font-size': '13px',
-                        color: '#333',
-                        'text-align': 'center',
-                    },
-                    components: [
-                        '© ',
-                        {
-                            tagName: 'span',
-                            type: 'field-year',
-                            attributes: {
-                                'data-field': 'year',
-                            },
-                            content: '{{year}}',
-                        },
-                        ' ',
-                        {
-                            tagName: 'span',
-                            type: 'field-name',
-                            attributes: {
-                                'data-field': 'name',
-                            },
-                            content: '{{name}}',
-                        },
-                        ' Pvt Ltd. All rights reserved.',
-                    ],
-                },
-            ],
         },
     ],
 }

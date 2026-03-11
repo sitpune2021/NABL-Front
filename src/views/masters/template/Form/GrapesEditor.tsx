@@ -2,24 +2,23 @@
 import { useEffect, useRef } from 'react'
 import grapesjs from 'grapesjs'
 import 'grapesjs/dist/css/grapes.min.css'
-import { addCustomBlocks, addDynamicFields } from './BlockManager'
 import ReactDOMServer from 'react-dom/server'
 import HeaderBlock from './HeaderBlock'
 import { useParams } from 'react-router'
 import { useFormContext, useWatch } from 'react-hook-form'
-import { TemplateFormSchema } from '@/@types/template'
 import footerContent from './FooterBlock'
+import { loadEditorPlugins } from '@/configs/editor.config/index.config'
+import { TemplateFormSchema } from '@/schemas/template.schema'
 
 interface GrapesEditorProps {
     readOnly: boolean
-    loading?: boolean
 }
 
-const GrapesEditor = ({ readOnly, loading }: GrapesEditorProps) => {
+const GrapesEditor = ({ readOnly }: GrapesEditorProps) => {
     const editorRef = useRef<any | null>(null)
     const containerRef = useRef<HTMLDivElement>(null)
     const { type } = useParams<{ type: string }>()
-    loading
+
     const { control, setValue } = useFormContext<TemplateFormSchema>()
     const template = useWatch({ control, name: 'template' })
 
@@ -47,8 +46,7 @@ const GrapesEditor = ({ readOnly, loading }: GrapesEditorProps) => {
             },
         })
 
-        addCustomBlocks(editor)
-        addDynamicFields(editor)
+        loadEditorPlugins(editor)
 
         editor.Commands.add('insert-header', {
             run(ed) {
@@ -96,11 +94,12 @@ const GrapesEditor = ({ readOnly, loading }: GrapesEditorProps) => {
     }, [type, readOnly])
 
     return (
-        <div className="flex h-full w-full">
+        <div className="flex h-[calc(100vh-114px)] w-full overflow-hidden">
             <div
                 id="blocks"
-                className="flex-none w-[15%] h-full overflow-auto bg-gray-100 border-r"
+                className="flex-none w-[15%] h-full overflow-y-auto bg-gray-100 border-r"
             />
+
             <div ref={containerRef} id="gjs" className="flex-1 h-full" />
         </div>
     )

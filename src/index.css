@@ -1,1 +1,4 @@
 @import './assets/styles/app.css';
+.gjs-cv-canvas {
+  overflow-y: auto !important;
+}

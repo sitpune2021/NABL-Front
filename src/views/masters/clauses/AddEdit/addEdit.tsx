@@ -43,7 +43,6 @@ const ClausesAddEdit = () => {
 
         if (clause) {
             const flatClauses = flattenClauses(clause.clauses)
-            console.log(flatClauses, 'flatClauses')
 
             return {
                 standard_id: clause.id,

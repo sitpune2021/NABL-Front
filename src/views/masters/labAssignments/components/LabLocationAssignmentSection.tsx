@@ -45,7 +45,6 @@ const LabLocationAssignmentSection = ({ control, setValue }: any) => {
 
             return acc
         }, {})
-        console.log(initialAssignments)
 
         setValue('labAssignments', initialAssignments, {
             shouldDirty: false,

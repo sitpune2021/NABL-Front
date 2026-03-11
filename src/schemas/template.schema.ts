@@ -4,9 +4,9 @@ export const templateSchema = z.object({
     name: z.string().min(1, { message: 'Name required' }),
     type: z.string().min(1, { message: 'type required' }),
     template: z.any(),
-    status: z.any().optional(),
-    change_type: z.string().optional(),
-    message: z.string().optional(),
+    status: z.string(),
+    change_type: z.string(),
+    message: z.string(),
     apply_all_documents: z.boolean().optional(),
 })
 

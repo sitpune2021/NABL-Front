@@ -15,6 +15,7 @@ import TemplateForm from '../Form'
 import { TemplateFormSchema } from '@/schemas/template.schema'
 import { apiTemplate, apiUpdateTemplate } from '@/services/TemplateService'
 import { EMPTY_VALUES } from '@/constants/template.constants'
+import { FormSkeleton } from '@/components/form'
 
 type RouteParams = {
     id?: string
@@ -28,6 +29,8 @@ const TemplateAddEdit = () => {
     const { id, version_id, type } = useParams<RouteParams>()
 
     const mode = useMemo(() => getMode(location.pathname), [location.pathname])
+    const [submitDialogOpen, setSubmitDialogOpen] = useState(false)
+
     const isVersionView = Boolean(version_id)
     const isView = mode === 'view' || isVersionView
     const isEdit = mode === 'edit' && !isVersionView
@@ -40,11 +43,7 @@ const TemplateAddEdit = () => {
 
     const template = isVersionView ? versionDetail : templateDetail
     const isLoading = isVersionView ? versionLoading : templateLoading
-
-    const defaultValues: TemplateFormSchema = useMemo(() => {
-        if (template) return template
-        return { ...EMPTY_VALUES, type: type ?? '' }
-    }, [template, type])
+    const canSubmit = !isView && !isVersionView
 
     const { save } = useEntityMutations<TemplateFormSchema>({
         apiCreate: apiTemplate,
@@ -58,11 +57,10 @@ const TemplateAddEdit = () => {
         },
         navigateTo: endpointConfig.master.template.list,
     })
-
     const discard = useDiscardConfirm()
+
     const handlePrimaryClick = useCallback(() => setSubmitDialogOpen(true), [])
     const handleDiscardClick = useCallback(() => discard.show(), [discard])
-    const canSubmit = !isView && !isVersionView
 
     const confirmDiscard = useCallback(() => {
         toast.push(
@@ -73,20 +71,21 @@ const TemplateAddEdit = () => {
         navigate(endpointConfig.master.template.list)
     }, [discard, navigate])
 
-    const [submitDialogOpen, setSubmitDialogOpen] = useState(false)
-    if (isLoading) {
-        return <div>Loading template...</div> // or a spinner
+    if ((isEdit || isView) && isLoading) {
+        return <FormSkeleton count={1} title="Template" />
     }
 
     return (
         <>
             <TemplateForm
-                defaultValues={defaultValues}
+                key={id || 'new'}
+                defaultValues={
+                    template ?? { ...EMPTY_VALUES, type: type ?? '' }
+                }
                 readOnly={isView}
                 dialogIsOpen={submitDialogOpen}
                 isSubmiting={isSubmitting}
                 isEdit={isEdit}
-                EMPTY_VALUES={EMPTY_VALUES}
                 loading={isLoading}
                 onFormSubmit={handleSubmit}
                 onDialogClose={() => setSubmitDialogOpen(false)}

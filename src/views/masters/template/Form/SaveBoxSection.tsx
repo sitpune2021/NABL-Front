@@ -1,19 +1,10 @@
 import { memo } from 'react'
 import Input from '@/components/ui/Input'
 import { FormItem } from '@/components/ui/Form'
-import { Controller, useFormContext, useWatch } from 'react-hook-form'
+import { Controller, useFormContext } from 'react-hook-form'
 import { Button, Dialog, Select, Checkbox } from '@/components/ui'
 import { TemplateFormSchema } from '@/schemas/template.schema'
-
-type SaveBoxSectionProps = {
-    readOnly?: boolean
-    loading?: boolean
-    isEdit: boolean
-    dialogIsOpen: boolean
-    onDialogClose: () => void
-    onSubmit: () => void
-    isSubmiting: boolean
-}
+import { SaveBoxSectionProps } from '@/@types/template'
 
 const changeTypeOptions = [
     { label: 'Minor', value: 'minor' },
@@ -34,16 +25,16 @@ const SaveBoxSection = ({
         formState: { errors },
         control,
         setValue,
+        watch,
+        handleSubmit,
     } = useFormContext<TemplateFormSchema>()
 
     const submitWithStatus = (status: 'draft' | 'published') => {
         setValue('status', status, { shouldDirty: true })
-        onSubmit()
+        handleSubmit(onSubmit)()
     }
-    const changeType = useWatch({
-        control,
-        name: 'change_type',
-    })
+
+    const changeType = watch('change_type')
 
     return (
         <Dialog isOpen={dialogIsOpen} closable={false}>
@@ -83,7 +74,6 @@ const SaveBoxSection = ({
                                     value={changeTypeOptions.find(
                                         (o) => o.value === field.value,
                                     )}
-                                    placeholder="Select"
                                     onChange={(option) =>
                                         field.onChange(option?.value)
                                     }
@@ -93,22 +83,20 @@ const SaveBoxSection = ({
                     </FormItem>
 
                     {changeType === 'minor' && (
-                        <FormItem>
-                            <Controller
-                                name="apply_all_documents"
-                                control={control}
-                                render={({ field }) => (
-                                    <Checkbox
-                                        checked={!!field.value}
-                                        onChange={(checked) =>
-                                            field.onChange(checked)
-                                        }
-                                    >
-                                        Forcefully apply for all documents ?
-                                    </Checkbox>
-                                )}
-                            />
-                        </FormItem>
+                        <Controller
+                            name="apply_all_documents"
+                            control={control}
+                            render={({ field }) => (
+                                <Checkbox
+                                    checked={!!field.value}
+                                    onChange={(checked) =>
+                                        field.onChange(checked)
+                                    }
+                                >
+                                    Forcefully apply for all documents ?
+                                </Checkbox>
+                            )}
+                        />
                     )}
 
                     {changeType === 'major' && (
@@ -122,11 +110,7 @@ const SaveBoxSection = ({
                         invalid={!!errors.message}
                         errorMessage={errors.message?.message}
                     >
-                        <Input
-                            placeholder="Enter Message"
-                            disabled={readOnly || loading}
-                            {...register('message')}
-                        />
+                        <Input {...register('message')} />
                     </FormItem>
                 </>
             )}
@@ -140,7 +124,7 @@ const SaveBoxSection = ({
                     <>
                         <Button
                             variant="solid"
-                            loading={isSubmiting}
+                            disabled={isSubmiting}
                             onClick={() => submitWithStatus('published')}
                         >
                             Save
@@ -148,7 +132,7 @@ const SaveBoxSection = ({
 
                         <Button
                             variant="solid"
-                            loading={isSubmiting}
+                            disabled={isSubmiting}
                             onClick={() => submitWithStatus('draft')}
                         >
                             Save as Draft
@@ -159,8 +143,8 @@ const SaveBoxSection = ({
                 {isEdit && (
                     <Button
                         variant="solid"
-                        loading={isSubmiting}
-                        onClick={onSubmit}
+                        disabled={isSubmiting}
+                        onClick={handleSubmit(onSubmit)}
                     >
                         Update
                     </Button>
