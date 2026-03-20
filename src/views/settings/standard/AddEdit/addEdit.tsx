@@ -17,6 +17,7 @@ import {
     apiUpdateStandard,
 } from '@/services/StandardService'
 import { useStandardDetail } from '../List/hooks/useDetail'
+import { FormSkeleton } from '@/components/form'
 
 const AddEdit = () => {
     const navigate = useNavigate()
@@ -26,10 +27,9 @@ const AddEdit = () => {
     const mode = useMemo(() => getMode(location.pathname), [location.pathname])
     const isView = mode === 'view'
     const isEdit = mode === 'edit'
-    const { standard, isLoading } = useStandardDetail(id)
 
+    const { standard, isLoading } = useStandardDetail(id)
     const discard = useDiscardConfirm()
-    const defaultValues = useMemo(() => standard ?? EMPTY_VALUES, [standard])
 
     const { save } = useEntityMutations<StandardFormSchema>({
         apiCreate: apiCreateStandard,
@@ -51,12 +51,16 @@ const AddEdit = () => {
         navigate(`${endpointConfig.setting.standard.list}`)
     }
 
+    if ((isEdit || isView) && isLoading) {
+        return <FormSkeleton count={2} title={'Category'} />
+    }
+
     return (
         <>
             <StandardForm
-                defaultValues={defaultValues}
+                key={id || 'new'}
+                defaultValues={standard || EMPTY_VALUES}
                 readOnly={isView}
-                loading={isLoading}
                 onFormSubmit={handleSubmit}
             >
                 <BottomPanel

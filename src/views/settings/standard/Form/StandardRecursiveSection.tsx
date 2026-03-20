@@ -5,31 +5,8 @@ import { HiPlus, HiTrash } from 'react-icons/hi'
 import Button from '@/components/ui/Button'
 import StandardCard from './StandardCard'
 import { StandardChildFormSchema } from '@/schemas/standard.schema'
-
-type StandardFieldPath =
-    | 'clauses'
-    | `clauses.${number}`
-    | `clauses.${number}.children`
-
-interface StandardRecursiveSectionProps {
-    name: StandardFieldPath
-    readOnly: boolean
-    isRoot?: boolean
-    depth?: number
-}
-
-const createDefaultStandard = (depth = 0) => ({
-    id: Math.random(),
-    title: '',
-    message: '',
-    note: true,
-    is_child: false,
-    children_count: 0,
-    children: [],
-    numbering_value: '',
-    numbering_type: 'none',
-    depth,
-})
+import { StandardRecursiveSectionProps } from '@/@types/standard'
+import { createStandard } from '@/constants/standard.constant'
 
 const StandardRecursiveSection = ({
     name,
@@ -55,13 +32,15 @@ const StandardRecursiveSection = ({
 
     useEffect(() => {
         if (isRoot && !initialized.current && fields.length === 0) {
-            append(createDefaultStandard(depth))
+            append(createStandard(depth))
             initialized.current = true
         }
     }, [isRoot, fields.length, append, depth])
 
     useEffect(() => {
-        watched?.forEach((item: any, i: number) => {
+        if (!watched) return
+
+        watched.forEach((item: any, i: number) => {
             if (!item?.is_child) return
 
             const children = item.children || []
@@ -71,27 +50,35 @@ const StandardRecursiveSection = ({
 
             const baseDepth = (item.depth || 0) + 1
 
-            const nextChildren =
-                needed > children.length
-                    ? [
-                          ...children,
-                          ...Array.from(
-                              { length: needed - children.length },
-                              () => createDefaultStandard(baseDepth),
-                          ),
-                      ]
-                    : children.slice(0, needed)
+            let nextChildren = children
 
-            update(i, { ...item, children: nextChildren })
+            if (needed > children.length) {
+                nextChildren = [
+                    ...children,
+                    ...Array.from({ length: needed - children.length }, () =>
+                        createStandard(baseDepth),
+                    ),
+                ]
+            } else {
+                nextChildren = children.slice(0, needed)
+            }
+
+            if (nextChildren.length !== children.length) {
+                setValue(`${name}.${i}.children`, nextChildren, {
+                    shouldDirty: true,
+                    shouldValidate: false,
+                })
+            }
         })
     }, [watched, update])
+
     const handleRemove = useCallback(
         (index: number) => {
             remove(index)
 
             if (isRoot) return
 
-            const parentPath = name.replace(/\.children$/, '')
+            const parentPath = name.split('.').slice(0, -1).join('.')
             const count = getValues(`${parentPath}.children_count` as any) ?? 0
 
             if (count)
@@ -104,7 +91,7 @@ const StandardRecursiveSection = ({
     )
 
     const handleAdd = useCallback(() => {
-        append(createDefaultStandard(depth))
+        append(createStandard(depth))
     }, [append, depth])
 
     return (
@@ -114,7 +101,7 @@ const StandardRecursiveSection = ({
                     size="sm"
                     type="button"
                     disabled={readOnly}
-                    className="sticky top-[68px] z-40 left-[1366px]"
+                    className="sticky top-[68px] z-40"
                     onClick={handleAdd}
                 >
                     <HiPlus className="text-lg" />
@@ -122,7 +109,7 @@ const StandardRecursiveSection = ({
             )}
 
             {fields.map((field, index) => (
-                <div key={field.reactId} className="relative pl-4">
+                <div key={field.reactId} className="relative">
                     {!readOnly && (
                         <Button
                             size="xs"

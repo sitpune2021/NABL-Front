@@ -145,6 +145,39 @@ const OverviewSection = ({
                                   ]
                                 : []
 
+                        const selectedDoc = useWatch({
+                            control,
+                            name: `standard_clauses.${clauseIndex}.clause_documents_tagging.${index}.documents`,
+                        })
+
+                        const getFrequencyText = () => {
+                            if (!selectedDoc) return '—'
+
+                            const parts: string[] = []
+
+                            // Review frequency
+                            if (selectedDoc.review_frequency) {
+                                parts.push(
+                                    `Review: ${selectedDoc.review_frequency} (${selectedDoc.notification_value} ${selectedDoc.notification_unit})`,
+                                )
+                            }
+
+                            // Data entry frequency
+                            if (selectedDoc.schedule) {
+                                const s = selectedDoc.schedule
+
+                                let entryText = `Entry: ${s.type} (every ${s.count})`
+
+                                if (s.cutOffTimes?.length) {
+                                    entryText += ` @ ${s.cutOffTimes.join(', ')}`
+                                }
+
+                                parts.push(entryText)
+                            }
+
+                            return parts.join(' | ')
+                        }
+
                         return (
                             <div
                                 key={fieldItem.id}
@@ -242,12 +275,37 @@ const OverviewSection = ({
                                                                           ?.id ??
                                                                       '',
                                                                   label: doc.name,
+
+                                                                  review_frequency:
+                                                                      doc
+                                                                          ?.current_version
+                                                                          ?.review_frequency,
+                                                                  notification_unit:
+                                                                      doc
+                                                                          ?.current_version
+                                                                          ?.notification_unit,
+                                                                  notification_value:
+                                                                      doc
+                                                                          ?.current_version
+                                                                          ?.notification_value,
+                                                                  schedule:
+                                                                      doc
+                                                                          ?.current_version
+                                                                          ?.schedule,
                                                               }
                                                             : {
                                                                   id: '',
                                                                   version_id:
                                                                       '',
                                                                   label: '',
+                                                                  review_frequency:
+                                                                      '',
+                                                                  notification_unit:
+                                                                      '',
+                                                                  notification_value:
+                                                                      '',
+                                                                  schedule:
+                                                                      null,
                                                               },
                                                     )
                                                 }}
@@ -257,7 +315,9 @@ const OverviewSection = ({
                                 </FormItem>
 
                                 <FormItem label="Frequency">
-                                    <Input readOnly placeholder="Auto" />
+                                    <div className="h-10 flex items-center px-3 text-sm text-gray">
+                                        {getFrequencyText()}
+                                    </div>
                                 </FormItem>
 
                                 <FormItem>

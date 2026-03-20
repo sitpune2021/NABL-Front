@@ -61,7 +61,7 @@ export const buildVersionTemplateColumns = ({
                         icon: <TbEye />,
                         tooltip: 'View',
                         onClick: () => onView(row.original),
-                        show: can('masters.template.version.write'),
+                        show: can('masters.template.write.version.write'),
                     },
                 ]}
             />

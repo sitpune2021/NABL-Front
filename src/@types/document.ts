@@ -94,6 +94,7 @@ export type Document = {
     category?: {
         name?: string
     }
+    editor?: any
 }
 
 export type DocumentListState = {

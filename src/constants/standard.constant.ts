@@ -1,5 +1,6 @@
 import { StandardFormSchema } from '@/schemas/standard.schema'
 import { nanoid } from 'nanoid'
+import { v4 as uuidv4 } from 'uuid'
 
 const EMPTY_STANDARD_ITEM = {
     title: '',
@@ -13,7 +14,7 @@ const EMPTY_STANDARD_ITEM = {
 }
 
 export const EMPTY_VALUES: StandardFormSchema = {
-    uuid: '',
+    uuid: uuidv4(),
     name: '',
     clauses: [EMPTY_STANDARD_ITEM],
 }
@@ -32,3 +33,13 @@ export const createStandard = (depth: number) => ({
     numbering_type: 'none',
     depth,
 })
+
+export const numberingOptions = [
+    { value: 'none', label: 'None' },
+    { value: 'numerical', label: '1, 2, 3' },
+    { value: 'alphabetical-lower', label: 'a, b, c' },
+    { value: 'alphabetical-upper', label: 'A, B, C' },
+    { value: 'roman-lower', label: 'i, ii, iii' },
+    { value: 'roman-upper', label: 'I, II, III' },
+    { value: 'dot', label: '• Bullet / Dot' },
+]

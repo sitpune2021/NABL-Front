@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useCallback, useState } from 'react'
 import StickyFooter from '@/components/shared/StickyFooter'
 import Button from '@/components/ui/Button'
@@ -14,7 +15,7 @@ const ClausesListSelected = () => {
 
     const handleConfirmDelete = useCallback(() => {
         if (!selected.length) return
-        const remainingCategories = standardList.filter(
+        const remainingCategories: any = standardList.filter(
             (standard) => !selected.some((sel) => sel.id === standard.id),
         )
         setAll([])
