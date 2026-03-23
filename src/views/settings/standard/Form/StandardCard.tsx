@@ -5,6 +5,7 @@ import { Card, Checkbox, FormItem, Input, Select } from '@/components/ui'
 import StandardRecursiveSection from './StandardRecursiveSection'
 import { getNumberingValue } from '@/utils/standard'
 import { HiChevronDown, HiChevronRight } from 'react-icons/hi'
+import { numberingOptions } from '@/constants/standard.constant'
 
 interface StandardCardProps {
     index: number
@@ -28,7 +29,6 @@ const StandardCard = ({
     depth = 0,
 }: StandardCardProps) => {
     const { setValue } = useFormContext()
-
     const [isExpanded, setIsExpanded] = useState(true)
     const path = `${baseName}.${index}` as const
     const current = watchedStandards?.[index] || {}
@@ -57,19 +57,6 @@ const StandardCard = ({
         return val || `Clause ${index + 1}`
     }, [numberingValue, current?.title, index])
 
-    /** SELECT OPTIONS */
-    const numberingOptions = useMemo(
-        () => [
-            { value: 'none', label: 'None' },
-            { value: 'numerical', label: '1, 2, 3' },
-            { value: 'alphabetical-lower', label: 'a, b, c' },
-            { value: 'alphabetical-upper', label: 'A, B, C' },
-            { value: 'roman-lower', label: 'i, ii, iii' },
-            { value: 'roman-upper', label: 'I, II, III' },
-            { value: 'dot', label: '• Bullet / Dot' },
-        ],
-        [],
-    )
     useEffect(() => {
         if (!readOnly) {
             setValue(`${path}.numbering_value`, numberingValue, {

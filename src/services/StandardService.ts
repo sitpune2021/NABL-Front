@@ -1,6 +1,7 @@
-import { Fields, GetStandardResponse } from '@/@types/standard'
+import { GetStandardResponse } from '@/@types/standard'
 import ApiService from './ApiService'
 import apiEndpointConfig from '@/configs/api-endpoint.config'
+import { StandardFormSchema } from '@/schemas/standard.schema'
 
 export async function apiGetStandardList<T, U extends Record<string, unknown>>(
     params: U,
@@ -12,8 +13,8 @@ export async function apiGetStandardList<T, U extends Record<string, unknown>>(
     })
 }
 
-export async function apiCreateStandard(data: Fields) {
-    return ApiService.fetchDataWithAxios<Fields>({
+export async function apiCreateStandard(data: StandardFormSchema) {
+    return ApiService.fetchDataWithAxios<StandardFormSchema>({
         url: apiEndpointConfig.standards,
         method: 'post',
         data,
@@ -27,8 +28,8 @@ export async function apiGetStandardById(id: string) {
     })
 }
 
-export async function apiUpdateStandard(id: string, data: Fields) {
-    return ApiService.fetchDataWithAxios<Fields>({
+export async function apiUpdateStandard(id: string, data: StandardFormSchema) {
+    return ApiService.fetchDataWithAxios<StandardFormSchema>({
         url: `${apiEndpointConfig.standards}/${id}`,
         method: 'put',
         data,

@@ -230,7 +230,7 @@ const masterRoute: Routes = [
     },
 
     {
-        key: 'masters.template.versions.view',
+        key: 'masters.template.write.version.write',
         path: `${endpointConfig.master.template.versions.view}`,
         component: lazy(() => import('@/views/masters/template/AddEdit')),
         authority: [],

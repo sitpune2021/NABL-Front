@@ -292,7 +292,7 @@ const DocumentList = () => {
                 }
 
                 const pdfBlob = pdf.output('blob')
-                zip.file(`${doc.documentName || 'document'}.pdf`, pdfBlob)
+                zip.file(`${doc.name || 'document'}.pdf`, pdfBlob)
 
                 document.body.removeChild(headerDiv)
                 document.body.removeChild(footerDiv)
@@ -314,7 +314,7 @@ const DocumentList = () => {
     return (
         <ListLayout
             title="Document"
-            ActionTools={actionButtons(handleDownload)}
+            ActionTools={isDataEntry ? [] : actionButtons(handleDownload)}
             TableTools={<DocumentListTableTools />}
             Table={
                 isDataEntry ? <DocumentEntryListTable /> : <DocumentListTable />

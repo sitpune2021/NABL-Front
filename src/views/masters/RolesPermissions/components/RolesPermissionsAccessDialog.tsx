@@ -76,7 +76,7 @@ const RolesPermissionsAccessDialog = ({
     const { selectedRole, setRoleDialog, roleDialog } =
         useRolePermissionsStore()
     const isEdit = roleDialog.type === 'edit'
-    const nextLevel = roleLevelsList.length
+    const nextLevel = roleLevelsList.length + 1
 
     const {
         handleSubmit,

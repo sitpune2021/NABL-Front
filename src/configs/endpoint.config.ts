@@ -135,6 +135,7 @@ const endpointConfig = {
     works: {
         tasks: {
             list: `${WORKS_PREFIX_PATH}/tasks/list`,
+            task: `${WORKS_PREFIX_PATH}/tasks/task`,
         },
     },
 }

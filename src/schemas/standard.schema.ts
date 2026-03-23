@@ -32,7 +32,10 @@ export const standardItemSchema: z.ZodType<any> = z.lazy(() =>
 export type StandardChildFormSchema = z.infer<typeof standardItemSchema>
 
 export const standardSchema = z.object({
-    uuid: z.string().min(1, { message: 'Unique ID is required' }),
+    uuid: z
+        .string()
+        .uuid()
+        .default(() => crypto.randomUUID()),
     name: z.string().min(1, { message: 'Name is required' }),
     clauses: z
         .array(standardItemSchema)
