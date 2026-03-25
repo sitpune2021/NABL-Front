@@ -9,6 +9,8 @@ import { useFormContext, useWatch } from 'react-hook-form'
 import footerContent from './FooterBlock'
 import { loadEditorPlugins } from '@/configs/editor.config/index.config'
 import { TemplateFormSchema } from '@/schemas/template.schema'
+import IframeContent from '../../document/List/components/IframeContent'
+import { extractMediaQueryStyles } from '@/utils/resolveFieldValue'
 
 interface GrapesEditorProps {
     readOnly: boolean
@@ -22,8 +24,38 @@ const GrapesEditor = ({ readOnly }: GrapesEditorProps) => {
     const { control, setValue } = useFormContext<TemplateFormSchema>()
     const template = useWatch({ control, name: 'template' })
 
+    const parsedContent = { header: '', content: '', footer: '' }
+
+    if (readOnly && template?.html) {
+        try {
+            const parser = new DOMParser()
+            const doc = parser.parseFromString(template.html, 'text/html')
+
+            const headerEl = doc.querySelector('.header-section')
+            if (headerEl) {
+                parsedContent.header = headerEl.outerHTML
+                headerEl.remove()
+            }
+
+            const footerEl = doc.querySelector('.footer-section')
+            if (footerEl) {
+                parsedContent.footer = footerEl.outerHTML
+                footerEl.remove()
+            }
+
+            parsedContent.content = doc.body.innerHTML.trim()
+        } catch (err) {
+            console.error('Template parse error', err)
+        }
+    }
+
+    const updatedCss = extractMediaQueryStyles(
+        template?.css || '',
+        'max-width: 210mm',
+    )
+
     useEffect(() => {
-        if (!containerRef.current) return
+        if (!containerRef.current || readOnly) return
 
         if (editorRef.current) {
             if (template?.html && template?.css) {
@@ -78,11 +110,6 @@ const GrapesEditor = ({ readOnly }: GrapesEditorProps) => {
             setValue('template', { html, css, json })
         })
 
-        if (readOnly) {
-            editor.getWrapper()?.set('editable', false)
-            editor.Panels.getPanels()?.reset()
-        }
-
         editorRef.current = editor
 
         return () => {
@@ -92,6 +119,24 @@ const GrapesEditor = ({ readOnly }: GrapesEditorProps) => {
             }
         }
     }, [type, readOnly])
+    if (readOnly) {
+        return (
+            <div className="flex justify-center p-4">
+                <div
+                    style={{
+                        width: '220mm',
+                        height: '300mm',
+                        background: 'white',
+                    }}
+                >
+                    <IframeContent
+                        parsedContent={parsedContent}
+                        updatedCss={updatedCss}
+                    />
+                </div>
+            </div>
+        )
+    }
 
     return (
         <div className="flex h-[calc(100vh-114px)] w-full overflow-hidden">

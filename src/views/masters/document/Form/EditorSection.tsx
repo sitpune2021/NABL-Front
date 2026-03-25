@@ -12,6 +12,7 @@ import {
     resolveFieldValue,
 } from '@/utils/resolveFieldValue'
 import { loadEditorPlugins } from '@/configs/editor.config/index.config'
+import { FormSkeleton } from '@/components/form'
 
 const EditorSection = ({
     isEdit = false,
@@ -20,7 +21,15 @@ const EditorSection = ({
     control,
     setValue,
     defaultValues,
+    loading = false,
 }: EditorSectionProps) => {
+    if (readOnly && loading) {
+        return (
+            <div className="p-4">
+                <FormSkeleton count={3} title="" />
+            </div>
+        )
+    }
     const containerRef = useRef<HTMLDivElement | null>(null)
     const editorRef = useRef<any | null>(null)
     const [isEditorReady, setIsEditorReady] = useState(false)
