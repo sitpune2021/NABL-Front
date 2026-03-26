@@ -1,16 +1,20 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import React, { useMemo } from 'react'
+import React, { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router'
 import { useClauseDetail } from '@/views/masters/clauses/List/hooks/useDetail'
 import DataTable from '@/components/shared/DataTable'
 import type { ColumnDef } from '@/components/shared/DataTable'
 import endpointConfig from '@/configs/endpoint.config'
-import { TbEdit } from 'react-icons/tb'
+import { TbEdit, TbMessageCircle } from 'react-icons/tb'
 import ListLayout from '@/components/layouts/ListLayout'
+import CommentDrawer from './Commentdrawer'
+import { Button } from '@/components/ui'
 
 const ClauseDocumentListTable = () => {
     const { clause, isLoading } = useClauseDetail('1')
     const navigate = useNavigate()
+    const [drawerOpen, setDrawerOpen] = useState(false)
+    const [selectedDocument, setSelectedDocument] = useState<any>(null)
 
     // ✅ Flatten data (same logic)
     const data =
@@ -28,6 +32,10 @@ const ClauseDocumentListTable = () => {
             String(document.id),
         )
         navigate(path)
+    }
+    const handleOpenComments = (document: any) => {
+        setSelectedDocument(document)
+        setDrawerOpen(true)
     }
 
     // ✅ Columns (same style as your main table)
@@ -71,13 +79,25 @@ const ClauseDocumentListTable = () => {
                 header: 'Action',
                 id: 'action',
                 cell: ({ row }) => (
-                    <button
-                        className="flex items-center gap-1 text-blue-600 hover:underline"
-                        onClick={() => handleEntryDetails(row.original)}
-                    >
-                        <TbEdit />
-                        Edit
-                    </button>
+                    <div className="flex items-center gap-2">
+                        <Button
+                            size="xs"
+                            variant="plain"
+                            icon={<TbEdit />}
+                            onClick={() => handleEntryDetails(row.original)}
+                        >
+                            Edit
+                        </Button>
+
+                        <Button
+                            size="xs"
+                            variant="plain"
+                            icon={<TbMessageCircle />}
+                            onClick={() => handleOpenComments(row.original)}
+                        >
+                            Comments
+                        </Button>
+                    </div>
                 ),
             },
         ],
@@ -85,17 +105,24 @@ const ClauseDocumentListTable = () => {
     )
 
     return (
-        <ListLayout
-            title="Document"
-            Table={
-                <DataTable
-                    columns={columns}
-                    data={data}
-                    loading={isLoading}
-                    noData={!isLoading && data.length === 0}
-                />
-            }
-        />
+        <>
+            <ListLayout
+                title="Document"
+                Table={
+                    <DataTable
+                        columns={columns}
+                        data={data}
+                        loading={isLoading}
+                        noData={!isLoading && data.length === 0}
+                    />
+                }
+            />
+            <CommentDrawer
+                isOpen={drawerOpen}
+                document={selectedDocument}
+                onClose={() => setDrawerOpen(false)}
+            />
+        </>
     )
 }
 
