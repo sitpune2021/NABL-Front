@@ -32,16 +32,15 @@ const LocationsSection = ({
     const handleAddLocation = () => {
         append({
             id: null,
-            zone_name: '',
-            cluster_name: '',
-            location_name: '',
+            zone_id: '',
+            cluster_id: '',
+            location_id: '',
             departments: [{ id: null, name: '', instruments: [] }],
             prefix: '',
             shortName: '',
             emails: [{ id: null, user_id: null, type: 'email', value: '' }],
             instruments: [],
             phones: [{ id: null, user_id: null, type: 'phone', value: '' }],
-            address: '',
         })
     }
 

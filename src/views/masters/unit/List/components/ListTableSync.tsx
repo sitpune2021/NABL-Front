@@ -14,6 +14,7 @@ import useSync from '@/utils/hooks/useSync'
 import { mapToOptions } from '@/helpers/optionMappers'
 import { Option } from '@/@types/common'
 import { useAuth } from '@/auth'
+import { useSessionUser } from '@/store/authStore'
 
 interface FormSchema {
     labs: number[]
@@ -42,9 +43,10 @@ const getDefaultDates = () => {
 
 const UnitListTableSync = () => {
     const { user } = useAuth()
+    const activeLab = useSessionUser((state) => state.activeLab)
 
     if (!user) return null
-    const isMasterLevel = user.role_type === 'one_step'
+    const isMasterLevel = activeLab?.lab_id == 0
 
     if (!isMasterLevel) return null
 

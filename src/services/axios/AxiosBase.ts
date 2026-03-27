@@ -12,10 +12,19 @@ const AxiosBase = axios.create({
 
 AxiosBase.interceptors.request.use(
     (config) => {
-        const { activeLab, activeRole } = useSessionUser.getState()
+        const { activeLab, activeRole, activeLocation, activeDepartment } =
+            useSessionUser.getState()
 
         if (activeRole?.id) {
             config.headers['X-Role-Id'] = activeRole.id
+        }
+
+        if (activeLocation?.id) {
+            config.headers['X-Loc-Id'] = activeLocation.id
+        }
+
+        if (activeDepartment?.id) {
+            config.headers['X-Dep-Id'] = activeDepartment.id
         }
 
         config.headers['X-Lab-Id'] = activeLab?.lab_id || 0

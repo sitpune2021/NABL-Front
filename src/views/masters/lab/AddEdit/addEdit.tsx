@@ -1,130 +1,74 @@
 import { useMemo } from 'react'
 import { useParams, useNavigate, useLocation } from 'react-router'
+
 import Notification from '@/components/ui/Notification'
 import toast from '@/components/ui/toast'
 import ConfirmDialog from '@/components/shared/ConfirmDialog'
+
 import endpointConfig from '@/configs/endpoint.config'
+
 import { useZoneList } from '../../zone/List/hooks/useList'
 import useClusterList from '../../cluster/List/hooks/useList'
 import useLocationList from '../../location/List/hooks/useList'
 import useDepartmentList from '../../department/List/hooks/useList'
 import { useInstrumentList } from '../../instrument/List/hooks/useList'
+import useDocumentList from '../../document/List/hooks/useList'
+import useLabList from '../List/hooks/useList'
+import { useLabDetail } from '../List/hooks/useLabDetail'
 
 import { getMode } from '@/utils/getMode'
 import { useDiscardConfirm } from '@/utils/hooks/useDiscardConfirm'
 import { useEntityMutations } from '@/utils/hooks/useEntityMutations'
-import { apiLab, apiUpdateLab } from '@/services/LabService'
 import { useFormSubmit } from '@/utils/hoc/useFormSubmit'
-import { useLabDetail } from '../List/hooks/useLabDetail'
-import useLabList from '../List/hooks/useList'
-import { LabFormSchema } from '@/schemas/lab.schema'
+
+import { apiLab, apiUpdateLab } from '@/services/LabService'
 import { Lab } from '@/@types/lab'
-import useDocumentList from '../../document/List/hooks/useList'
 import LabFormStepsWrapper from '../Form/LabFormStepsWrapper'
+import { getEmptyValues } from '@/constants/lab.constant'
 
 const LabAddEdit = () => {
     const navigate = useNavigate()
     const location = useLocation()
-    const { id } = useParams<{ id: string }>()
-    const mode = useMemo(() => getMode(location.pathname), [location.pathname])
+    const { id } = useParams<{ id?: string }>()
+
+    const mode = getMode(location.pathname)
     const isView = mode === 'view'
     const isEdit = mode === 'edit'
-    const discard = useDiscardConfirm()
-    const { lab, isLoading } = useLabDetail(id)
 
-    const { zoneList } = useZoneList()
+    const discard = useDiscardConfirm()
+
+    const { lab, isLoading } = useLabDetail(id)
+    const { documentList, isLoading: docIsLoading } = useDocumentList()
     const { labList } = useLabList()
+    const { zoneList } = useZoneList()
     const { clusterList } = useClusterList()
     const { locationList } = useLocationList()
     const { departmentList } = useDepartmentList()
     const { instrumentList } = useInstrumentList()
-    const { documentList, isLoading: docIsLoading } = useDocumentList()
-
-    const { handleSubmit, isSubmitting } = useFormSubmit<Lab>({
-        apiCall: (values) =>
-            save({ ...values, ...(isEdit && id ? { id } : {}) }),
-        navigateTo: endpointConfig.client.lab.list,
-    })
-
-    const EMPTY_VALUES: LabFormSchema = {
-        name: '',
-        lab_type: '',
-        lab_code: !isSubmitting ? `LAB-${labList.length + 1}` : '',
-        loaction_count: '',
-        user_count: '',
-        emails: [
-            {
-                id: null,
-                user_id: null,
-                type: 'eamil',
-                value: '',
-                label: 'primary',
-                is_primary: true,
-            },
-        ],
-        phones: [
-            {
-                id: null,
-                user_id: null,
-                type: 'phone',
-                value: '',
-                label: 'primary',
-                is_primary: true,
-            },
-        ],
-        address: '',
-        location: [
-            {
-                id: null,
-                zone_name: '',
-                cluster_name: '',
-                location_name: '',
-                departments: [{ id: null, name: '', instruments: [] }],
-                prefix: '',
-                shortName: '',
-                emails: [
-                    {
-                        id: null,
-                        user_id: null,
-                        type: 'eamil',
-                        value: '',
-                        label: 'primary',
-                        is_primary: true,
-                    },
-                ],
-                phones: [
-                    {
-                        id: null,
-                        user_id: null,
-                        type: 'phone',
-                        value: '',
-                        label: 'primary',
-                        is_primary: true,
-                    },
-                ],
-                address: '',
-                instruments: [],
-            },
-        ],
-        documents: [], // select all initially
-        standard_id: null,
-        selectedClauses: [],
-    }
-
-    const defaultValues = useMemo(() => {
-        if (lab) return lab // editing existing lab
-        if (!docIsLoading && documentList?.length) {
-            return {
-                ...EMPTY_VALUES,
-                documents: documentList.map((doc) => doc.id),
-            }
-        }
-        return EMPTY_VALUES // fallback while loading
-    }, [lab, documentList, docIsLoading])
 
     const { save } = useEntityMutations<Lab>({
         apiCreate: apiLab,
         apiUpdate: apiUpdateLab,
+    })
+
+    const defaultValues = useMemo(() => {
+        if (lab) return lab
+
+        const base = getEmptyValues(labList.length)
+
+        if (documentList?.length) {
+            return {
+                ...base,
+                documents: documentList.map((doc) => doc.id),
+            }
+        }
+
+        return base
+    }, [lab, labList.length, documentList])
+
+    const { handleSubmit, isSubmitting } = useFormSubmit<Lab>({
+        apiCall: (values) => save(isEdit && id ? { ...values, id } : values),
+        navigateTo: endpointConfig.client.lab.list,
     })
 
     const confirmDiscard = () => {
@@ -133,7 +77,7 @@ const LabAddEdit = () => {
             { placement: 'top-center' },
         )
         discard.close()
-        navigate(`${endpointConfig.client.lab.list}`)
+        navigate(endpointConfig.client.lab.list)
     }
 
     if (isLoading || docIsLoading) {
@@ -142,24 +86,6 @@ const LabAddEdit = () => {
 
     return (
         <>
-            {/* <LabForm
-                defaultValues={defaultValues}
-                readOnly={isView}
-                zoneList={zoneList}
-                clusterList={clusterList}
-                locationList={locationList}
-                departmentList={departmentList}
-                instrumentList={instrumentList}
-                documentList={documentList}
-                onFormSubmit={handleSubmit}
-            >
-                <BottomPanel
-                    isView={isView}
-                    isSubmitting={isSubmitting}
-                    isEdit={isEdit}
-                    onDiscard={discard.show}
-                />
-            </LabForm> */}
             <LabFormStepsWrapper
                 labFormProps={{
                     defaultValues,

@@ -1,6 +1,7 @@
 import {
     CLIENTS_PREFIX_PATH,
     MASTER_PREFIX_PATH,
+    REVIEW_PREFIX_PATH,
     SETTING_PREFIX_PATH,
     WORKS_PREFIX_PATH,
 } from '@/constants/route.constant'
@@ -136,6 +137,11 @@ const endpointConfig = {
         tasks: {
             list: `${WORKS_PREFIX_PATH}/tasks/list`,
             task: `${WORKS_PREFIX_PATH}/tasks/task`,
+        },
+    },
+    review: {
+        review: {
+            list: `${REVIEW_PREFIX_PATH}/review/list`,
         },
     },
 }

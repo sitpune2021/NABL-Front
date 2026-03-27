@@ -4,7 +4,7 @@ export const labSchema = z.object({
     name: z.string().min(1, { message: 'Name is required' }),
     lab_type: z.string().min(1, { message: 'Lab Type is required' }),
     lab_code: z.string().min(1, { message: 'Lab Code is required' }),
-    loaction_count: z.union([z.string(), z.number()]),
+    location_count: z.union([z.string(), z.number()]),
     user_count: z.union([z.string(), z.number()]),
     emails: z
         .array(
@@ -33,14 +33,13 @@ export const labSchema = z.object({
             }),
         )
         .min(1, { message: 'At least one phone is required' }),
-    address: z.string().optional(),
     location: z
         .array(
             z.object({
                 id: z.union([z.null(), z.number(), z.any()]),
-                zone_name: z.union([z.string(), z.number()]),
-                cluster_name: z.union([z.string(), z.number()]),
-                location_name: z.union([z.string(), z.number()]),
+                zone_id: z.union([z.string(), z.number()]),
+                cluster_id: z.union([z.string(), z.number()]),
+                location_id: z.union([z.string(), z.number()]),
                 departments: z
                     .array(
                         z.object({
@@ -86,7 +85,6 @@ export const labSchema = z.object({
                         }),
                     )
                     .min(1, { message: 'At least one phone is required' }),
-                address: z.string().optional(),
                 instruments: z
                     .array(z.union([z.string(), z.number()]))
                     .min(1, { message: 'At least one instrument is required' }),
@@ -94,8 +92,10 @@ export const labSchema = z.object({
         )
         .min(1, { message: 'At least one location is required' }),
     documents: z.array(z.union([z.string(), z.number()])),
-    standard_id: z.union([z.number(), z.string()]).nullable().optional(),
-    selectedClauses: z.array(z.string()).optional(),
+    standard: z.object({
+        standard_id: z.union([z.number(), z.string()]).nullable().optional(),
+        selectedClauses: z.array(z.string()).optional(),
+    }),
 })
 
 export type LabFormSchema = z.infer<typeof labSchema>

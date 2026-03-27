@@ -252,27 +252,6 @@ const ContactPersonalSection = ({
                     </div>
                 </div>
             </div>
-
-            <div className="mt-6">
-                <FormItem
-                    label="Address"
-                    invalid={Boolean(errors.address)}
-                    errorMessage={errors.address?.message}
-                >
-                    <Controller
-                        name="address"
-                        control={control}
-                        render={({ field }) => (
-                            <Input
-                                {...field}
-                                textArea
-                                placeholder="Address"
-                                readOnly={readOnly}
-                            />
-                        )}
-                    />
-                </FormItem>
-            </div>
         </>
     )
 }

@@ -24,7 +24,7 @@ const LabFormStepsWrapper = ({ labFormProps }: LabFormStepsWrapperProps) => {
                 'name',
                 'lab_type',
                 'lab_code',
-                'loaction_count',
+                'location_count',
                 'user_count',
                 'emails',
                 'phones',

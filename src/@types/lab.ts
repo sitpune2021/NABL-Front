@@ -14,9 +14,9 @@ export type LocationField = {
     id?: string
     prefix: string
     shortName: string
-    zone_name: string | number
-    cluster_name: string | number
-    location_name: string | number
+    zone_id: string | number
+    cluster_id: string | number
+    location_id: string | number
     instruments: (string | number)[]
     departments: {
         name: string | number
@@ -24,7 +24,6 @@ export type LocationField = {
     }[]
     emails: ContactField[]
     phones: ContactField[]
-    address?: string
 }
 
 export type Lab = {
@@ -32,11 +31,10 @@ export type Lab = {
     name: string
     lab_type: string
     lab_code: string
-    loaction_count: number | string
+    location_count: number | string
     user_count: number | string
     emails: ContactField[]
     phones: ContactField[]
-    address?: string
     location: LocationField[]
     standard_id?: number | null
     selectedClauses?: string[]

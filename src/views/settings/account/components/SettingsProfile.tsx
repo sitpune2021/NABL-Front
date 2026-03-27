@@ -44,9 +44,9 @@ const SettingsProfile = () => {
                 ...raw,
                 location:
                     raw.userRoles?.map((role: any) => ({
-                        zone_name: role.zone_id,
-                        cluster_name: role.cluster_id,
-                        location_name: role.location_id,
+                        zone_id: role.zone_id,
+                        cluster_id: role.cluster_id,
+                        location_id: role.location_id,
                         departments: role.department?.map((dept: any) => ({
                             name: dept.department_id,
                             instruments: [],

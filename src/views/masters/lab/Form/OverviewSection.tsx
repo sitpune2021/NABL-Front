@@ -82,11 +82,11 @@ const OverviewSection = ({
                     </FormItem>
                     <FormItem
                         label="Lab Loaction Count"
-                        invalid={Boolean(errors.loaction_count)}
-                        errorMessage={errors.loaction_count?.message}
+                        invalid={Boolean(errors.location_count)}
+                        errorMessage={errors.location_count?.message}
                     >
                         <Controller
-                            name="loaction_count"
+                            name="location_count"
                             control={control}
                             render={({ field }) => (
                                 <Input

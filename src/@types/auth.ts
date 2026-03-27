@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 export type SignInCredential = {
     email: string
     password: string
@@ -24,6 +25,8 @@ type LabRoleGroup = {
     lab_id: number
     lab_name: string
     roles: Role[]
+    locations: any[]
+    departments: any[]
 } | null
 
 export type RoleResponse = {
@@ -64,7 +67,6 @@ export type User = {
     authority?: string[]
     signature?: string | null
     assignments?: []
-    role_type?: null | 'lab' | 'one_step'
 }
 
 export type Token = {
