@@ -62,7 +62,10 @@ const DynamicFormWrapper = () => {
 
             return save(formData)
         },
-        navigateTo: endpointConfig.master.document.list,
+        navigateTo: endpointConfig.master.document.dataEntryList.replace(
+            ':id',
+            String(id),
+        ),
     })
 
     const beforeUpload = (files: FileList | null) => {

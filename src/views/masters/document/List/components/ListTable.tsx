@@ -4,13 +4,7 @@ import ActionColumn from '@/components/form/ActionColumn'
 import DataTable from '@/components/shared/DataTable'
 import { useNavigate } from 'react-router'
 import cloneDeep from 'lodash/cloneDeep'
-import {
-    TbEye,
-    TbEdit,
-    TbFileText,
-    TbFilePencil,
-    TbBrandSentry,
-} from 'react-icons/tb'
+import { TbEye, TbEdit, TbFileText } from 'react-icons/tb'
 import type { OnSortParam, ColumnDef, Row } from '@/components/shared/DataTable'
 import type { TableQueries } from '@/@types/common'
 import useDocumentList from '../hooks/useList'
@@ -66,22 +60,6 @@ const DocumentListTable = () => {
         const path = endpointConfig.master.document.editorview.replace(
             ':id',
             String(document?.id),
-        )
-        navigate(path)
-    }
-
-    const handleEntryDetails = (document: Document) => {
-        const path = endpointConfig.master.document.dataEntryList.replace(
-            ':id',
-            String(document.id),
-        )
-        navigate(path)
-    }
-
-    const handleDataEntryForm = (document: Document) => {
-        const path = endpointConfig.master.document.dataEntry.replace(
-            ':id',
-            String(document.id),
         )
         navigate(path)
     }
@@ -176,22 +154,6 @@ const DocumentListTable = () => {
                                 show:
                                     can('masters.document.write') &&
                                     props.row.original.mode == 'create',
-                            },
-                            {
-                                icon: <TbFilePencil />,
-                                tooltip: 'Data Entry List',
-                                onClick: () =>
-                                    handleEntryDetails(props.row.original),
-                                show: can(
-                                    'masters.document.workflow-logs.action',
-                                ),
-                            },
-                            {
-                                icon: <TbBrandSentry />,
-                                tooltip: 'Data Entry Form',
-                                onClick: () =>
-                                    handleDataEntryForm(props.row.original),
-                                show: can('masters.document.write'),
                             },
                         ].filter(Boolean)} // remove null entries
                     />

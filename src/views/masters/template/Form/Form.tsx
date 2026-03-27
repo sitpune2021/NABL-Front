@@ -33,17 +33,23 @@ const TemplateForm = ({
         <MasterForm
             schema={templateSchema}
             defaultValues={defaultValues}
-            className="flex w-full h-full px-4 sm:px-8"
+            className={`flex w-full h-full ${readOnly ? 'px-0' : 'px-4 sm:px-8'}`}
             containerClassName="flex flex-col justify-between w-full h-full"
             onSubmit={onFormSubmit}
         >
-            <Container>
-                <div className="flex flex-col md:flex-row">
-                    <div className="flex flex-col flex-auto -mx-4 sm:-mx-8">
-                        <GrapesEditor readOnly={readOnly} />
-                    </div>
+            {readOnly ? (
+                <div className="w-full">
+                    <GrapesEditor readOnly={readOnly} />
                 </div>
-            </Container>
+            ) : (
+                <Container>
+                    <div className="flex flex-col md:flex-row">
+                        <div className="flex flex-col flex-auto -mx-4 sm:-mx-8">
+                            <GrapesEditor readOnly={readOnly} />
+                        </div>
+                    </div>
+                </Container>
+            )}
 
             <BottomStickyBar>{children}</BottomStickyBar>
 
