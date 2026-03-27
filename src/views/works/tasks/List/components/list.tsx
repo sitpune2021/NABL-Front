@@ -5,7 +5,7 @@ import { useClauseDetail } from '@/views/masters/clauses/List/hooks/useDetail'
 import DataTable from '@/components/shared/DataTable'
 import type { ColumnDef } from '@/components/shared/DataTable'
 import endpointConfig from '@/configs/endpoint.config'
-import { TbEdit, TbMessageCircle } from 'react-icons/tb'
+import { TbDatabase, TbMessageCircle } from 'react-icons/tb'
 import ListLayout from '@/components/layouts/ListLayout'
 import CommentDrawer from './Commentdrawer'
 import { Button } from '@/components/ui'
@@ -83,10 +83,10 @@ const ClauseDocumentListTable = () => {
                         <Button
                             size="xs"
                             variant="plain"
-                            icon={<TbEdit />}
+                            icon={<TbDatabase />}
                             onClick={() => handleEntryDetails(row.original)}
                         >
-                            Edit
+                            Records
                         </Button>
 
                         <Button
