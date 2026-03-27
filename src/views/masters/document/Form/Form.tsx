@@ -105,6 +105,7 @@ export default function DocumentForm({
                 isEdit={isEdit}
                 getTemplateById={getTemplateById}
                 defaultValues={defaultValues}
+                loading={loading}
             />
         )
     }
@@ -142,6 +143,7 @@ export default function DocumentForm({
                                         readOnly={readOnly && loading}
                                         isEdit={isEdit}
                                         getTemplateById={getTemplateById}
+                                        loading={loading}
                                     />
                                 </PageContainer>
                             </div>

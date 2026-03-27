@@ -21,12 +21,63 @@ const IframeContent = ({ parsedContent, updatedCss }: IframeContentProps) => {
         <head>
           <style>
             ${updatedCss}
+            body {
+                        margin: 0;
+                        padding: 0;
+                        background:white;
+                        display: flex;
+                        justify-content: center;
+                        align-items: flex-start;
+                        min-height: 100vh;
+                    }
+
+                    /* A4 Page */
+                    .a4-page {
+                        width: 210mm;
+                        min-height: 297mm;
+                        background: white;
+                        margin: 20px 0;
+                        padding: 16mm;
+                        position: relative;
+                        overflow: hidden;
+                    }
+
+                    /* Sections */
+                    .header-section {
+                        width: 100%;
+                        margin-bottom: 10mm;
+                    }
+
+                    .content-section {
+                        width: 100%;
+                        min-height: 200mm;
+                    }
+
+                    .footer-section {
+                        width: 100%;
+                        margin-top: 10mm;
+                    }
+
+                    /* Prevent overflow breaking layout */
+                    img, table {
+                        max-width: 100%;
+                    }
           </style>
         </head>
-        <body style="margin:0; padding:0; background-color:white; width:210mm; height:297mm;">
-          ${parsedContent.header || ''}
-          ${parsedContent.content || ''}
-          ${parsedContent.footer || ''}
+            <body>
+                <div class="a4-page">
+                    <div class="header-section">
+                        ${parsedContent.header || ''}
+                    </div>
+
+                    <div class="content-section">
+                        ${parsedContent.content || ''}
+                    </div>
+
+                    <div class="footer-section">
+                        ${parsedContent.footer || ''}
+                    </div>
+                </div>
         </body>
       </html>
     `
@@ -39,7 +90,12 @@ const IframeContent = ({ parsedContent, updatedCss }: IframeContentProps) => {
     return (
         <iframe
             ref={iframeRef}
-            style={{ width: '100%', height: '100%', border: 'none' }}
+            style={{
+                width: '100%',
+                height: '100%',
+                border: 'none',
+                background: 'White',
+            }}
             title="Content Frame"
         />
     )

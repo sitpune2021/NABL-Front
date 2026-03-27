@@ -338,6 +338,7 @@ export interface EditorSectionProps {
     isEdit?: boolean
     getTemplateById: any
     defaultValues?: any
+    loading?: boolean
 }
 
 export interface TemplatePart {

@@ -222,11 +222,6 @@ const masterRoute: Routes = [
         path: `${endpointConfig.master.template.view}`,
         component: lazy(() => import('@/views/masters/template/AddEdit')),
         authority: [],
-        meta: {
-            layout: 'blank',
-            footer: false,
-            pageContainerType: 'gutterless',
-        },
     },
 
     {
@@ -234,11 +229,6 @@ const masterRoute: Routes = [
         path: `${endpointConfig.master.template.versions.view}`,
         component: lazy(() => import('@/views/masters/template/AddEdit')),
         authority: [],
-        meta: {
-            layout: 'blank',
-            footer: false,
-            pageContainerType: 'gutterless',
-        },
     },
 
     {
