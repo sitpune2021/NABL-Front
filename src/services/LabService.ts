@@ -60,3 +60,18 @@ export async function apiAssignUserRole(data: any) {
         data,
     })
 }
+
+export async function apiLabTaskAssign(data: any) {
+    return ApiService.fetchDataWithAxios<any>({
+        url: apiEndpointConfig.labTaskAssign,
+        method: 'post',
+        data,
+    })
+}
+
+export async function apiGetLabTaskAssign() {
+    return ApiService.fetchDataWithAxios<any>({
+        url: apiEndpointConfig.labTaskAssign,
+        method: 'get',
+    })
+}
