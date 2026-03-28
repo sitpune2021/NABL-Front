@@ -31,7 +31,7 @@ const LocationCard = ({
                         <TbMapPin className="text-purple-500" />
                     </div>
                     <span className="font-semibold text-gray-700 dark:text-gray-100">
-                        {location.location_record.name}
+                        {location.name}
                     </span>
                 </div>
 

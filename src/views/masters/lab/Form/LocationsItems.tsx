@@ -40,9 +40,9 @@ const LocationsItems = ({
 }: FormSectionBasePropsTwo) => {
     const { setValue, watch } = useFormContext()
 
-    const selectedZone = watch(`location.${index}.zone_name`)
-    const selectedCluster = watch(`location.${index}.cluster_name`)
-    const selectedLocationName = watch(`location.${index}.location_name`)
+    const selectedZone = watch(`location.${index}.zone_id`)
+    const selectedCluster = watch(`location.${index}.cluster_id`)
+    const selectedLocationName = watch(`location.${index}.location_id`)
 
     const filteredClusters = clusterList.filter(
         (c) => c.zone_id === selectedZone,
@@ -143,11 +143,11 @@ const LocationsItems = ({
             <div className="grid md:grid-cols-4 gap-4 p-3 mb-3">
                 <FormItem
                     label="Zone"
-                    invalid={!!errors.location?.[index]?.zone_name}
-                    errorMessage={errors.location?.[index]?.zone_name?.message}
+                    invalid={!!errors.location?.[index]?.zone_id}
+                    errorMessage={errors.location?.[index]?.zone_id?.message}
                 >
                     <Controller
-                        name={`location.${index}.zone_name`}
+                        name={`location.${index}.zone_id`}
                         control={control}
                         render={({ field }) => (
                             <Select
@@ -168,12 +168,9 @@ const LocationsItems = ({
                                 isDisabled={readOnly}
                                 onChange={(selected) => {
                                     field.onChange(selected?.value || '')
+                                    setValue(`location.${index}.cluster_id`, '')
                                     setValue(
-                                        `location.${index}.cluster_name`,
-                                        '',
-                                    )
-                                    setValue(
-                                        `location.${index}.location_name`,
+                                        `location.${index}.location_id`,
                                         '',
                                     )
                                     setValue(`location.${index}.shortName`, '')
@@ -186,13 +183,11 @@ const LocationsItems = ({
 
                 <FormItem
                     label="Cluster"
-                    invalid={!!errors.location?.[index]?.cluster_name}
-                    errorMessage={
-                        errors.location?.[index]?.cluster_name?.message
-                    }
+                    invalid={!!errors.location?.[index]?.cluster_id}
+                    errorMessage={errors.location?.[index]?.cluster_id?.message}
                 >
                     <Controller
-                        name={`location.${index}.cluster_name`}
+                        name={`location.${index}.cluster_id`}
                         control={control}
                         render={({ field }) => (
                             <Select
@@ -214,7 +209,7 @@ const LocationsItems = ({
                                 onChange={(selected) => {
                                     field.onChange(selected?.value || '')
                                     setValue(
-                                        `location.${index}.location_name`,
+                                        `location.${index}.location_id`,
                                         '',
                                     )
                                     setValue(`location.${index}.shortName`, '')
@@ -227,13 +222,13 @@ const LocationsItems = ({
 
                 <FormItem
                     label="Location"
-                    invalid={!!errors.location?.[index]?.location_name}
+                    invalid={!!errors.location?.[index]?.location_id}
                     errorMessage={
-                        errors.location?.[index]?.location_name?.message
+                        errors.location?.[index]?.location_id?.message
                     }
                 >
                     <Controller
-                        name={`location.${index}.location_name`}
+                        name={`location.${index}.location_id`}
                         control={control}
                         render={({ field }) => (
                             <Select
@@ -257,7 +252,7 @@ const LocationsItems = ({
                                     const locationMatch =
                                         filteredLocations.find(
                                             (l) =>
-                                                l.location_name ===
+                                                l.location_id ===
                                                 selected?.value,
                                         )
                                     if (locationMatch) {
@@ -642,23 +637,6 @@ const LocationsItems = ({
                             </FormItem>
                         ))}
                     </div>
-                </div>
-
-                {/* Address */}
-                <div className="mt-6">
-                    <FormItem label="Address">
-                        <Controller
-                            name={`location.${index}.address`}
-                            control={control}
-                            render={({ field }) => (
-                                <Input
-                                    {...field}
-                                    textArea
-                                    readOnly={readOnly}
-                                />
-                            )}
-                        />
-                    </FormItem>
                 </div>
             </div>
         </Card>

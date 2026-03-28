@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import cookiesStorage from '@/utils/cookiesStorage'
 import appConfig from '@/configs/app.config'
 import { TOKEN_NAME_IN_STORAGE } from '@/constants/api.constant'
@@ -21,6 +22,8 @@ type LabRoleGroup = {
     lab_id: number
     lab_name: string
     roles: Role[]
+    locations: any[]
+    departments: any[]
 } | null
 
 type AuthState = {
@@ -29,6 +32,8 @@ type AuthState = {
     roles: LabRoleGroup[] // 👈 changed
     activeLab?: LabRoleGroup | null
     activeRole?: Role | null
+    activeLocation?: any | null
+    activeDepartment?: any | null
 }
 
 type AuthAction = {
@@ -37,6 +42,8 @@ type AuthAction = {
     setRoles: (payload: LabRoleGroup[]) => void
     setActiveLab: (payload: LabRoleGroup) => void
     setActiveRole: (payload: Role) => void
+    setActiveLocation: (payload: any) => void
+    setActiveDepartment: (payload: any) => void
 }
 
 const getPersistStorage = () => {
@@ -64,7 +71,6 @@ export const initialState: AuthState = {
         authority: [],
         signature: null,
         assignments: [],
-        role_type: null,
     },
     roles: [],
 }
@@ -100,6 +106,16 @@ export const useSessionUser = create<AuthState & AuthAction>()(
             setActiveRole: (payload) =>
                 set(() => ({
                     activeRole: payload,
+                })),
+
+            setActiveLocation: (payload) =>
+                set(() => ({
+                    activeLocation: payload,
+                })),
+
+            setActiveDepartment: (payload) =>
+                set(() => ({
+                    activeDepartment: payload,
                 })),
         }),
         { name: 'sessionUser', storage: createJSONStorage(() => localStorage) },

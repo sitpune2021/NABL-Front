@@ -45,6 +45,10 @@ function AuthProvider({ children }: AuthProviderProps) {
     const setRoles = useSessionUser((state) => state.setRoles)
     const setActiveLab = useSessionUser((state) => state.setActiveLab)
     const setActiveRole = useSessionUser((state) => state.setActiveRole)
+    const setActiveLocation = useSessionUser((state) => state.setActiveLocation)
+    const setActiveDepartment = useSessionUser(
+        (state) => state.setActiveDepartment,
+    )
 
     const setSessionSignedIn = useSessionUser(
         (state) => state.setSessionSignedIn,
@@ -102,6 +106,8 @@ function AuthProvider({ children }: AuthProviderProps) {
         setRoles([])
         setActiveLab(null)
         setActiveRole(null)
+        setActiveLocation(null)
+        setActiveDepartment(null)
     }
 
     const signIn = async (values: SignInCredential): Promise<AuthResult> => {
@@ -115,6 +121,8 @@ function AuthProvider({ children }: AuthProviderProps) {
                 setRoles([])
                 setActiveLab(null)
                 setActiveRole(null)
+                setActiveLocation(null)
+                setActiveDepartment(null)
 
                 const profileResp = await apiGetCurrentProfile()
                 if (profileResp?.data?.roles?.length > 0) {
@@ -124,6 +132,10 @@ function AuthProvider({ children }: AuthProviderProps) {
                     setActiveLab(firstLab)
                     if (firstLab) {
                         setActiveRole(firstLab.roles[0])
+                        if (firstLab.lab_id != 0) {
+                            setActiveLocation(firstLab.locations[0])
+                            setActiveDepartment(firstLab.departments[0])
+                        }
                     }
                 }
 

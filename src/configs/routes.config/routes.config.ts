@@ -31,6 +31,14 @@ export const protectedRoutes: Routes = [
         authority: [],
     },
     {
+        key: 'review.review.list',
+        path: endpointConfig.review.review.list,
+        component: lazy(
+            () => import('@/views/works/tasks/List/components/list'),
+        ),
+        authority: [],
+    },
+    {
         key: 'clients.lab.list',
         path: endpointConfig.client.lab.list,
         component: lazy(() => import('@/views/masters/lab/List')),
