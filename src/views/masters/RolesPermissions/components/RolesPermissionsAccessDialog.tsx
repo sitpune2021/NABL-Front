@@ -27,7 +27,7 @@ import type { ReactNode } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Notification, toast } from '@/components/ui'
+import { Notification, toast, Checkbox } from '@/components/ui'
 import useRolesList from '../hooks/useList'
 
 const validationSchema = z.object({
@@ -139,6 +139,7 @@ const RolesPermissionsAccessDialog = ({
                   level: values.level,
                   accessRight,
               }
+        console.log('🔥 FINAL PAYLOAD', payload)
 
         setIsSubmitting(true)
         try {
@@ -173,6 +174,19 @@ const RolesPermissionsAccessDialog = ({
             )
             mutate(newRoleList, false)
         }
+    }
+    const handleGroupSelectAll = (groupModules: any[], checked: boolean) => {
+        const updatedAccess = { ...accessRight }
+        groupModules.forEach((module) => {
+            if (checked) {
+                updatedAccess[module.id] = module.accessor.map(
+                    (item: any) => item.value,
+                )
+            } else {
+                updatedAccess[module.id] = []
+            }
+        })
+        setAccessRight(updatedAccess)
     }
 
     const currentRole = useMemo(
@@ -286,9 +300,27 @@ const RolesPermissionsAccessDialog = ({
                     {Object.entries(accessModules).map(
                         ([group, modules]: any) => (
                             <div key={group} className="mb-8">
-                                <h5 className="font-bold text-lg mb-4 capitalize">
-                                    {group}
-                                </h5>
+                                <div className="flex items-center justify-between mb-4">
+                                    <h5 className="font-bold text-lg capitalize">
+                                        {group}
+                                    </h5>
+                                    <Checkbox
+                                        checked={modules.every(
+                                            (module: any) =>
+                                                accessRight[module.id]
+                                                    ?.length ===
+                                                module.accessor.length,
+                                        )}
+                                        onChange={(checked) =>
+                                            handleGroupSelectAll(
+                                                modules,
+                                                checked as boolean,
+                                            )
+                                        }
+                                    >
+                                        Select All
+                                    </Checkbox>
+                                </div>
                                 {modules.map((module: any, index: number) => (
                                     <div
                                         key={module.id}

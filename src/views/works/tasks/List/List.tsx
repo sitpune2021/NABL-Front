@@ -5,12 +5,36 @@ import useUserList from '@/views/masters/user/List/hooks/useList'
 import { useEffect, useState } from 'react'
 import { actionButtons } from './actionButtons'
 import { apiGetLabTaskAssign, apiLabTaskAssign } from '@/services/LabService'
+import Button from '@/components/ui/Button'
+import Select from '@/components/ui/Select'
+import Tag from '@/components/ui/Tag'
+import Spinner from '@/components/ui/Spinner'
+import Dialog from '@/components/ui/Dialog'
+import Avatar from '@/components/ui/Avatar'
+import {
+    TbUserCog,
+    TbFileText,
+    TbCircleCheck,
+    TbCircleX,
+    TbHash,
+    TbClockHour4,
+    TbLayersLinked,
+    TbUserCheck,
+    TbCheck,
+    TbConfetti,
+    TbArrowRight,
+} from 'react-icons/tb'
 
 const DocumentList = () => {
     const { clause, isLoading: isClauseLoading } = useClauseDetail('1')
     const { userList, isLoading: isUserLoading } = useUserList()
 
     const [assignments, setAssignments] = useState<any>({})
+    const [successDialog, setSuccessDialog] = useState<{
+        open: boolean
+        userName: string
+        docName: string
+    }>({ open: false, userName: '', docName: '' })
 
     const makeKey = (clauseId: number, docId: number) =>
         `${Number(clauseId)}_${Number(docId)}`
@@ -50,7 +74,7 @@ const DocumentList = () => {
 
         setAssignments((prev: any) => ({
             ...prev,
-            [key]: { user_id: Number(userId) },
+            [key]: { ...prev[key], user_id: Number(userId) },
         }))
     }
 
@@ -73,17 +97,22 @@ const DocumentList = () => {
             const res = await apiLabTaskAssign(payload)
 
             if (res?.status) {
+                const assignedUser = userList.find(
+                    (u: any) => Number(u.id) === Number(userId),
+                )
                 setAssignments((prev: any) => ({
                     ...prev,
                     [key]: {
                         user_id: userId,
-                        user: userList.find(
-                            (u: any) => Number(u.id) === Number(userId),
-                        ),
+                        user: assignedUser,
                     },
                 }))
-
-                alert('✅ Task Assigned Successfully')
+                setSuccessDialog({
+                    open: true,
+                    userName:
+                        assignedUser?.name || assignedUser?.email || 'User',
+                    docName: doc.name,
+                })
             } else {
                 alert('❌ Failed to assign task')
             }
@@ -92,29 +121,28 @@ const DocumentList = () => {
         }
     }
 
+    const userOptions = userList?.map((user: any) => ({
+        value: String(user.id),
+        label: user.name || user.email,
+    }))
+
     const renderClause = (clauseItem: any) => {
         return (
-            <div
-                key={clauseItem.id}
-                style={{
-                    background: '#fff',
-                    padding: 20,
-                    marginTop: 20,
-                    borderRadius: 10,
-                    boxShadow: '0 2px 8px rgba(0,0,0,0.05)',
-                }}
-            >
-                <h3 style={{ marginBottom: 10 }}>{clauseItem.title}</h3>
+            <div key={clauseItem.id} className="mt-6">
+                <div className="flex items-center gap-3 mb-4">
+                    <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-primary-100 dark:bg-primary-900/30">
+                        <TbLayersLinked className="text-primary-600 dark:text-primary-400 text-lg" />
+                    </div>
+                    <h4 className="font-semibold text-gray-800 dark:text-gray-100 text-base">
+                        {clauseItem.title}
+                    </h4>
+                    <div className="flex-1 h-px bg-gray-200 dark:bg-gray-700 ml-2" />
+                    <Tag className="bg-primary-50 dark:bg-primary-900/20 text-primary-600 dark:text-primary-400 border-0 text-xs font-medium">
+                        {clauseItem.documents?.length ?? 0} Documents
+                    </Tag>
+                </div>
 
-                <div
-                    style={{
-                        display: 'grid',
-                        gridTemplateColumns:
-                            'repeat(auto-fill, minmax(300px, 1fr))',
-                        gap: 16,
-                        marginTop: 10,
-                    }}
-                >
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                     {clauseItem.documents?.map((doc: any) => {
                         const key = makeKey(clauseItem.id, doc.id)
                         const assignment = assignments[key]
@@ -123,172 +151,239 @@ const DocumentList = () => {
                         return (
                             <div
                                 key={doc.id}
-                                style={{
-                                    border: '1px solid #e5e7eb',
-                                    borderRadius: 8,
-                                    padding: 16,
-                                    background: isAssigned
-                                        ? '#ecfdf5'
-                                        : '#fdfdfd',
-                                    transition: '0.2s',
-                                }}
+                                className="relative rounded-xl border border-gray-200 dark:border-gray-700 transition-all duration-200 hover:shadow-md bg-white dark:bg-gray-800 flex flex-col overflow-visible"
                             >
-                                <div style={{ marginBottom: 8 }}>
-                                    <strong style={{ fontSize: 15 }}>
-                                        {doc.name}
-                                    </strong>
-                                    <div
-                                        style={{
-                                            fontSize: 12,
-                                            color: '#6b7280',
-                                        }}
-                                    >
-                                        {doc.number}
+                                <div
+                                    className="absolute top-0 left-0 w-1 h-full rounded-l-xl transition-colors duration-200"
+                                    style={{
+                                        background: isAssigned
+                                            ? '#2a85ff'
+                                            : '#e5e7eb',
+                                    }}
+                                />
+
+                                <div className="p-4 pl-5 flex flex-col flex-1">
+                                    <div className="flex items-start justify-between gap-2 mb-3">
+                                        <div className="flex items-center gap-2 min-w-0">
+                                            <TbFileText className="text-gray-400 dark:text-gray-500 shrink-0 text-base" />
+                                            <span className="font-semibold text-gray-800 dark:text-gray-100 text-sm leading-tight line-clamp-2">
+                                                {doc.name}
+                                            </span>
+                                        </div>
+                                        <Tag className="shrink-0 text-xs border-0 font-medium whitespace-nowrap bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400">
+                                            {isAssigned ? (
+                                                <span className="flex items-center gap-1">
+                                                    <TbCircleCheck className="text-sm" />
+                                                    Assigned
+                                                </span>
+                                            ) : (
+                                                <span className="flex items-center gap-1">
+                                                    <TbCircleX className="text-sm" />
+                                                    Unassigned
+                                                </span>
+                                            )}
+                                        </Tag>
                                     </div>
-                                </div>
 
-                                <div
-                                    style={{
-                                        fontSize: 13,
-                                        marginBottom: 6,
-                                    }}
-                                >
-                                    <span style={{ color: '#6b7280' }}>
-                                        Status:
-                                    </span>{' '}
-                                    <span style={{ fontWeight: 500 }}>
-                                        {doc.status}
-                                    </span>
-                                </div>
-
-                                <div
-                                    style={{
-                                        fontSize: 13,
-                                        marginBottom: 6,
-                                    }}
-                                >
-                                    <span style={{ color: '#6b7280' }}>
-                                        Version:
-                                    </span>{' '}
-                                    {doc.current_version?.full_version}
-                                </div>
-
-                                <div
-                                    style={{
-                                        fontSize: 13,
-                                        marginBottom: 10,
-                                    }}
-                                >
-                                    <span style={{ color: '#6b7280' }}>
-                                        Schedule:
-                                    </span>{' '}
-                                    {doc.current_version?.schedule?.type}
-                                </div>
-
-                                <div style={{ fontSize: 12 }}>
-                                    {isAssigned ? (
-                                        <span style={{ color: 'green' }}>
-                                            ✅ Assigned
-                                        </span>
-                                    ) : (
-                                        <span style={{ color: 'red' }}>
-                                            ❌ Not Assigned
-                                        </span>
-                                    )}
-                                </div>
-
-                                {isAssigned && (
-                                    <div
-                                        style={{
-                                            fontSize: 12,
-                                            color: '#2563eb',
-                                        }}
-                                    >
-                                        👤 {assignment?.user?.name}
+                                    <div className="space-y-1.5 mb-3">
+                                        <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
+                                            <TbHash className="shrink-0" />
+                                            <span className="truncate">
+                                                {doc.number}
+                                            </span>
+                                        </div>
+                                        <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
+                                            <TbClockHour4 className="shrink-0" />
+                                            <span>
+                                                v
+                                                {
+                                                    doc.current_version
+                                                        ?.full_version
+                                                }
+                                                {doc.current_version?.schedule
+                                                    ?.type && (
+                                                    <span className="ml-1 text-gray-400">
+                                                        ·{' '}
+                                                        {
+                                                            doc.current_version
+                                                                .schedule.type
+                                                        }
+                                                    </span>
+                                                )}
+                                            </span>
+                                        </div>
+                                        {isAssigned &&
+                                            assignment?.user?.name && (
+                                                <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
+                                                    <TbUserCheck className="shrink-0" />
+                                                    <span className="truncate">
+                                                        {assignment.user.name}
+                                                    </span>
+                                                </div>
+                                            )}
                                     </div>
-                                )}
 
-                                {/* 👤 Assign Section */}
-                                <div
-                                    style={{
-                                        display: 'flex',
-                                        gap: 8,
-                                        alignItems: 'center',
-                                    }}
-                                >
-                                    <select
-                                        value={assignment?.user_id ?? ''}
+                                    <div className="h-px bg-gray-100 dark:bg-gray-700 mb-3" />
+
+                                    <div
+                                        className="flex items-center gap-2"
                                         style={{
-                                            flex: 1,
-                                            padding: '6px 8px',
-                                            borderRadius: 6,
-                                            border: '1px solid #d1d5db',
-                                            fontSize: 13,
+                                            position: 'relative',
+                                            zIndex: 10,
                                         }}
-                                        onChange={(e) =>
-                                            handleAssignChange(
-                                                clauseItem.id,
-                                                doc.id,
-                                                e.target.value,
-                                            )
-                                        }
                                     >
-                                        <option value="">Select User</option>
-
-                                        {userList?.map((user: any) => (
-                                            <option
-                                                key={user.id}
-                                                value={user.id}
-                                            >
-                                                {user.name || user.email}
-                                            </option>
-                                        ))}
-                                    </select>
-
-                                    <button
-                                        disabled={!assignment?.user_id}
-                                        style={{
-                                            padding: '6px 12px',
-                                            background: assignment?.user_id
-                                                ? '#2563eb'
-                                                : '#9ca3af',
-                                            color: '#fff',
-                                            border: 'none',
-                                            borderRadius: 6,
-                                            cursor: 'pointer',
-                                            fontSize: 13,
-                                        }}
-                                        onClick={() =>
-                                            handleAssign(clauseItem.id, doc)
-                                        }
-                                    >
-                                        {isAssigned ? 'Reassign' : 'Assign'}
-                                    </button>
+                                        <div className="flex-1 min-w-0">
+                                            <Select
+                                                size="sm"
+                                                placeholder="Select user..."
+                                                options={userOptions}
+                                                value={
+                                                    userOptions?.find(
+                                                        (o: any) =>
+                                                            Number(o.value) ===
+                                                            Number(
+                                                                assignment?.user_id,
+                                                            ),
+                                                    ) ?? null
+                                                }
+                                                onChange={(option: any) =>
+                                                    handleAssignChange(
+                                                        clauseItem.id,
+                                                        doc.id,
+                                                        option?.value ?? '',
+                                                    )
+                                                }
+                                            />
+                                        </div>
+                                        <Button
+                                            size="sm"
+                                            variant="solid"
+                                            disabled={!assignment?.user_id}
+                                            icon={<TbUserCog />}
+                                            onClick={() =>
+                                                handleAssign(clauseItem.id, doc)
+                                            }
+                                        >
+                                            Assign
+                                        </Button>
+                                    </div>
                                 </div>
                             </div>
                         )
                     })}
                 </div>
 
-                {clauseItem.children?.length > 0 &&
-                    clauseItem.children.map((child: any) =>
-                        renderClause(child),
-                    )}
+                {clauseItem.children?.length > 0 && (
+                    <div className="ml-6 border-l-2 border-dashed border-gray-200 dark:border-gray-700 pl-4 mt-4">
+                        {clauseItem.children.map((child: any) =>
+                            renderClause(child),
+                        )}
+                    </div>
+                )}
             </div>
         )
     }
 
     if (isClauseLoading || isUserLoading) {
-        return <div style={{ padding: 20 }}>Loading...</div>
+        return (
+            <div className="flex items-center justify-center min-h-[300px] gap-3 text-gray-500 dark:text-gray-400">
+                <Spinner size="lg" />
+                <span className="font-medium">Loading tasks...</span>
+            </div>
+        )
     }
 
     return (
-        <div style={{ padding: 24, background: '#f9fafb', minHeight: '100vh' }}>
-            <h2 style={{ marginBottom: 16 }}>Assign Tasks</h2>
-
-            <ListActionTools buttons={actionButtons} />
+        <div className="p-6 min-h-screen bg-gray-50 dark:bg-gray-900">
+            {/* Page Header */}
+            <div className="flex items-center justify-between mb-6">
+                <div>
+                    <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">
+                        Assign Tasks
+                    </h2>
+                </div>
+                <ListActionTools buttons={actionButtons} />
+            </div>
 
             {clause?.clauses?.map((item: any) => renderClause(item))}
+
+            <Dialog
+                isOpen={successDialog.open}
+                width={420}
+                onClose={() =>
+                    setSuccessDialog({ ...successDialog, open: false })
+                }
+                onRequestClose={() =>
+                    setSuccessDialog({ ...successDialog, open: false })
+                }
+            >
+                <div className="relative overflow-hidden">
+                    <div className="absolute top-0 left-0 right-0 h-32 bg-gradient-to-br from-primary-500 to-primary-700 rounded-t-xl" />
+                    <div className="absolute top-4 right-4 w-20 h-20 rounded-full bg-white/10" />
+                    <div className="absolute top-8 right-12 w-10 h-10 rounded-full bg-white/10" />
+
+                    <div className="relative pt-10 pb-6 px-6 flex flex-col items-center">
+                        <div className="w-16 h-16 rounded-2xl bg-white shadow-lg flex items-center justify-center mb-4 rotate-3">
+                            <TbConfetti className="text-primary-600 text-3xl" />
+                        </div>
+
+                        <h4 className="text-lg font-bold text-gray-900 dark:text-gray-100 mt-2">
+                            Successfully Assigned!
+                        </h4>
+                        <p className="text-sm text-gray-500 dark:text-gray-400 mt-1 text-center">
+                            The document has been assigned to a team member.
+                        </p>
+
+                        <div className="w-full mt-5 bg-gray-50 dark:bg-gray-800 rounded-xl p-4 flex items-center gap-3">
+                            <div className="flex-1 min-w-0 flex flex-col items-center gap-1.5 bg-white dark:bg-gray-700 rounded-lg p-3 shadow-sm">
+                                <TbFileText className="text-primary-500 text-xl" />
+                                <span className="text-xs font-medium text-gray-700 dark:text-gray-200 text-center line-clamp-2 leading-tight">
+                                    {successDialog.docName}
+                                </span>
+                            </div>
+                            <div className="shrink-0">
+                                <div className="w-7 h-7 rounded-full bg-primary-100 dark:bg-primary-900/40 flex items-center justify-center">
+                                    <TbArrowRight className="text-primary-600 dark:text-primary-400 text-sm" />
+                                </div>
+                            </div>
+                            <div className="flex-1 min-w-0 flex flex-col items-center gap-1.5 bg-white dark:bg-gray-700 rounded-lg p-3 shadow-sm">
+                                <Avatar
+                                    size={28}
+                                    shape="circle"
+                                    className="bg-primary-500 text-white"
+                                >
+                                    {successDialog.userName
+                                        ?.charAt(0)
+                                        ?.toUpperCase()}
+                                </Avatar>
+                                <span className="text-xs font-medium text-gray-700 dark:text-gray-200 text-center line-clamp-2 leading-tight">
+                                    {successDialog.userName}
+                                </span>
+                            </div>
+                        </div>
+
+                        <div className="flex items-center gap-1.5 mt-4 px-3 py-1.5 rounded-full bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800">
+                            <TbCheck className="text-green-600 dark:text-green-400 text-sm" />
+                            <span className="text-xs font-semibold text-green-700 dark:text-green-400">
+                                Task is now active
+                            </span>
+                        </div>
+
+                        <Button
+                            className="mt-5 w-full"
+                            variant="solid"
+                            onClick={() =>
+                                setSuccessDialog({
+                                    ...successDialog,
+                                    open: false,
+                                })
+                            }
+                        >
+                            Done
+                        </Button>
+                    </div>
+                </div>
+            </Dialog>
         </div>
     )
 }
