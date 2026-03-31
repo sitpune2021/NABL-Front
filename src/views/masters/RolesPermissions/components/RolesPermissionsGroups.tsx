@@ -29,7 +29,9 @@ const RolesPermissionsGroups = ({ roleList }: RolesPermissionsGroupsProps) => {
                     <div className="flex items-center justify-between">
                         <h6 className="font-bold">{role.name}</h6>
                     </div>
-                    <p className="mt-2">{role.description}</p>
+                    <p className="mt-2 text-sm line-clamp-3 overflow-hidden">
+                        {role.description}
+                    </p>
                     <div className="flex items-center justify-between mt-4">
                         <div className="flex flex-col">
                             <div className="-ml-2">
