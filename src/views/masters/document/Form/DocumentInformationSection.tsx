@@ -161,6 +161,9 @@ const DocumentInformationSection = ({
             label: 'Effective Date',
             type: 'date',
             placeholder: 'Select Effective Date',
+            readOnly: true,
+            defaultValue: new Date(),
+            minDate: new Date(),
         },
         {
             name: 'review_frequency',
@@ -188,7 +191,7 @@ const DocumentInformationSection = ({
             customRender: (field, formValues) => (
                 <Input
                     type="number"
-                    min={1}
+                    min={0}
                     max={getMaxValue(
                         formValues.review_frequency,
                         formValues.notification_unit,
