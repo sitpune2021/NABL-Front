@@ -8,13 +8,6 @@ const masterRoute: Routes = [
         path: `${endpointConfig.master.category.list}`,
         component: lazy(() => import('@/views/masters/category/List')),
         authority: [],
-        meta: {
-            header: {
-                title: 'Category',
-                description:
-                    'Manage customer details, purchase history, and preferences.',
-            },
-        },
     },
     {
         key: 'masters.category.index',
