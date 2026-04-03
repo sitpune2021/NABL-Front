@@ -17,13 +17,13 @@ export const protectedRoutes: Routes = [
     ...masterRoute,
     ...settingRoute,
     {
-        key: 'works.tasks.list',
+        key: 'works.tasks.index',
         path: endpointConfig.works.tasks.list,
         component: lazy(() => import('@/views/works/tasks/List')),
         authority: [],
     },
     {
-        key: 'works.tasks.list',
+        key: 'works.tasks.index',
         path: endpointConfig.works.tasks.task,
         component: lazy(
             () => import('@/views/works/tasks/List/components/list'),
@@ -31,46 +31,60 @@ export const protectedRoutes: Routes = [
         authority: [],
     },
     {
-        key: 'review.review.list',
-        path: endpointConfig.review.review.list,
+        key: 'works.tasks.index',
+        path: endpointConfig.works.tasks.dataEntryList,
         component: lazy(
-            () => import('@/views/works/tasks/List/components/list'),
+            () => import('@/views/works/tasks/List/components/listDatatbale'),
         ),
         authority: [],
     },
     {
-        key: 'clients.lab.list',
+        key: 'review.review.index',
+        path: endpointConfig.review.review.list,
+        component: lazy(
+            () => import('@/views/review/review/List/components/list'),
+        ),
+        authority: [],
+    },
+    {
+        key: 'review.review.index',
+        path: endpointConfig.review.review.dataEntryList,
+        component: lazy(() => import('@/views/masters/document/List')),
+        authority: [],
+    },
+    {
+        key: 'clients.lab.index',
         path: endpointConfig.client.lab.list,
         component: lazy(() => import('@/views/masters/lab/List')),
         authority: [],
     },
     {
-        key: 'clients.lab.list',
+        key: 'clients.lab.index',
         path: endpointConfig.client.lab.create,
         component: lazy(() => import('@/views/masters/lab/AddEdit')),
         authority: [],
     },
     {
-        key: 'clients.lab.list',
+        key: 'clients.lab.index',
         path: endpointConfig.client.lab.edit,
         component: lazy(() => import('@/views/masters/lab/AddEdit')),
         authority: [],
     },
     {
-        key: 'clients.lab.list',
+        key: 'clients.lab.index',
         path: endpointConfig.client.lab.location,
         component: lazy(() => import('@/views/masters/lab/List')),
         authority: [],
     },
     {
-        key: 'clients.lab.list',
+        key: 'clients.lab.index',
         path: endpointConfig.client.lab.view,
         component: lazy(() => import('@/views/masters/lab/AddEdit')),
         authority: [],
     },
 
     {
-        key: 'clients.lab.assignments.list',
+        key: 'clients.lab.assignments.index',
         path: endpointConfig.client.labAssignment.list,
         component: lazy(
             () => import('@/views/masters/labAssignments/Assignment'),

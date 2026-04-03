@@ -86,13 +86,13 @@ export const buildLocationColumns = ({
                         icon: <TbPencil />,
                         tooltip: 'Edit',
                         onClick: () => onEdit(props.row.original),
-                        show: can('masters.location.write'),
+                        show: can('masters.location.edit'),
                     },
                     {
                         icon: <TbEye />,
                         tooltip: 'View',
                         onClick: () => onView(props.row.original),
-                        show: can('masters.location.list'),
+                        show: can('masters.location.show'),
                     },
                 ]}
             />

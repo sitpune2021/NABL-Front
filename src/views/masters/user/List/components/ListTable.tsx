@@ -144,14 +144,14 @@ const UserListTable = () => {
                                 icon: <TbPencil />,
                                 tooltip: 'Edit',
                                 onClick: () => handleEdit(props.row.original),
-                                show: can('settings.user.write'),
+                                show: can('settings.user.create'),
                             },
                             {
                                 icon: <TbEye />,
                                 tooltip: 'View',
                                 onClick: () =>
                                     handleViewDetails(props.row.original),
-                                show: can('settings.user.list'),
+                                show: can('settings.user.index'),
                             },
                         ]}
                     />

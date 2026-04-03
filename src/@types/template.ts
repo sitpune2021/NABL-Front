@@ -18,10 +18,11 @@ export type Filter = {
 }
 
 export type Template = {
-    id: string
+    id: string | number
     name: string
     type: string
     current_version: string
+    is_current: boolean
     template: {
         html: string | undefined
         css: string | undefined

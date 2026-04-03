@@ -38,11 +38,14 @@ export const buildVersionTemplateColumns = ({
         accessorKey: 'is_current',
         cell: ({ row }) => {
             const { is_current, id: version_id } = row.original
-
+            const canEdit = can('masters.template.version.edit')
             return (
                 <IsCurrentBadge
                     isCurrent={is_current}
-                    onMakeCurrent={() => handleSubmit(version_id)}
+                    disabled={!canEdit}
+                    onMakeCurrent={
+                        canEdit ? () => handleSubmit(version_id) : undefined
+                    }
                 />
             )
         },
@@ -61,7 +64,7 @@ export const buildVersionTemplateColumns = ({
                         icon: <TbEye />,
                         tooltip: 'View',
                         onClick: () => onView(row.original),
-                        show: can('masters.template.write.version.write'),
+                        show: can('masters.template.version.show'),
                     },
                 ]}
             />

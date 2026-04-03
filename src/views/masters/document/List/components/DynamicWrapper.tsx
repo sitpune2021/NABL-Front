@@ -62,7 +62,7 @@ const DynamicFormWrapper = () => {
 
             return save(formData)
         },
-        navigateTo: endpointConfig.master.document.dataEntryList.replace(
+        navigateTo: endpointConfig.works.tasks.dataEntryList.replace(
             ':id',
             String(id),
         ),
@@ -349,21 +349,29 @@ const DynamicFormWrapper = () => {
                             </div>
 
                             <div className="grid md:grid-cols-2 gap-6">
-                                {document?.mode === 'create' ? (
-                                    Object.entries(document?.form_fields).map(
-                                        ([name, config]) => (
-                                            <div key={name}>
-                                                {renderField(name, config)}
-                                            </div>
-                                        ),
-                                    )
-                                ) : (
-                                    <div key={document?.name}>
-                                        {renderField('document', {
-                                            type: 'upload',
-                                        })}
-                                    </div>
-                                )}
+                                {document?.mode === 'create'
+                                    ? Object.entries(document?.form_fields).map(
+                                          ([name, config]) => (
+                                              <div key={name}>
+                                                  {renderField(name, config)}
+                                              </div>
+                                          ),
+                                      )
+                                    : [
+                                          'Start Date',
+                                          'End Date',
+                                          'Document',
+                                      ].map((field) => (
+                                          <div key={field}>
+                                              {renderField(field, {
+                                                  type:
+                                                      field === 'Document'
+                                                          ? 'upload'
+                                                          : 'date',
+                                                  required: true, // ✅ ADD THIS
+                                              })}
+                                          </div>
+                                      ))}
                             </div>
                         </Card>
                     </div>

@@ -137,11 +137,13 @@ const endpointConfig = {
         tasks: {
             list: `${WORKS_PREFIX_PATH}/tasks/list`,
             task: `${WORKS_PREFIX_PATH}/tasks/task`,
+            dataEntryList: `${WORKS_PREFIX_PATH}/tasks/data-entry/:id`,
         },
     },
     review: {
         review: {
             list: `${REVIEW_PREFIX_PATH}/review/list`,
+            dataEntryList: `${REVIEW_PREFIX_PATH}/review/data-entry/:id`,
         },
     },
 }

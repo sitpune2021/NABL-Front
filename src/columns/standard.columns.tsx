@@ -74,19 +74,19 @@ export const buildStandardColumns = ({
                         icon: <TbPencil />,
                         tooltip: 'Edit',
                         onClick: () => onEdit(row.original),
-                        show: can('settings.standard.write'),
+                        show: can('settings.standard.edit'),
                     },
                     {
                         icon: <TbEye />,
                         tooltip: 'View',
                         onClick: () => onView(row.original),
-                        show: can('settings.standard.list'),
+                        show: can('settings.standard.show'),
                     },
                     {
                         icon: <TbAB />,
                         tooltip: 'Clause',
                         onClick: () => onClause(row.original),
-                        show: can('settings.standard.clause.write'),
+                        show: can('settings.standard.clause.index'),
                     },
                 ]}
             />
