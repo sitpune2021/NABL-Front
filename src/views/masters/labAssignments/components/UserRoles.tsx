@@ -52,24 +52,23 @@ const UserRoles = ({
     const selectedRoleIds: number[] =
         assignments[labId]?.users[userId]?.roles ?? []
 
-    /* -----------------------
-       Derived data for UI
-    ----------------------- */
-    const selectedRoles: Role[] = roles.filter((role) =>
+    const selectedRoles = roles.filter((role: Role) =>
         selectedRoleIds.includes(role.id),
     )
 
-    /* -----------------------
-       Toggle handler
-    ----------------------- */
     const toggleRole = async (role: Role) => {
-        const isAssigned = selectedRoleIds.includes(role.id)
+        let action: 'assign' | 'remove' = 'assign'
 
-        // 1️⃣ Optimistic UI update
-        onUpdate((prev) => {
+        onUpdate((prev: any) => {
+            const currentRoles = prev[labId]?.users[userId]?.roles ?? []
+
+            const isAssigned = currentRoles.includes(role.id)
+
+            action = isAssigned ? 'remove' : 'assign'
+
             const updatedRoleIds = isAssigned
-                ? selectedRoleIds.filter((id) => id !== role.id)
-                : [...selectedRoleIds, role.id]
+                ? currentRoles.filter((id: number) => id !== role.id)
+                : [...currentRoles, role.id]
 
             return {
                 ...prev,
@@ -85,37 +84,18 @@ const UserRoles = ({
             }
         })
 
-        // 2️⃣ API call
         try {
             await apiAssignUserRole({
                 lab_id: labId,
                 location_id: locationId,
                 user_id: userId,
                 role_id: role.id,
-                action: isAssigned ? 'remove' : 'assign',
+                action,
             })
-        } catch (error) {
-            console.error('Role update failed', error)
-
-            // 3️⃣ Rollback on failure
-            onUpdate((prev) => ({
-                ...prev,
-                [labId]: {
-                    ...prev[labId],
-                    users: {
-                        ...prev[labId].users,
-                        [userId]: {
-                            roles: selectedRoleIds,
-                        },
-                    },
-                },
-            }))
+        } catch (err) {
+            console.error(err)
         }
     }
-
-    /* =======================
-       Render
-    ======================== */
 
     return (
         <div className="bg-white border border-gray-100 rounded-xl p-4 shadow-sm animate-in fade-in slide-in-from-top-2 duration-200">
@@ -133,7 +113,7 @@ const UserRoles = ({
 
             {/* Selected roles */}
             <div className="flex items-center gap-2 flex-wrap">
-                {selectedRoles.map((role) => (
+                {selectedRoles.map((role: Role) => (
                     <Tag
                         key={role.id}
                         className="bg-primary-subtle text-primary border-primary-subtle font-bold"
@@ -159,7 +139,7 @@ const UserRoles = ({
                     }
                 >
                     <div className="p-2 min-w-[180px]">
-                        {roles.map((role) => {
+                        {roles.map((role: Role) => {
                             const isSelected = selectedRoleIds.includes(role.id)
 
                             return (
