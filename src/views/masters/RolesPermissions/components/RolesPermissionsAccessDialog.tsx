@@ -93,8 +93,36 @@ const RolesPermissionsAccessDialog = ({
     })
 
     const [accessRight, setAccessRight] = useState<Record<string, string[]>>({})
+    const [isSubmitting, setIsSubmitting] = useState(false)
 
-    // Flatten the grouped accessRight from API response
+    //  NEW: Level error state
+    const [levelError, setLevelError] = useState<string | null>(null)
+
+    //  Get logged-in user's min level (approx from existing roles)
+    const userMinLevel = useMemo(() => {
+        return roleLevelsList.length ? Math.min(...roleLevelsList) : 1
+    }, [roleLevelsList])
+
+    //  Validate level
+    const handleLevelChange = (value: number) => {
+        const existingRole = roleList.find(
+            (role: any) => Number(role.level) === Number(value),
+        )
+
+        if (value <= userMinLevel) {
+            setLevelError(
+                'You cannot create a role at this level or above your level',
+            )
+        } else if (existingRole) {
+            setLevelError(
+                `${existingRole.name} is already at level ${value}. If you create a new role here, the existing role will be moved to the next level.`,
+            )
+        } else {
+            setLevelError(null)
+        }
+    }
+
+    // Flatten accessRight
     useEffect(() => {
         if (roleDialog.type === 'edit') {
             const role = roleList.find((r) => r.id === selectedRole)
@@ -124,13 +152,12 @@ const RolesPermissionsAccessDialog = ({
         }
     }, [accessModules, roleDialog.type, roleList, selectedRole])
 
-    const [isSubmitting, setIsSubmitting] = useState(false)
-
     const handleClose = () => {
         setRoleDialog({ type: '', open: false })
     }
 
     const onSubmit = async (values: RolesFormSchema) => {
+        if (levelError) return
         const payload: any = isEdit
             ? { id: selectedRole, accessRight }
             : {
@@ -140,6 +167,7 @@ const RolesPermissionsAccessDialog = ({
                   accessRight,
               }
         console.log('🔥 FINAL PAYLOAD', payload)
+        console.log('🧾 Current Role:', currentRole)
 
         setIsSubmitting(true)
         try {
@@ -252,8 +280,12 @@ const RolesPermissionsAccessDialog = ({
                             {/* Level */}
                             <FormItem
                                 label="Level"
-                                invalid={!!errors.level}
-                                errorMessage={errors.level?.message}
+                                invalid={!!errors.level || !!levelError}
+                                errorMessage={
+                                    errors.level?.message ||
+                                    levelError ||
+                                    undefined
+                                }
                             >
                                 <Controller
                                     name="level"
@@ -264,11 +296,13 @@ const RolesPermissionsAccessDialog = ({
                                             min={1}
                                             placeholder="Enter role level"
                                             {...field}
-                                            onChange={(e) =>
-                                                field.onChange(
-                                                    Number(e.target.value),
+                                            onChange={(e) => {
+                                                const value = Number(
+                                                    e.target.value,
                                                 )
-                                            }
+                                                field.onChange(value)
+                                                handleLevelChange(value)
+                                            }}
                                         />
                                     )}
                                 />

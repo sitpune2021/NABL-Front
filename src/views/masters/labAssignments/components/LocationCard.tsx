@@ -18,7 +18,7 @@ const LocationCard = ({
 
     return (
         <div
-            className={`border rounded-xl transition-all duration-300 bg-white dark:bg-gray-800 ${expanded ? 'shadow-md border-gray-300 dark:border-gray-600' : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-500'}`}
+            className={`border rounded-xl mt-3 transition-all duration-300 bg-white dark:bg-gray-800 ${expanded ? 'shadow-md border-gray-300 dark:border-gray-600' : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-500'}`}
         >
             <div
                 className="flex justify-between items-center p-3 cursor-pointer"
@@ -58,7 +58,7 @@ const LocationCard = ({
                         labId={labId}
                         locationId={location.id}
                         users={users}
-                        roles={roles}
+                        roles={roles.filter((r: any) => r.level > 1)}
                         assignments={assignments}
                         onUpdate={onUpdate}
                     />

@@ -17,6 +17,8 @@ interface ClauseType {
     note_message?: string
     documents?: DocumentType[]
     children?: ClauseType[]
+    numbering_type?: string
+    numbering_value?: string | number | null
 }
 
 interface StandardType {
@@ -39,6 +41,32 @@ const getAllDescendantIds = (clause: ClauseType): string[] => {
     return ids
 }
 
+const getAllIdsFromClauses = (clauses: ClauseType[]): string[] => {
+    let ids: string[] = []
+    clauses.forEach((clause) => {
+        ids = ids.concat(getAllDescendantIds(clause))
+    })
+    return ids
+}
+const DEPTH_COLORS: Record<number, string> = {
+    0: 'bg-violet-100 text-violet-700 dark:bg-violet-900 dark:text-violet-300',
+    1: 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300',
+    2: 'bg-teal-100 text-teal-700 dark:bg-teal-900 dark:text-teal-300',
+}
+
+const DepthBadge: React.FC<{ level: number }> = ({ level }) => {
+    const colorClass =
+        DEPTH_COLORS[level] ??
+        'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400'
+    return (
+        <span
+            className={`text-[10px] font-semibold px-2 py-0.5 rounded-full shrink-0 ${colorClass}`}
+        >
+            L{level + 1}
+        </span>
+    )
+}
+
 interface ClauseItemProps {
     clause: ClauseType
     selectedItems: string[]
@@ -59,31 +87,24 @@ const ClauseItem: React.FC<ClauseItemProps> = ({
         (clause.documents?.length ?? 0) > 0 ||
         (clause.children?.length ?? 0) > 0
 
-    const indentStyle = { marginLeft: `${Math.min(level * 20, 80)}px` }
-
     return (
-        <div
-            style={indentStyle}
-            className="mt-3 border-l-2 border-gray-200 dark:border-gray-700 pl-4"
-        >
-            <div className="flex items-start gap-3 p-3 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-800 transition-all">
+        <div className="border-b border-gray-100 dark:border-gray-800 last:border-b-0">
+            <div className="flex items-center gap-3 px-3 py-2.5 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
                 {hasChildren ? (
-                    <Button
-                        size="xs"
-                        variant="plain"
+                    <button
                         type="button"
                         disabled={readOnly}
-                        className="p-1"
+                        className="p-0.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 disabled:opacity-40 shrink-0"
                         onClick={() => setOpen(!open)}
                     >
                         {open ? (
-                            <ChevronDown size={18} />
+                            <ChevronDown size={15} />
                         ) : (
-                            <ChevronRight size={18} />
+                            <ChevronRight size={15} />
                         )}
-                    </Button>
+                    </button>
                 ) : (
-                    <div className="w-6" />
+                    <span className="w-[22px] shrink-0" />
                 )}
 
                 <Checkbox
@@ -92,21 +113,25 @@ const ClauseItem: React.FC<ClauseItemProps> = ({
                     onChange={() => handleToggle(`clause-${clause.id}`, clause)}
                 />
 
-                <div className="flex-1 min-w-0">
-                    <p className="text-sm font-bold text-gray-900 dark:text-gray-100 tracking-wide">
-                        {clause.title}
-                    </p>
-                </div>
+                <p className="flex-1 min-w-0 text-sm font-semibold text-gray-800 dark:text-gray-100 truncate">
+                    {clause.numbering_value
+                        ? `${clause.numbering_value}. `
+                        : ''}
+                    {clause.title}
+                </p>
+
+                <DepthBadge level={level} />
             </div>
 
             {open && (
-                <>
-                    {clause.documents && (
-                        <div className="ml-10 mt-3 space-y-2">
+                <div className="pl-9">
+                    {/* Documents */}
+                    {clause.documents && clause.documents.length > 0 && (
+                        <div className="py-1 space-y-0.5">
                             {clause.documents.map((doc) => (
                                 <div
                                     key={doc.id}
-                                    className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-all"
+                                    className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
                                 >
                                     <Checkbox
                                         disabled={readOnly}
@@ -120,10 +145,10 @@ const ClauseItem: React.FC<ClauseItemProps> = ({
                                         }
                                     />
                                     <FileText
-                                        size={16}
-                                        className="text-gray-500 dark:text-gray-400"
+                                        size={14}
+                                        className="text-gray-400 dark:text-gray-500 shrink-0"
                                     />
-                                    <span className="text-gray-700 dark:text-gray-300 text-sm">
+                                    <span className="text-xs text-gray-600 dark:text-gray-300 truncate">
                                         {doc.name}
                                     </span>
                                 </div>
@@ -141,7 +166,7 @@ const ClauseItem: React.FC<ClauseItemProps> = ({
                             level={level + 1}
                         />
                     ))}
-                </>
+                </div>
             )}
         </div>
     )
@@ -188,6 +213,16 @@ const ClauseTree: React.FC<ClauseTreeProps> = ({
             })),
         [standards],
     )
+
+    const allIds = useMemo(() => getAllIdsFromClauses(clauses), [clauses])
+
+    const isAllSelected =
+        allIds.length > 0 && allIds.every((id) => selectedItems.includes(id))
+
+    const handleSelectAll = () => {
+        if (readOnly) return
+        onChange?.(isAllSelected ? [] : allIds)
+    }
 
     const handleToggle = useCallback(
         (id: string, clause?: ClauseType) => {
@@ -245,17 +280,21 @@ const ClauseTree: React.FC<ClauseTreeProps> = ({
             </Card>
 
             {clauses.length > 0 && (
-                <Card className="w-full p-6 space-y-5 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-2xl shadow-sm">
-                    <div className="border-b border-gray-200 dark:border-gray-700 pb-4">
-                        <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
+                <Card className="p-6 space-y-4">
+                    <div className="flex justify-between items-center pb-3 border-b border-gray-100 dark:border-gray-800">
+                        <h3 className="text-xl font-semibold">
                             Clause Documents
                         </h3>
-                        <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                            Select the clauses and documents
-                        </p>
+                        <Button
+                            type="button"
+                            disabled={readOnly}
+                            onClick={handleSelectAll}
+                        >
+                            {isAllSelected ? 'Deselect All' : 'Select All'}
+                        </Button>
                     </div>
 
-                    <div className="space-y-1">
+                    <div className="divide-y divide-gray-100 dark:divide-gray-800 rounded-xl overflow-hidden border border-gray-100 dark:border-gray-800">
                         {clauses.map((clause) => (
                             <ClauseItem
                                 key={clause.id}
