@@ -152,7 +152,7 @@ const masterRoute: Routes = [
         authority: [],
     },
     {
-        key: 'masters.document.index',
+        key: 'works.tasks.entry.index',
         path: endpointConfig.master.document.dataEntry,
         component: lazy(
             () =>

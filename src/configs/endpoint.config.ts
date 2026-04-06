@@ -135,8 +135,8 @@ const endpointConfig = {
     },
     works: {
         tasks: {
-            list: `${WORKS_PREFIX_PATH}/tasks/list`,
-            task: `${WORKS_PREFIX_PATH}/tasks/task`,
+            list: `${WORKS_PREFIX_PATH}/tasks/assign/list`,
+            task: `${WORKS_PREFIX_PATH}/tasks/entry/list`,
             dataEntryList: `${WORKS_PREFIX_PATH}/tasks/data-entry/:id`,
         },
     },

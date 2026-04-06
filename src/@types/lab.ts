@@ -31,8 +31,8 @@ export type Lab = {
     name: string
     lab_type: string
     lab_code: string
-    location_count: number | string
-    user_count: number | string
+    location_limit: number | string
+    user_limit: number | string
     emails: ContactField[]
     phones: ContactField[]
     location: LocationField[]

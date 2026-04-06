@@ -31,12 +31,12 @@ const LocationsSection = ({
         name: 'location',
     })
 
-    const locationCount = useWatch({
+    const locationLimit = useWatch({
         control,
-        name: 'location_count',
+        name: 'location_limit',
     })
 
-    const maxLocations = Number(locationCount) || 0
+    const maxLocations = Number(locationLimit) || 0
     const isLimitReached = fields.length >= maxLocations
 
     const handleAddLocation = () => {

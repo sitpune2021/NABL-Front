@@ -1,8 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import ListActionTools from '@/components/shared/ListActionTools'
 import { useClauseDetail } from '@/views/masters/clauses/List/hooks/useDetail'
 import useLocationList from '@/views/masters/location/List/hooks/useList'
-import { actionButtons } from './actionButtons'
 import Button from '@/components/ui/Button'
 import Select from '@/components/ui/Select'
 import Tag from '@/components/ui/Tag'
@@ -19,11 +17,14 @@ import {
     TbConfetti,
     TbArrowRight,
 } from 'react-icons/tb'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import { apiLabTaskAssign } from '@/services/LabService'
+import { useAssignmentList } from './hooks/useAssignmentList'
 
 const DocumentList = () => {
     const { clause, isLoading } = useClauseDetail('1')
     const { locationList } = useLocationList()
+    const { assignment } = useAssignmentList()
 
     const [selection, setSelection] = useState<any>({})
     const [successDialog, setSuccessDialog] = useState({
@@ -31,6 +32,29 @@ const DocumentList = () => {
         userName: '',
         docName: '',
     })
+
+    useEffect(() => {
+        if (!assignment?.length) return
+
+        const mapped: any = {}
+
+        assignment.forEach((item: any) => {
+            const key = `${item.clause_id}_${item.document_id}`
+
+            // 🔥 IMPORTANT LOGIC
+            mapped[key] = {
+                location: item.location_id ? String(item.location_id) : null,
+
+                department: item.department_id
+                    ? String(item.department_id)
+                    : null,
+
+                user: item.user_id ? item.user_id : null,
+            }
+        })
+
+        setSelection(mapped)
+    }, [assignment])
 
     const makeKey = (c: number, d: number) => `${c}_${d}`
 
@@ -43,10 +67,35 @@ const DocumentList = () => {
     ) => {
         const key = makeKey(clauseId, docId)
 
-        setSelection((p: any) => ({
-            ...p,
-            [key]: { ...p[key], [field]: value },
-        }))
+        setSelection((prev: any) => {
+            const current = prev[key] || {}
+
+            let updated = { ...current, [field]: value }
+
+            if (field === 'location') {
+                updated = {
+                    location: value,
+                    department: null,
+                    user: null,
+                }
+            }
+
+            if (field === 'department') {
+                updated = {
+                    ...current,
+                    location: current.location,
+                    department: value,
+                    user: null,
+                }
+            }
+
+            console.log(updated)
+
+            return {
+                ...prev,
+                [key]: updated,
+            }
+        })
     }
 
     // ✅ get location
@@ -88,7 +137,7 @@ const DocumentList = () => {
         }
 
         return users.map((u: any) => ({
-            value: String(u.user_id),
+            value: u.user?.id,
             label: u.user?.name || u.user?.email,
         }))
     }
@@ -100,37 +149,84 @@ const DocumentList = () => {
 
         if (!location) return []
 
-        // single user
+        // ✅ 1. SINGLE USER
         if (sel?.user) {
-            return [{ user_id: sel.user }]
+            return [{ user_id: Number(sel.user) }]
         }
 
-        // department users
+        // ✅ 2. DEPARTMENT USERS
         if (sel?.department) {
             const dept = location.departments.find(
                 (d: any) => String(d.department.id) === sel.department,
             )
-            return dept?.department?.users || []
+
+            return (dept?.department?.users || [])
+                .map((u: any) => ({
+                    user_id: u.user?.id, // ✅ CORRECT FIELD
+                }))
+                .filter((u: any) => u.user_id != null)
         }
 
-        // all location users
-        return location.departments.flatMap(
+        // ✅ 3. LOCATION USERS
+        const allUsers = location.departments.flatMap(
             (d: any) => d.department.users || [],
         )
+
+        const uniqueUsers = Array.from(
+            new Map(allUsers.map((u: any) => [u.user?.id, u])).values(),
+        )
+
+        return uniqueUsers
+            .map((u: any) => ({
+                user_id: u.user?.id, // ✅ CORRECT FIELD
+            }))
+            .filter((u: any) => u.user_id != null)
     }
 
     // ✅ assign
+
     const handleAssign = async (clauseId: number, doc: any) => {
         const key = makeKey(clauseId, doc.id)
+
+        const sel = selection[key]
+        console.log(sel)
+
         const users = getFinalUsers(key)
 
-        if (!users.length) return alert('No users')
+        if (!sel?.location) {
+            return alert('Please select location')
+        }
 
-        setSuccessDialog({
-            open: true,
-            userName: `${users.length} users`,
-            docName: doc.name,
-        })
+        // 🔥 BUILD PAYLOAD
+        const payload = {
+            document_id: doc.id,
+            clause_id: clauseId,
+
+            location_id: Number(sel.location),
+            department_id: sel?.department ? Number(sel.department) : null,
+
+            // ✅ only send user_ids if user selected
+            user_ids: sel?.user
+                ? users
+                      .map((u: any) => u.user_id)
+                      .filter((id: any) => id !== null && id !== undefined)
+                : [],
+        }
+
+        console.log('🔥 FINAL PAYLOAD:', payload)
+
+        try {
+            await apiLabTaskAssign(payload)
+
+            setSuccessDialog({
+                open: true,
+                userName: `${users.length} users`,
+                docName: doc.name,
+            })
+        } catch (e) {
+            console.error(e)
+            alert('Assignment failed')
+        }
     }
 
     const locationOptions = locationList?.map((l: any) => ({
@@ -212,6 +308,11 @@ const DocumentList = () => {
                                         size="sm"
                                         placeholder="Select Location"
                                         options={locationOptions}
+                                        value={locationOptions?.find(
+                                            (o) =>
+                                                o.value ===
+                                                selection[key]?.location,
+                                        )}
                                         onChange={(o: any) =>
                                             handleSelectionChange(
                                                 c.id,
@@ -227,6 +328,11 @@ const DocumentList = () => {
                                         size="sm"
                                         placeholder="Select Department"
                                         options={getDepartmentOptions(key)}
+                                        value={getDepartmentOptions(key)?.find(
+                                            (o) =>
+                                                o.value ===
+                                                selection[key]?.department,
+                                        )}
                                         isDisabled={!selection[key]?.location}
                                         onChange={(o: any) =>
                                             handleSelectionChange(
@@ -243,6 +349,11 @@ const DocumentList = () => {
                                         size="sm"
                                         placeholder="Select User"
                                         options={getUserOptions(key)}
+                                        value={getUserOptions(key)?.find(
+                                            (o) =>
+                                                o.value ===
+                                                selection[key]?.user,
+                                        )}
                                         isDisabled={!selection[key]?.location}
                                         onChange={(o: any) =>
                                             handleSelectionChange(
@@ -301,7 +412,6 @@ const DocumentList = () => {
                         Assign Tasks
                     </h2>
                 </div>
-                <ListActionTools buttons={actionButtons} />
             </div>
 
             {clause?.clauses?.map(renderClause)}

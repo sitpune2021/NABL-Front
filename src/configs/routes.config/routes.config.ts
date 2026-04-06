@@ -17,13 +17,13 @@ export const protectedRoutes: Routes = [
     ...masterRoute,
     ...settingRoute,
     {
-        key: 'works.tasks.index',
+        key: 'works.tasks.assign.index',
         path: endpointConfig.works.tasks.list,
         component: lazy(() => import('@/views/works/tasks/List')),
         authority: [],
     },
     {
-        key: 'works.tasks.index',
+        key: 'works.tasks.entry.index',
         path: endpointConfig.works.tasks.task,
         component: lazy(
             () => import('@/views/works/tasks/List/components/list'),
@@ -31,7 +31,7 @@ export const protectedRoutes: Routes = [
         authority: [],
     },
     {
-        key: 'works.tasks.index',
+        key: 'works.tasks.entry.index',
         path: endpointConfig.works.tasks.dataEntryList,
         component: lazy(
             () => import('@/views/works/tasks/List/components/listDatatbale'),

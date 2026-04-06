@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import Avatar from '@/components/ui/Avatar'
 import Dropdown from '@/components/ui/Dropdown'
 import { HiCheck } from 'react-icons/hi'
@@ -23,7 +24,10 @@ const LocationSelector = () => {
     const isLocationSelectable =
         shouldShowExtra && activeLab && activeLab?.locations?.length > 1
     const isDeptSelectable =
-        shouldShowExtra && activeLab && activeLab?.departments?.length > 1
+        shouldShowExtra &&
+        activeLocation &&
+        activeLocation?.departments?.length > 0
+
     const bgColor = useRandomBgColor()
 
     return (
@@ -124,9 +128,15 @@ const LocationSelector = () => {
                     {activeLab?.locations?.map((loc) => (
                         <Dropdown.Item
                             key={loc?.id}
-                            onClick={() =>
-                                useSessionUser.getState().setActiveLocation(loc)
-                            }
+                            onClick={() => {
+                                const store = useSessionUser.getState()
+                                store.setActiveLocation(loc)
+
+                                // ✅ reset or auto select department
+                                store.setActiveDepartment(
+                                    loc?.departments?.[0] || null,
+                                )
+                            }}
                         >
                             <span className="ml-2">{loc?.name}</span>
                             {activeLocation?.id === loc?.id && (
@@ -152,7 +162,7 @@ const LocationSelector = () => {
                         </span>
                     }
                 >
-                    {activeLab?.departments?.map((dept) => (
+                    {activeLocation?.departments?.map((dept: any) => (
                         <Dropdown.Item
                             key={dept?.id}
                             onClick={() =>
