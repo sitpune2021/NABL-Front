@@ -12,7 +12,8 @@ import LocationsSection from './LocationsSection'
 import ClauseTree from './ClauseTree'
 import { labSchema, LabFormSchema } from '@/schemas/lab.schema'
 import { useStandardClauseList } from '../../instrument/List/hooks/useSTDClause'
-import { Card, Select } from '@/components/ui'
+import { Card } from '@/components/ui'
+import DocumentSelector from './DocumentSelector'
 
 type LabFormProps = {
     step?: number
@@ -90,6 +91,7 @@ const LabForm = ({
             standard_id: selectedStandardId,
         }
         onFormSubmit?.(payload)
+        console.log('Payload:', payload)
     }
 
     if (isLoading) {
@@ -149,39 +151,17 @@ const LabForm = ({
                                         errorMessage={errors.documents?.message}
                                     >
                                         <Controller
-                                            name={`documents`}
+                                            name="documents"
                                             defaultValue={documentList.map(
                                                 (i) => i.id,
-                                            )} // <-- select all by default
+                                            )}
                                             control={control}
                                             render={({ field }) => (
-                                                <Select
-                                                    isMulti
-                                                    placeholder="Select Documents"
-                                                    options={documentList.map(
-                                                        (i) => ({
-                                                            label: i.name,
-                                                            value: i.id,
-                                                        }),
-                                                    )}
-                                                    value={documentList
-                                                        .map((i) => ({
-                                                            label: i.name,
-                                                            value: i.id,
-                                                        }))
-                                                        .filter((opt) =>
-                                                            field.value?.includes(
-                                                                opt.value,
-                                                            ),
-                                                        )}
+                                                <DocumentSelector
+                                                    documentList={documentList}
+                                                    value={field.value ?? []}
                                                     isDisabled={readOnly}
-                                                    onChange={(selected) =>
-                                                        field.onChange(
-                                                            selected?.map(
-                                                                (s) => s.value,
-                                                            ) || [],
-                                                        )
-                                                    }
+                                                    onChange={field.onChange}
                                                 />
                                             )}
                                         />

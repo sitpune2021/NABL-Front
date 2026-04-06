@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useState, useMemo, useCallback, useRef, useEffect } from 'react'
+import { useState, useMemo, useCallback, useEffect } from 'react'
 import { useWatch } from 'react-hook-form'
 import { Input } from '@/components/ui'
 import { TbSearch } from 'react-icons/tb'
@@ -13,6 +13,7 @@ const LabLocationAssignmentSection = ({ control, setValue }: any) => {
     const { rolesList = [] } = useRolesList()
     const [expandedLabId, setExpandedLabId] = useState<string | null>(null)
     const [search, setSearch] = useState('')
+    const [isInitialLoad, setIsInitialLoad] = useState(true)
     const labs = labsAssignmentsList?.labs ?? []
     const users = labsAssignmentsList?.users ?? []
     const assingn = labsAssignmentsList?.assingn ?? []
@@ -23,11 +24,8 @@ const LabLocationAssignmentSection = ({ control, setValue }: any) => {
             name: 'labAssignments',
         }) || {}
 
-    const initializedRef = useRef(false)
-
     useEffect(() => {
-        if (!assingn.length) return
-        if (initializedRef.current) return
+        if (!assingn.length || !isInitialLoad) return
 
         const initialAssignments = assingn.reduce((acc: any, item: any) => {
             const labId = item.lab_id
@@ -46,13 +44,9 @@ const LabLocationAssignmentSection = ({ control, setValue }: any) => {
             return acc
         }, {})
 
-        setValue('labAssignments', initialAssignments, {
-            shouldDirty: false,
-            shouldValidate: false,
-        })
-
-        initializedRef.current = true
-    }, [assingn, setValue])
+        setValue('labAssignments', initialAssignments)
+        setIsInitialLoad(false)
+    }, [assingn, isInitialLoad, setValue])
 
     const filteredLabs = useMemo(
         () =>
@@ -64,10 +58,7 @@ const LabLocationAssignmentSection = ({ control, setValue }: any) => {
 
     const updateAssignments = useCallback(
         (updater: (prev: any) => any) => {
-            setValue('labAssignments', updater, {
-                shouldDirty: true,
-                shouldValidate: true,
-            })
+            setValue('labAssignments', updater)
         },
         [setValue],
     )

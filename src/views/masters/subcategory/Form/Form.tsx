@@ -24,6 +24,7 @@ const SubCategoryForm = ({
     readOnly = false,
     children,
 }: SubCategoryFormProps) => {
+    const isEditMode = Boolean(defaultValues?.cat_id)
     return (
         <MasterForm
             schema={subCategorySchema}
@@ -38,7 +39,7 @@ const SubCategoryForm = ({
                                 fieldName="cat_id"
                                 identifierField="identifier"
                                 label="Category"
-                                readOnly={readOnly}
+                                readOnly={isEditMode || readOnly}
                                 useListHook={useCategoryList}
                                 useDetailHook={useCategoryDetail}
                                 mapOption={(item) => ({

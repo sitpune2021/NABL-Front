@@ -3,6 +3,7 @@ import { HiChevronDown } from 'react-icons/hi'
 import { TbCertificate } from 'react-icons/tb'
 import { Button } from '@/components/ui'
 import LocationCard from './LocationCard'
+import UserAssignmentRow from './UserAssignmentRow'
 
 const LabCard = ({
     lab,
@@ -53,6 +54,15 @@ const LabCard = ({
 
             {expanded && (
                 <div className="p-5 border-t border-gray-200 dark:border-gray-700  bg-gray-50/30 dark:bg-gray-800/40 rounded-b-xl">
+                    <UserAssignmentRow
+                        assingn={assingn}
+                        labId={lab.id}
+                        locationId={null}
+                        users={users}
+                        roles={roles.filter((r: any) => r.level === 1)}
+                        assignments={assignments}
+                        onUpdate={onUpdate}
+                    />
                     {locations.map((location: any) => (
                         <LocationCard
                             key={location.id}

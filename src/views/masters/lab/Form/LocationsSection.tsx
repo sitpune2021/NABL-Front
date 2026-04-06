@@ -1,10 +1,12 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import Card from '@/components/ui/Card'
-import { useFieldArray } from 'react-hook-form'
+import { useFieldArray, useWatch } from 'react-hook-form'
 import { FormSectionBaseProps } from '@/@types/lab'
 import { Button } from '@/components/ui'
 import LocationsItems from './LocationsItems'
 import { HiPlus } from 'react-icons/hi'
+import toast from '@/components/ui/toast'
+import Notification from '@/components/ui/Notification'
 
 type LocationsSectionProps = FormSectionBaseProps & {
     zoneList: any[]
@@ -29,7 +31,28 @@ const LocationsSection = ({
         name: 'location',
     })
 
+    const locationCount = useWatch({
+        control,
+        name: 'location_count',
+    })
+
+    const maxLocations = Number(locationCount) || 0
+    const isLimitReached = fields.length >= maxLocations
+
     const handleAddLocation = () => {
+        if (isLimitReached) {
+            toast.push(
+                <Notification type="warning">
+                    Maximum {maxLocations} locations allowed. You cannot add
+                    more.
+                </Notification>,
+                {
+                    placement: 'top-center',
+                },
+            )
+            return
+        }
+
         append({
             id: null,
             zone_id: '',
@@ -60,6 +83,11 @@ const LocationsSection = ({
                         />
                     )}
                 </div>
+                {!readOnly && isLimitReached && (
+                    <p className="text-xs text-red-500 mt-2">
+                        Maximum {maxLocations} locations reached
+                    </p>
+                )}
             </Card>
 
             {fields.map((item, index) => (
