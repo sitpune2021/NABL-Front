@@ -4,122 +4,115 @@ import endpointConfig from '../endpoint.config'
 
 const masterRoute: Routes = [
     {
-        key: 'masters.category.list',
+        key: 'masters.category.index',
         path: `${endpointConfig.master.category.list}`,
         component: lazy(() => import('@/views/masters/category/List')),
         authority: [],
-        meta: {
-            header: {
-                title: 'Category',
-                description:
-                    'Manage customer details, purchase history, and preferences.',
-            },
-        },
     },
     {
-        key: 'masters.category.list',
+        key: 'masters.category.index',
         path: `${endpointConfig.master.category.create}`,
         component: lazy(() => import('@/views/masters/category/AddEdit')),
         authority: [],
     },
     {
-        key: 'masters.category.list',
+        key: 'masters.category.index',
         path: endpointConfig.master.category.edit,
         component: lazy(() => import('@/views/masters/category/AddEdit')),
         authority: [],
     },
     {
-        key: 'masters.category.list',
+        key: 'masters.category.index',
         path: endpointConfig.master.category.view,
         component: lazy(() => import('@/views/masters/category/AddEdit')),
         authority: [],
     },
     {
-        key: 'masters.subcategory.list',
+        key: 'masters.subcategory.index',
         path: `${endpointConfig.master.subcategory.list}`,
         component: lazy(() => import('@/views/masters/subcategory/List')),
         authority: [],
     },
     {
-        key: 'masters.subcategory.list',
+        key: 'masters.subcategory.index',
         path: `${endpointConfig.master.subcategory.create}`,
         component: lazy(() => import('@/views/masters/subcategory/AddEdit')),
         authority: [],
     },
     {
-        key: 'masters.subcategory.list',
+        key: 'masters.subcategory.index',
         path: endpointConfig.master.subcategory.edit,
         component: lazy(() => import('@/views/masters/subcategory/AddEdit')),
         authority: [],
     },
     {
-        key: 'masters.subcategory.list',
+        key: 'masters.subcategory.index',
         path: endpointConfig.master.subcategory.view,
         component: lazy(() => import('@/views/masters/subcategory/AddEdit')),
         authority: [],
     },
     {
-        key: 'masters.department.list',
+        key: 'masters.department.index',
         path: `${endpointConfig.master.department.list}`,
         component: lazy(() => import('@/views/masters/department/List')),
         authority: [],
     },
     {
-        key: 'masters.department.list',
+        key: 'masters.department.index',
         path: `${endpointConfig.master.department.create}`,
         component: lazy(() => import('@/views/masters/department/AddEdit')),
         authority: [],
     },
     {
-        key: 'masters.department.list',
+        key: 'masters.department.index',
         path: endpointConfig.master.department.edit,
         component: lazy(() => import('@/views/masters/department/AddEdit')),
         authority: [],
     },
     {
-        key: 'masters.department.list',
+        key: 'masters.department.index',
         path: endpointConfig.master.department.view,
         component: lazy(() => import('@/views/masters/department/AddEdit')),
         authority: [],
     },
     {
-        key: 'masters.unit.list',
+        key: 'masters.unit.index',
         path: `${endpointConfig.master.unit.list}`,
         component: lazy(() => import('@/views/masters/unit/List')),
         authority: [],
     },
     {
-        key: 'masters.unit.list',
+        key: 'masters.unit.index',
         path: `${endpointConfig.master.unit.create}`,
         component: lazy(() => import('@/views/masters/unit/AddEdit')),
         authority: [],
     },
     {
-        key: 'masters.unit.list',
+        key: 'masters.unit.index',
         path: endpointConfig.master.unit.edit,
         component: lazy(() => import('@/views/masters/unit/AddEdit')),
         authority: [],
     },
     {
-        key: 'masters.unit.list',
+        key: 'masters.unit.index',
         path: endpointConfig.master.unit.view,
         component: lazy(() => import('@/views/masters/unit/AddEdit')),
         authority: [],
     },
     {
-        key: 'masters.document.list',
+        key: 'masters.document.index',
         path: `${endpointConfig.master.document.list}`,
         component: lazy(() => import('@/views/masters/document/List')),
         authority: [],
     },
     {
-        key: 'masters.document.list',
+        key: 'masters.document.index',
         path: `${endpointConfig.master.document.create}`,
         component: lazy(() => import('@/views/masters/document/AddEdit')),
         authority: [],
     },
     {
-        key: 'masters.document.list',
+        key: 'masters.document.index',
         path: `${endpointConfig.master.document.editor}/:id`,
         component: lazy(() => import('@/views/masters/document/AddEdit')),
         authority: [],
@@ -130,13 +123,13 @@ const masterRoute: Routes = [
         },
     },
     {
-        key: 'masters.document.list',
+        key: 'masters.document.index',
         path: endpointConfig.master.document.edit,
         component: lazy(() => import('@/views/masters/document/AddEdit')),
         authority: [],
     },
     {
-        key: 'masters.document.list',
+        key: 'masters.document.index',
         path: `${endpointConfig.master.document.editorEdit}`,
         component: lazy(() => import('@/views/masters/document/AddEdit')),
         authority: [],
@@ -147,19 +140,19 @@ const masterRoute: Routes = [
         // },
     },
     {
-        key: 'masters.document.list',
+        key: 'masters.document.index',
         path: endpointConfig.master.document.view,
         component: lazy(() => import('@/views/masters/document/AddEdit')),
         authority: [],
     },
     {
-        key: 'masters.document.list',
+        key: 'masters.document.index',
         path: endpointConfig.master.document.editorview,
         component: lazy(() => import('@/views/masters/document/AddEdit')),
         authority: [],
     },
     {
-        key: 'masters.document.list',
+        key: 'works.tasks.entry.index',
         path: endpointConfig.master.document.dataEntry,
         component: lazy(
             () =>
@@ -169,14 +162,9 @@ const masterRoute: Routes = [
         ),
         authority: [],
     },
+
     {
-        key: 'masters.document.list',
-        path: endpointConfig.master.document.dataEntryList,
-        component: lazy(() => import('@/views/masters/document/List')),
-        authority: [],
-    },
-    {
-        key: 'masters.template.list',
+        key: 'masters.template.index',
         path: `${endpointConfig.master.template.list}`,
         component: lazy(() =>
             import('@/views/masters/template/List').then((module) => ({
@@ -186,7 +174,7 @@ const masterRoute: Routes = [
         authority: [],
     },
     {
-        key: 'masters.template.list',
+        key: 'masters.template.index',
         path: `${endpointConfig.master.template.versions.list}`,
         component: lazy(() =>
             import('@/views/masters/template/List').then((module) => ({
@@ -196,7 +184,7 @@ const masterRoute: Routes = [
         authority: [],
     },
     {
-        key: 'masters.template.list',
+        key: 'masters.template.index',
         path: `${endpointConfig.master.template.create}/:type`,
         component: lazy(() => import('@/views/masters/template/AddEdit')),
         authority: [],
@@ -207,7 +195,7 @@ const masterRoute: Routes = [
         },
     },
     {
-        key: 'masters.template.list',
+        key: 'masters.template.index',
         path: `${endpointConfig.master.template.edit}`,
         component: lazy(() => import('@/views/masters/template/AddEdit')),
         authority: [],
@@ -218,114 +206,114 @@ const masterRoute: Routes = [
         },
     },
     {
-        key: 'masters.template.list',
+        key: 'masters.template.index',
         path: `${endpointConfig.master.template.view}`,
         component: lazy(() => import('@/views/masters/template/AddEdit')),
         authority: [],
     },
 
     {
-        key: 'masters.template.write.version.write',
+        key: 'masters.template.write.version.create',
         path: `${endpointConfig.master.template.versions.view}`,
         component: lazy(() => import('@/views/masters/template/AddEdit')),
         authority: [],
     },
 
     {
-        key: 'masters.location.list',
+        key: 'masters.location.index',
         path: `${endpointConfig.master.location.list}`,
         component: lazy(() => import('@/views/masters/location/List')),
         authority: [],
     },
     {
-        key: 'masters.location.list',
+        key: 'masters.location.index',
         path: endpointConfig.master.location.create,
         component: lazy(() => import('@/views/masters/location/AddEdit')),
         authority: [],
     },
     {
-        key: 'masters.location.list',
+        key: 'masters.location.index',
         path: endpointConfig.master.location.edit,
         component: lazy(() => import('@/views/masters/location/AddEdit')),
         authority: [],
     },
     {
-        key: 'masters.location.list',
+        key: 'masters.location.index',
         path: endpointConfig.master.location.view,
         component: lazy(() => import('@/views/masters/location/AddEdit')),
         authority: [],
     },
 
     {
-        key: 'masters.zone.list',
+        key: 'masters.zone.index',
         path: endpointConfig.master.zone.list,
         component: lazy(() => import('@/views/masters/zone/List')),
         authority: [],
     },
     {
-        key: 'masters.zone.list',
+        key: 'masters.zone.index',
         path: endpointConfig.master.zone.create,
         component: lazy(() => import('@/views/masters/zone/AddEdit')),
         authority: [],
     },
     {
-        key: 'masters.zone.list',
+        key: 'masters.zone.index',
         path: endpointConfig.master.zone.edit,
         component: lazy(() => import('@/views/masters/zone/AddEdit')),
         authority: [],
     },
     {
-        key: 'masters.zone.list',
+        key: 'masters.zone.index',
         path: endpointConfig.master.zone.view,
         component: lazy(() => import('@/views/masters/zone/AddEdit')),
         authority: [],
     },
 
     {
-        key: 'masters.cluster.list',
+        key: 'masters.cluster.index',
         path: endpointConfig.master.cluster.list,
         component: lazy(() => import('@/views/masters/cluster/List')),
         authority: [],
     },
     {
-        key: 'masters.cluster.list',
+        key: 'masters.cluster.index',
         path: endpointConfig.master.cluster.create,
         component: lazy(() => import('@/views/masters/cluster/AddEdit')),
         authority: [],
     },
     {
-        key: 'masters.cluster.list',
+        key: 'masters.cluster.index',
         path: endpointConfig.master.cluster.edit,
         component: lazy(() => import('@/views/masters/cluster/AddEdit')),
         authority: [],
     },
     {
-        key: 'masters.cluster.list',
+        key: 'masters.cluster.index',
         path: endpointConfig.master.cluster.view,
         component: lazy(() => import('@/views/masters/cluster/AddEdit')),
         authority: [],
     },
 
     {
-        key: 'masters.instrument.list',
+        key: 'masters.instrument.index',
         path: `${endpointConfig.master.instrument.list}`,
         component: lazy(() => import('@/views/masters/instrument/List')),
         authority: [],
     },
     {
-        key: 'masters.instrument.list',
+        key: 'masters.instrument.index',
         path: `${endpointConfig.master.instrument.create}`,
         component: lazy(() => import('@/views/masters/instrument/AddEdit')),
         authority: [],
     },
     {
-        key: 'masters.instrument.list',
+        key: 'masters.instrument.index',
         path: endpointConfig.master.instrument.edit,
         component: lazy(() => import('@/views/masters/instrument/AddEdit')),
         authority: [],
     },
     {
-        key: 'masters.instrument.list',
+        key: 'masters.instrument.index',
         path: endpointConfig.master.instrument.view,
         component: lazy(() => import('@/views/masters/instrument/AddEdit')),
         authority: [],

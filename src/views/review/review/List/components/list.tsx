@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import React, { useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router'
 import { useClauseDetail } from '@/views/masters/clauses/List/hooks/useDetail'
 import DataTable from '@/components/shared/DataTable'
@@ -7,14 +7,16 @@ import type { ColumnDef } from '@/components/shared/DataTable'
 import endpointConfig from '@/configs/endpoint.config'
 import { TbDatabase, TbMessageCircle } from 'react-icons/tb'
 import ListLayout from '@/components/layouts/ListLayout'
-import CommentDrawer from './Commentdrawer'
-import { Button } from '@/components/ui'
+import CommentDrawer from '@/views/works/tasks/List/components/Commentdrawer'
+import ActionColumn from '@/components/form/ActionColumn'
+import { useAuth } from '@/auth'
 
 const ClauseDocumentListTable = () => {
-    const { clause, isLoading } = useClauseDetail('1', { type: 'bysingle' })
+    const { clause, isLoading } = useClauseDetail('1')
     const navigate = useNavigate()
     const [drawerOpen, setDrawerOpen] = useState(false)
     const [selectedDocument, setSelectedDocument] = useState<any>(null)
+    const { can } = useAuth()
 
     // ✅ Flatten data (same logic)
     const data =
@@ -27,7 +29,7 @@ const ClauseDocumentListTable = () => {
         ) || []
 
     const handleEntryDetails = (document: any) => {
-        const path = endpointConfig.works.tasks.dataEntryList.replace(
+        const path = endpointConfig.review.review.dataEntryList.replace(
             ':id',
             String(document.id),
         )
@@ -79,25 +81,22 @@ const ClauseDocumentListTable = () => {
                 header: 'Action',
                 id: 'action',
                 cell: ({ row }) => (
-                    <div className="flex items-center gap-2">
-                        <Button
-                            size="xs"
-                            variant="plain"
-                            icon={<TbDatabase />}
-                            onClick={() => handleEntryDetails(row.original)}
-                        >
-                            Records
-                        </Button>
-
-                        <Button
-                            size="xs"
-                            variant="plain"
-                            icon={<TbMessageCircle />}
-                            onClick={() => handleOpenComments(row.original)}
-                        >
-                            Comments
-                        </Button>
-                    </div>
+                    <ActionColumn
+                        buttons={[
+                            {
+                                icon: <TbDatabase />,
+                                tooltip: 'Records',
+                                onClick: () => handleEntryDetails(row.original),
+                                // show: can('review.review.record.show'),
+                            },
+                            {
+                                icon: <TbMessageCircle />,
+                                tooltip: 'Comments',
+                                onClick: () => handleOpenComments(row.original),
+                                show: can('review.review.comment'),
+                            },
+                        ]}
+                    />
                 ),
             },
         ],

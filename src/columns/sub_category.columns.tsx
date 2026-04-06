@@ -72,13 +72,13 @@ export const buildSubCategoryColumns = ({
                             icon: <TbPencil />,
                             tooltip: 'Edit',
                             onClick: () => onEdit(row.original),
-                            show: can('masters.subcategory.write'),
+                            show: can('masters.subcategory.edit'),
                         },
                         {
                             icon: <TbEye />,
                             tooltip: 'View',
                             onClick: () => onView(row.original),
-                            show: can('masters.subcategory.list'),
+                            show: can('masters.subcategory.show'),
                         },
                     ]}
                 />

@@ -53,13 +53,13 @@ export const buildZoneColumns = ({
                         icon: <TbPencil />,
                         tooltip: 'Edit',
                         onClick: () => onEdit(row.original),
-                        show: can('masters.zone.write'),
+                        show: can('masters.zone.edit'),
                     },
                     {
                         icon: <TbEye />,
                         tooltip: 'View',
                         onClick: () => onView(row.original),
-                        show: can('masters.zone.list'),
+                        show: can('masters.zone.show'),
                     },
                 ]}
             />

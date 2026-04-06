@@ -10,10 +10,14 @@ export async function apiDataEntry(data: any) {
     })
 }
 
-export async function apiDataEntryList(id: any) {
+export async function apiDataEntryList(
+    id: any,
+    params?: Record<string, unknown>,
+) {
     return ApiService.fetchDataWithAxios<any>({
         url: `${apiEndpointConfig.dataEntry}/${id}`,
         method: 'get',
+        params,
     })
 }
 

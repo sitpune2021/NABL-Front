@@ -119,19 +119,19 @@ export const buildTemplateColumns = ({
                             icon: <TbPencil />,
                             tooltip: 'Edit',
                             onClick: () => onEdit(row.original),
-                            show: can('masters.template.write'),
+                            show: can('masters.template.edit'),
                         },
                         {
                             icon: <TbEye />,
                             tooltip: 'View',
                             onClick: () => onView(row.original),
-                            show: can('masters.template.list'),
+                            show: can('masters.template.show'),
                         },
                         {
                             icon: <TbList />,
                             tooltip: 'Versions List',
                             onClick: () => onVersionsList(row.original),
-                            show: can('masters.template.write.version.list'),
+                            show: can('masters.template.version.index'),
                         },
                     ]}
                 />

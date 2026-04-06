@@ -91,13 +91,16 @@ const UserListTable = () => {
                         locations?: {
                             id: number
                             name: string
+                            roles?: {
+                                id: number
+                                name: string
+                            }[]
                             departments?: {
                                 id: number
                                 name: string
                                 roles?: {
                                     id: number
                                     name: string
-                                    permissions?: string[]
                                 }[]
                             }[]
                         }[]
@@ -106,28 +109,51 @@ const UserListTable = () => {
                     if (!user.locations || user.locations.length === 0)
                         return '-'
 
-                    // Map location → departments → roles
                     const locationBlocks = user.locations.map((location) => {
-                        const departmentBlocks =
-                            location.departments?.map((dept) => {
-                                const roleNames =
-                                    dept.roles
-                                        ?.map((role) =>
-                                            role.name
-                                                ? `<b>${role.name}</b>`
-                                                : '',
-                                        )
-                                        .filter(Boolean) ?? []
-                                return `${dept.name}: ${roleNames.join(' | ')}`
-                            }) ?? []
+                        // ✅ 1. LOCATION LEVEL ROLES
+                        const locationRoles =
+                            location.roles
+                                ?.map((role) =>
+                                    role.name ? `<b>${role.name}</b>` : '',
+                                )
+                                .filter(Boolean)
+                                .join(' | ') ?? ''
 
-                        return `${location.name} → ${departmentBlocks.join(' ; ')}`
+                        // ✅ 2. DEPARTMENT LEVEL ROLES
+                        const departmentBlocks =
+                            location.departments
+                                ?.map((dept) => {
+                                    const roleNames =
+                                        dept.roles
+                                            ?.map((role) =>
+                                                role.name
+                                                    ? `<b>${role.name}</b>`
+                                                    : '',
+                                            )
+                                            .filter(Boolean)
+                                            .join(' | ') ?? ''
+
+                                    return roleNames
+                                        ? `${dept.name}: ${roleNames}`
+                                        : ''
+                                })
+                                .filter(Boolean)
+                                .join(' ; ') ?? ''
+
+                        // ✅ FINAL COMBINE
+                        return `
+                <div>
+                    <b>${location.name}</b>
+                    ${locationRoles ? ` → ${locationRoles}` : ''}
+                    ${departmentBlocks ? `<br/>${departmentBlocks}` : ''}
+                </div>
+            `
                     })
 
                     return (
                         <span
                             dangerouslySetInnerHTML={{
-                                __html: locationBlocks.join(' || '),
+                                __html: locationBlocks.join('<br/><br/>'),
                             }}
                         />
                     )
@@ -144,14 +170,14 @@ const UserListTable = () => {
                                 icon: <TbPencil />,
                                 tooltip: 'Edit',
                                 onClick: () => handleEdit(props.row.original),
-                                show: can('settings.user.write'),
+                                show: can('settings.user.create'),
                             },
                             {
                                 icon: <TbEye />,
                                 tooltip: 'View',
                                 onClick: () =>
                                     handleViewDetails(props.row.original),
-                                show: can('settings.user.list'),
+                                show: can('settings.user.index'),
                             },
                         ]}
                     />

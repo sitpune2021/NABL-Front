@@ -49,18 +49,19 @@ export const buildLabColumns = ({
                         icon: <TbPencil />,
                         tooltip: 'Edit',
                         onClick: () => onEdit(row.original),
-                        show: can('clients.lab.write'),
+                        show: can('clients.lab.edit'),
                     },
                     {
                         icon: <TbEye />,
                         tooltip: 'View',
                         onClick: () => onView(row.original),
-                        show: can('clients.lab.list'),
+                        show: can('clients.lab.show'),
                     },
                     {
                         icon: <TbLocationBolt />,
                         tooltip: 'Location',
                         onClick: () => onLocation(row.original),
+                        show: can('clients.lab.location.index'),
                     },
                 ]}
             />
