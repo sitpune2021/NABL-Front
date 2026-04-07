@@ -845,7 +845,7 @@ const FrequencySection = ({
                 </>
                 <FieldConfigurationSection />
                 <AamendmentSection isEdit={isEdit} />
-                <div className="flex gap-2 flex-row-reverse">
+                <div className="flex gap-2 flex-row-reverse mt-4">
                     <Button
                         variant="solid"
                         type="button"

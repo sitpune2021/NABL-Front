@@ -198,6 +198,7 @@ const DocumentInformationSection = ({
                     )}
                     value={field.value || ''}
                     disabled={!formValues.notification_unit || readOnly}
+                    onWheel={(e) => (e.target as HTMLInputElement).blur()}
                     onChange={(e) => {
                         const val = e.target.value
                         if (

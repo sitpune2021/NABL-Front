@@ -129,15 +129,43 @@ const RolesPermissionsAccessDialog = ({
             const flatAccess: Record<string, string[]> = {}
 
             if (role?.accessRight) {
-                Object.values(role.accessRight).forEach((group) => {
+                Object.values(role.accessRight).forEach((group: any) => {
+                    if (typeof group !== 'object') return
                     Object.entries(group).forEach(
                         ([moduleId, actions]: any) => {
-                            flatAccess[moduleId] = actions
+                            if (!Array.isArray(actions)) return
+                            //  SPECIAL FIX FOR LAB + ASSIGNMENTS
+                            if (moduleId === 'lab') {
+                                const labAccess: string[] = []
+                                const assignmentAccess: string[] = []
+
+                                actions.forEach((action: string) => {
+                                    if (action.startsWith('assignments.')) {
+                                        assignmentAccess.push(
+                                            action.replace('assignments.', ''),
+                                        )
+                                    } else {
+                                        labAccess.push(action)
+                                    }
+                                })
+
+                                flatAccess['lab'] = labAccess
+                                flatAccess['assignments'] = assignmentAccess
+                            } else {
+                                flatAccess[moduleId] = actions
+                            }
                         },
                     )
                 })
             }
 
+            Object.values(accessModules)
+                .flat()
+                .forEach((module: any) => {
+                    if (!flatAccess[module.id]) {
+                        flatAccess[module.id] = []
+                    }
+                })
             setAccessRight(flatAccess)
         } else if (roleDialog.type === 'new') {
             const defaultAccess: Record<string, string[]> = {}

@@ -71,6 +71,11 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                                         readOnly={
                                             readOnly || fieldConfig.readOnly
                                         }
+                                        onWheel={(e) =>
+                                            (
+                                                e.target as HTMLInputElement
+                                            ).blur()
+                                        }
                                         {...field}
                                     />
                                 )
