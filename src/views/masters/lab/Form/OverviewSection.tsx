@@ -81,35 +81,35 @@ const OverviewSection = ({
                         />
                     </FormItem>
                     <FormItem
-                        label="Lab Loaction Count"
-                        invalid={Boolean(errors.location_count)}
-                        errorMessage={errors.location_count?.message}
+                        label="Lab Location Limit"
+                        invalid={Boolean(errors.location_limit)}
+                        errorMessage={errors.location_limit?.message}
                     >
                         <Controller
-                            name="location_count"
+                            name="location_limit"
                             control={control}
                             render={({ field }) => (
                                 <Input
                                     {...field}
                                     readOnly={readOnly}
-                                    placeholder="Lab Loaction Count"
+                                    placeholder="Lab Location Limit"
                                 />
                             )}
                         />
                     </FormItem>
                     <FormItem
-                        label="Lab User Count"
-                        invalid={Boolean(errors.user_count)}
-                        errorMessage={errors.user_count?.message}
+                        label="Lab User Limit"
+                        invalid={Boolean(errors.user_limit)}
+                        errorMessage={errors.user_limit?.message}
                     >
                         <Controller
-                            name="user_count"
+                            name="user_limit"
                             control={control}
                             render={({ field }) => (
                                 <Input
                                     {...field}
                                     readOnly={readOnly}
-                                    placeholder="Lab User Count"
+                                    placeholder="Lab User Limit"
                                 />
                             )}
                         />

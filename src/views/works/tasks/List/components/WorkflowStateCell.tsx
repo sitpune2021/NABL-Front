@@ -18,7 +18,7 @@ const ACTIONS_BY_STEP: Record<string, string[]> = {
     effective: ['pending', 'completed'],
 }
 
-const WorkflowStateCell = ({ document, onSave }: Props) => {
+const WorkflowStateCell = ({ document, onSave, show }: Props) => {
     const { is_super_admin } = useSessionUser((state) => state.user)
 
     const version = document.current_version
@@ -50,7 +50,7 @@ const WorkflowStateCell = ({ document, onSave }: Props) => {
 
     const selectedOption = options.find((opt) => opt.value === action) || null
 
-    if (isEditing && !isFinal && is_super_admin) {
+    if (isEditing && !isFinal && is_super_admin && !show) {
         return (
             <Select
                 autoFocus

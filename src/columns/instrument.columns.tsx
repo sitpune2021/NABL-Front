@@ -63,13 +63,13 @@ export const buildInstrumentColumns = ({
                         icon: <TbPencil />,
                         tooltip: 'Edit',
                         onClick: () => onEdit(row.original),
-                        show: can('masters.instrument.write'),
+                        show: can('masters.instrument.edit'),
                     },
                     {
                         icon: <TbEye />,
                         tooltip: 'View',
                         onClick: () => onView(row.original),
-                        show: can('masters.instrument.list'),
+                        show: can('masters.instrument.show'),
                     },
                 ]}
             />

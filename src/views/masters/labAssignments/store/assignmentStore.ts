@@ -2,8 +2,8 @@ import { create } from 'zustand'
 
 export type AssignmentStats = {
     labCount: number
-    locationCount: number
-    userCount: number
+    locationLimit: number
+    userLimit: number
     labAssignment: {
         assigned: number
         pending: number
@@ -25,8 +25,8 @@ type AssignmentStore = AssignmentStats & {
 
 const initialState: AssignmentStats = {
     labCount: 0,
-    locationCount: 0,
-    userCount: 0,
+    locationLimit: 0,
+    userLimit: 0,
     labAssignment: {
         assigned: 0,
         pending: 0,

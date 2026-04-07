@@ -35,8 +35,8 @@ const SummaryCard = ({ title, count, label, icon, color }: any) => (
 const AssignmentBody = () => {
     const {
         labCount,
-        locationCount,
-        userCount,
+        locationLimit,
+        userLimit,
         labAssignment,
         locationAssignment,
         userAssignment,
@@ -54,17 +54,17 @@ const AssignmentBody = () => {
                 pending: labAssignment.pending ?? 0,
             },
             locations: {
-                total: locationCount,
+                total: locationLimit,
                 assigned: locationAssignment.assigned ?? 0,
                 pending: locationAssignment.pending ?? 0,
             },
             users: {
-                total: userCount,
+                total: userLimit,
                 assigned: userAssignment.assigned ?? 0,
                 pending: userAssignment.pending ?? 0,
             },
         }),
-        [labList, locationList, userList, labCount, locationCount, userCount],
+        [labList, locationList, userList, labCount, locationLimit, userLimit],
     )
 
     const cards = [

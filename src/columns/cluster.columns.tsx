@@ -68,13 +68,13 @@ export const buildClusterColumns = ({
                         icon: <TbPencil />,
                         tooltip: 'Edit',
                         onClick: () => onEdit(props.row.original),
-                        show: can('masters.cluster.write'),
+                        show: can('masters.cluster.edit'),
                     },
                     {
                         icon: <TbEye />,
                         tooltip: 'View',
                         onClick: () => onView(props.row.original),
-                        show: can('masters.cluster.list'),
+                        show: can('masters.cluster.show'),
                     },
                 ]}
             />

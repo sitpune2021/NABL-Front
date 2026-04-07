@@ -8,6 +8,7 @@ import { Input, Select, Checkbox } from '@/components/ui'
 import TimeInput from '@/components/ui/TimeInput'
 import { DocumentFormSchema } from '@/schemas/document.schema'
 import { wrapWithStyle } from '@/utils/styleWrapper'
+import MultiSelect from '@/components/ui/MultiSelect'
 
 interface DynamicFormProps {
     fields: FormFieldConfig[]
@@ -100,22 +101,16 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
 
                             case 'multiSelect':
                                 return (
-                                    <Select
+                                    <MultiSelect
                                         {...field}
-                                        isMulti
-                                        value={
-                                            options?.filter((o) =>
-                                                field.value?.includes(o.value),
-                                            ) || []
-                                        }
-                                        options={options}
+                                        value={field.value || []}
+                                        options={options || []}
                                         isDisabled={readOnly}
-                                        onChange={(selectedOptions) => {
-                                            const values = selectedOptions?.map(
-                                                (o: any) => o.value,
-                                            )
-                                            field.onChange(values)
-                                            onChange?.(selectedOptions)
+                                        onValueChange={(ids) =>
+                                            field.onChange(ids)
+                                        }
+                                        onChange={(objs) => {
+                                            onChange?.(objs)
                                         }}
                                     />
                                 )

@@ -53,13 +53,13 @@ export const buildUnitColumns = ({
                             icon: <TbPencil />,
                             tooltip: 'Edit',
                             onClick: () => onEdit(row.original),
-                            show: can('masters.unit.write'),
+                            show: can('masters.unit.edit'),
                         },
                         {
                             icon: <TbEye />,
                             tooltip: 'View',
                             onClick: () => onView(row.original),
-                            show: can('masters.unit.list'),
+                            show: can('masters.unit.show'),
                         },
                     ]}
                 />

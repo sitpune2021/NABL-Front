@@ -115,7 +115,7 @@ const DocumentListTable = () => {
                 cell: ({ row }) => (
                     <WorkflowStateCell
                         document={row.original}
-                        show={can('masters.document.workflow-logs.action')}
+                        show={can('masters.document.workflow.index')}
                         onSave={(id, value) => {
                             handleSubmit({
                                 document_version_id: id,
@@ -136,7 +136,7 @@ const DocumentListTable = () => {
                                 icon: <TbEdit />,
                                 tooltip: 'Edit',
                                 onClick: () => handleEdit(props.row.original),
-                                show: can('masters.document.write'),
+                                show: can('masters.document.edit'),
                             },
 
                             {
@@ -144,7 +144,7 @@ const DocumentListTable = () => {
                                 tooltip: 'View',
                                 onClick: () =>
                                     handleViewDetails(props.row.original),
-                                show: can('masters.document.list'),
+                                show: can('masters.document.show'),
                             },
                             {
                                 icon: <TbFileText />,
@@ -152,7 +152,7 @@ const DocumentListTable = () => {
                                 onClick: () =>
                                     handleEditorViewDetails(props.row.original),
                                 show:
-                                    can('masters.document.write') &&
+                                    can('masters.document.show') &&
                                     props.row.original.mode == 'create',
                             },
                         ].filter(Boolean)} // remove null entries

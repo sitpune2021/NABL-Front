@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Fields } from '@/@types/clauses'
 import ApiService from './ApiService'
 import apiEndpointConfig from '@/configs/api-endpoint.config'
 
@@ -21,10 +20,14 @@ export async function apiCreateClauses(data: any) {
     })
 }
 
-export async function apiGetClausesById(id: string) {
-    return ApiService.fetchDataWithAxios<Fields>({
+export async function apiGetClausesById(
+    id: string,
+    params?: Record<string, unknown>,
+) {
+    return ApiService.fetchDataWithAxios<any>({
         url: `${apiEndpointConfig.clauses}/${id}`,
         method: 'get',
+        params,
     })
 }
 

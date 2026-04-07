@@ -4,8 +4,8 @@ export const getEmptyValues = (labCount: number): LabFormSchema => ({
     name: '',
     lab_type: '',
     lab_code: `LAB-${labCount + 1}`,
-    location_count: '',
-    user_count: '',
+    location_limit: '',
+    user_limit: '',
     emails: [
         {
             id: null,

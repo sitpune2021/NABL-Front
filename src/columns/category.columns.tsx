@@ -55,13 +55,13 @@ export const buildCategoryColumns = ({
                             icon: <TbPencil />,
                             tooltip: 'Edit',
                             onClick: () => onEdit(row.original),
-                            show: can('masters.category.write'),
+                            show: can('masters.category.edit'),
                         },
                         {
                             icon: <TbEye />,
                             tooltip: 'View',
                             onClick: () => onView(row.original),
-                            show: can('masters.category.list'),
+                            show: can('masters.category.show'),
                         },
                     ]}
                 />

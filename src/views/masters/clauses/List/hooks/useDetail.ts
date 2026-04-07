@@ -1,11 +1,14 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { apiGetClausesById } from '@/services/ClausesService'
 import useSWR from 'swr'
 
-export const useClauseDetail = (id?: string) => {
-    const swr = useSWR<any>(
-        id ? ['clause-detail', id] : null,
-        () => apiGetClausesById(id!),
+type ClauseParams = {
+    type?: string
+}
+
+export const useClauseDetail = (id?: string, params?: ClauseParams) => {
+    const swr = useSWR(
+        id ? ['clause-detail', id, params] : null,
+        () => apiGetClausesById(id!, params),
         { revalidateOnFocus: false },
     )
 

@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import useSWR from 'swr'
 import { apiGetNavigationItemsList } from '@/services/NavigationItemsService'
+import { useSessionUser } from '@/store/authStore'
 
 function unescapePath(path: string | null | undefined): string | null {
     if (typeof path !== 'string') return path ?? ''
@@ -36,8 +37,10 @@ function cleanNavigationItems(items: any[]): any[] {
 }
 
 export default function useNavigationItemsList() {
+    const activeRole = useSessionUser((state) => state.activeRole)
+
     const { data, error, isLoading, mutate } = useSWR(
-        ['/api/v1/navigation-items'],
+        activeRole ? ['/api/v1/navigation-items', activeRole?.id] : null, // 👈 BLOCK
         () => apiGetNavigationItemsList<any>(),
         {
             revalidateOnFocus: false,

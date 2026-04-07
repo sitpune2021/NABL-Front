@@ -21,8 +21,8 @@ const Assignment = () => {
         if (!isLoading && labsAssignmentsList) {
             setStats({
                 labCount: labsAssignmentsList.lab_count ?? 0,
-                locationCount: labsAssignmentsList.lab_location_count ?? 0,
-                userCount: labsAssignmentsList.user_count ?? 0,
+                locationLimit: labsAssignmentsList.lab_location_limit ?? 0,
+                userLimit: labsAssignmentsList.user_limit ?? 0,
                 labAssignment: {
                     assigned: labsAssignmentsList.lab_assignment.assigned ?? 0,
                     pending: labsAssignmentsList.lab_assignment.pending ?? 0,
