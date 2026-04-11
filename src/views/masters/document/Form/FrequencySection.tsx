@@ -80,7 +80,7 @@ const FrequencySection = ({
             if (!updatedConfigs[day]) {
                 updatedConfigs[day] = {
                     interval: 1,
-                    cutOffTimes: ['00:00'],
+                    cutOffTimes: ['09:00'],
                     considerLastDay: false,
                 }
             }
@@ -131,7 +131,7 @@ const FrequencySection = ({
 
     const DEFAULT_CONFIG = {
         interval: 1,
-        cutOffTimes: ['00:00'],
+        cutOffTimes: ['09:00'],
         considerLastDay: false,
     }
 
@@ -145,7 +145,7 @@ const FrequencySection = ({
         const updated = [...times]
 
         if (count > updated.length) {
-            while (updated.length < count) updated.push('00:00')
+            while (updated.length < count) updated.push('09:00')
         } else {
             updated.splice(count)
         }
@@ -186,6 +186,7 @@ const FrequencySection = ({
             [key]: {
                 ...current,
                 cutOffTimes: times,
+                interval: times.length,
             },
         }
     }
@@ -321,7 +322,7 @@ const FrequencySection = ({
         if (current.length === schedule.interval) return
         const next = Array.from(
             { length: schedule.interval },
-            (_, i) => current[i] ?? '00:00',
+            (_, i) => current[i] ?? '09:00',
         )
         setValue('schedule.cutOffTimes', next, {
             shouldDirty: true,
@@ -399,6 +400,11 @@ const FrequencySection = ({
                                                     schedule.type !== 'Weekly'
                                                 }
                                                 value={field.value}
+                                                onWheel={(e) =>
+                                                    (
+                                                        e.target as HTMLInputElement
+                                                    ).blur()
+                                                }
                                                 onChange={(e) => {
                                                     const value =
                                                         Number(
@@ -614,6 +620,11 @@ const FrequencySection = ({
                                         type="number"
                                         min="1"
                                         {...register('schedule.interval')}
+                                        onWheel={(e) =>
+                                            (
+                                                e.target as HTMLInputElement
+                                            ).blur()
+                                        }
                                     />
                                 </FormItem>
                             </div>
@@ -654,6 +665,11 @@ const FrequencySection = ({
                                                 type="number"
                                                 min="1"
                                                 value={config.interval}
+                                                onWheel={(e) =>
+                                                    (
+                                                        e.target as HTMLInputElement
+                                                    ).blur()
+                                                }
                                                 onChange={(e) =>
                                                     setValue(
                                                         'schedule.itemConfigs',
@@ -679,6 +695,7 @@ const FrequencySection = ({
                                                     <TimeInput
                                                         key={i}
                                                         format="12"
+                                                        className="flex items-center gap-3 p-2 rounded-md bg-gray-50 dark:bg-gray-800"
                                                         value={
                                                             new Date(
                                                                 `2000-01-01T${time}`,
@@ -733,6 +750,11 @@ const FrequencySection = ({
                                                     type="number"
                                                     min="1"
                                                     value={config.interval}
+                                                    onWheel={(e) =>
+                                                        (
+                                                            e.target as HTMLInputElement
+                                                        ).blur()
+                                                    }
                                                     onChange={(e) =>
                                                         setValue(
                                                             'schedule.itemConfigs',
@@ -758,6 +780,7 @@ const FrequencySection = ({
                                                     (time: any, i: any) => (
                                                         <TimeInput
                                                             key={i}
+                                                            className="flex items-center gap-3 p-2 rounded-md bg-gray-50 dark:bg-gray-800"
                                                             format="12"
                                                             value={
                                                                 new Date(
@@ -825,7 +848,7 @@ const FrequencySection = ({
                                                                                       0,
                                                                                       5,
                                                                                   )
-                                                                            : '00:00'
+                                                                            : '09:00'
 
                                                                     field.onChange(
                                                                         updated,
@@ -845,7 +868,7 @@ const FrequencySection = ({
                 </>
                 <FieldConfigurationSection />
                 <AamendmentSection isEdit={isEdit} />
-                <div className="flex gap-2 flex-row-reverse">
+                <div className="flex gap-2 flex-row-reverse mt-4">
                     <Button
                         variant="solid"
                         type="button"

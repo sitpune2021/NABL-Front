@@ -50,7 +50,7 @@ export async function apiAppendLabLocationToMaster(labLocationId: number) {
         url: `${apiEndpointConfig.locations}/append-to-master`,
         method: 'post',
         data: {
-            lab_location_id: labLocationId,
+            location_id: labLocationId,
         },
     })
 }

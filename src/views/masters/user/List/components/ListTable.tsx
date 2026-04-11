@@ -89,18 +89,12 @@ const UserListTable = () => {
                 cell: ({ row }) => {
                     const user = row.original as User & {
                         locations?: {
-                            id: number
-                            name: string
                             roles?: {
                                 id: number
-                                name: string
                             }[]
                             departments?: {
-                                id: number
-                                name: string
                                 roles?: {
                                     id: number
-                                    name: string
                                 }[]
                             }[]
                         }[]
@@ -109,53 +103,25 @@ const UserListTable = () => {
                     if (!user.locations || user.locations.length === 0)
                         return '-'
 
-                    const locationBlocks = user.locations.map((location) => {
-                        // ✅ 1. LOCATION LEVEL ROLES
-                        const locationRoles =
-                            location.roles
-                                ?.map((role) =>
-                                    role.name ? `<b>${role.name}</b>` : '',
-                                )
-                                .filter(Boolean)
-                                .join(' | ') ?? ''
+                    const locationCount = user.locations.length
 
-                        // ✅ 2. DEPARTMENT LEVEL ROLES
-                        const departmentBlocks =
-                            location.departments
-                                ?.map((dept) => {
-                                    const roleNames =
-                                        dept.roles
-                                            ?.map((role) =>
-                                                role.name
-                                                    ? `<b>${role.name}</b>`
-                                                    : '',
-                                            )
-                                            .filter(Boolean)
-                                            .join(' | ') ?? ''
+                    let departmentCount = 0
+                    let roleCount = 0
 
-                                    return roleNames
-                                        ? `${dept.name}: ${roleNames}`
-                                        : ''
-                                })
-                                .filter(Boolean)
-                                .join(' ; ') ?? ''
+                    user.locations.forEach((loc) => {
+                        roleCount += loc.roles?.length || 0
+                        departmentCount += loc.departments?.length || 0
 
-                        // ✅ FINAL COMBINE
-                        return `
-                <div>
-                    <b>${location.name}</b>
-                    ${locationRoles ? ` → ${locationRoles}` : ''}
-                    ${departmentBlocks ? `<br/>${departmentBlocks}` : ''}
-                </div>
-            `
+                        loc.departments?.forEach((dept) => {
+                            roleCount += dept.roles?.length || 0
+                        })
                     })
 
                     return (
-                        <span
-                            dangerouslySetInnerHTML={{
-                                __html: locationBlocks.join('<br/><br/>'),
-                            }}
-                        />
+                        <div className="text-sm font-medium">
+                            L: {locationCount} | D: {departmentCount} | R:{' '}
+                            {roleCount}
+                        </div>
                     )
                 },
             },

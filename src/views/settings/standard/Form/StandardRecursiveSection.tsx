@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useEffect, useRef, useCallback, memo } from 'react'
+import { useEffect, useRef, useCallback, memo, useState } from 'react'
 import {
     FieldArrayPath,
     useFieldArray,
@@ -29,6 +29,11 @@ const StandardRecursiveSection = ({
         getValues,
         formState: { errors },
     } = useFormContext<StandardFormSchema>()
+    const [openIndex, setOpenIndex] = useState<number | null>(0)
+
+    const handleToggle = (index: number) => {
+        setOpenIndex((prev) => (prev === index ? null : index))
+    }
 
     const { fields, append, remove } = useFieldArray<
         StandardFormSchema,
@@ -145,6 +150,8 @@ const StandardRecursiveSection = ({
                         baseName={name}
                         depth={depth}
                         parentNumber={parentNumber} // ✅ FIXED
+                        isExpanded={openIndex === index}
+                        onToggle={() => handleToggle(index)}
                     />
                 </div>
             ))}

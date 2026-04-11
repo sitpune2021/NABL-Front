@@ -5,7 +5,6 @@ import BottomStickyBar from '@/components/template/BottomStickyBar'
 import OverviewSection from './OverviewSection'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { FormProvider, useForm } from 'react-hook-form'
-import AddressSection from './AddressSection'
 import SignImageSection from './SignImageSection'
 import ProfileImageSection from './ProfileImageSection'
 import AssignPermissionSection from './AssignPermissionSection'
@@ -66,12 +65,7 @@ const UserForm = ({
                                 readOnly={readOnly}
                                 loading={loading}
                             />
-                            {activeLab?.lab_id != 0 ? (
-                                <AssignLabPermissionSection
-                                    readOnly={readOnly}
-                                    loading={loading}
-                                />
-                            ) : (
+                            {activeLab?.lab_id == 0 && (
                                 <AssignPermissionSection
                                     readOnly={readOnly}
                                     loading={loading}
@@ -88,12 +82,16 @@ const UserForm = ({
                                 readOnly={readOnly}
                                 loading={loading}
                             />
-                            <AddressSection
+                        </div>
+                    </div>
+                    {activeLab?.lab_id != 0 && (
+                        <div className="mt-4">
+                            <AssignLabPermissionSection
                                 readOnly={readOnly}
                                 loading={loading}
                             />
                         </div>
-                    </div>
+                    )}
                 </Container>
 
                 <BottomStickyBar>{children}</BottomStickyBar>
