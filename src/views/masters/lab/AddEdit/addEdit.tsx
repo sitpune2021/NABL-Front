@@ -85,6 +85,7 @@ const LabAddEdit = () => {
                     isEdit,
                     isView,
                     onDiscard: discard.show,
+                    documentList,
                 }}
             />
 
