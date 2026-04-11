@@ -7,13 +7,14 @@ interface Params {
     zoneId?: number
     start_date?: string | null
     end_date?: string | null
+    key?: string
 }
 
 const useLabClusters = (params: Params) => {
     const shouldFetch = !!params?.id && !!params?.zoneId
 
     const LIST_KEY = shouldFetch
-        ? `lab-cluster-detail-${params.id}-${params.zoneId}-${params.start_date}-${params.end_date}`
+        ? `lab-cluster-detail-${params.id}-${params.zoneId}-${params.start_date}-${params.end_date}-${params.key}`
         : null // 👈 prevents API call
 
     const swr = useSWR(

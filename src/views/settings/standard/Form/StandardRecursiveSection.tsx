@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useEffect, useRef, useCallback, memo } from 'react'
+import { useEffect, useRef, useCallback, memo, useState } from 'react'
 import { useFieldArray, useFormContext, useWatch } from 'react-hook-form'
 import { HiPlus, HiTrash } from 'react-icons/hi'
 import Button from '@/components/ui/Button'
@@ -20,6 +20,11 @@ const StandardRecursiveSection = ({
         getValues,
         formState: { errors },
     } = useFormContext<StandardChildFormSchema>()
+    const [openIndex, setOpenIndex] = useState<number | null>(0)
+
+    const handleToggle = (index: number) => {
+        setOpenIndex((prev) => (prev === index ? null : index))
+    }
 
     const { fields, append, update, remove } = useFieldArray({
         control,
@@ -131,6 +136,8 @@ const StandardRecursiveSection = ({
                         watchedStandards={watched}
                         baseName={name}
                         depth={depth}
+                        isExpanded={openIndex === index}
+                        onToggle={() => handleToggle(index)}
                     />
                 </div>
             ))}

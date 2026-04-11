@@ -362,7 +362,7 @@ const RolesPermissionsAccessDialog = ({
                     {Object.entries(accessModules).map(
                         ([group, modules]: any) => (
                             <div key={group} className="mb-8">
-                                <div className="flex items-center justify-between mb-4">
+                                <div className="flex items-center justify-between mb-4 bg-gray-50 dark:bg-gray-700/50 p-2 rounded-lg">
                                     <h5 className="font-bold text-lg capitalize">
                                         {group}
                                     </h5>
@@ -476,10 +476,10 @@ const RolesPermissionsAccessDialog = ({
                         ),
                     )}
 
-                    <div className="flex justify-end mt-6">
+                    <div className="flex justify-end mt-6 sticky bottom-0 bg-white dark:bg-gray-800 py-4 border-t border-gray-200 dark:border-gray-600">
                         <Button
                             className="ltr:mr-2 rtl:ml-2"
-                            variant="plain"
+                            variant="default"
                             onClick={handleClose}
                         >
                             Cancel

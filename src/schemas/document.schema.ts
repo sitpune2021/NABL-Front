@@ -39,7 +39,7 @@ export const documentSchema = z.object({
     // From documentFieldThree
     workflow_state: z.string().optional(),
     step_type: z.string().optional(),
-    performed_date: z.string(), // can add date parsing later if needed
+    performed_date: z.union([z.string(), z.date()]), // can add date parsing later if needed
     effective_date: z.string().min(1, 'Effective Date is required'),
     review_frequency: z.enum(
         ['Weekly', 'Monthly', 'Yearly', ''],
