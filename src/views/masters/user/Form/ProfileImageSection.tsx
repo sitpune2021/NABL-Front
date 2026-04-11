@@ -33,10 +33,10 @@ const ProfileImage = ({ readOnly, loading }: ProfileImageSectionProps) => {
 
     return (
         <Card>
-            <h4 className="mb-6">Image Upload</h4>
-            <div className="bg-gray-100 dark:bg-gray-700 rounded-lg text-center p-4">
+            <h4 className="mb-2">Image Upload</h4>
+            <div className="bg-gray-100 dark:bg-gray-700 rounded-lg py-4 text-center">
                 <FormItem
-                    className="text-center"
+                    className="text-center mb-0"
                     invalid={!!errors.profileImage}
                     errorMessage={errors.profileImage?.message}
                 >
@@ -45,11 +45,11 @@ const ProfileImage = ({ readOnly, loading }: ProfileImageSectionProps) => {
                         control={control}
                         render={({ field }) => (
                             <>
-                                <div className="flex items-center justify-center">
+                                <div className="flex items-center justify-center mb-3">
                                     {field.value ? (
                                         <Avatar
-                                            size={100}
-                                            className="border-4 border-white bg-gray-100 text-gray-300 shadow-lg"
+                                            size={60}
+                                            className="border-2 border-white bg-gray-100 text-gray-300 shadow-md"
                                             icon={<HiOutlineUser />}
                                             src={field.value}
                                         />
@@ -58,6 +58,7 @@ const ProfileImage = ({ readOnly, loading }: ProfileImageSectionProps) => {
                                             src="/img/others/upload.png"
                                             darkModeSrc="/img/others/upload-dark.png"
                                             alt="Upload image"
+                                            className="w-14"
                                         />
                                     )}
                                 </div>
@@ -75,11 +76,11 @@ const ProfileImage = ({ readOnly, loading }: ProfileImageSectionProps) => {
                                 >
                                     <Button
                                         variant="solid"
-                                        className="mt-4"
                                         type="button"
+                                        size="sm"
                                         disabled={readOnly || loading}
                                     >
-                                        Upload Image
+                                        Upload
                                     </Button>
                                 </Upload>
                             </>

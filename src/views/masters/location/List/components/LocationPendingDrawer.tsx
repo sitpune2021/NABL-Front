@@ -186,7 +186,7 @@ const LocationPendingDrawer = () => {
                                             {/* ZONE */}
                                             <p className="text-xs font-semibold text-gray-500 uppercase">
                                                 Zone :{' '}
-                                                {loc.zone?.name ??
+                                                {loc.cluster?.zone?.name ??
                                                     'Unknown Zone'}
                                             </p>
 

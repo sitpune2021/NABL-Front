@@ -75,8 +75,11 @@ const LocationListTableSync = () => {
 
     const { data: zones = [] } = useLabZones({ id: labId, key: 'all' })
 
-    const { data: clusters = [] } = useLabClusters({ id: labId, zoneId })
-
+    const { data: clusters = [] } = useLabClusters({
+        id: labId,
+        zoneId,
+        key: 'all',
+    })
     const { data: locations = [], isLoading: loading } = useLabLocations({
         id: labId,
         zoneId,

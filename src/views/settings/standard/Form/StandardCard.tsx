@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { memo, useCallback, useMemo, useState, useEffect } from 'react'
+import { memo, useCallback, useMemo, useEffect } from 'react'
 import { Controller, useFormContext } from 'react-hook-form'
 import { Card, Checkbox, FormItem, Input, Select } from '@/components/ui'
 import StandardRecursiveSection from './StandardRecursiveSection'
@@ -16,6 +16,8 @@ interface StandardCardProps {
     watchedStandards: any
     baseName?: string
     depth?: number
+    isExpanded: boolean
+    onToggle: () => void
 }
 
 const StandardCard = ({
@@ -27,9 +29,10 @@ const StandardCard = ({
     watchedStandards,
     baseName = 'clauses',
     depth = 0,
+    isExpanded,
+    onToggle,
 }: StandardCardProps) => {
     const { setValue } = useFormContext()
-    const [isExpanded, setIsExpanded] = useState(true)
     const path = `${baseName}.${index}` as const
     const current = watchedStandards?.[index] || {}
 
@@ -78,7 +81,7 @@ const StandardCard = ({
                 ${!readOnly ? 'cursor-pointer' : ''} bg-gray-50 dark:bg-gray-800 
                 rounded-t-lg`}
                 onClick={() => {
-                    if (!readOnly) setIsExpanded(!isExpanded)
+                    if (!readOnly) onToggle()
                 }}
             >
                 <div className="flex items-center gap-2 overflow-hidden">

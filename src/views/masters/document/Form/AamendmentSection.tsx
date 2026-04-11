@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Card, FormItem, Input } from '@/components/ui'
+import { Select } from '@/components/ui/Select'
 import { Controller, useFormContext } from 'react-hook-form'
 
 const AamendmentSection = ({ isEdit }: any) => {
@@ -8,13 +9,17 @@ const AamendmentSection = ({ isEdit }: any) => {
         formState: { errors },
     } = useFormContext<any>()
 
-    if (!isEdit) return ''
+    if (!isEdit) return null
+    const amendmentOptions = [
+        { label: 'Minor (amendment)', value: 'minor' },
+        { label: 'Major (issued)', value: 'major' },
+    ]
 
     return (
-        <Card className="mb-2">
+        <Card className="mb-2 mt-3">
             <h4>Amendment Changes</h4>
             <FormItem
-                label="amendment Type"
+                label="Amendment Type"
                 invalid={!!errors.amendment_type}
                 errorMessage={errors.amendment_type?.message as string}
             >
@@ -22,20 +27,24 @@ const AamendmentSection = ({ isEdit }: any) => {
                     name="amendment_type"
                     control={control}
                     render={({ field }) => (
-                        <select
-                            {...field}
-                            className="border rounded-md px-3 py-2 w-full"
-                        >
-                            <option value="">Select</option>
-                            <option value="minor">Minor (amendment)</option>
-                            <option value="major">Major (issued)</option>
-                        </select>
+                        <Select
+                            options={amendmentOptions}
+                            value={
+                                amendmentOptions.find(
+                                    (opt) => opt.value === field.value,
+                                ) || null
+                            }
+                            placeholder="Select Amendment Type"
+                            onChange={(option: any) =>
+                                field.onChange(option?.value)
+                            }
+                        />
                     )}
                 />
             </FormItem>
 
             <FormItem
-                label="amendment_reason"
+                label="Amendment Reason"
                 invalid={!!errors.amendment_reason}
                 errorMessage={errors.amendment_reason?.message as string}
             >

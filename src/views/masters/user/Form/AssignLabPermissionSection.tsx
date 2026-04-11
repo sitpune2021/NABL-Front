@@ -4,6 +4,8 @@ import { FormSectionBaseProps } from '@/@types/user'
 import { Button } from '@/components/ui'
 import AssignLabPermissionItem from './AssignLabPermissionItem'
 import { UserSchemaType } from '@/schemas/user.schema'
+import { HiPlus } from 'react-icons/hi'
+import { useState } from 'react'
 
 const AssignLabPermissionSection = ({
     readOnly = false,
@@ -21,6 +23,7 @@ const AssignLabPermissionSection = ({
     })
 
     const canRemove = fields.length > 1
+    const [openIndex, setOpenIndex] = useState<number | null>(null)
 
     const addNewRole = () => {
         append({
@@ -39,11 +42,17 @@ const AssignLabPermissionSection = ({
 
     return (
         <Card>
-            <div className="flex items-center justify-between gap-2 mb-4">
-                <h4>Role Assignments</h4>
+            <div className="sticky top-[68px] z-40 py-2 flex items-center justify-between gap-2 mb-4">
+                <h4></h4>
                 {!readOnly && (
-                    <Button type="button" size="xs" onClick={addNewRole}>
-                        +
+                    <Button
+                        size="sm"
+                        type="button"
+                        disabled={readOnly}
+                        className="shadow-sm border border-gray-200"
+                        onClick={addNewRole}
+                    >
+                        <HiPlus className="text-lg" />
                     </Button>
                 )}
             </div>
@@ -56,9 +65,11 @@ const AssignLabPermissionSection = ({
                     readOnly={readOnly || loading}
                     index={index}
                     setValue={setValue}
+                    openIndex={openIndex} // Pass which one is open
                     onRemove={
                         !readOnly && canRemove ? () => remove(index) : undefined
                     }
+                    onOpenChange={setOpenIndex}
                 />
             ))}
         </Card>

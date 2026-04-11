@@ -1,9 +1,17 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import React, { useEffect, useMemo } from 'react'
-import { Controller, useWatch, useFieldArray } from 'react-hook-form'
-import { Button, Select } from '@/components/ui'
+import React, { useMemo, useState } from 'react'
+import { Controller, useWatch } from 'react-hook-form'
+import { Button, Select, Input } from '@/components/ui'
 import { FormItem } from '@/components/ui/Form'
-import { HiMinus, HiPlus } from 'react-icons/hi'
+import {
+    TbX,
+    TbMinus,
+    TbCheck,
+    TbSearch,
+    TbHierarchy2,
+    TbMapPin,
+    TbChevronDown,
+} from 'react-icons/tb'
 import { useZoneList } from '../../zone/List/hooks/useList'
 import useClusterList from '../../cluster/List/hooks/useList'
 import useLocationList from '../../location/List/hooks/useList'
@@ -15,34 +23,129 @@ export type AssignPermissionItemProps = {
     readOnly?: boolean
     onRemove?: () => void
     control: any
-    errors: any
     setValue: any
+    errors?: any
+    openIndex?: number | null
+    onOpenChange?: (index: number | null) => void
 }
 
-// const permOptions = ['list', 'write', 'delete', 'data-entry', 'data-review']
+const SearchableList = ({
+    items,
+    selected,
+    onToggle,
+    onSelectAll,
+    onClear,
+    query,
+    onQuery,
+    label,
+}: any) => {
+    const filtered = useMemo(
+        () =>
+            items.filter((i: any) =>
+                (i.label || '').toLowerCase().includes(query.toLowerCase()),
+            ),
+        [items, query],
+    )
+
+    return (
+        <div className="flex-1 flex flex-col border border-gray-200 rounded-xl bg-gray-50/30 overflow-hidden transition-all focus-within:ring-2 focus-within:ring-primary/10">
+            <div className="px-4 py-3 bg-white border-b border-gray-100 flex justify-between items-center">
+                <label className="text-xs font-bold uppercase tracking-wider text-gray-500">
+                    {label}
+                </label>
+                <span className="text-[11px] font-medium px-2 py-0.5 bg-gray-100 rounded-full text-gray-600">
+                    {selected.size} selected
+                </span>
+            </div>
+
+            <div className="p-2 bg-white">
+                <Input
+                    size="sm"
+                    placeholder={`Search ${label}...`}
+                    prefix={<TbSearch className="text-lg" />}
+                    value={query}
+                    className="bg-gray-50 border-none"
+                    onChange={(e) => onQuery(e.target.value)}
+                />
+            </div>
+
+            <div className="flex justify-between px-4 py-2 bg-white/50 border-b border-gray-100">
+                <Button
+                    variant="default"
+                    size="xs"
+                    type="button"
+                    className="text-[11px] font-semibold text-primary"
+                    onClick={() => onSelectAll(filtered)}
+                >
+                    Select All
+                </Button>
+                <Button
+                    variant="default"
+                    size="xs"
+                    type="button"
+                    className="text-[11px] font-semibold text-gray-400 hover:text-primary-500"
+                    onClick={onClear}
+                >
+                    Clear
+                </Button>
+            </div>
+
+            <div className="h-48 overflow-y-auto p-1 custom-scrollbar bg-white">
+                {filtered.map((it: any) => {
+                    const active = selected.has(it.value)
+                    return (
+                        <div
+                            key={it.value}
+                            className={`group flex items-center justify-between px-3 py-2.5 mb-1 rounded-lg cursor-pointer transition-colors ${
+                                active
+                                    ? 'bg-primary/10 text-primary-dark'
+                                    : 'hover:bg-gray-100 text-gray-600'
+                            }`}
+                            onClick={() => onToggle(it.value)}
+                        >
+                            <span
+                                className={`text-xs pointer-events-none ${active ? 'font-bold' : 'font-medium'}`}
+                            >
+                                {it.label}
+                            </span>
+                            {active && (
+                                <TbCheck className="text-primary animate-in zoom-in-75 duration-200" />
+                            )}
+                        </div>
+                    )
+                })}
+                {filtered.length === 0 && (
+                    <p className="text-center text-[10px] text-gray-400 py-4">
+                        No results found
+                    </p>
+                )}
+            </div>
+        </div>
+    )
+}
 
 const AssignLabPermissionItem = ({
     control,
-    errors,
     readOnly = false,
     index,
     onRemove,
     setValue,
+    openIndex,
+    onOpenChange,
 }: AssignPermissionItemProps) => {
     const { zoneList } = useZoneList()
     const { clusterList } = useClusterList()
     const { locationList } = useLocationList()
-    const { rolesList, accessModules } = useRolesList()
+    const { rolesList } = useRolesList()
     const { departmentList } = useDepartmentList()
 
-    const {
-        fields: deptFields,
-        append: appendDept,
-        remove: removeDept,
-    } = useFieldArray({
-        control,
-        name: `userRoles.${index}.department`,
-    })
+    const [selDepts, setSelDepts] = useState<Set<number>>(new Set())
+    const [selRoles, setSelRoles] = useState<Set<number>>(new Set())
+    const [assigned, setAssigned] = useState<Record<number, Set<number>>>({})
+    const [qD, setQD] = useState('')
+    const [qR, setQR] = useState('')
+
+    const isOpen = openIndex === index
 
     const selectedZone = useWatch({
         control,
@@ -52,422 +155,380 @@ const AssignLabPermissionItem = ({
         control,
         name: `userRoles.${index}.cluster_id`,
     })
+    const selectedLocation = useWatch({
+        control,
+        name: `userRoles.${index}.location_id`,
+    })
 
     const zoneOptions = useMemo(
-        () => zoneList.map((z: any) => ({ label: z.name, value: z.id })),
+        () => zoneList?.map((z: any) => ({ label: z.name, value: z.id })) || [],
         [zoneList],
     )
     const clusterOptions = useMemo(
         () =>
             clusterList
-                .filter((c: any) => c.zone_id === selectedZone)
-                .map((c: any) => ({ label: c.name, value: c.id })),
+                ?.filter((c: any) => c.zone_id === selectedZone)
+                .map((c: any) => ({ label: c.name, value: c.id })) || [],
         [clusterList, selectedZone],
     )
     const locationOptions = useMemo(
         () =>
             locationList
-                .filter((l: any) => l.cluster_id === selectedCluster)
-                .map((l: any) => ({ label: l.name, value: l.id })),
+                ?.filter((l: any) => l.cluster_id === selectedCluster)
+                .map((l: any) => ({ label: l.name, value: l.id })) || [],
         [locationList, selectedCluster],
     )
     const roleOptions = useMemo(
-        () => rolesList.map((r: any) => ({ label: r.name, value: r.id })),
+        () =>
+            rolesList?.map((r: any) => ({ label: r.name, value: r.id })) || [],
         [rolesList],
     )
     const departmentOptions = useMemo(
-        () => departmentList.map((d: any) => ({ label: d.name, value: d.id })),
+        () =>
+            departmentList?.map((d: any) => ({ label: d.name, value: d.id })) ||
+            [],
         [departmentList],
     )
 
+    const syncToForm = (data: any) => {
+        setValue(
+            `userRoles.${index}.department`,
+            Object.entries(data).map(([deptId, roles]: any) => ({
+                department_id: Number(deptId),
+                roles: [...roles].map((r: any) => ({ value: r })),
+            })),
+        )
+    }
+
+    const handleAssign = () => {
+        const newAssign: any = { ...assigned }
+        selDepts.forEach((d) => {
+            if (!newAssign[d]) newAssign[d] = new Set()
+            selRoles.forEach((r) => newAssign[d].add(r))
+        })
+        setAssigned(newAssign)
+        setSelDepts(new Set())
+        setSelRoles(new Set())
+        syncToForm(newAssign)
+    }
+
+    const removeRole = (deptId: number, roleId: number) => {
+        const newAssign = { ...assigned }
+        const roles = new Set(newAssign[deptId])
+        roles.delete(roleId)
+        if (roles.size === 0) delete newAssign[deptId]
+        else newAssign[deptId] = roles
+        setAssigned(newAssign)
+        syncToForm(newAssign)
+    }
+
+    const removeDepartment = (deptId: number) => {
+        const newAssign = { ...assigned }
+        delete newAssign[deptId]
+        setAssigned(newAssign)
+        syncToForm(newAssign)
+    }
+
+    const assignedCount = Object.keys(assigned).length
+    const locationLabel =
+        locationOptions.find((l) => l.value === selectedLocation)?.label ||
+        'Location'
+
+    const handleToggleAccordion = () => {
+        if (isOpen) {
+            onOpenChange?.(null)
+        } else {
+            onOpenChange?.(index)
+        }
+    }
+
     return (
-        <div className="bg-white shadow-lg rounded-xl p-6 mb-6 border border-gray-200">
-            <div className="flex justify-end mb-4">
-                {!readOnly && onRemove && (
-                    <Button
-                        size="sm"
-                        type="button"
-                        icon={<HiMinus />}
-                        className="border border-blue-500 text-blue-500 rounded-full shadow-md transition-all duration-200"
-                        onClick={onRemove}
+        <div className="mb-4 border border-gray-200 rounded-xl overflow-hidden bg-white shadow-sm transition-all hover:shadow-md">
+            <div
+                className={`px-6 py-4 flex justify-between items-center cursor-pointer transition-colors ${
+                    isOpen
+                        ? 'bg-white border-b border-gray-200'
+                        : 'bg-white hover:bg-gray-50'
+                }`}
+                onClick={handleToggleAccordion}
+            >
+                <div className="flex items-center gap-3 flex-1">
+                    <div
+                        className={`w-8 h-8 rounded-lg flex items-center justify-center transition-colors ${
+                            isOpen
+                                ? 'bg-primary/10 text-primary'
+                                : 'bg-gray-100 text-gray-600'
+                        }`}
+                    >
+                        <TbMapPin className="text-xl" />
+                    </div>
+                    <div className="flex-1">
+                        <h4 className="font-bold text-gray-800 leading-none text-sm">
+                            {locationLabel}
+                        </h4>
+                        <span className="text-[11px] text-gray-400 font-medium">
+                            {assignedCount > 0
+                                ? `${assignedCount} department${assignedCount !== 1 ? 's' : ''} • `
+                                : ''}
+                            Index #{index + 1}
+                        </span>
+                    </div>
+                </div>
+
+                <div className="flex items-center gap-3">
+                    {assignedCount > 0 && (
+                        <span className="text-xs font-bold px-2 py-1 bg-primary/10 text-primary rounded-full">
+                            {assignedCount}
+                        </span>
+                    )}
+
+                    {!readOnly && onRemove && (
+                        <Button
+                            type="button"
+                            variant="plain"
+                            shape="circle"
+                            size="sm"
+                            icon={<TbMinus />}
+                            className="text-gray-400 hover:text-red-500 hover:bg-red-50"
+                            onClick={(e) => {
+                                e.stopPropagation()
+                                onRemove()
+                            }}
+                        />
+                    )}
+
+                    <TbChevronDown
+                        className={`text-gray-400 transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`}
+                        size={20}
                     />
-                )}
+                </div>
             </div>
 
-            <div className="grid md:grid-cols-3 gap-6 mb-6">
-                <FormItem
-                    label="Zone"
-                    invalid={!!errors?.userRoles?.[index]?.zone_id}
-                    errorMessage={errors?.userRoles?.[index]?.zone_id?.message}
-                >
-                    <Controller
-                        name={`userRoles.${index}.zone_id`}
-                        control={control}
-                        render={({ field }) => (
-                            <Select
-                                options={zoneOptions}
-                                placeholder="Select Zone"
-                                isDisabled={readOnly}
-                                value={zoneOptions.find(
-                                    (o) => o.value === field.value,
+            {isOpen && (
+                <div className="p-6 border-t border-gray-100 animate-in fade-in duration-200">
+                    <div className="grid md:grid-cols-3 gap-6 mb-8">
+                        <FormItem label="Zone">
+                            <Controller
+                                name={`userRoles.${index}.zone_id`}
+                                control={control}
+                                render={({ field }) => (
+                                    <Select
+                                        placeholder="Select Zone"
+                                        options={zoneOptions}
+                                        value={zoneOptions.find(
+                                            (o) => o.value === field.value,
+                                        )}
+                                        onChange={(opt) => {
+                                            field.onChange(opt?.value || '')
+                                            setValue(
+                                                `userRoles.${index}.cluster_id`,
+                                                '',
+                                            )
+                                            setValue(
+                                                `userRoles.${index}.location_id`,
+                                                '',
+                                            )
+                                        }}
+                                    />
                                 )}
-                                className="rounded-lg border-gray-300 focus:border-blue-500 focus:ring-blue-500"
-                                onChange={(opt) =>
-                                    field.onChange(opt?.value || '')
-                                }
                             />
-                        )}
-                    />
-                </FormItem>
+                        </FormItem>
 
-                <FormItem
-                    label="Cluster"
-                    invalid={!!errors?.userRoles?.[index]?.cluster_id}
-                    errorMessage={
-                        errors?.userRoles?.[index]?.cluster_id?.message
-                    }
-                >
-                    <Controller
-                        name={`userRoles.${index}.cluster_id`}
-                        control={control}
-                        render={({ field }) => (
-                            <Select
-                                options={clusterOptions}
-                                placeholder="Select Cluster"
-                                isDisabled={!selectedZone || readOnly}
-                                value={clusterOptions.find(
-                                    (o) => o.value === field.value,
+                        <FormItem label="Cluster">
+                            <Controller
+                                name={`userRoles.${index}.cluster_id`}
+                                control={control}
+                                render={({ field }) => (
+                                    <Select
+                                        options={clusterOptions}
+                                        placeholder="Select Cluster"
+                                        isDisabled={!selectedZone}
+                                        value={clusterOptions.find(
+                                            (o) => o.value === field.value,
+                                        )}
+                                        onChange={(opt) => {
+                                            field.onChange(opt?.value || '')
+                                            setValue(
+                                                `userRoles.${index}.location_id`,
+                                                '',
+                                            )
+                                        }}
+                                    />
                                 )}
-                                className="rounded-lg border-gray-300 focus:border-blue-500 focus:ring-blue-500"
-                                onChange={(opt) =>
-                                    field.onChange(opt?.value || '')
-                                }
                             />
-                        )}
-                    />
-                </FormItem>
+                        </FormItem>
 
-                <FormItem
-                    label="Location"
-                    invalid={!!errors?.userRoles?.[index]?.location_id}
-                    errorMessage={
-                        errors?.userRoles?.[index]?.location_id?.message
-                    }
-                >
-                    <Controller
-                        name={`userRoles.${index}.location_id`}
-                        control={control}
-                        render={({ field }) => (
-                            <Select
-                                options={locationOptions}
-                                placeholder="Select Location"
-                                isDisabled={!selectedCluster || readOnly}
-                                value={locationOptions.find(
-                                    (o) => o.value === field.value,
+                        <FormItem label="Location">
+                            <Controller
+                                name={`userRoles.${index}.location_id`}
+                                control={control}
+                                render={({ field }) => (
+                                    <Select
+                                        options={locationOptions}
+                                        placeholder="Select Location"
+                                        isDisabled={!selectedCluster}
+                                        value={locationOptions.find(
+                                            (o) => o.value === field.value,
+                                        )}
+                                        onChange={(opt) =>
+                                            field.onChange(opt?.value || '')
+                                        }
+                                    />
                                 )}
-                                className="rounded-lg border-gray-300 focus:border-blue-500 focus:ring-blue-500"
-                                onChange={(opt) =>
-                                    field.onChange(opt?.value || '')
-                                }
                             />
-                        )}
-                    />
-                </FormItem>
-            </div>
+                        </FormItem>
+                    </div>
 
-            {deptFields.map((dept, dIndex) => (
-                <DepartmentBlock
-                    key={dept.id}
-                    index={index}
-                    dIndex={dIndex}
-                    control={control}
-                    errors={errors}
-                    readOnly={readOnly}
-                    removeDept={removeDept}
-                    departmentOptions={departmentOptions}
-                    roleOptions={roleOptions}
-                    rolesList={rolesList}
-                    accessModules={accessModules}
-                    setValue={setValue}
-                />
-            ))}
+                    <div className="space-y-6">
+                        <div className="flex flex-col md:flex-row gap-6">
+                            <SearchableList
+                                items={departmentOptions}
+                                selected={selDepts}
+                                query={qD}
+                                label="Departments"
+                                onQuery={setQD}
+                                onToggle={(id: number) => {
+                                    const s = new Set(selDepts)
+                                    s.has(id) ? s.delete(id) : s.add(id)
+                                    setSelDepts(new Set(s))
+                                }}
+                                onSelectAll={(list: any) => {
+                                    const s = new Set(selDepts)
+                                    list.forEach((i: any) => s.add(i.value))
+                                    setSelDepts(new Set(s))
+                                }}
+                                onClear={() => setSelDepts(new Set())}
+                            />
 
-            {!readOnly && (
-                <Button
-                    size="xs"
-                    type="button"
-                    icon={<HiPlus />}
-                    className="border border-blue-500 text-blue-500 shadow-md transition-all duration-200"
-                    onClick={() =>
-                        appendDept({
-                            department_id: '',
-                            roles: [],
-                            // permissions: {},
-                        })
-                    }
-                >
-                    Add Department
-                </Button>
+                            <SearchableList
+                                items={roleOptions}
+                                selected={selRoles}
+                                query={qR}
+                                label="Roles"
+                                onQuery={setQR}
+                                onToggle={(id: number) => {
+                                    const s = new Set(selRoles)
+                                    s.has(id) ? s.delete(id) : s.add(id)
+                                    setSelRoles(new Set(s))
+                                }}
+                                onSelectAll={(list: any) => {
+                                    const s = new Set(selRoles)
+                                    list.forEach((i: any) => s.add(i.value))
+                                    setSelRoles(new Set(s))
+                                }}
+                                onClear={() => setSelRoles(new Set())}
+                            />
+                        </div>
+
+                        <Button
+                            type="button"
+                            variant="solid"
+                            disabled={
+                                !selectedLocation ||
+                                !selDepts.size ||
+                                !selRoles.size
+                            }
+                            className="shadow-lg"
+                            onClick={handleAssign}
+                        >
+                            Assign
+                        </Button>
+
+                        {/* Active Permissions */}
+                        <div className="pt-4 border-t border-gray-100">
+                            <div className="flex items-center gap-2 mb-4 text-gray-400">
+                                <TbHierarchy2 />
+                                <span className="text-xs font-bold uppercase tracking-widest">
+                                    Active Permissions{' '}
+                                    {assignedCount > 0 && `(${assignedCount})`}
+                                </span>
+                            </div>
+
+                            {assignedCount > 0 ? (
+                                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+                                    {Object.entries(assigned).map(
+                                        ([deptId, roles]: any) => (
+                                            <div
+                                                key={deptId}
+                                                className="group relative flex flex-col bg-white border border-gray-100 rounded-xl p-3 shadow-sm transition-all hover:border-primary/30"
+                                            >
+                                                <div className="flex justify-between items-start mb-2">
+                                                    <div className="overflow-hidden flex-1">
+                                                        <h5 className="text-xs font-bold text-gray-800 truncate pr-1">
+                                                            {departmentOptions.find(
+                                                                (d) =>
+                                                                    d.value ==
+                                                                    deptId,
+                                                            )?.label ||
+                                                                'Unknown'}
+                                                        </h5>
+                                                    </div>
+                                                    <Button
+                                                        type="button"
+                                                        variant="plain"
+                                                        size="xs"
+                                                        shape="circle"
+                                                        icon={<TbX size={14} />}
+                                                        className="text-gray-300 hover:text-red-500 hover:bg-red-50 flex-shrink-0"
+                                                        onClick={() =>
+                                                            removeDepartment(
+                                                                Number(deptId),
+                                                            )
+                                                        }
+                                                    />
+                                                </div>
+
+                                                <div className="flex gap-1 flex-wrap">
+                                                    {[...roles].map(
+                                                        (r: any) => (
+                                                            <div
+                                                                key={r}
+                                                                className="inline-flex items-center px-1.5 py-0.5 bg-primary/5 text-black border border-primary/10 text-[10px] font-medium rounded"
+                                                            >
+                                                                <span className="truncate max-w-[50px]">
+                                                                    {
+                                                                        roleOptions.find(
+                                                                            (
+                                                                                x,
+                                                                            ) =>
+                                                                                x.value ==
+                                                                                r,
+                                                                        )?.label
+                                                                    }
+                                                                </span>
+                                                                <TbX
+                                                                    className="ml-1 cursor-pointer opacity-40 hover:opacity-100 text-red-500 shrink-0"
+                                                                    size={10}
+                                                                    onClick={() =>
+                                                                        removeRole(
+                                                                            Number(
+                                                                                deptId,
+                                                                            ),
+                                                                            r,
+                                                                        )
+                                                                    }
+                                                                />
+                                                            </div>
+                                                        ),
+                                                    )}
+                                                </div>
+                                            </div>
+                                        ),
+                                    )}
+                                </div>
+                            ) : (
+                                <div className="text-center py-8 bg-gray-50/50 rounded-xl border border-dashed border-gray-200">
+                                    <p className="text-xs text-gray-400 italic">
+                                        No permissions assigned yet
+                                    </p>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </div>
             )}
         </div>
     )
 }
 
 export default AssignLabPermissionItem
-
-// ---------------- Department Block ----------------
-const DepartmentBlock = React.memo(
-    ({
-        index,
-        dIndex,
-        control,
-        errors,
-        readOnly,
-        removeDept,
-        departmentOptions,
-        roleOptions,
-        rolesList,
-        // accessModules,
-        setValue,
-    }: any) => {
-        const roles =
-            useWatch({
-                control,
-                name: `userRoles.${index}.department.${dIndex}.roles`,
-            }) || []
-
-        // const permissions =
-        //     useWatch({
-        //         control,
-        //         name: `userRoles.${index}.department.${dIndex}.permissions`,
-        //     }) || {}
-
-        // Initialize permissions properly
-        useEffect(() => {
-            if (!Array.isArray(roles)) return
-
-            const updated: Record<string, any> = {}
-
-            roles.forEach((roleObj: any) => {
-                const roleId = roleObj?.value
-                if (!roleId) return
-
-                const roleAccess =
-                    rolesList.find((r: any) => r.id === roleId)?.accessRight ||
-                    {}
-
-                // Ensure each module has array of permissions
-                const formatted: Record<string, string[]> = {}
-                Object.entries(roleAccess).forEach(([moduleId, perms]: any) => {
-                    formatted[moduleId] = Array.isArray(perms) ? perms : []
-                })
-
-                updated[roleId] = formatted
-            })
-
-            setValue(
-                `userRoles.${index}.department.${dIndex}.permissions`,
-                updated,
-                { shouldDirty: false },
-            )
-        }, [roles, setValue, rolesList])
-
-        // const setPermission = (
-        //     role: string,
-        //     moduleId: string,
-        //     perm: string,
-        // ) => {
-        //     const rolePerms = permissions[role] || {}
-        //     const modulePerms = rolePerms[moduleId] || []
-
-        //     const updatedModulePerms = modulePerms.includes(perm)
-        //         ? modulePerms.filter((p: any) => p !== perm)
-        //         : [...modulePerms, perm]
-
-        //     setValue(
-        //         `userRoles.${index}.department.${dIndex}.permissions.${role}.${moduleId}`,
-        //         updatedModulePerms,
-        //         { shouldDirty: true },
-        //     )
-        // }
-
-        return (
-            <div className="relative bg-blue-50/20 border border-blue-200 rounded-lg p-4 mb-4 shadow-sm">
-                <div className="grid md:grid-cols-2 gap-6 mb-4">
-                    <FormItem
-                        label="Department"
-                        invalid={
-                            !!errors?.userRoles?.[index]?.department?.[dIndex]
-                                ?.department_id
-                        }
-                        errorMessage={
-                            errors?.userRoles?.[index]?.department?.[dIndex]
-                                ?.department_id?.message
-                        }
-                    >
-                        <Controller
-                            name={`userRoles.${index}.department.${dIndex}.department_id`}
-                            control={control}
-                            render={({ field }) => (
-                                <Select
-                                    options={departmentOptions}
-                                    placeholder="Select Department"
-                                    isDisabled={readOnly}
-                                    value={departmentOptions.find(
-                                        (o: { value: any }) =>
-                                            o.value === field.value,
-                                    )}
-                                    className="rounded-lg border-gray-300 focus:border-blue-500 focus:ring-blue-500"
-                                    onChange={(opt) =>
-                                        field.onChange(opt?.value || '')
-                                    }
-                                />
-                            )}
-                        />
-                    </FormItem>
-
-                    <FormItem
-                        label="Roles"
-                        invalid={
-                            !!errors?.userRoles?.[index]?.department?.[dIndex]
-                                ?.roles
-                        }
-                        errorMessage={
-                            errors?.userRoles?.[index]?.department?.[dIndex]
-                                ?.roles?.message
-                        }
-                    >
-                        <Controller
-                            name={`userRoles.${index}.department.${dIndex}.roles`}
-                            control={control}
-                            render={({ field }) => (
-                                <Select
-                                    isMulti
-                                    options={roleOptions}
-                                    placeholder="Select Roles"
-                                    isDisabled={readOnly}
-                                    value={roleOptions.filter((opt: any) =>
-                                        field.value?.some(
-                                            (r: any) => r.value === opt.value,
-                                        ),
-                                    )}
-                                    className="rounded-lg border-gray-300 focus:border-blue-500 focus:ring-blue-500"
-                                    onChange={(selected) =>
-                                        field.onChange(selected || [])
-                                    }
-                                />
-                            )}
-                        />
-                    </FormItem>
-                </div>
-
-                {/* {roles.length > 0 && (
-                    <div className="mt-6">
-                        {roles.map((r: any) => (
-                            <PermissionTable
-                                key={r.value}
-                                role={r.value}
-                                accessModules={accessModules}
-                                permissions={permissions[r.value] || {}}
-                                readOnly={readOnly}
-                                onToggle={setPermission}
-                            />
-                        ))}
-                    </div>
-                )} */}
-
-                {!readOnly && dIndex > 0 && (
-                    <div className="absolute top-2 right-2">
-                        <Button
-                            size="xs"
-                            type="button"
-                            icon={<HiMinus />}
-                            className="border border-blue-500 text-blue-500 hover:bg-blue-50 rounded-full shadow-md transition-all duration-200"
-                            onClick={() => removeDept(dIndex)}
-                        />
-                    </div>
-                )}
-            </div>
-        )
-    },
-)
-
-// ---------------- Permission Table ----------------
-// const PermissionTable = React.memo(
-//     ({ role, permissions, accessModules, onToggle, readOnly }: any) => {
-//         if (!accessModules || Object.keys(accessModules).length === 0)
-//             return null
-
-//         // Flatten modules for rendering
-//         const modulesList = Object.values(accessModules).flat()
-
-//         return (
-//             <div className="mb-6 border border-gray-300 rounded-lg bg-white shadow-md overflow-hidden">
-//                 <div className="bg-gradient-to-r from-blue-500 to-indigo-600 px-4 py-3 border-b">
-//                     <h5 className="text-md font-semibold text-white">
-//                         Permissions for: {role}
-//                     </h5>
-//                 </div>
-
-//                 <table className="min-w-full text-sm">
-//                     <thead className="bg-blue-100">
-//                         <tr>
-//                             <th className="px-4 py-3 text-left font-semibold text-blue-800">
-//                                 Module
-//                             </th>
-//                             {permOptions.map((p) => (
-//                                 <th
-//                                     key={p}
-//                                     className="px-3 py-3 text-center font-semibold text-blue-800"
-//                                 >
-//                                     {p.replace('-', ' ')}
-//                                 </th>
-//                             ))}
-//                         </tr>
-//                     </thead>
-
-//                     <tbody>
-//                         {modulesList.map((mod: any, idx: number) => (
-//                             <tr
-//                                 key={mod.id}
-//                                 className={`hover:bg-blue-50 transition-colors duration-150 ${
-//                                     idx % 2 === 0 ? 'bg-white' : 'bg-gray-50'
-//                                 }`}
-//                             >
-//                                 <td className="px-4 py-3 border-t font-medium text-gray-800">
-//                                     {mod.name}
-//                                 </td>
-
-//                                 {permOptions.map((perm) => (
-//                                     <td
-//                                         key={perm}
-//                                         className="text-center border-t px-2 py-3"
-//                                     >
-//                                         {mod.accessor.some(
-//                                             (a: any) => a.value === perm,
-//                                         ) ? (
-//                                             <Checkbox
-//                                                 checked={permissions?.[
-//                                                     mod.id
-//                                                 ]?.includes(perm)}
-//                                                 disabled={readOnly}
-//                                                 className="rounded focus:ring-blue-500"
-//                                                 onChange={() =>
-//                                                     onToggle(role, mod.id, perm)
-//                                                 }
-//                                             />
-//                                         ) : (
-//                                             <span className="text-gray-400">
-//                                                 —
-//                                             </span>
-//                                         )}
-//                                     </td>
-//                                 ))}
-//                             </tr>
-//                         ))}
-//                     </tbody>
-//                 </table>
-//             </div>
-//         )
-//     },
-// )

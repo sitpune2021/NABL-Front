@@ -29,7 +29,10 @@ const FieldConfigurationSection = () => {
                     <div className="space-y-5">
                         {triates[section].map((field, index) => {
                             const type = field.traits?.[0]?.value ?? 'text'
-                            const saved = form_fields?.[field.headerText] || {}
+                            const saved = {
+                                validation: 'alphanumeric',
+                                ...form_fields?.[field.headerText],
+                            }
 
                             return (
                                 <Card
@@ -144,14 +147,20 @@ const FieldConfigurationSection = () => {
                                                 {type === 'text' && (
                                                     <Select
                                                         placeholder="Select Validation"
-                                                        value={
-                                                            saved.validation
-                                                                ? {
-                                                                      label: saved.validation,
-                                                                      value: saved.validation,
-                                                                  }
-                                                                : null
-                                                        }
+                                                        value={{
+                                                            label:
+                                                                saved.validation ===
+                                                                'alphabet'
+                                                                    ? 'Alphabet Only'
+                                                                    : saved.validation ===
+                                                                        'email'
+                                                                      ? 'Email'
+                                                                      : saved.validation ===
+                                                                          'no-spaces'
+                                                                        ? 'No Spaces'
+                                                                        : 'Alphanumeric',
+                                                            value: saved.validation,
+                                                        }}
                                                         options={[
                                                             {
                                                                 label: 'Alphabet Only',
@@ -182,7 +191,8 @@ const FieldConfigurationSection = () => {
                                                                             ...saved,
                                                                             type,
                                                                             validation:
-                                                                                option?.value,
+                                                                                option?.value ||
+                                                                                'alphanumeric',
                                                                         },
                                                                 },
                                                             )
