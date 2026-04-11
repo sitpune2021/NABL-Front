@@ -10,7 +10,7 @@ import { TbBolt } from 'react-icons/tb'
 import useLabList from '@/views/masters/lab/List/hooks/useList'
 import useLabZones from '../hooks/useLabZones'
 import { apiAppendLabZoneToMaster } from '@/services/ZoneService'
-import { useZoneList } from '../hooks/useList'
+import useZoneList from '../hooks/useList'
 
 import useSync from '@/utils/hooks/useSync'
 import { mapToOptions } from '@/helpers/optionMappers'

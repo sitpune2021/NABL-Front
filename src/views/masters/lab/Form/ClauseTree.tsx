@@ -1,13 +1,20 @@
-import React, { useMemo, useState, useCallback, useEffect } from 'react'
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import React, { useMemo, useState } from 'react'
 import { ChevronDown, ChevronRight, FileText } from 'lucide-react'
 import Card from '@/components/ui/Card'
 import { FormItem } from '@/components/ui/Form'
 import { Select, Checkbox, Button } from '@/components/ui'
 import { useStandardList } from '@/views/settings/standard/List/hooks/useList'
+import { useStandardClauseList } from '../../instrument/List/hooks/useSTDClause'
+import { Controller } from 'react-hook-form'
+import { FormSectionBaseProps } from '@/@types/lab'
 
 interface DocumentType {
     id: number
-    name: string
+    document: {
+        id: number
+        name: string
+    }
 }
 
 interface ClauseType {
@@ -15,7 +22,7 @@ interface ClauseType {
     title: string
     message?: string
     note_message?: string
-    documents?: DocumentType[]
+    document_links?: DocumentType[]
     children?: ClauseType[]
     numbering_type?: string
     numbering_value?: string | number | null
@@ -27,27 +34,20 @@ interface StandardType {
     status: string
 }
 
-const getAllDescendantIds = (clause: ClauseType): string[] => {
-    let ids: string[] = [`clause-${clause.id}`]
-
-    clause.documents?.forEach((doc) => {
-        ids.push(`doc-${clause.id}-${doc.id}`)
-    })
-
-    clause.children?.forEach((child) => {
-        ids = ids.concat(getAllDescendantIds(child))
-    })
-
-    return ids
+interface ClauseItemProps {
+    clause: ClauseType
+    readOnly?: boolean
+    level: number
+    selectedDocs: number[]
+    handleToggle: (id: number, type: ToggleType, clause?: ClauseType) => void
 }
 
-const getAllIdsFromClauses = (clauses: ClauseType[]): string[] => {
-    let ids: string[] = []
-    clauses.forEach((clause) => {
-        ids = ids.concat(getAllDescendantIds(clause))
-    })
-    return ids
+type ClauseTreeProps = FormSectionBaseProps & {
+    readOnly?: boolean
 }
+
+type ToggleType = 'clause' | 'document'
+
 const DEPTH_COLORS: Record<number, string> = {
     0: 'bg-violet-100 text-violet-700 dark:bg-violet-900 dark:text-violet-300',
     1: 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300',
@@ -67,34 +67,44 @@ const DepthBadge: React.FC<{ level: number }> = ({ level }) => {
     )
 }
 
-interface ClauseItemProps {
-    clause: ClauseType
-    selectedItems: string[]
-    handleToggle: (id: string, clause?: ClauseType) => void
-    readOnly?: boolean
-    level: number
+const getAllDocumentIds = (clause: ClauseType): number[] => {
+    const ids: number[] = []
+
+    if (clause.document_links?.length) {
+        ids.push(...clause.document_links.map((d) => d.id))
+    }
+
+    if (clause.children?.length) {
+        clause.children.forEach((child) => {
+            ids.push(...getAllDocumentIds(child))
+        })
+    }
+
+    return ids
 }
 
 const ClauseItem: React.FC<ClauseItemProps> = ({
     clause,
-    selectedItems,
+    selectedDocs,
     handleToggle,
     readOnly,
     level,
 }) => {
     const [open, setOpen] = useState(true)
     const hasChildren =
-        (clause.documents?.length ?? 0) > 0 ||
+        (clause.document_links?.length ?? 0) > 0 ||
         (clause.children?.length ?? 0) > 0
 
     return (
         <div className="border-b border-gray-100 dark:border-gray-800 last:border-b-0">
             <div className="flex items-center gap-3 px-3 py-2.5 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
                 {hasChildren ? (
-                    <button
+                    <Button
                         type="button"
+                        size="xs"
+                        shape="none"
+                        variant="plain"
                         disabled={readOnly}
-                        className="p-0.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 disabled:opacity-40 shrink-0"
                         onClick={() => setOpen(!open)}
                     >
                         {open ? (
@@ -102,15 +112,17 @@ const ClauseItem: React.FC<ClauseItemProps> = ({
                         ) : (
                             <ChevronRight size={15} />
                         )}
-                    </button>
+                    </Button>
                 ) : (
                     <span className="w-[22px] shrink-0" />
                 )}
 
                 <Checkbox
                     disabled={readOnly}
-                    checked={selectedItems.includes(`clause-${clause.id}`)}
-                    onChange={() => handleToggle(`clause-${clause.id}`, clause)}
+                    checked={getAllDocumentIds(clause).every((id) =>
+                        selectedDocs.includes(id),
+                    )}
+                    onChange={() => handleToggle(clause.id, 'clause', clause)}
                 />
 
                 <p className="flex-1 min-w-0 text-sm font-semibold text-gray-800 dark:text-gray-100 truncate">
@@ -126,41 +138,40 @@ const ClauseItem: React.FC<ClauseItemProps> = ({
             {open && (
                 <div className="pl-9">
                     {/* Documents */}
-                    {clause.documents && clause.documents.length > 0 && (
-                        <div className="py-1 space-y-0.5">
-                            {clause.documents.map((doc) => (
-                                <div
-                                    key={doc.id}
-                                    className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
-                                >
-                                    <Checkbox
-                                        disabled={readOnly}
-                                        checked={selectedItems.includes(
-                                            `doc-${clause.id}-${doc.id}`,
-                                        )}
-                                        onChange={() =>
-                                            handleToggle(
-                                                `doc-${clause.id}-${doc.id}`,
-                                            )
-                                        }
-                                    />
-                                    <FileText
-                                        size={14}
-                                        className="text-gray-400 dark:text-gray-500 shrink-0"
-                                    />
-                                    <span className="text-xs text-gray-600 dark:text-gray-300 truncate">
-                                        {doc.name}
-                                    </span>
-                                </div>
-                            ))}
-                        </div>
-                    )}
+                    {clause.document_links &&
+                        clause.document_links.length > 0 && (
+                            <div className="py-1 space-y-0.5">
+                                {clause.document_links.map((doc) => (
+                                    <div
+                                        key={doc.id}
+                                        className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+                                    >
+                                        <Checkbox
+                                            disabled={readOnly}
+                                            checked={selectedDocs.includes(
+                                                doc.id,
+                                            )}
+                                            onChange={() =>
+                                                handleToggle(doc.id, 'document')
+                                            }
+                                        />
+                                        <FileText
+                                            size={14}
+                                            className="text-gray-400 dark:text-gray-500 shrink-0"
+                                        />
+                                        <span className="text-xs text-gray-600 dark:text-gray-300 truncate">
+                                            {doc.document.name}
+                                        </span>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
 
                     {clause.children?.map((child) => (
                         <ClauseItem
                             key={child.id}
                             clause={child}
-                            selectedItems={selectedItems}
+                            selectedDocs={selectedDocs}
                             handleToggle={handleToggle}
                             readOnly={readOnly}
                             level={level + 1}
@@ -172,31 +183,16 @@ const ClauseItem: React.FC<ClauseItemProps> = ({
     )
 }
 
-interface ClauseTreeProps {
-    readOnly?: boolean
-    clauses: ClauseType[]
-    selectedItems: string[]
-    standardId?: number | null
-    onChange?: (v: string[]) => void
-    onStandardChange?: (id: number) => void
-}
-
 const ClauseTree: React.FC<ClauseTreeProps> = ({
     readOnly,
-    clauses,
-    selectedItems,
-    standardId,
-    onChange,
-    onStandardChange,
+    control,
+    errors,
 }) => {
     const { standardList } = useStandardList()
     const [currentStandard, setCurrentStandard] = useState<number | null>(null)
-
-    useEffect(() => {
-        if (standardId) {
-            setCurrentStandard(standardId)
-        }
-    }, [standardId])
+    const { ClauseDocumentList, isLoading } =
+        useStandardClauseList(currentStandard)
+    const clauseList = ClauseDocumentList?.clauses ?? []
 
     const standards: StandardType[] = useMemo(() => {
         if (!Array.isArray(standardList)) return []
@@ -214,97 +210,182 @@ const ClauseTree: React.FC<ClauseTreeProps> = ({
         [standards],
     )
 
-    const allIds = useMemo(() => getAllIdsFromClauses(clauses), [clauses])
-
-    const isAllSelected =
-        allIds.length > 0 && allIds.every((id) => selectedItems.includes(id))
-
-    const handleSelectAll = () => {
-        if (readOnly) return
-        onChange?.(isAllSelected ? [] : allIds)
-    }
-
-    const handleToggle = useCallback(
-        (id: string, clause?: ClauseType) => {
-            if (readOnly) return
-
-            let newSelected: string[] = []
-
-            if (selectedItems.includes(id)) {
-                if (clause) {
-                    const allIds = getAllDescendantIds(clause)
-                    newSelected = selectedItems.filter(
-                        (item) => !allIds.includes(item),
-                    )
-                } else {
-                    newSelected = selectedItems.filter((item) => item !== id)
-                }
-            } else {
-                if (clause) {
-                    const allIds = getAllDescendantIds(clause)
-                    newSelected = [
-                        ...selectedItems,
-                        ...allIds.filter((i) => !selectedItems.includes(i)),
-                    ]
-                } else {
-                    newSelected = [...selectedItems, id]
-                }
-            }
-
-            onChange?.(newSelected)
-        },
-        [selectedItems, onChange, readOnly],
-    )
-
     return (
         <div className="space-y-6">
             <Card className="p-5 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-2xl shadow-sm">
-                <FormItem label="Standard">
-                    <Select
-                        options={standardOptions}
-                        placeholder="Select Standard"
-                        isDisabled={readOnly}
-                        value={standardOptions.find(
-                            (o) => o.value === currentStandard,
-                        )}
-                        onChange={(opt) => {
-                            if (opt?.value) {
-                                const id = Number(opt.value)
-                                setCurrentStandard(id)
-                                onStandardChange?.(id)
-                                onChange?.([])
-                            }
+                <FormItem
+                    label="Standard"
+                    invalid={!!errors.standard?.standard_id}
+                    errorMessage={errors.standard?.standard_id?.message}
+                >
+                    <Controller
+                        name="standard.standard_id"
+                        control={control}
+                        render={({ field }) => {
+                            return (
+                                <Select
+                                    options={standardOptions}
+                                    placeholder="Select Standard"
+                                    isDisabled={readOnly}
+                                    value={
+                                        standardOptions.find(
+                                            (o) => o.value === field.value,
+                                        ) || null
+                                    }
+                                    onChange={(opt) => {
+                                        const id = opt?.value
+                                            ? Number(opt.value)
+                                            : null
+                                        field.onChange(id) // ✅ form update
+                                        setCurrentStandard(id) // ✅ local UI logic
+                                    }}
+                                />
+                            )
                         }}
                     />
                 </FormItem>
             </Card>
 
-            {clauses.length > 0 && (
+            {isLoading && <div>loading.....</div>}
+
+            {currentStandard && !isLoading && !clauseList?.length && (
+                <div className="text-sm text-gray-500">No clauses found</div>
+            )}
+
+            {currentStandard && clauseList?.length > 0 && (
                 <Card className="p-6 space-y-4">
                     <div className="flex justify-between items-center pb-3 border-b border-gray-100 dark:border-gray-800">
                         <h3 className="text-xl font-semibold">
                             Clause Documents
                         </h3>
-                        <Button
-                            type="button"
-                            disabled={readOnly}
-                            onClick={handleSelectAll}
-                        >
-                            {isAllSelected ? 'Deselect All' : 'Select All'}
-                        </Button>
                     </div>
 
-                    <div className="divide-y divide-gray-100 dark:divide-gray-800 rounded-xl overflow-hidden border border-gray-100 dark:border-gray-800">
-                        {clauses.map((clause) => (
-                            <ClauseItem
-                                key={clause.id}
-                                clause={clause}
-                                selectedItems={selectedItems}
-                                handleToggle={handleToggle}
-                                readOnly={readOnly}
-                                level={0}
+                    <div className="divide-y divide-gray-100 dark:divide-gray-800  overflow-hidden ">
+                        <FormItem
+                            label="Documents"
+                            invalid={!!errors.standard?.clause_documents_link}
+                            errorMessage={
+                                errors.standard?.clause_documents_link?.message
+                            }
+                        >
+                            <Controller
+                                name="standard.clause_documents_link"
+                                control={control}
+                                render={({ field }) => {
+                                    const selectedDocs = (
+                                        field.value || []
+                                    ).map(Number)
+
+                                    // ✅ get ALL document IDs from entire tree
+                                    const allDocIds: any[] = clauseList.flatMap(
+                                        (clause: ClauseType) =>
+                                            getAllDocumentIds(clause),
+                                    )
+
+                                    // ✅ check if all selected
+                                    const isAllSelected =
+                                        allDocIds.length > 0 &&
+                                        allDocIds.every((id) =>
+                                            selectedDocs.includes(id),
+                                        )
+
+                                    // ✅ SELECT ALL / DESELECT ALL
+                                    const handleSelectAll = () => {
+                                        if (isAllSelected) {
+                                            field.onChange([]) // ❌ clear all
+                                        } else {
+                                            field.onChange(
+                                                allDocIds.map(String),
+                                            ) // ✅ select all
+                                        }
+                                    }
+
+                                    // ✅ existing toggle
+                                    const handleToggle = (
+                                        id: number,
+                                        type: ToggleType,
+                                        clause?: ClauseType,
+                                    ) => {
+                                        let updated = [...selectedDocs]
+
+                                        if (type === 'clause' && clause) {
+                                            const clauseDocIds =
+                                                getAllDocumentIds(clause)
+
+                                            const allSelected =
+                                                clauseDocIds.every((d) =>
+                                                    updated.includes(d),
+                                                )
+
+                                            if (allSelected) {
+                                                updated = updated.filter(
+                                                    (d) =>
+                                                        !clauseDocIds.includes(
+                                                            d,
+                                                        ),
+                                                )
+                                            } else {
+                                                updated = Array.from(
+                                                    new Set([
+                                                        ...updated,
+                                                        ...clauseDocIds,
+                                                    ]),
+                                                )
+                                            }
+                                        }
+
+                                        if (type === 'document') {
+                                            if (updated.includes(id)) {
+                                                updated = updated.filter(
+                                                    (d) => d !== id,
+                                                )
+                                            } else {
+                                                updated.push(id)
+                                            }
+                                        }
+
+                                        field.onChange(updated.map(String))
+                                    }
+
+                                    return (
+                                        <>
+                                            {/* 🔥 SELECT ALL BUTTON */}
+                                            <div className="flex justify-end pb-2">
+                                                <Button
+                                                    type="button"
+                                                    disabled={readOnly}
+                                                    onClick={handleSelectAll}
+                                                >
+                                                    {isAllSelected
+                                                        ? 'Deselect All'
+                                                        : 'Select All'}
+                                                </Button>
+                                            </div>
+
+                                            {/* TREE */}
+                                            <div className="divide-y">
+                                                {clauseList.map(
+                                                    (clause: ClauseType) => (
+                                                        <ClauseItem
+                                                            key={clause.id}
+                                                            clause={clause}
+                                                            handleToggle={
+                                                                handleToggle
+                                                            }
+                                                            readOnly={readOnly}
+                                                            level={0}
+                                                            selectedDocs={
+                                                                selectedDocs
+                                                            }
+                                                        />
+                                                    ),
+                                                )}
+                                            </div>
+                                        </>
+                                    )
+                                }}
                             />
-                        ))}
+                        </FormItem>
                     </div>
                 </Card>
             )}

@@ -5,7 +5,7 @@ import Checkbox from '@/components/ui/Checkbox'
 import { HiOutlineInbox, HiCheckCircle } from 'react-icons/hi'
 import { apiApproveZones, apiGetPendingZones } from '@/services/ZoneService'
 import { Zone, GetZoneListResponse } from '@/@types/zone'
-import { useZoneList } from '../hooks/useList'
+import useZoneList from '../hooks/useList'
 
 const ZonePendingDrawer = () => {
     const [isOpen, setIsOpen] = useState(false)

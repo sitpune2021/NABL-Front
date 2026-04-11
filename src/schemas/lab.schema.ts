@@ -94,7 +94,9 @@ export const labSchema = z.object({
     documents: z.array(z.union([z.string(), z.number()])),
     standard: z.object({
         standard_id: z.union([z.number(), z.string()]).nullable().optional(),
-        selectedClauses: z.array(z.string()).optional(),
+        clause_documents_link: z
+            .array(z.union([z.number(), z.string()]))
+            .optional(),
     }),
 })
 

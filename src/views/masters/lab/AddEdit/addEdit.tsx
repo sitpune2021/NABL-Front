@@ -7,11 +7,6 @@ import ConfirmDialog from '@/components/shared/ConfirmDialog'
 
 import endpointConfig from '@/configs/endpoint.config'
 
-import { useZoneList } from '../../zone/List/hooks/useList'
-import useClusterList from '../../cluster/List/hooks/useList'
-import useLocationList from '../../location/List/hooks/useList'
-import useDepartmentList from '../../department/List/hooks/useList'
-import { useInstrumentList } from '../../instrument/List/hooks/useList'
 import useDocumentList from '../../document/List/hooks/useList'
 import useLabList from '../List/hooks/useList'
 import { useLabDetail } from '../List/hooks/useLabDetail'
@@ -40,11 +35,6 @@ const LabAddEdit = () => {
     const { lab, isLoading } = useLabDetail(id)
     const { documentList, isLoading: docIsLoading } = useDocumentList()
     const { labList } = useLabList()
-    const { zoneList } = useZoneList()
-    const { clusterList } = useClusterList()
-    const { locationList } = useLocationList()
-    const { departmentList } = useDepartmentList()
-    const { instrumentList } = useInstrumentList()
 
     const { save } = useEntityMutations<Lab>({
         apiCreate: apiLab,
@@ -90,12 +80,6 @@ const LabAddEdit = () => {
                 labFormProps={{
                     defaultValues,
                     readOnly: isView,
-                    zoneList,
-                    clusterList,
-                    locationList,
-                    departmentList,
-                    instrumentList,
-                    documentList,
                     onFormSubmit: handleSubmit,
                     isSubmitting,
                     isEdit,

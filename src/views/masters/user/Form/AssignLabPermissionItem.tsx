@@ -1,18 +1,18 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import React, { useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { Controller, useWatch } from 'react-hook-form'
 import { Button, Select, Input } from '@/components/ui'
 import { FormItem } from '@/components/ui/Form'
 import {
-    TbX,
     TbMinus,
-    TbCheck,
-    TbSearch,
-    TbHierarchy2,
     TbMapPin,
     TbChevronDown,
+    TbHierarchy2,
+    TbX,
+    TbCheck,
+    TbSearch,
 } from 'react-icons/tb'
-import { useZoneList } from '../../zone/List/hooks/useList'
+import useZoneList from '../../zone/List/hooks/useList'
 import useClusterList from '../../cluster/List/hooks/useList'
 import useLocationList from '../../location/List/hooks/useList'
 import useDepartmentList from '../../department/List/hooks/useList'

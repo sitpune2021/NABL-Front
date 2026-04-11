@@ -10,6 +10,7 @@ import ListLayout from '@/components/layouts/ListLayout'
 import CommentDrawer from '@/views/works/tasks/List/components/Commentdrawer'
 import ActionColumn from '@/components/form/ActionColumn'
 import { useAuth } from '@/auth'
+import getAllDocuments from '@/helpers/getAllDocuments'
 
 const ClauseDocumentListTable = () => {
     const { clause, isLoading } = useClauseDetail('1')
@@ -19,14 +20,7 @@ const ClauseDocumentListTable = () => {
     const { can } = useAuth()
 
     // ✅ Flatten data (same logic)
-    const data =
-        clause?.clauses?.flatMap((clauseItem: any) =>
-            clauseItem.documents.map((doc: any) => ({
-                clauseId: clauseItem.id,
-                clauseTitle: clauseItem.title,
-                ...doc,
-            })),
-        ) || []
+    const data = getAllDocuments(clause?.clauses || [])
 
     const handleEntryDetails = (document: any) => {
         const path = endpointConfig.review.review.dataEntryList.replace(

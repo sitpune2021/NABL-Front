@@ -8,7 +8,7 @@ import PrefixSelectField from '@/components/form/fields/PrefixSelectField'
 import TextField from '@/components/form/fields/TextField'
 import { useClusterDetail } from '../../cluster/List/hooks/useClusterDetail'
 import { useZoneDetail } from '../../zone/List/hooks/useZoneDetail'
-import { useZoneList } from '../../zone/List/hooks/useList'
+import useZoneList from '../../zone/List/hooks/useList'
 import useClusterList from '../../cluster/List/hooks/useList'
 
 type LocationFormProps = {

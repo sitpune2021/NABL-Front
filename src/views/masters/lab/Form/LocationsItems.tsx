@@ -12,18 +12,17 @@ import { FormItem } from '@/components/ui/Form'
 import { Button, Checkbox, Select } from '@/components/ui'
 import { HiPlus, HiMinus } from 'react-icons/hi'
 import { FormSectionBaseProps } from '@/@types/lab'
+import useZoneList from '../../zone/List/hooks/useList'
+import useClusterList from '../../cluster/List/hooks/useList'
+import useLocationList from '../../location/List/hooks/useList'
+import useDepartmentList from '../../department/List/hooks/useList'
+import { useInstrumentList } from '../../instrument/List/hooks/useList'
 
 export type FormSectionBasePropsTwo = {
     index: number
     item: any
     removeLocation: (index: number) => void
-} & FormSectionBaseProps & {
-        zoneList: any[]
-        clusterList: any[]
-        locationList: any[]
-        departmentList: any[]
-        instrumentList: any[]
-    }
+} & FormSectionBaseProps
 
 const LocationsItems = ({
     control,
@@ -32,27 +31,22 @@ const LocationsItems = ({
     index,
     item,
     removeLocation,
-    zoneList,
-    clusterList,
-    locationList,
-    departmentList,
-    instrumentList,
 }: FormSectionBasePropsTwo) => {
+    const { zoneList } = useZoneList()
+    const { clusterList, updateFilters } = useClusterList()
+    const { locationList, updateFilters: updateLocationFilters } =
+        useLocationList()
+    const { departmentList } = useDepartmentList()
+    const { instrumentList } = useInstrumentList()
+
     const { setValue, watch } = useFormContext()
 
     const selectedZone = watch(`location.${index}.zone_id`)
     const selectedCluster = watch(`location.${index}.cluster_id`)
     const selectedLocationName = watch(`location.${index}.location_id`)
 
-    const filteredClusters = clusterList.filter(
-        (c) => c.zone_id === selectedZone,
-    )
-    const filteredLocations = locationList.filter(
-        (l) => l.cluster_id === selectedCluster,
-    )
-
     useEffect(() => {
-        const locationMatch = filteredLocations.find(
+        const locationMatch = locationList.find(
             (l) => l.id === selectedLocationName,
         )
 
@@ -167,7 +161,9 @@ const LocationsItems = ({
                                 }
                                 isDisabled={readOnly}
                                 onChange={(selected) => {
-                                    field.onChange(selected?.value || '')
+                                    const zoneId = selected?.value || ''
+                                    field.onChange(zoneId)
+                                    updateFilters({ zone_id: zoneId })
                                     setValue(`location.${index}.cluster_id`, '')
                                     setValue(
                                         `location.${index}.location_id`,
@@ -193,12 +189,12 @@ const LocationsItems = ({
                             <Select
                                 placeholder="Select Cluster"
                                 isDisabled={readOnly || !selectedZone}
-                                options={filteredClusters.map((c) => ({
+                                options={clusterList.map((c) => ({
                                     label: c.name,
                                     value: c.id,
                                 }))}
                                 value={
-                                    filteredClusters
+                                    clusterList
                                         .map((c) => ({
                                             label: c.name,
                                             value: c.id,
@@ -208,6 +204,9 @@ const LocationsItems = ({
                                 }
                                 onChange={(selected) => {
                                     field.onChange(selected?.value || '')
+                                    updateLocationFilters({
+                                        cluster_id: selected?.value || '',
+                                    })
                                     setValue(
                                         `location.${index}.location_id`,
                                         '',
@@ -233,12 +232,12 @@ const LocationsItems = ({
                         render={({ field }) => (
                             <Select
                                 placeholder="Select Location"
-                                options={filteredLocations.map((l) => ({
+                                options={locationList.map((l) => ({
                                     label: l.name,
                                     value: l.id,
                                 }))}
                                 value={
-                                    filteredLocations
+                                    locationList
                                         .map((l) => ({
                                             label: l.name,
                                             value: l.id,
@@ -249,12 +248,9 @@ const LocationsItems = ({
                                 isDisabled={!selectedCluster || readOnly}
                                 onChange={(selected) => {
                                     field.onChange(selected?.value || '')
-                                    const locationMatch =
-                                        filteredLocations.find(
-                                            (l) =>
-                                                l.location_id ===
-                                                selected?.value,
-                                        )
+                                    const locationMatch = locationList.find(
+                                        (l) => l.id === selected?.value,
+                                    )
                                     if (locationMatch) {
                                         setValue(
                                             `location.${index}.shortName`,
@@ -262,7 +258,7 @@ const LocationsItems = ({
                                         )
                                         setValue(
                                             `location.${index}.prefix`,
-                                            `LOC-${locationMatch.prefix}`,
+                                            `LOC-${locationMatch.identifier}`,
                                         )
                                     } else {
                                         setValue(

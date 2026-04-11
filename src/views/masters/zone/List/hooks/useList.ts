@@ -7,7 +7,7 @@ import type { GetZoneListResponse } from '@/@types/zone'
 import { useZoneListStore } from '../store/listStore'
 
 const LIST_KEY = 'zone-list'
-export const useZoneList = () => {
+const useZoneList = () => {
     const {
         tableData,
         updateTable,
@@ -58,3 +58,5 @@ export const useZoneList = () => {
         record: allZone,
     }
 }
+
+export default useZoneList

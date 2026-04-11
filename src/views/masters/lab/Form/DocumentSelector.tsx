@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useMemo } from 'react'
 import { TbSearch, TbFile, TbCheck } from 'react-icons/tb'
 import { Checkbox, Button, Input } from '@/components/ui'
@@ -9,7 +10,7 @@ interface Doc {
 
 interface DocumentSelectorProps {
     documentList: Doc[]
-    value: number[]
+    value: any[]
     onChange: (ids: number[]) => void
     isDisabled?: boolean
 }

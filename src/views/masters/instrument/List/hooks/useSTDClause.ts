@@ -5,8 +5,9 @@ import useSWR from 'swr'
 const LIST_KEY = 'standard-clause-list'
 
 export const useStandardClauseList = (standardId?: number | null) => {
-    const shouldFetch = !!standardId
-    const swr: any = useSWR(
+    const shouldFetch = standardId !== null && standardId !== undefined
+
+    const { data, error, isLoading, mutate }: any = useSWR(
         shouldFetch ? [LIST_KEY, standardId] : null,
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         ([_, id]) => apiGetClauseDocumentsList(id),
@@ -14,10 +15,10 @@ export const useStandardClauseList = (standardId?: number | null) => {
     )
 
     return {
-        ClauseDocumentList: swr.data?.data ?? [],
-        total: swr.data?.total ?? 0,
-        isLoading: swr.isLoading,
-        error: swr.error,
-        mutate: swr.mutate,
+        ClauseDocumentList: data?.data ?? null, // ✅ FIXED
+        total: data?.total ?? 0,
+        isLoading,
+        error,
+        mutate,
     }
 }

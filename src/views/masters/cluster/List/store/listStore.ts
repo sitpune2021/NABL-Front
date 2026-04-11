@@ -16,6 +16,7 @@ export const initialTableData: TableQueries = {
 
 export const initialFilterData: FormSchema = {
     zones: [],
+    zone_id: '', // ✅ important
 }
 
 const initialState: ClusterListState = {

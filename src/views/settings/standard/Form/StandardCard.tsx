@@ -16,6 +16,7 @@ interface StandardCardProps {
     watchedStandards: any
     baseName?: string
     depth?: number
+    parentNumber?: string
     isExpanded: boolean
     onToggle: () => void
 }
@@ -29,6 +30,7 @@ const StandardCard = ({
     watchedStandards,
     baseName = 'clauses',
     depth = 0,
+    parentNumber = '',
     isExpanded,
     onToggle,
 }: StandardCardProps) => {
@@ -54,11 +56,13 @@ const StandardCard = ({
         )
     }, [current?.numbering_type, watchedStandards, index])
 
-    const numberedTitle = useMemo(() => {
-        const title = current?.title || ''
-        const val = `${numberingValue} ${title}`.trim()
-        return val || `Clause ${index + 1}`
-    }, [numberingValue, current?.title, index])
+    const fullNumbering = useMemo(() => {
+        if (!numberingValue) return parentNumber || ''
+
+        return parentNumber
+            ? `${parentNumber}.${numberingValue}`
+            : numberingValue
+    }, [numberingValue, parentNumber])
 
     useEffect(() => {
         if (!readOnly) {
@@ -84,7 +88,7 @@ const StandardCard = ({
                     if (!readOnly) onToggle()
                 }}
             >
-                <div className="flex items-center gap-2 overflow-hidden">
+                <div className="flex items-center gap-1.5 overflow-hidden">
                     {!readOnly && (
                         <span className="text-xl text-gray-500">
                             {isExpanded ? (
@@ -94,8 +98,16 @@ const StandardCard = ({
                             )}
                         </span>
                     )}
-                    <h5 className="m-0 truncate text-sm md:text-base font-semibold">
-                        {numberedTitle}
+                    <h5 className="m-0 truncate flex items-center gap-1.5">
+                        {fullNumbering && (
+                            <span className="text-xs md:text-sm font-normal text-gray-800 dark:text-gray-600">
+                                {fullNumbering}
+                            </span>
+                        )}
+
+                        <span className="text-sm md:text-base font-semibold capitalize">
+                            {current?.title || `Clause ${index + 1}`}
+                        </span>
                     </h5>
                 </div>
 
@@ -193,7 +205,7 @@ const StandardCard = ({
                         <div className="col-span-12 md:col-span-3 flex items-center gap-6 h-10 px-2">
                             <FormItem
                                 label="Note"
-                                className="flex flex-row-reverse items-center gap-2 mb-0"
+                                className="flex flex-row-reverse items-center gap-1.5 mb-0"
                             >
                                 <Controller
                                     name={`${path}.note`}
@@ -211,7 +223,7 @@ const StandardCard = ({
 
                             <FormItem
                                 label="Has Children"
-                                className="flex flex-row-reverse items-center gap-2 mb-0"
+                                className="flex flex-row-reverse items-center gap-1.5 mb-0"
                             >
                                 <Controller
                                     name={`${path}.is_child`}
@@ -262,6 +274,7 @@ const StandardCard = ({
                         name={`${path}.children` as any}
                         readOnly={readOnly}
                         depth={depth + 1}
+                        parentNumber={fullNumbering} // 👈 ADD THIS
                     />
                 )}
             </div>
