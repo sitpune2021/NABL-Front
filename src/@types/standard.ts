@@ -1,4 +1,6 @@
+import { StandardFormSchema } from '@/schemas/standard.schema'
 import { TableQueries } from './common'
+import { FieldArrayPath } from 'react-hook-form'
 
 export type Clause = {
     id: number
@@ -38,7 +40,7 @@ export type GetStandardListResponse = {
     total: number
 }
 
-export type GetStandardResponse = Standard
+export type GetStandardResponse = StandardFormSchema
 
 export type StandardListState = {
     tableData: TableQueries
@@ -53,14 +55,10 @@ export type StandardListActions = {
     resetQuery: () => void
 }
 
-export type StandardFieldPath =
-    | 'clauses'
-    | `clauses.${number}`
-    | `clauses.${number}.children`
-
 export interface StandardRecursiveSectionProps {
-    name: StandardFieldPath
+    name: FieldArrayPath<StandardFormSchema>
     readOnly: boolean
     isRoot?: boolean
     depth?: number
+    parentNumber?: string // ✅ ADD THIS
 }

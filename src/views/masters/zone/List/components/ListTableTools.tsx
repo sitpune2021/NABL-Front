@@ -1,6 +1,6 @@
 import { useCallback } from 'react'
 import { Search } from '@/components/form'
-import { useZoneList } from '../hooks/useList'
+import useZoneList from '../hooks/useList'
 import debounce from 'lodash/debounce'
 import ZoneListTableSync from './ListTableSync'
 import ZonePendingDrawer from './ZonePendingDrawer'

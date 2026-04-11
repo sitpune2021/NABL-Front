@@ -1,9 +1,24 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { z } from 'zod'
 
-export const standardItemSchema: z.ZodType<any> = z.lazy(() =>
+export interface StandardItem {
+    id: number | string | null
+    parent_id: number | string | null
+    title: string
+    message: string
+    note: boolean
+    is_child: boolean
+    children_count: number
+    children?: StandardItem[]
+    numbering_type: number | string
+    numbering_value: number | string
+    depth: number
+}
+
+export const standardItemSchema: z.ZodType<StandardItem> = z.lazy(() =>
     z
         .object({
+            id: z.union([z.null(), z.number(), z.string()]),
+            parent_id: z.union([z.null(), z.number(), z.string()]),
             title: z.string().min(1, 'Title is required'),
             message: z.string().min(1, 'Message is required'),
             note: z.boolean(),
@@ -14,6 +29,7 @@ export const standardItemSchema: z.ZodType<any> = z.lazy(() =>
             children: z.array(standardItemSchema).optional(),
             numbering_type: z.union([z.number(), z.string()]),
             numbering_value: z.union([z.number(), z.string()]),
+            depth: z.number().min(0),
         })
         .superRefine((data, ctx) => {
             if (

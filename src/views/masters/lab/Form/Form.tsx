@@ -1,17 +1,15 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import { Form, FormItem } from '@/components/ui/Form'
 import Container from '@/components/shared/Container'
 import BottomStickyBar from '@/components/template/BottomStickyBar'
 import OverviewSection from './OverviewSection'
-import isEmpty from 'lodash/isEmpty'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm, FormProvider, Controller } from 'react-hook-form'
 import type { CommonProps } from '@/@types/common'
 import LocationsSection from './LocationsSection'
 import ClauseTree from './ClauseTree'
 import { labSchema, LabFormSchema } from '@/schemas/lab.schema'
-import { useStandardClauseList } from '../../instrument/List/hooks/useSTDClause'
 import { Card } from '@/components/ui'
 import DocumentSelector from './DocumentSelector'
 
@@ -22,11 +20,6 @@ type LabFormProps = {
     newLab?: boolean
     readOnly?: boolean
     onMethodsReady?: (methods: any) => void
-    zoneList: any[]
-    clusterList: any[]
-    locationList: any[]
-    departmentList: any[]
-    instrumentList: any[]
     documentList: any[]
 } & CommonProps
 
@@ -36,11 +29,6 @@ const LabForm = ({
     defaultValues,
     readOnly = false,
     children,
-    zoneList,
-    clusterList,
-    locationList,
-    departmentList,
-    instrumentList,
     documentList,
     onMethodsReady,
 }: LabFormProps) => {
@@ -50,52 +38,21 @@ const LabForm = ({
         shouldUnregister: false,
     })
 
-    const [selectedStandardId, setSelectedStandardId] = useState<number | null>(
-        null,
-    )
-
-    const { ClauseDocumentList, isLoading } = useStandardClauseList(
-        selectedStandardId ?? 0,
-    )
-    const [selectedClauses, setSelectedClauses] = useState<string[]>([])
-
     const {
         handleSubmit,
-        reset,
         control,
         formState: { errors },
         setValue,
     } = methods
+
     // expose form methods to step wrapper
     useEffect(() => {
         onMethodsReady?.(methods)
     }, [methods, onMethodsReady])
 
-    useEffect(() => {
-        if (!isEmpty(defaultValues)) {
-            reset(defaultValues)
-            if ((defaultValues as any).standard_id) {
-                setSelectedStandardId((defaultValues as any).standard_id)
-            }
-
-            if ((defaultValues as any).selectedClauses) {
-                setSelectedClauses((defaultValues as any).selectedClauses)
-            }
-        }
-    }, [defaultValues, reset])
-
     const onSubmit = (values: LabFormSchema) => {
-        const payload = {
-            ...values,
-            selectedClauses,
-            standard_id: selectedStandardId,
-        }
+        const payload = { ...values }
         onFormSubmit?.(payload)
-        console.log('Payload:', payload)
-    }
-
-    if (isLoading) {
-        return <>loading.....</>
     }
 
     return (
@@ -122,27 +79,15 @@ const LabForm = ({
                                 control={control}
                                 errors={errors}
                                 readOnly={readOnly}
-                                zoneList={zoneList}
-                                clusterList={clusterList}
-                                locationList={locationList}
-                                departmentList={departmentList}
-                                instrumentList={instrumentList}
                             />
                         )}
                         {/* Step 2: Clauses & Documents */}
                         {step === 2 && (
                             <>
                                 <ClauseTree
-                                    clauses={ClauseDocumentList?.clauses || []}
-                                    selectedItems={selectedClauses}
-                                    standardId={selectedStandardId}
-                                    onChange={(selected) =>
-                                        setSelectedClauses(selected)
-                                    }
-                                    onStandardChange={(id) => {
-                                        setSelectedStandardId(id)
-                                        setSelectedClauses([])
-                                    }}
+                                    readOnly={readOnly}
+                                    control={control}
+                                    errors={errors}
                                 />
                                 <Card>
                                     <FormItem

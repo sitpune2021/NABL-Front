@@ -9,6 +9,7 @@ import { TbDatabase, TbMessageCircle } from 'react-icons/tb'
 import ListLayout from '@/components/layouts/ListLayout'
 import CommentDrawer from './Commentdrawer'
 import { Button } from '@/components/ui'
+import getAllDocuments from '@/helpers/getAllDocuments'
 
 const ClauseDocumentListTable = () => {
     const { clause, isLoading } = useClauseDetail('1', { type: 'bysingle' })
@@ -16,15 +17,8 @@ const ClauseDocumentListTable = () => {
     const [drawerOpen, setDrawerOpen] = useState(false)
     const [selectedDocument, setSelectedDocument] = useState<any>(null)
 
-    // ✅ Flatten data (same logic)
-    const data =
-        clause?.clauses?.flatMap((clauseItem: any) =>
-            clauseItem.documents.map((doc: any) => ({
-                clauseId: clauseItem.id,
-                clauseTitle: clauseItem.title,
-                ...doc,
-            })),
-        ) || []
+    // FINAL
+    const data = getAllDocuments(clause?.clauses || [])
 
     const handleEntryDetails = (document: any) => {
         const path = endpointConfig.works.tasks.dataEntryList.replace(

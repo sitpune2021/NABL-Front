@@ -6,7 +6,7 @@ import MasterForm from '@/components/form/MasterForm'
 import FormSectionLayout from '@/components/layouts/FormSectionLayout'
 import TextField from '@/components/form/fields/TextField'
 import PrefixSelectField from '@/components/form/fields/PrefixSelectField'
-import { useZoneList } from '../../zone/List/hooks/useList'
+import useZoneList from '../../zone/List/hooks/useList'
 import { useZoneDetail } from '../../zone/List/hooks/useZoneDetail'
 
 type ClusterFormProps = {

@@ -145,7 +145,7 @@ const OverviewSection = ({
                                   ]
                                 : []
 
-                        const selectedDoc = useWatch({
+                        const selectedDoc: any = useWatch({
                             control,
                             name: `standard_clauses.${clauseIndex}.clause_documents_tagging.${index}.documents`,
                         })
@@ -156,15 +156,15 @@ const OverviewSection = ({
                             const parts: string[] = []
 
                             // Review frequency
-                            if (selectedDoc.review_frequency) {
+                            if (selectedDoc?.review_frequency) {
                                 parts.push(
-                                    `Review: ${selectedDoc.review_frequency} (${selectedDoc.notification_value} ${selectedDoc.notification_unit})`,
+                                    `Review: ${selectedDoc?.review_frequency} (${selectedDoc?.notification_value} ${selectedDoc?.notification_unit})`,
                                 )
                             }
 
                             // Data entry frequency
-                            if (selectedDoc.schedule) {
-                                const s = selectedDoc.schedule
+                            if (selectedDoc?.schedule) {
+                                const s = selectedDoc?.schedule
 
                                 let entryText = `Entry: ${s.type} (every ${s.count})`
 
@@ -343,9 +343,17 @@ const OverviewSection = ({
     const renderClauses = (
         clauses: any[],
         clauseIndexRef: { current: number },
+        parentNumber = '', // ✅ ADD THIS
     ) =>
         clauses.map((clause) => {
             const clauseIndex = clauseIndexRef.current++
+            const currentNumber = clause.numbering_value || ''
+
+            const fullNumber = currentNumber
+                ? parentNumber
+                    ? `${parentNumber}.${currentNumber}`
+                    : currentNumber
+                : parentNumber
 
             return (
                 <Fragment key={clause.id}>
@@ -354,9 +362,16 @@ const OverviewSection = ({
                         eventKey={clause.id}
                         expanded={expanded.has(clause.id)}
                         label={
-                            clause.numbering_value
-                                ? `${clause.numbering_value} ${clause.title}`
-                                : clause.title
+                            <span className="flex items-center gap-2">
+                                {fullNumber && (
+                                    <span className="text-xs text-gray-500 font-normal">
+                                        {fullNumber}
+                                    </span>
+                                )}
+                                <span className="font-medium capitalize">
+                                    {clause.title}
+                                </span>
+                            </span>
                         }
                         onToggle={toggleAccordion}
                     >
@@ -391,7 +406,11 @@ const OverviewSection = ({
                         <ClauseDocuments clauseIndex={clauseIndex} />
 
                         {clause.children?.length > 0 &&
-                            renderClauses(clause.children, clauseIndexRef)}
+                            renderClauses(
+                                clause.children,
+                                clauseIndexRef,
+                                fullNumber,
+                            )}
                     </Menu.MenuCollapse>
                 </Fragment>
             )
@@ -406,7 +425,7 @@ const OverviewSection = ({
                     defaultValue={Number(standardId)}
                     render={({ field }) => <Input {...field} type="hidden" />}
                 />
-                {renderClauses(accordionData, { current: 0 })}
+                {renderClauses(accordionData, { current: 0 }, '')}
             </Menu>
         </Card>
     )

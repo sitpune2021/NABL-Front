@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect } from 'react'
 import { Form } from '@/components/ui/Form'
 import Container from '@/components/shared/Container'
@@ -7,7 +8,7 @@ import { FormProvider, useForm } from 'react-hook-form'
 
 import type { CommonProps } from '@/@types/common'
 import { Card } from '@/components/ui'
-import { Standard } from '@/@types/standard'
+import { StandardFormSchema } from '@/schemas/standard.schema'
 import { Category } from '@/@types/category'
 import { Document } from '@/@types/document'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -17,7 +18,7 @@ type ClausesFormProps = {
     onSubmit: (values: ClausesFormSchema) => void
     defaultValues: ClausesFormSchema
     readOnly?: boolean
-    standard: Standard
+    standard: StandardFormSchema
     categoryList: Category[]
     documentList: Document[]
 } & CommonProps
@@ -32,7 +33,7 @@ const ClausesForm = ({
     categoryList,
 }: ClausesFormProps) => {
     const methods = useForm<ClausesFormSchema>({
-        resolver: zodResolver(ClausesSchema),
+        resolver: zodResolver(ClausesSchema) as any,
         mode: 'onSubmit',
         reValidateMode: 'onChange',
     })
@@ -49,7 +50,7 @@ const ClausesForm = ({
             <Form
                 className="flex w-full h-full"
                 containerClassName="flex flex-col w-full justify-between"
-                onSubmit={methods.handleSubmit(onSubmit)}
+                onSubmit={methods.handleSubmit(onSubmit as any)}
             >
                 <Container>
                     <div className="flex flex-col md:flex-row gap-4">
@@ -61,7 +62,13 @@ const ClausesForm = ({
                             </Card>
 
                             <OverviewSection
-                                standardId={standard.id}
+                                standardId={
+                                    (
+                                        standard as StandardFormSchema & {
+                                            id: string
+                                        }
+                                    ).id
+                                }
                                 readOnly={readOnly}
                                 accordionData={standard.clauses}
                                 documentList={documentList}

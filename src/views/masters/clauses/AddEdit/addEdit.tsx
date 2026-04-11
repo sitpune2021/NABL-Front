@@ -18,6 +18,7 @@ import { apiCreateClauses, apiUpdateClauses } from '@/services/ClausesService'
 import { useClauseDetail } from '../List/hooks/useDetail'
 import { useStandardDetail } from '@/views/settings/standard/List/hooks/useDetail'
 import { flattenClauses } from '@/utils/flattenClauses'
+import { StandardFormSchema } from '@/schemas/standard.schema'
 
 const ClausesAddEdit = () => {
     const navigate = useNavigate()
@@ -76,7 +77,7 @@ const ClausesAddEdit = () => {
 
         // ➕ CREATE MODE
         return {
-            standard_id: standard.id,
+            standard_id: (standard as StandardFormSchema & { id: string }).id,
             standard_clauses: flattenClauses(standard.clauses).map(
                 (c: any) => ({
                     clause_id: c.id,

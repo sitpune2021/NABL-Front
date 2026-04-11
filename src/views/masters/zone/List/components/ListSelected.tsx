@@ -3,7 +3,7 @@ import StickyFooter from '@/components/shared/StickyFooter'
 import Button from '@/components/ui/Button'
 import ConfirmDialog from '@/components/shared/ConfirmDialog'
 import { TbChecks } from 'react-icons/tb'
-import { useZoneList } from '../hooks/useList'
+import useZoneList from '../hooks/useList'
 
 const ZoneListSelected = () => {
     const { selected, zoneList, mutate, total, setAll } = useZoneList()

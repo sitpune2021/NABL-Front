@@ -5,7 +5,7 @@ import type { OnSortParam, Row } from '@/components/shared/DataTable'
 import endpointConfig from '@/configs/endpoint.config'
 import { Zone } from '@/@types/zone'
 import { buildZoneColumns } from '@/columns/zone.columns'
-import { useZoneList } from '../hooks/useList'
+import useZoneList from '../hooks/useList'
 import useAuth from '@/auth/useAuth'
 
 const ZoneListTable = () => {

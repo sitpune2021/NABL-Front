@@ -7,7 +7,7 @@ import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import useLocationList from '../hooks/useList'
-import { useZoneList } from '@/views/masters/zone/List/hooks/useList'
+import useZoneList from '@/views/masters/zone/List/hooks/useList'
 import useClusterList from '@/views/masters/cluster/List/hooks/useList'
 import { SELECT_ALL_VALUE } from '@/constants/common.constant'
 import { Select } from '@/components/ui'
@@ -15,6 +15,7 @@ import { Select } from '@/components/ui'
 const schema = z.object({
     zones: z.array(z.number()),
     clusters: z.array(z.number()),
+    cluster_id: z.string().optional(),
 })
 
 export type FormSchema = z.infer<typeof schema>

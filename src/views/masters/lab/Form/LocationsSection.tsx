@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import Card from '@/components/ui/Card'
 import { useFieldArray, useWatch } from 'react-hook-form'
 import { FormSectionBaseProps } from '@/@types/lab'
@@ -8,24 +7,11 @@ import { HiPlus } from 'react-icons/hi'
 import toast from '@/components/ui/toast'
 import Notification from '@/components/ui/Notification'
 
-type LocationsSectionProps = FormSectionBaseProps & {
-    zoneList: any[]
-    clusterList: any[]
-    locationList: any[]
-    departmentList: any[]
-    instrumentList: any[]
-}
-
 const LocationsSection = ({
     control,
     errors,
     readOnly = false,
-    zoneList,
-    clusterList,
-    locationList,
-    departmentList,
-    instrumentList,
-}: LocationsSectionProps) => {
+}: FormSectionBaseProps) => {
     const { fields, append, remove } = useFieldArray({
         control,
         name: 'location',
@@ -99,11 +85,6 @@ const LocationsSection = ({
                     index={index}
                     item={item}
                     removeLocation={remove}
-                    zoneList={zoneList}
-                    clusterList={clusterList}
-                    locationList={locationList}
-                    departmentList={departmentList}
-                    instrumentList={instrumentList}
                 />
             ))}
         </>

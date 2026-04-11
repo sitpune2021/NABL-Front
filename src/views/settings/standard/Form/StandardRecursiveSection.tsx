@@ -1,10 +1,18 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useRef, useCallback, memo } from 'react'
-import { useFieldArray, useFormContext, useWatch } from 'react-hook-form'
+import {
+    FieldArrayPath,
+    useFieldArray,
+    useFormContext,
+    useWatch,
+} from 'react-hook-form'
 import { HiPlus, HiTrash } from 'react-icons/hi'
 import Button from '@/components/ui/Button'
 import StandardCard from './StandardCard'
-import { StandardChildFormSchema } from '@/schemas/standard.schema'
+import {
+    StandardChildFormSchema,
+    StandardFormSchema,
+} from '@/schemas/standard.schema'
 import { StandardRecursiveSectionProps } from '@/@types/standard'
 import { createStandard } from '@/constants/standard.constant'
 
@@ -13,21 +21,26 @@ const StandardRecursiveSection = ({
     readOnly,
     isRoot = false,
     depth = 0,
+    parentNumber = '', // ✅ ADD THIS
 }: StandardRecursiveSectionProps) => {
     const {
         control,
         setValue,
         getValues,
         formState: { errors },
-    } = useFormContext<StandardChildFormSchema>()
+    } = useFormContext<StandardFormSchema>()
 
-    const { fields, append, update, remove } = useFieldArray({
+    const { fields, append, remove } = useFieldArray<
+        StandardFormSchema,
+        FieldArrayPath<StandardFormSchema>,
+        'reactId'
+    >({
         control,
         name,
         keyName: 'reactId',
     })
 
-    const watched = useWatch({ control, name })
+    const watched = useWatch({ control, name }) as StandardChildFormSchema[]
     const initialized = useRef(false)
 
     useEffect(() => {
@@ -40,7 +53,7 @@ const StandardRecursiveSection = ({
     useEffect(() => {
         if (!watched) return
 
-        watched.forEach((item: any, i: number) => {
+        watched.forEach((item, i) => {
             if (!item?.is_child) return
 
             const children = item.children || []
@@ -70,7 +83,7 @@ const StandardRecursiveSection = ({
                 })
             }
         })
-    }, [watched, update])
+    }, [watched, name, setValue])
 
     const handleRemove = useCallback(
         (index: number) => {
@@ -131,6 +144,7 @@ const StandardRecursiveSection = ({
                         watchedStandards={watched}
                         baseName={name}
                         depth={depth}
+                        parentNumber={parentNumber} // ✅ FIXED
                     />
                 </div>
             ))}

@@ -3,6 +3,8 @@ import { nanoid } from 'nanoid'
 import { v4 as uuidv4 } from 'uuid'
 
 const EMPTY_STANDARD_ITEM = {
+    id: null,
+    parent_id: null,
     title: '',
     message: '',
     note: true,
@@ -11,6 +13,7 @@ const EMPTY_STANDARD_ITEM = {
     children: [],
     numbering_value: '',
     numbering_type: 'none',
+    depth: 0,
 }
 
 export const EMPTY_VALUES: StandardFormSchema = {
@@ -23,6 +26,7 @@ export const LIST_KEY = 'sub-category-list'
 
 export const createStandard = (depth: number) => ({
     id: nanoid(),
+    parent_id: null,
     title: '',
     message: '',
     note: true,
