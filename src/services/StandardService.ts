@@ -21,7 +21,7 @@ export async function apiCreateStandard(data: StandardFormSchema) {
     })
 }
 
-export async function apiGetStandardById(id: string) {
+export async function apiGetStandardById(id: number) {
     return ApiService.fetchDataWithAxios<GetStandardResponse>({
         url: `${apiEndpointConfig.standards}/${id}`,
         method: 'get',

@@ -8,11 +8,13 @@ import { useEffect } from 'react'
 
 const LocationList = () => {
     const resetQuery = useLocationListStore((state) => state.resetQuery)
+    const resetFilters = useLocationListStore((state) => state.resetFilters)
     useEffect(() => {
         return () => {
             resetQuery()
+            resetFilters()
         }
-    }, [resetQuery])
+    }, [resetQuery, resetFilters])
 
     return (
         <ListLayout

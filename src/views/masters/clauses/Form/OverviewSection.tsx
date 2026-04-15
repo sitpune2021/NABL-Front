@@ -36,7 +36,7 @@ const OverviewSection = ({
         setValue,
         formState: { errors },
     } = useFormContext<ClausesFormSchema>()
-    console.log(errors)
+    console.log(errors, 'errors')
 
     const documentOptions = useMemo<DocumentOption[]>(
         () =>
@@ -183,6 +183,12 @@ const OverviewSection = ({
                                 key={fieldItem.id}
                                 className="grid grid-cols-4 gap-3 items-end"
                             >
+                                <Input
+                                    type="hidden"
+                                    {...control.register(
+                                        `standard_clauses.${clauseIndex}.clause_documents_tagging.${index}.id`,
+                                    )}
+                                />
                                 {/* Category */}
                                 <FormItem label="Category">
                                     <Controller

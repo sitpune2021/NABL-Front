@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useMemo, useState, useCallback } from 'react'
 import { useParams, useNavigate, useLocation } from 'react-router'
 import Notification from '@/components/ui/Notification'
@@ -25,21 +26,27 @@ type RouteParams = {
 
 const TemplateAddEdit = () => {
     const navigate = useNavigate()
-    const location = useLocation()
     const { id, version_id, type } = useParams<RouteParams>()
+    const location = useLocation()
 
     const mode = useMemo(() => getMode(location.pathname), [location.pathname])
-    const [submitDialogOpen, setSubmitDialogOpen] = useState(false)
-
     const isVersionView = Boolean(version_id)
     const isView = mode === 'view' || isVersionView
     const isEdit = mode === 'edit' && !isVersionView
 
-    const { template: templateDetail, isLoading: templateLoading } =
-        useTemplateDetail(id)
+    const {
+        template: templateDetail,
+        isLoading: templateLoading,
+        mutate,
+    } = useTemplateDetail(id)
+    const {
+        template: versionDetail,
+        isLoading: versionLoading,
+        mutate: versionMutate,
+    } = useTemplateVersionDetail(id, version_id)
+    const discard = useDiscardConfirm()
 
-    const { template: versionDetail, isLoading: versionLoading } =
-        useTemplateVersionDetail(id, version_id)
+    const [submitDialogOpen, setSubmitDialogOpen] = useState(false)
 
     const template = isVersionView ? versionDetail : templateDetail
     const isLoading = isVersionView ? versionLoading : templateLoading
@@ -51,13 +58,37 @@ const TemplateAddEdit = () => {
     })
 
     const { handleSubmit, isSubmitting } = useFormSubmit<TemplateFormSchema>({
-        apiCall: (values) => {
+        apiCall: async (values) => {
             if (isVersionView) return Promise.resolve()
-            return save({ ...values, ...(isEdit && id ? { id } : {}) })
+            const res = await save({
+                ...values,
+                ...(isEdit && id ? { id } : {}),
+            })
+            if (id) {
+                // update main template
+                mutate(
+                    (prev: any) => ({
+                        ...prev,
+                        data: res.data,
+                    }),
+                    false,
+                )
+
+                // update version cache also (if exists)
+                if (version_id) {
+                    versionMutate(
+                        (prev: any) => ({
+                            ...prev,
+                            data: res.data,
+                        }),
+                        false,
+                    )
+                }
+            }
+            return res
         },
         navigateTo: endpointConfig.master.template.list,
     })
-    const discard = useDiscardConfirm()
 
     const handlePrimaryClick = useCallback(() => setSubmitDialogOpen(true), [])
     const handleDiscardClick = useCallback(() => discard.show(), [discard])

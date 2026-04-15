@@ -44,6 +44,7 @@ const LabForm = ({
         formState: { errors },
         setValue,
     } = methods
+    console.log(errors, 'errors in form')
 
     // expose form methods to step wrapper
     useEffect(() => {

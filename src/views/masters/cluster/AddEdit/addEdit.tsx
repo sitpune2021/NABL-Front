@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useMemo } from 'react'
 import { useParams, useNavigate, useLocation } from 'react-router'
 import Notification from '@/components/ui/Notification'
@@ -25,7 +26,7 @@ const ClusterAddEdit = () => {
     const isView = mode === 'view'
     const isEdit = mode === 'edit'
 
-    const { cluster, isLoading } = useClusterDetail(id)
+    const { cluster, isLoading, mutate } = useClusterDetail(id)
     const discard = useDiscardConfirm()
 
     const { save } = useEntityMutations<ClusterFormSchema>({
@@ -34,8 +35,22 @@ const ClusterAddEdit = () => {
     })
 
     const { handleSubmit, isSubmitting } = useFormSubmit<ClusterFormSchema>({
-        apiCall: (values) =>
-            save({ ...values, ...(isEdit && id ? { id } : {}) }),
+        apiCall: async (values) => {
+            const res = await save({
+                ...values,
+                ...(isEdit && id ? { id } : {}),
+            })
+            if (id) {
+                mutate(
+                    (prev: any) => ({
+                        ...prev,
+                        data: res.data,
+                    }),
+                    false,
+                )
+            }
+            return res
+        },
         navigateTo: endpointConfig.master.cluster.list,
     })
     const confirmDiscard = () => {

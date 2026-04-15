@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useMemo } from 'react'
 import { useParams, useNavigate, useLocation } from 'react-router'
 import Notification from '@/components/ui/Notification'
@@ -27,7 +28,7 @@ const DocumentAddEdit = () => {
 
     const discard = useDiscardConfirm()
 
-    const { document, isLoading } = useDocumentDetail(id)
+    const { document, isLoading, mutate } = useDocumentDetail(id)
 
     const defaultValues = useMemo(() => document ?? EMPTY_VALUES, [document])
 
@@ -37,8 +38,22 @@ const DocumentAddEdit = () => {
     })
 
     const { handleSubmit, isSubmitting } = useFormSubmit<DocumentFormSchema>({
-        apiCall: (values) =>
-            save({ ...values, ...(isEdit && id ? { id } : {}) }),
+        apiCall: async (values) => {
+            const res = await save({
+                ...values,
+                ...(isEdit && id ? { id } : {}),
+            })
+            if (id) {
+                mutate(
+                    (prev: any) => ({
+                        ...prev,
+                        data: res.data,
+                    }),
+                    false,
+                )
+            }
+            return res
+        },
         navigateTo: endpointConfig.master.document.list,
     })
 

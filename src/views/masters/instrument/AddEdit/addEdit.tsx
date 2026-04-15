@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useMemo } from 'react'
 import { useParams, useNavigate, useLocation } from 'react-router'
 import InstrumentForm from '../Form'
@@ -27,7 +28,7 @@ const InstrumentAddEdit = () => {
     const isView = mode === 'view'
     const isEdit = mode === 'edit'
 
-    const { instrument, isLoading } = useInstrumentDetail(id)
+    const { instrument, isLoading, mutate } = useInstrumentDetail(id)
     const discard = useDiscardConfirm()
 
     const { save } = useEntityMutations<InstrumentFormSchema>({
@@ -36,8 +37,22 @@ const InstrumentAddEdit = () => {
     })
 
     const { handleSubmit, isSubmitting } = useFormSubmit<InstrumentFormSchema>({
-        apiCall: (values) =>
-            save({ ...values, ...(isEdit && id ? { id } : {}) }),
+        apiCall: async (values) => {
+            const res = await save({
+                ...values,
+                ...(isEdit && id ? { id } : {}),
+            })
+            if (id) {
+                mutate(
+                    (prev: any) => ({
+                        ...prev,
+                        data: res.data,
+                    }),
+                    false,
+                )
+            }
+            return res
+        },
         navigateTo: endpointConfig.master.instrument.list,
     })
 

@@ -11,9 +11,11 @@ import CommentDrawer from '@/views/works/tasks/List/components/Commentdrawer'
 import ActionColumn from '@/components/form/ActionColumn'
 import { useAuth } from '@/auth'
 import getAllDocuments from '@/helpers/getAllDocuments'
+import { useSessionUser } from '@/store/authStore'
 
 const ClauseDocumentListTable = () => {
-    const { clause, isLoading } = useClauseDetail('1')
+    const activeLab = useSessionUser((state) => state.activeLab)
+    const { clause, isLoading } = useClauseDetail(activeLab?.standard_id)
     const navigate = useNavigate()
     const [drawerOpen, setDrawerOpen] = useState(false)
     const [selectedDocument, setSelectedDocument] = useState<any>(null)

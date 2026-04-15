@@ -8,11 +8,14 @@ import { useEffect } from 'react'
 
 const ClusterList = () => {
     const resetQuery = useClusterListStore((state) => state.resetQuery)
+    const resetFilters = useClusterListStore((state) => state.resetFilters)
+
     useEffect(() => {
         return () => {
             resetQuery()
+            resetFilters()
         }
-    }, [resetQuery])
+    }, [resetQuery, resetFilters])
     return (
         <ListLayout
             title="Cluster"

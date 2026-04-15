@@ -46,6 +46,18 @@ const LocationsItems = ({
     const selectedLocationName = watch(`location.${index}.location_id`)
 
     useEffect(() => {
+        if (selectedZone) {
+            updateFilters({ zone_id: selectedZone })
+        }
+    }, [selectedZone])
+
+    useEffect(() => {
+        if (selectedCluster) {
+            updateLocationFilters({ cluster_id: selectedCluster })
+        }
+    }, [selectedCluster])
+
+    useEffect(() => {
         const locationMatch = locationList.find(
             (l) => l.id === selectedLocationName,
         )
@@ -62,13 +74,13 @@ const LocationsItems = ({
             const finalPrefix = `${basePrefix}-${nextNum}`
 
             const currentPrefix = watch(`location.${index}.prefix`)
-            if (!currentPrefix || !currentPrefix.startsWith(basePrefix)) {
+            if (!currentPrefix) {
                 setValue(`location.${index}.prefix`, finalPrefix)
             }
         } else {
             setValue(`location.${index}.prefix`, '')
         }
-    }, [selectedLocationName, selectedCluster, selectedZone])
+    }, [selectedLocationName, locationList])
 
     const {
         fields: departmentFields,

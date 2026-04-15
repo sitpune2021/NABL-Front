@@ -2,18 +2,21 @@ import { StandardFormSchema } from '@/schemas/standard.schema'
 import { apiGetStandardById } from '@/services/StandardService'
 import useSWR from 'swr'
 
-export const useStandardDetail = (id?: string) => {
-    const swr = useSWR<StandardFormSchema>(
-        id ? ['standard-detail', id] : null,
-        () => apiGetStandardById(id!),
+const LIST_KEY = 'standard-detail'
+export const useStandardDetail = (id: number | undefined | null) => {
+    const shouldFetch = id !== null && id !== undefined
+
+    const { data, error, isLoading, mutate } = useSWR<StandardFormSchema>(
+        shouldFetch ? [LIST_KEY, id] : null,
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        ([_, id]) => apiGetStandardById(id as number),
         { revalidateOnFocus: false },
     )
 
     return {
-        standard: swr?.data as StandardFormSchema,
-        isLoading: swr.isLoading,
-
-        error: swr.error,
-        mutate: swr.mutate,
+        standard: data as StandardFormSchema,
+        isLoading: isLoading,
+        error: error,
+        mutate: mutate,
     }
 }

@@ -5,9 +5,9 @@ import Card from '@/components/ui/Card'
 import { FormItem } from '@/components/ui/Form'
 import { Select, Checkbox, Button } from '@/components/ui'
 import { useStandardList } from '@/views/settings/standard/List/hooks/useList'
-import { useStandardClauseList } from '../../instrument/List/hooks/useSTDClause'
 import { Controller } from 'react-hook-form'
 import { FormSectionBaseProps } from '@/@types/lab'
+import { useStandardDetail } from '@/views/settings/standard/List/hooks/useDetail'
 
 interface DocumentType {
     id: number
@@ -40,6 +40,7 @@ interface ClauseItemProps {
     level: number
     selectedDocs: number[]
     handleToggle: (id: number, type: ToggleType, clause?: ClauseType) => void
+    parentNumber?: string | null | undefined | number
 }
 
 type ClauseTreeProps = FormSectionBaseProps & {
@@ -89,11 +90,19 @@ const ClauseItem: React.FC<ClauseItemProps> = ({
     handleToggle,
     readOnly,
     level,
+    parentNumber, // ✅ ADD THIS
 }) => {
     const [open, setOpen] = useState(true)
     const hasChildren =
         (clause.document_links?.length ?? 0) > 0 ||
         (clause.children?.length ?? 0) > 0
+    const currentNumber = clause.numbering_value || ''
+
+    const fullNumber = currentNumber
+        ? parentNumber
+            ? `${parentNumber}.${currentNumber}`
+            : currentNumber
+        : parentNumber
 
     return (
         <div className="border-b border-gray-100 dark:border-gray-800 last:border-b-0">
@@ -124,12 +133,8 @@ const ClauseItem: React.FC<ClauseItemProps> = ({
                     )}
                     onChange={() => handleToggle(clause.id, 'clause', clause)}
                 />
-
                 <p className="flex-1 min-w-0 text-sm font-semibold text-gray-800 dark:text-gray-100 truncate">
-                    {clause.numbering_value
-                        ? `${clause.numbering_value}. `
-                        : ''}
-                    {clause.title}
+                    {fullNumber} - {clause.title}
                 </p>
 
                 <DepthBadge level={level} />
@@ -175,6 +180,7 @@ const ClauseItem: React.FC<ClauseItemProps> = ({
                             handleToggle={handleToggle}
                             readOnly={readOnly}
                             level={level + 1}
+                            parentNumber={fullNumber}
                         />
                     ))}
                 </div>
@@ -190,9 +196,8 @@ const ClauseTree: React.FC<ClauseTreeProps> = ({
 }) => {
     const { standardList } = useStandardList()
     const [currentStandard, setCurrentStandard] = useState<number | null>(null)
-    const { ClauseDocumentList, isLoading } =
-        useStandardClauseList(currentStandard)
-    const clauseList = ClauseDocumentList?.clauses ?? []
+    const { standard, isLoading } = useStandardDetail(currentStandard)
+    const clauseList = standard?.clauses ?? []
 
     const standards: StandardType[] = useMemo(() => {
         if (!Array.isArray(standardList)) return []
@@ -278,7 +283,7 @@ const ClauseTree: React.FC<ClauseTreeProps> = ({
 
                                     // ✅ get ALL document IDs from entire tree
                                     const allDocIds: any[] = clauseList.flatMap(
-                                        (clause: ClauseType) =>
+                                        (clause: any) =>
                                             getAllDocumentIds(clause),
                                     )
 
@@ -365,7 +370,7 @@ const ClauseTree: React.FC<ClauseTreeProps> = ({
                                             {/* TREE */}
                                             <div className="divide-y">
                                                 {clauseList.map(
-                                                    (clause: ClauseType) => (
+                                                    (clause: any) => (
                                                         <ClauseItem
                                                             key={clause.id}
                                                             clause={clause}
@@ -377,6 +382,7 @@ const ClauseTree: React.FC<ClauseTreeProps> = ({
                                                             selectedDocs={
                                                                 selectedDocs
                                                             }
+                                                            parentNumber={''}
                                                         />
                                                     ),
                                                 )}
