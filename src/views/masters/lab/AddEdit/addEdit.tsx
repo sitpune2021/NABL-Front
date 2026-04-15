@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useMemo } from 'react'
 import { useParams, useNavigate, useLocation } from 'react-router'
 
@@ -20,6 +21,8 @@ import { apiLab, apiUpdateLab } from '@/services/LabService'
 import { Lab } from '@/@types/lab'
 import LabFormStepsWrapper from '../Form/LabFormStepsWrapper'
 import { getEmptyValues } from '@/constants/lab.constant'
+import { useLocationListStore } from '../../location/List/store/listStore'
+import { useClusterListStore } from '../../cluster/List/store/listStore'
 
 const LabAddEdit = () => {
     const navigate = useNavigate()
@@ -32,8 +35,11 @@ const LabAddEdit = () => {
 
     const discard = useDiscardConfirm()
 
-    const { lab, isLoading } = useLabDetail(id)
+    const { lab, isLoading, mutate } = useLabDetail(id)
     const { documentList, isLoading: docIsLoading } = useDocumentList()
+    const clusterReset = useClusterListStore((state) => state.resetFilters)
+    const locationReset = useLocationListStore((state) => state.resetFilters)
+
     const { labList } = useLabList()
 
     const { save } = useEntityMutations<Lab>({
@@ -57,7 +63,22 @@ const LabAddEdit = () => {
     }, [lab, labList.length, documentList])
 
     const { handleSubmit, isSubmitting } = useFormSubmit<Lab>({
-        apiCall: (values) => save(isEdit && id ? { ...values, id } : values),
+        apiCall: async (values) => {
+            const res = await save(isEdit && id ? { ...values, id } : values)
+            locationReset()
+            clusterReset()
+
+            if (id) {
+                mutate(
+                    (prev: any) => ({
+                        ...prev,
+                        data: res.data,
+                    }),
+                    false,
+                )
+            }
+            return res
+        },
         navigateTo: endpointConfig.client.lab.list,
     })
 

@@ -5,7 +5,7 @@ type ClauseParams = {
     type?: string
 }
 
-export const useClauseDetail = (id?: string, params?: ClauseParams) => {
+export const useClauseDetail = (id?: number, params?: ClauseParams) => {
     const swr = useSWR(
         id ? ['clause-detail', id, params] : null,
         () => apiGetClausesById(id!, params),

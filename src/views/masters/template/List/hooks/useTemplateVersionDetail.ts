@@ -5,7 +5,7 @@ export const useTemplateVersionDetail = (
     templateId?: string,
     versionId?: string,
 ) => {
-    const { data, isLoading } = useSWR(
+    const { data, isLoading, error, mutate } = useSWR(
         templateId && versionId
             ? ['template-version-detail', templateId, versionId]
             : null,
@@ -15,5 +15,7 @@ export const useTemplateVersionDetail = (
     return {
         template: data?.data,
         isLoading,
+        error: error,
+        mutate: mutate,
     }
 }

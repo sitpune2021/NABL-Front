@@ -10,9 +10,13 @@ import ListLayout from '@/components/layouts/ListLayout'
 import CommentDrawer from './Commentdrawer'
 import { Button } from '@/components/ui'
 import getAllDocuments from '@/helpers/getAllDocuments'
+import { useSessionUser } from '@/store/authStore'
 
 const ClauseDocumentListTable = () => {
-    const { clause, isLoading } = useClauseDetail('1', { type: 'bysingle' })
+    const activeLab = useSessionUser((state) => state.activeLab)
+    const { clause, isLoading } = useClauseDetail(activeLab?.standard_id, {
+        type: 'bysingle',
+    })
     const navigate = useNavigate()
     const [drawerOpen, setDrawerOpen] = useState(false)
     const [selectedDocument, setSelectedDocument] = useState<any>(null)
