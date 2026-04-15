@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useMemo } from 'react'
 import { useParams, useNavigate, useLocation } from 'react-router'
 import Notification from '@/components/ui/Notification'
@@ -24,7 +25,7 @@ const UnitAddEdit = () => {
     const isView = mode === 'view'
     const isEdit = mode === 'edit'
 
-    const { unit, isLoading } = useUnitDetail(id)
+    const { unit, isLoading, mutate } = useUnitDetail(id)
     const discard = useDiscardConfirm()
 
     const { save } = useEntityMutations<UnitFormSchema>({
@@ -33,8 +34,22 @@ const UnitAddEdit = () => {
     })
 
     const { handleSubmit, isSubmitting } = useFormSubmit<UnitFormSchema>({
-        apiCall: (values) =>
-            save({ ...values, ...(isEdit && id ? { id } : {}) }),
+        apiCall: async (values) => {
+            const res = await save({
+                ...values,
+                ...(isEdit && id ? { id } : {}),
+            })
+            if (id) {
+                mutate(
+                    (prev: any) => ({
+                        ...prev,
+                        data: res.data,
+                    }),
+                    false,
+                )
+            }
+            return res
+        },
         navigateTo: endpointConfig.master.unit.list,
     })
 

@@ -24,6 +24,7 @@ type LabRoleGroup = {
     roles: Role[]
     locations: any[]
     departments: any[]
+    standard_id: number
 } | null
 
 type AuthState = {

@@ -20,9 +20,11 @@ import {
 import { useEffect, useState } from 'react'
 import { apiLabTaskAssign } from '@/services/LabService'
 import { useAssignmentList } from './hooks/useAssignmentList'
+import { useSessionUser } from '@/store/authStore'
 
 const DocumentList = () => {
-    const { clause, isLoading } = useClauseDetail('1')
+    const activeLab = useSessionUser((state) => state.activeLab)
+    const { clause, isLoading } = useClauseDetail(activeLab?.standard_id)
     const { locationList } = useLocationList()
     const { assignment } = useAssignmentList()
 
@@ -241,21 +243,20 @@ const DocumentList = () => {
                     <TbLayersLinked className="text-primary-600 dark:text-primary-400 text-lg" />
                 </div>
                 <h4 className="font-semibold text-gray-800 dark:text-gray-100 text-base">
-                    {c.title}
+                    {c.numbering_value} - {c.title}
                 </h4>
                 <div className="flex-1 h-px bg-gray-200 dark:bg-gray-700 ml-2" />
                 <Tag className="bg-primary-50 dark:bg-primary-900/20 text-primary-600 dark:text-primary-400 border-0 text-xs font-medium">
-                    {c.documents?.length ?? 0} Documents
+                    {c.document_links?.length ?? 0} Documents
                 </Tag>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                {c.documents?.map((doc: any) => {
-                    const key = makeKey(c.id, doc.id)
-
+                {c.document_links?.map((doc: any) => {
+                    const key = makeKey(c.id, doc.document.id)
                     return (
                         <div
-                            key={doc.id}
+                            key={doc.document.id}
                             className="relative rounded-xl border border-gray-200 dark:border-gray-700 transition-all duration-200 hover:shadow-md bg-white dark:bg-gray-800 flex flex-col overflow-visible"
                         >
                             <div
@@ -270,7 +271,7 @@ const DocumentList = () => {
                                     <div className="flex items-center gap-2 min-w-0">
                                         <TbFileText className="text-gray-400 dark:text-gray-500 shrink-0 text-base" />
                                         <span className="font-semibold text-gray-800 dark:text-gray-100 text-sm leading-tight line-clamp-2">
-                                            {doc.name}
+                                            {doc.document.name}
                                         </span>
                                     </div>
                                 </div>
@@ -279,19 +280,24 @@ const DocumentList = () => {
                                     <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
                                         <TbHash className="shrink-0" />
                                         <span className="truncate">
-                                            {doc.number}
+                                            {doc.document.number}
                                         </span>
                                     </div>
                                     <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
                                         <TbClockHour4 className="shrink-0" />
                                         <span>
-                                            v{doc.current_version?.full_version}
-                                            {doc.current_version?.schedule
-                                                ?.type && (
+                                            v
+                                            {
+                                                doc.document.current_version
+                                                    ?.full_version
+                                            }
+                                            {doc.document.current_version
+                                                ?.schedule?.type && (
                                                 <span className="ml-1 text-gray-400">
                                                     ·{' '}
                                                     {
-                                                        doc.current_version
+                                                        doc.document
+                                                            .current_version
                                                             .schedule.type
                                                     }
                                                 </span>
@@ -316,7 +322,7 @@ const DocumentList = () => {
                                         onChange={(o: any) =>
                                             handleSelectionChange(
                                                 c.id,
-                                                doc.id,
+                                                doc.document.id,
                                                 'location',
                                                 o?.value,
                                             )
@@ -329,7 +335,7 @@ const DocumentList = () => {
                                         placeholder="Select Department"
                                         options={getDepartmentOptions(key)}
                                         value={getDepartmentOptions(key)?.find(
-                                            (o) =>
+                                            (o: any) =>
                                                 o.value ===
                                                 selection[key]?.department,
                                         )}
@@ -337,7 +343,7 @@ const DocumentList = () => {
                                         onChange={(o: any) =>
                                             handleSelectionChange(
                                                 c.id,
-                                                doc.id,
+                                                doc.document.id,
                                                 'department',
                                                 o?.value,
                                             )
@@ -358,7 +364,7 @@ const DocumentList = () => {
                                         onChange={(o: any) =>
                                             handleSelectionChange(
                                                 c.id,
-                                                doc.id,
+                                                doc.document.id,
                                                 'user',
                                                 o?.value,
                                             )
@@ -382,7 +388,9 @@ const DocumentList = () => {
                                         variant="solid"
                                         className="w-full"
                                         icon={<TbUserCog />}
-                                        onClick={() => handleAssign(c.id, doc)}
+                                        onClick={() =>
+                                            handleAssign(c.id, doc.document)
+                                        }
                                     >
                                         Assign
                                     </Button>

@@ -21,7 +21,7 @@ export async function apiCreateClauses(data: any) {
 }
 
 export async function apiGetClausesById(
-    id: string,
+    id: number,
     params?: Record<string, unknown>,
 ) {
     return ApiService.fetchDataWithAxios<any>({

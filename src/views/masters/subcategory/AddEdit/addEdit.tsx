@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useMemo } from 'react'
 import { useParams, useNavigate, useLocation } from 'react-router'
 import Notification from '@/components/ui/Notification'
@@ -28,7 +29,7 @@ const SubCategoryAddEdit = () => {
     const isView = mode === 'view'
     const isEdit = mode === 'edit'
 
-    const { subCategory, isLoading } = useSubCategoryDetail(id)
+    const { subCategory, isLoading, mutate } = useSubCategoryDetail(id)
     const discard = useDiscardConfirm()
 
     const { save } = useEntityMutations<SubCategoryFormSchema>({
@@ -38,8 +39,22 @@ const SubCategoryAddEdit = () => {
 
     const { handleSubmit, isSubmitting } = useFormSubmit<SubCategoryFormSchema>(
         {
-            apiCall: (values) =>
-                save({ ...values, ...(isEdit && id ? { id } : {}) }),
+            apiCall: async (values) => {
+                const res = await save({
+                    ...values,
+                    ...(isEdit && id ? { id } : {}),
+                })
+                if (id) {
+                    mutate(
+                        (prev: any) => ({
+                            ...prev,
+                            data: res.data,
+                        }),
+                        false,
+                    )
+                }
+                return res
+            },
             navigateTo: endpointConfig.master.subcategory.list,
         },
     )

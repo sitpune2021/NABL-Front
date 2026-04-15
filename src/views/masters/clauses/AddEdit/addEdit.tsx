@@ -23,13 +23,18 @@ import { StandardFormSchema } from '@/schemas/standard.schema'
 const ClausesAddEdit = () => {
     const navigate = useNavigate()
     const { id } = useParams<{ id: string }>()
+    const numericId = id ? Number(id) : undefined
     const location = useLocation()
     const mode = useMemo(() => getMode(location.pathname), [location.pathname])
     const isView = mode === 'view'
     const isEdit = mode === 'edit'
 
-    const { clause, isLoading: isClauseLoading } = useClauseDetail(id)
-    const { standard, isLoading } = useStandardDetail(id)
+    const {
+        clause,
+        isLoading: isClauseLoading,
+        mutate,
+    } = useClauseDetail(numericId)
+    const { standard, isLoading } = useStandardDetail(numericId)
     const { categoryList } = useCategoryList()
     const { documentList } = useDocumentList()
     const discard = useDiscardConfirm()
@@ -52,13 +57,16 @@ const ClausesAddEdit = () => {
                     clause_parent_id: c.parent_id,
                     notes: c.note_message ?? '',
                     clause_documents_tagging:
-                        c.documents?.length > 0
-                            ? c.documents.map((doc: any) => ({
-                                  category_id: doc.category_id ?? '',
+                        c.document_links?.length > 0
+                            ? c.document_links.map((doc: any) => ({
+                                  id: doc.id ?? '',
+                                  category_id: doc.document.category_id ?? '',
                                   documents: {
-                                      id: doc.id ?? '',
-                                      version_id: doc.current_version?.id ?? '',
-                                      label: doc.name ?? '',
+                                      id: doc.document.id ?? '',
+                                      version_id:
+                                          doc.document.current_version?.id ??
+                                          '',
+                                      label: doc.document.name ?? '',
                                   },
                               }))
                             : [
@@ -104,8 +112,22 @@ const ClausesAddEdit = () => {
     })
 
     const { handleSubmit, isSubmitting } = useFormSubmit<ClausesFormSchema>({
-        apiCall: (values) =>
-            save({ ...values, ...(isEdit && id ? { id } : {}) }),
+        apiCall: async (values) => {
+            const res = await save({
+                ...values,
+                ...(isEdit && id ? { id } : {}),
+            })
+            if (id) {
+                mutate(
+                    (prev: any) => ({
+                        ...prev,
+                        data: res.data,
+                    }),
+                    false,
+                )
+            }
+            return res
+        },
         navigateTo: endpointConfig.setting.standard.list,
     })
 

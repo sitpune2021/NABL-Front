@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useMemo } from 'react'
 import { useParams, useNavigate, useLocation } from 'react-router'
 
@@ -26,7 +27,7 @@ const ZoneAddEdit = () => {
     const isView = mode === 'view'
     const isEdit = mode === 'edit'
 
-    const { zone, isLoading } = useZoneDetail(id)
+    const { zone, isLoading, mutate } = useZoneDetail(id)
     const discard = useDiscardConfirm()
 
     const { save } = useEntityMutations<ZoneFormSchema>({
@@ -35,8 +36,22 @@ const ZoneAddEdit = () => {
     })
 
     const { handleSubmit, isSubmitting } = useFormSubmit<ZoneFormSchema>({
-        apiCall: (values) =>
-            save({ ...values, ...(isEdit && id ? { id } : {}) }),
+        apiCall: async (values) => {
+            const res = await save({
+                ...values,
+                ...(isEdit && id ? { id } : {}),
+            })
+            if (id) {
+                mutate(
+                    (prev: any) => ({
+                        ...prev,
+                        data: res.data,
+                    }),
+                    false,
+                )
+            }
+            return res
+        },
         navigateTo: endpointConfig.master.zone.list,
     })
 

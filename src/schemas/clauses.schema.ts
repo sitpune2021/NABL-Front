@@ -29,6 +29,10 @@ export const ClauseDocumentSchema = z
 // Category schema: category required only if a document is selected
 export const ClauseDocumentTaggingSchema = z
     .object({
+        id: z.union([
+            z.coerce.number().int().optional(),
+            z.coerce.string().optional(),
+        ]),
         category_id: z.union([
             z.coerce.number().int().optional(),
             z.coerce.string().optional(),
