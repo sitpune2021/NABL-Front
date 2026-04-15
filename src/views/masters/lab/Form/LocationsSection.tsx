@@ -60,13 +60,14 @@ const LocationsSection = ({
                     <h4>Locations</h4>
                     {!readOnly && (
                         <Button
+                            size="sm"
                             type="button"
-                            size="xs"
-                            icon={<HiPlus />}
-                            variant="solid"
-                            className="bg-green-500 hover:bg-green-600"
+                            disabled={readOnly}
+                            className="fixed right-2 shadow-lg border border-gray-200 z-39"
                             onClick={handleAddLocation}
-                        />
+                        >
+                            <HiPlus className="text-lg" />
+                        </Button>
                     )}
                 </div>
                 {!readOnly && isLimitReached && (

@@ -344,14 +344,16 @@ const LocationsItems = ({
             </div>
 
             <div className="mt-4">
-                <div className="flex justify-between mb-2">
-                    <h5 className="text-gray-800 dark:text-gray-200">
-                        Departments
-                    </h5>
+                <div className="flex justify-between items-center">
+                    <h4 className=" font-semibold">Departments</h4>
+                </div>
+                <div className="flex justify-between items-center mb-2 sticky top-30 dark:bg-gray-900 z-10 py-2">
+                    <h4></h4>
                     {!readOnly && (
                         <Button
                             type="button"
                             size="xs"
+                            className="shadow-lg border border-gray-200 flex items-center gap-1"
                             onClick={() =>
                                 addDepartment({
                                     id: null,

@@ -3,6 +3,7 @@ import { useState } from 'react'
 import Steps from '@/components/ui/Steps'
 import Button from '@/components/ui/Button'
 import LabForm from './Form'
+import { TbArrowNarrowLeft } from 'react-icons/tb'
 
 interface LabFormStepsWrapperProps {
     labFormProps: any
@@ -44,6 +45,9 @@ const LabFormStepsWrapper = ({ labFormProps }: LabFormStepsWrapperProps) => {
     const onPrevious = () => {
         if (step > 0) setStep(step - 1)
     }
+    const handleBack = () => {
+        history.back()
+    }
 
     return (
         <div className="flex flex-col h-full">
@@ -59,32 +63,43 @@ const LabFormStepsWrapper = ({ labFormProps }: LabFormStepsWrapperProps) => {
                     step={step}
                     onMethodsReady={setFormMethods}
                 >
-                    <div className="flex justify-end gap-2 mt-6">
+                    <div className="flex justify-between items-center gap-2 mt-6">
                         <Button
                             type="button"
-                            disabled={step === 0}
-                            onClick={onPrevious}
+                            variant="plain"
+                            icon={<TbArrowNarrowLeft />}
+                            onClick={handleBack}
                         >
-                            Previous
+                            Back
                         </Button>
 
-                        {step < STEP_TITLES.length - 1 ? (
+                        <div className="flex gap-2">
                             <Button
                                 type="button"
-                                variant="solid"
-                                onClick={(e) => onNext(e)}
+                                disabled={step === 0}
+                                onClick={onPrevious}
                             >
-                                Next
+                                Previous
                             </Button>
-                        ) : (
-                            <Button
-                                type="submit"
-                                variant="solid"
-                                disabled={labFormProps?.isSubmitting}
-                            >
-                                Submit
-                            </Button>
-                        )}
+
+                            {step < STEP_TITLES.length - 1 ? (
+                                <Button
+                                    type="button"
+                                    variant="solid"
+                                    onClick={(e) => onNext(e)}
+                                >
+                                    Next
+                                </Button>
+                            ) : (
+                                <Button
+                                    type="submit"
+                                    variant="solid"
+                                    disabled={labFormProps?.isSubmitting}
+                                >
+                                    Submit
+                                </Button>
+                            )}
+                        </div>
                     </div>
                 </LabForm>
             </div>
