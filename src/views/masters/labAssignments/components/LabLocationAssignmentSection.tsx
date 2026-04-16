@@ -30,16 +30,48 @@ const LabLocationAssignmentSection = ({ control, setValue }: any) => {
         const initialAssignments = assingn.reduce((acc: any, item: any) => {
             const labId = item.lab_id
             const userId = String(item.user_id)
+            const locationId = item.location_id
+            const roleId = item.role_id
 
             if (!acc[labId]) {
-                acc[labId] = { users: {} }
+                acc[labId] = { users: {}, locations: {} }
             }
 
-            if (!acc[labId].users[userId]) {
-                acc[labId].users[userId] = { roles: [] }
+            // LAB LEVEL
+            if (!locationId) {
+                if (!acc[labId].users[userId]) {
+                    acc[labId].users[userId] = { roles: [] }
+                }
+
+                // prevent duplicate
+                if (!acc[labId].users[userId].roles.includes(roleId)) {
+                    acc[labId].users[userId].roles.push(roleId)
+                }
             }
 
-            acc[labId].users[userId].roles.push(item.role_id)
+            // LOCATION LEVEL
+            else {
+                if (!acc[labId].locations[locationId]) {
+                    acc[labId].locations[locationId] = { users: {} }
+                }
+
+                if (!acc[labId].locations[locationId].users[userId]) {
+                    acc[labId].locations[locationId].users[userId] = {
+                        roles: [],
+                    }
+                }
+
+                //  prevent duplicate
+                if (
+                    !acc[labId].locations[locationId].users[
+                        userId
+                    ].roles.includes(roleId)
+                ) {
+                    acc[labId].locations[locationId].users[userId].roles.push(
+                        roleId,
+                    )
+                }
+            }
 
             return acc
         }, {})

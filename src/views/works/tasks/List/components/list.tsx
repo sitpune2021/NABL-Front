@@ -49,10 +49,10 @@ const ClauseDocumentListTable = () => {
                 cell: ({ row }) => (
                     <div>
                         <span className="font-semibold">
-                            {row.original.name}
+                            {row.original.document.name}
                         </span>
                         <div className="text-xs text-gray-500">
-                            {row.original.number}
+                            {row.original.document.number}
                         </div>
                     </div>
                 ),
@@ -65,13 +65,14 @@ const ClauseDocumentListTable = () => {
                 header: 'Version',
                 accessorKey: 'current_version.full_version',
                 cell: ({ row }) =>
-                    row.original.current_version?.full_version || '—',
+                    row.original.document.current_version?.full_version || '—',
             },
             {
                 header: 'Schedule',
                 accessorKey: 'schedule',
                 cell: ({ row }) =>
-                    row.original.current_version?.schedule?.type || '—',
+                    row.original.document.current_version?.schedule?.type ||
+                    '—',
             },
             {
                 header: 'Action',
@@ -82,7 +83,9 @@ const ClauseDocumentListTable = () => {
                             size="xs"
                             variant="plain"
                             icon={<TbDatabase />}
-                            onClick={() => handleEntryDetails(row.original)}
+                            onClick={() =>
+                                handleEntryDetails(row.original.document)
+                            }
                         >
                             Records
                         </Button>
@@ -91,7 +94,9 @@ const ClauseDocumentListTable = () => {
                             size="xs"
                             variant="plain"
                             icon={<TbMessageCircle />}
-                            onClick={() => handleOpenComments(row.original)}
+                            onClick={() =>
+                                handleOpenComments(row.original.document)
+                            }
                         >
                             Comments
                         </Button>
