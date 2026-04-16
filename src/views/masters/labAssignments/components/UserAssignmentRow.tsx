@@ -4,6 +4,7 @@ import { Avatar, Dropdown, Button, Tooltip } from '@/components/ui'
 import { TbPlus } from 'react-icons/tb'
 import UserRoles from './UserRoles'
 import { HiX } from 'react-icons/hi'
+import { apiAssignUserRole } from '@/services/LabService'
 
 const UserAssignmentRow = ({
     labId,
@@ -18,32 +19,98 @@ const UserAssignmentRow = ({
 
     const [activeUser, setActiveUser] = useState<number | null>(null)
 
-    const assignedUsers = assignments[labId]?.users || {}
+    const assignedUsers = locationId
+        ? assignments[labId]?.locations?.[locationId]?.users || {}
+        : assignments[labId]?.users || {}
 
     const getUserById = (id: number) =>
         users.find((u: any) => Number(u.id) === Number(id))
 
-    const handleRemoveUser = (userId: number) => {
-        const updatedUsers = { ...assignedUsers }
-        delete updatedUsers[userId]
-        onUpdate({
-            ...assignments,
-            [labId]: { ...assignments[labId], users: updatedUsers },
+    const handleRemoveUser = async (userId: number) => {
+        const roles = locationId
+            ? assignments[labId]?.locations?.[locationId]?.users?.[userId]
+                  ?.roles || []
+            : assignments[labId]?.users?.[userId]?.roles || []
+
+        //  remove from backend
+        for (const roleId of roles) {
+            await apiAssignUserRole({
+                lab_id: labId,
+                location_id: locationId,
+                user_id: userId,
+                role_id: roleId,
+                action: 'remove',
+            })
+        }
+
+        //  remove from UI
+        onUpdate((prev: any) => {
+            if (locationId) {
+                const updatedUsers = {
+                    ...prev[labId]?.locations?.[locationId]?.users,
+                }
+                delete updatedUsers[userId]
+
+                return {
+                    ...prev,
+                    [labId]: {
+                        ...prev[labId],
+                        locations: {
+                            ...prev[labId]?.locations,
+                            [locationId]: {
+                                users: updatedUsers,
+                            },
+                        },
+                    },
+                }
+            }
+
+            const updatedUsers = { ...prev[labId]?.users }
+            delete updatedUsers[userId]
+
+            return {
+                ...prev,
+                [labId]: {
+                    ...prev[labId],
+                    users: updatedUsers,
+                },
+            }
         })
-        if (activeUser === userId) setActiveUser(null)
     }
 
     const addUser = (userId: number) => {
-        onUpdate((prev: any) => ({
-            ...prev,
-            [labId]: {
-                ...prev[labId],
-                users: {
-                    ...prev[labId]?.users,
-                    [userId]: { roles: [] },
+        onUpdate((prev: any) => {
+            if (locationId) {
+                return {
+                    ...prev,
+                    [labId]: {
+                        ...prev[labId],
+                        locations: {
+                            ...prev[labId]?.locations,
+                            [locationId]: {
+                                users: {
+                                    ...prev[labId]?.locations?.[locationId]
+                                        ?.users,
+                                    [userId]: { roles: [] },
+                                },
+                            },
+                        },
+                    },
+                }
+            }
+
+            return {
+                ...prev,
+                [labId]: {
+                    ...prev[labId],
+                    users: {
+                        ...prev[labId]?.users,
+                        [userId]: { roles: [] },
+                    },
                 },
-            },
-        }))
+            }
+        })
+
         setActiveUser(userId)
     }
 

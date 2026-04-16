@@ -9,8 +9,8 @@ const getAllDocuments = (clauses: any[], parentPath = ''): any[] => {
             : clauseItem.title
 
         // 1. Add documents with full path
-        if (clauseItem.documents?.length) {
-            const docs = clauseItem.documents.map((doc: any) => ({
+        if (clauseItem.document_links?.length) {
+            const docs = clauseItem.document_links.map((doc: any) => ({
                 clauseId: clauseItem.id,
                 clauseTitle: currentPath, // 👈 full path here
                 ...doc,

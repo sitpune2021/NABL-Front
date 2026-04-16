@@ -21,6 +21,7 @@ interface UserRolesProps {
     assignments: Record<
         number,
         {
+            locations: any
             users: Record<
                 number,
                 {
@@ -49,8 +50,10 @@ const UserRoles = ({
     /* -----------------------
        Source of truth (IDs)
     ----------------------- */
-    const selectedRoleIds: number[] =
-        assignments[labId]?.users[userId]?.roles ?? []
+    const selectedRoleIds: number[] = locationId
+        ? (assignments[labId]?.locations?.[locationId]?.users?.[userId]
+              ?.roles ?? [])
+        : (assignments[labId]?.users?.[userId]?.roles ?? [])
 
     const selectedRoles = roles.filter((role: Role) =>
         selectedRoleIds.includes(role.id),
@@ -60,7 +63,10 @@ const UserRoles = ({
         let action: 'assign' | 'remove' = 'assign'
 
         onUpdate((prev: any) => {
-            const currentRoles = prev[labId]?.users[userId]?.roles ?? []
+            const currentRoles = locationId
+                ? (prev[labId]?.locations?.[locationId]?.users?.[userId]
+                      ?.roles ?? [])
+                : (prev[labId]?.users?.[userId]?.roles ?? [])
 
             const isAssigned = currentRoles.includes(role.id)
 
@@ -70,12 +76,33 @@ const UserRoles = ({
                 ? currentRoles.filter((id: number) => id !== role.id)
                 : [...currentRoles, role.id]
 
+            if (locationId) {
+                return {
+                    ...prev,
+                    [labId]: {
+                        ...prev[labId],
+                        locations: {
+                            ...prev[labId]?.locations,
+                            [locationId]: {
+                                users: {
+                                    ...prev[labId]?.locations?.[locationId]
+                                        ?.users,
+                                    [userId]: {
+                                        roles: updatedRoleIds,
+                                    },
+                                },
+                            },
+                        },
+                    },
+                }
+            }
+
             return {
                 ...prev,
                 [labId]: {
                     ...prev[labId],
                     users: {
-                        ...prev[labId].users,
+                        ...prev[labId]?.users,
                         [userId]: {
                             roles: updatedRoleIds,
                         },

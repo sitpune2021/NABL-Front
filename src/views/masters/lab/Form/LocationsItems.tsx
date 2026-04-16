@@ -107,19 +107,22 @@ const LocationsItems = ({
 
     const handlePrimaryChange = (
         isEmail: boolean,
-        index: number,
+        idx: number,
         checked: boolean,
     ) => {
-        const fieldName = isEmail ? 'emails' : 'phones'
+        const fieldName = isEmail
+            ? `location.${index}.emails`
+            : `location.${index}.phones`
+
         const items = isEmail ? emailsValues : phonesValues
 
         if (!items) return
 
-        const updated = items.map((item: any, i: any) => ({
+        const updated = items.map((item: any, i: number) => ({
             ...item,
-            is_primary: i === index ? checked : false,
+            is_primary: i === idx ? checked : false,
             label:
-                i === index ? (checked ? 'primary' : 'alternate') : 'alternate',
+                i === idx ? (checked ? 'primary' : 'alternate') : 'alternate',
         }))
 
         setValue(fieldName, updated, { shouldValidate: true })
