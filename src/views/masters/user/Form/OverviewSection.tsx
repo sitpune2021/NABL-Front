@@ -162,6 +162,7 @@ const OverviewSection = ({ readOnly, loading }: OverviewSectionProps) => {
                                     className="flex-1 min-w-[120px]"
                                     placeholder="Phone Number"
                                     value={field.value}
+                                    disabled={readOnly}
                                     onChange={field.onChange}
                                     onBlur={field.onBlur}
                                 />
