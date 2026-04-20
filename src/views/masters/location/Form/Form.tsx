@@ -32,7 +32,7 @@ const LocationForm = ({
             <Container>
                 <div className="flex flex-col md:flex-row gap-4">
                     <div className="gap-4 flex flex-col flex-auto">
-                        <FormSectionLayout title="Cluster">
+                        <FormSectionLayout title="Location">
                             <PrefixSelectField
                                 fieldName="zone_id"
                                 identifierField="identifier"

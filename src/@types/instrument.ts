@@ -14,6 +14,7 @@ export type Instrument = {
     name: string
     short_name: string
     manufacturer: string
+    vendor_name?: string
     serial_no: string
     lab: null | { name: string }
 } & IdentifierEntity
@@ -36,6 +37,7 @@ export type Fields = {
     name: string
     short_name: string
     manufacturer: string
+    vendor_name?: string
     serial_no: string
 } & IdentifierEntity
 
