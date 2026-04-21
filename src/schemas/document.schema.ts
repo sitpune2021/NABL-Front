@@ -48,7 +48,7 @@ export const documentSchema = z.object({
     notification_unit: z.string(),
     notification_value: z
         .union([z.string(), z.number()])
-        .refine((val) => !val || Number(val) > 0, {
+        .refine((val) => !val || Number(val) >= 0, {
             message: 'Duration Value must be positive',
         }),
     editor_schema: z.any(),

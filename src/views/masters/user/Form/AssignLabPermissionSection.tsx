@@ -57,9 +57,9 @@ const AssignLabPermissionSection = ({
                 )}
             </div>
 
-            {fields.map((_, index) => (
+            {fields.map((field, index) => (
                 <AssignLabPermissionItem
-                    key={index} // use index if no stable id
+                    key={field.id} // use index if no stable id
                     control={control}
                     errors={errors}
                     readOnly={readOnly || loading}
