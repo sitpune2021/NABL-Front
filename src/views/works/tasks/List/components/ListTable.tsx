@@ -148,7 +148,7 @@ const DocumentListTable = () => {
                 ),
             },
             {
-                header: 'Action',
+                header: '',
                 accessorKey: 'action',
                 id: 'action',
                 cell: (props) => (
