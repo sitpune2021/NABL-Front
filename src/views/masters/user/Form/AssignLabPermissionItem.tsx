@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useMemo, useState } from 'react'
+import { useMemo, useState, useEffect } from 'react'
 import { Controller, useWatch } from 'react-hook-form'
 import { Button, Select, Input } from '@/components/ui'
 import { FormItem } from '@/components/ui/Form'
@@ -38,6 +38,7 @@ const SearchableList = ({
     query,
     onQuery,
     label,
+    readOnly,
 }: any) => {
     const filtered = useMemo(
         () =>
@@ -65,7 +66,11 @@ const SearchableList = ({
                     prefix={<TbSearch className="text-lg" />}
                     value={query}
                     className="bg-gray-50 border-none"
-                    onChange={(e) => onQuery(e.target.value)}
+                    disabled={readOnly}
+                    onChange={(e) => {
+                        if (readOnly) return
+                        onQuery(e.target.value)
+                    }}
                 />
             </div>
 
@@ -75,7 +80,11 @@ const SearchableList = ({
                     size="xs"
                     type="button"
                     className="text-[11px] font-semibold text-primary"
-                    onClick={() => onSelectAll(filtered)}
+                    disabled={readOnly}
+                    onClick={() => {
+                        if (readOnly) return
+                        onSelectAll(filtered)
+                    }}
                 >
                     Select All
                 </Button>
@@ -84,7 +93,11 @@ const SearchableList = ({
                     size="xs"
                     type="button"
                     className="text-[11px] font-semibold text-gray-400 hover:text-primary-500"
-                    onClick={onClear}
+                    disabled={readOnly}
+                    onClick={() => {
+                        if (readOnly) return
+                        onClear()
+                    }}
                 >
                     Clear
                 </Button>
@@ -101,7 +114,10 @@ const SearchableList = ({
                                     ? 'bg-primary/10 text-primary-dark'
                                     : 'hover:bg-gray-100 text-gray-600'
                             }`}
-                            onClick={() => onToggle(it.value)}
+                            onClick={() => {
+                                if (readOnly) return
+                                onToggle(it.value)
+                            }}
                         >
                             <span
                                 className={`text-xs pointer-events-none ${active ? 'font-bold' : 'font-medium'}`}
@@ -214,10 +230,13 @@ const AssignLabPermissionItem = ({
 
     const removeRole = (deptId: number, roleId: number) => {
         const newAssign = { ...assigned }
-        const roles = new Set(newAssign[deptId])
+        const roles = new Set(newAssign[deptId] || [])
         roles.delete(roleId)
-        if (roles.size === 0) delete newAssign[deptId]
-        else newAssign[deptId] = roles
+        if (roles.size === 0) {
+            delete newAssign[deptId]
+        } else {
+            newAssign[deptId] = roles
+        }
         setAssigned(newAssign)
         syncToForm(newAssign)
     }
@@ -241,6 +260,38 @@ const AssignLabPermissionItem = ({
             onOpenChange?.(index)
         }
     }
+    const formDepartments = useWatch({
+        control,
+        name: `userRoles.${index}.department`,
+    })
+    const [initialized, setInitialized] = useState(false)
+
+    useEffect(() => {
+        if (!formDepartments?.length || initialized) return
+
+        const assignedMap: Record<number, Set<number>> = {}
+        const deptSet = new Set<number>()
+        const roleSet = new Set<number>()
+
+        for (const { department_id, roles } of formDepartments) {
+            if (!department_id) continue
+
+            deptSet.add(department_id)
+
+            const roleIds = new Set<number>(
+                roles?.map((r: any) => r.value).filter(Boolean) || [],
+            )
+
+            assignedMap[department_id] = roleIds
+            roleIds.forEach((id) => roleSet.add(id))
+        }
+
+        setAssigned(assignedMap)
+        setSelDepts(deptSet)
+        setSelRoles(roleSet)
+
+        setInitialized(true)
+    }, [formDepartments, initialized])
 
     return (
         <div className="mb-4 border border-gray-200 rounded-xl overflow-hidden bg-white shadow-sm transition-all hover:shadow-md">
@@ -315,6 +366,7 @@ const AssignLabPermissionItem = ({
                                     <Select
                                         placeholder="Select Zone"
                                         options={zoneOptions}
+                                        isDisabled={readOnly}
                                         value={zoneOptions.find(
                                             (o) => o.value === field.value,
                                         )}
@@ -342,7 +394,7 @@ const AssignLabPermissionItem = ({
                                     <Select
                                         options={clusterOptions}
                                         placeholder="Select Cluster"
-                                        isDisabled={!selectedZone}
+                                        isDisabled={!selectedZone || readOnly}
                                         value={clusterOptions.find(
                                             (o) => o.value === field.value,
                                         )}
@@ -366,7 +418,9 @@ const AssignLabPermissionItem = ({
                                     <Select
                                         options={locationOptions}
                                         placeholder="Select Location"
-                                        isDisabled={!selectedCluster}
+                                        isDisabled={
+                                            !selectedCluster || readOnly
+                                        }
                                         value={locationOptions.find(
                                             (o) => o.value === field.value,
                                         )}
@@ -386,6 +440,7 @@ const AssignLabPermissionItem = ({
                                 selected={selDepts}
                                 query={qD}
                                 label="Departments"
+                                readOnly={readOnly}
                                 onQuery={setQD}
                                 onToggle={(id: number) => {
                                     const s = new Set(selDepts)
@@ -405,6 +460,7 @@ const AssignLabPermissionItem = ({
                                 selected={selRoles}
                                 query={qR}
                                 label="Roles"
+                                readOnly={readOnly}
                                 onQuery={setQR}
                                 onToggle={(id: number) => {
                                     const s = new Set(selRoles)
@@ -426,7 +482,8 @@ const AssignLabPermissionItem = ({
                             disabled={
                                 !selectedLocation ||
                                 !selDepts.size ||
-                                !selRoles.size
+                                !selRoles.size ||
+                                readOnly
                             }
                             className="shadow-lg"
                             onClick={handleAssign}
@@ -468,6 +525,7 @@ const AssignLabPermissionItem = ({
                                                         variant="plain"
                                                         size="xs"
                                                         shape="circle"
+                                                        disabled={readOnly}
                                                         icon={<TbX size={14} />}
                                                         className="text-gray-300 hover:text-red-500 hover:bg-red-50 flex-shrink-0"
                                                         onClick={() =>
@@ -496,18 +554,22 @@ const AssignLabPermissionItem = ({
                                                                         )?.label
                                                                     }
                                                                 </span>
-                                                                <TbX
-                                                                    className="ml-1 cursor-pointer opacity-40 hover:opacity-100 text-red-500 shrink-0"
-                                                                    size={10}
-                                                                    onClick={() =>
-                                                                        removeRole(
-                                                                            Number(
-                                                                                deptId,
-                                                                            ),
-                                                                            r,
-                                                                        )
-                                                                    }
-                                                                />
+                                                                {!readOnly && (
+                                                                    <TbX
+                                                                        className="ml-1 cursor-pointer opacity-40 hover:opacity-100 text-red-500 shrink-0"
+                                                                        size={
+                                                                            10
+                                                                        }
+                                                                        onClick={() =>
+                                                                            removeRole(
+                                                                                Number(
+                                                                                    deptId,
+                                                                                ),
+                                                                                r,
+                                                                            )
+                                                                        }
+                                                                    />
+                                                                )}
                                                             </div>
                                                         ),
                                                     )}

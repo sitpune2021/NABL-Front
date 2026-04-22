@@ -5,6 +5,7 @@ export const instrumentSchema = z.object({
     short_name: z.string().min(1, { message: 'Short Name is required' }),
     manufacturer: z.string().min(1, { message: 'Manufacturer is required' }),
     serial_no: z.string().min(1, { message: 'Serial Number is required' }),
+    vendor_name: z.string().min(1, { message: 'Vendor Name is required' }),
     identifier: z
         .string()
         .min(1, { message: 'Prefix is required' })

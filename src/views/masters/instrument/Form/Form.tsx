@@ -65,6 +65,12 @@ const InstrumentForm = ({
                                 placeholder="Enter Prefix"
                                 readOnly={readOnly}
                             />
+                            <TextField
+                                name="vendor_name"
+                                label="Vendor Name"
+                                placeholder="Enter Vendor Name"
+                                readOnly={readOnly}
+                            />
                         </FormSectionLayout>
                     </div>
                 </div>
