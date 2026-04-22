@@ -75,7 +75,7 @@ const ClauseDocumentListTable = () => {
                     '—',
             },
             {
-                header: 'Action',
+                header: '',
                 id: 'action',
                 cell: ({ row }) => (
                     <ActionColumn

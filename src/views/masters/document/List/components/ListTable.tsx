@@ -69,10 +69,18 @@ const DocumentListTable = () => {
             {
                 header: 'Id',
                 accessorKey: 'id',
+                size: 50,
             },
             {
-                header: 'Document Name',
+                header: 'No.',
+                accessorKey: 'number',
+                size: 130,
+            },
+            {
+                id: 'name',
+                header: 'Doc Name',
                 accessorKey: 'name',
+                size: 280, // 👈 ~1.5x bigger than others
                 cell: (props) => {
                     const row = props.row.original
                     return (
@@ -86,20 +94,24 @@ const DocumentListTable = () => {
                 },
             },
             {
-                header: 'Version',
+                header: 'Ver.',
                 accessorKey: 'current_vrsn',
+                size: 70,
             },
             {
-                header: 'Version Count',
+                header: 'Cnt',
                 accessorKey: 'versions_count',
+                size: 70,
             },
             {
                 header: 'Mode',
                 accessorKey: 'mode',
+                size: 100,
             },
             {
-                header: 'Workflow State',
+                header: 'Status',
                 accessorKey: 'workflow_state',
+                size: 120,
                 cell: ({ row }) => (
                     <span>
                         {row.original.mode == 'upload'
@@ -110,8 +122,9 @@ const DocumentListTable = () => {
                 ),
             },
             {
-                header: 'Workflow State action',
+                header: 'Ops',
                 accessorKey: 'workflow_state_action',
+                size: 120,
                 cell: ({ row }) => (
                     <WorkflowStateCell
                         document={row.original}
@@ -126,9 +139,10 @@ const DocumentListTable = () => {
                 ),
             },
             {
-                header: 'Action',
+                header: '',
                 accessorKey: 'action',
                 id: 'action',
+                size: 120,
                 cell: (props) => (
                     <ActionColumn
                         buttons={[
@@ -160,7 +174,6 @@ const DocumentListTable = () => {
                 ),
             },
         ],
-
         [],
     )
 

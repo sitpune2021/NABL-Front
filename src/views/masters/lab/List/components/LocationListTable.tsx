@@ -115,7 +115,7 @@ const LocationLabListTable = () => {
                 accessorKey: 'name',
             },
             {
-                header: 'Action',
+                header: '',
                 id: 'action',
                 cell: (props) => (
                     <ActionColumn

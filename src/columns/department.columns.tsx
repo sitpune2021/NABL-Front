@@ -20,6 +20,7 @@ export const buildDepartmentColumns = ({
             accessorKey: 'id',
         },
         {
+            id: 'name',
             header: 'Name',
             accessorKey: 'name',
             cell: ({ row }) => {

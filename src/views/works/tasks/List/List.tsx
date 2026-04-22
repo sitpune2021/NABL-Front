@@ -144,90 +144,75 @@ const DocumentList = () => {
         }))
     }
 
-    // ✅ FINAL USERS
-    const getFinalUsers = (key: string) => {
-        const sel = selection[key]
-        const location = getLocation(key) as any
+    // // ✅ FINAL USERS
+    // const getFinalUsers = (key: string) => {
+    //     const sel = selection[key]
+    //     const location = getLocation(key) as any
 
-        if (!location) return []
+    //     if (!location) return []
 
-        // ✅ 1. SINGLE USER
-        if (sel?.user) {
-            return [{ user_id: Number(sel.user) }]
-        }
+    //     // ✅ 1. SINGLE USER
+    //     if (sel?.user) {
+    //         return [{ user_id: Number(sel.user) }]
+    //     }
 
-        // ✅ 2. DEPARTMENT USERS
-        if (sel?.department) {
-            const dept = location.departments.find(
-                (d: any) => String(d.department.id) === sel.department,
-            )
+    //     // ✅ 2. DEPARTMENT USERS
+    //     if (sel?.department) {
+    //         const dept = location.departments.find(
+    //             (d: any) => String(d.department.id) === sel.department,
+    //         )
 
-            return (dept?.department?.users || [])
-                .map((u: any) => ({
-                    user_id: u.user?.id, // ✅ CORRECT FIELD
-                }))
-                .filter((u: any) => u.user_id != null)
-        }
+    //         return (dept?.department?.users || [])
+    //             .map((u: any) => ({
+    //                 user_id: u.user?.id, // ✅ CORRECT FIELD
+    //             }))
+    //             .filter((u: any) => u.user_id != null)
+    //     }
 
-        // ✅ 3. LOCATION USERS
-        const allUsers = location.departments.flatMap(
-            (d: any) => d.department.users || [],
-        )
+    //     // ✅ 3. LOCATION USERS
+    //     const allUsers = location.departments.flatMap(
+    //         (d: any) => d.department.users || [],
+    //     )
 
-        const uniqueUsers = Array.from(
-            new Map(allUsers.map((u: any) => [u.user?.id, u])).values(),
-        )
+    //     const uniqueUsers = Array.from(
+    //         new Map(allUsers.map((u: any) => [u.user?.id, u])).values(),
+    //     )
 
-        return uniqueUsers
-            .map((u: any) => ({
-                user_id: u.user?.id, // ✅ CORRECT FIELD
-            }))
-            .filter((u: any) => u.user_id != null)
-    }
+    //     return uniqueUsers
+    //         .map((u: any) => ({
+    //             user_id: u.user?.id, // ✅ CORRECT FIELD
+    //         }))
+    //         .filter((u: any) => u.user_id != null)
+    // }
 
     // ✅ assign
 
     const handleAssign = async (clauseId: number, doc: any) => {
         const key = makeKey(clauseId, doc.id)
+        const blocks = selection[key] || []
 
-        const sel = selection[key]
-        console.log(sel)
-
-        const users = getFinalUsers(key)
-
-        if (!sel?.location) {
-            return alert('Please select location')
-        }
-
-        // 🔥 BUILD PAYLOAD
         const payload = {
-            document_id: doc.id,
             clause_id: clauseId,
+            document_id: doc.id,
+            locations: blocks.map((block: any) => ({
+                id: Number(block.location),
 
-            location_id: Number(sel.location),
-            department_id: sel?.department ? Number(sel.department) : null,
+                departments: (block.departments || []).map((dept: any) => ({
+                    id: Number(dept.id),
 
-            // ✅ only send user_ids if user selected
-            user_ids: sel?.user
-                ? users
-                      .map((u: any) => u.user_id)
-                      .filter((id: any) => id !== null && id !== undefined)
-                : [],
+                    users: (dept.users || []).map((u: any) => ({
+                        id: Number(u),
+                    })),
+                })),
+            })),
         }
 
-        console.log('🔥 FINAL PAYLOAD:', payload)
+        console.log('🔥 NEW PAYLOAD:', payload)
 
         try {
             await apiLabTaskAssign(payload)
-
-            setSuccessDialog({
-                open: true,
-                userName: `${users.length} users`,
-                docName: doc.name,
-            })
         } catch (e) {
             console.error(e)
-            alert('Assignment failed')
         }
     }
 

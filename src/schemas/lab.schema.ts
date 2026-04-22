@@ -1,9 +1,9 @@
 import { z } from 'zod'
 
 export const labSchema = z.object({
-    name: z.string().min(1, { message: 'Name is required' }),
-    lab_type: z.string().min(1, { message: 'Lab Type is required' }),
-    lab_code: z.string().min(1, { message: 'Lab Code is required' }),
+    name: z.string().min(0, { message: 'Name is required' }),
+    lab_type: z.string().min(0, { message: 'Lab Type is required' }),
+    lab_code: z.string().min(0, { message: 'Lab Code is required' }),
     location_limit: z.union([z.string(), z.number()]),
     user_limit: z.union([z.string(), z.number()]),
     emails: z
@@ -20,7 +20,7 @@ export const labSchema = z.object({
                 label: z.enum(['primary', 'alternate']).optional(),
             }),
         )
-        .min(1, { message: 'At least one email is required' }),
+        .min(0, { message: 'At least one email is required' }),
     phones: z
         .array(
             z.object({
@@ -32,7 +32,7 @@ export const labSchema = z.object({
                 label: z.enum(['primary', 'alternate']).optional(),
             }),
         )
-        .min(1, { message: 'At least one phone is required' }),
+        .min(0, { message: 'At least one phone is required' }),
     location: z
         .array(
             z.object({
@@ -47,14 +47,14 @@ export const labSchema = z.object({
                             name: z.union([z.string(), z.number()]),
                             instruments: z
                                 .array(z.union([z.string(), z.number()]))
-                                .min(1, {
+                                .min(0, {
                                     message:
                                         'At least one instrument is required per department',
                                 }),
                         }),
                     )
-                    .min(1, { message: 'At least one department is required' }),
-                prefix: z.string().nonempty(),
+                    .min(0, { message: 'At least one department is required' }),
+                prefix: z.string(),
                 shortName: z.string(),
                 emails: z
                     .array(
@@ -70,7 +70,7 @@ export const labSchema = z.object({
                             label: z.enum(['primary', 'alternate']).optional(),
                         }),
                     )
-                    .min(1, { message: 'At least one email is required' }),
+                    .min(0, { message: 'At least one email is required' }),
                 phones: z
                     .array(
                         z.object({
@@ -84,13 +84,13 @@ export const labSchema = z.object({
                             label: z.enum(['primary', 'alternate']).optional(),
                         }),
                     )
-                    .min(1, { message: 'At least one phone is required' }),
+                    .min(0, { message: 'At least one phone is required' }),
                 instruments: z
                     .array(z.union([z.string(), z.number()]))
-                    .min(1, { message: 'At least one instrument is required' }),
+                    .min(0, { message: 'At least one instrument is required' }),
             }),
         )
-        .min(1, { message: 'At least one location is required' }),
+        .min(0, { message: 'At least one location is required' }),
     documents: z.array(z.union([z.string(), z.number()])),
     standard: z.object({
         standard_id: z.union([z.number(), z.string()]).nullable().optional(),
