@@ -15,10 +15,6 @@ export const buildLocationColumns = ({
     can,
 }: ColumnActions): ColumnDef<Location>[] => [
     {
-        header: 'Id',
-        accessorKey: 'id',
-    },
-    {
         header: 'Zone',
         accessorKey: 'zone',
         cell: (props) => {

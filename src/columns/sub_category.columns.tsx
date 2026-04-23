@@ -16,10 +16,6 @@ export const buildSubCategoryColumns = ({
 }: ColumnActions): ColumnDef<SubCategory>[] => {
     return [
         {
-            header: 'Id',
-            accessorKey: 'id',
-        },
-        {
             header: 'Category',
             accessorKey: 'category',
             cell: (props) => {

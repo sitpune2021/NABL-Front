@@ -16,10 +16,6 @@ export const buildCategoryColumns = ({
 }: ColumnActions): ColumnDef<Category>[] => {
     return [
         {
-            header: 'Id',
-            accessorKey: 'id',
-        },
-        {
             header: 'Name',
             accessorKey: 'name',
             cell: ({ row }) => {

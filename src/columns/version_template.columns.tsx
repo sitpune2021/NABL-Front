@@ -6,7 +6,7 @@ import IsCurrentBadge from '@/views/masters/template/List/components/IsCurrentBa
 
 type ColumnActions = {
     onView: (row: Template) => void
-    handleSubmit: (templateId: number, versionId: number) => void
+    handleSubmit: (versionId: string | number) => void
     can: (permission: string) => boolean
 }
 
@@ -15,10 +15,6 @@ export const buildVersionTemplateColumns = ({
     handleSubmit,
     can,
 }: ColumnActions): ColumnDef<Template>[] => [
-    {
-        header: 'Id',
-        accessorKey: 'id',
-    },
     {
         header: 'Name',
         accessorKey: 'name',

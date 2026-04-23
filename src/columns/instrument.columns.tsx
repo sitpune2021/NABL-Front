@@ -16,10 +16,6 @@ export const buildInstrumentColumns = ({
     can,
 }: ColumnActions): ColumnDef<Instrument>[] => [
     {
-        header: 'Id',
-        accessorKey: 'id',
-    },
-    {
         header: 'Name',
         accessorKey: 'name',
         cell: (props) => {

@@ -16,10 +16,6 @@ export const buildZoneColumns = ({
     can,
 }: ColumnActions): ColumnDef<Zone>[] => [
     {
-        header: 'Id',
-        accessorKey: 'id',
-    },
-    {
         header: 'Name',
         accessorKey: 'name',
         cell: ({ row }) => {

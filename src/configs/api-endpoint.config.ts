@@ -34,6 +34,7 @@ const apiEndpointConfig = {
     roleLevels: '/roles/levels',
     syncMaster: '/sync-master',
     labTaskAssign: '/lab-task-assign',
+    documentLinks: '/document-links',
 }
 
 export default apiEndpointConfig

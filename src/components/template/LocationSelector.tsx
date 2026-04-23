@@ -15,6 +15,10 @@ const LocationSelector = () => {
     const activeDepartment = useSessionUser((state) => state.activeDepartment)
     const setActiveLab = useSessionUser((state) => state.setActiveLab)
     const setActiveRole = useSessionUser((state) => state.setActiveRole)
+    const setActiveLocation = useSessionUser((state) => state.setActiveLocation)
+    const setActiveDepartment = useSessionUser(
+        (state) => state.setActiveDepartment,
+    )
     const isLabSelectable = labs && labs.length > 1
     const isRoleSelectable =
         activeLab && activeLab.roles && activeLab.roles.length > 1
@@ -22,11 +26,12 @@ const LocationSelector = () => {
     const isSuperAdmin = useSessionUser((state) => state.user.is_super_admin)
     const shouldShowExtra = activeLab?.lab_id !== 0 && !isSuperAdmin
     const isLocationSelectable =
-        shouldShowExtra && activeLab && activeLab?.locations?.length > 1
+        shouldShowExtra && activeLab && activeLab?.locations?.length >= 1
+
     const isDeptSelectable =
         shouldShowExtra &&
         activeLocation &&
-        activeLocation?.departments?.length > 0
+        activeLocation?.departments?.length >= 1
 
     const bgColor = useRandomBgColor()
 
@@ -58,6 +63,14 @@ const LocationSelector = () => {
                             if (lab?.roles?.[0]) {
                                 setActiveRole(lab.roles[0])
                                 apiGetNavigationItemsList()
+                            }
+                            if (lab?.locations?.length > 0) {
+                                setActiveLocation(lab.locations[0])
+                                if (lab.locations?.[0].departments.length > 0) {
+                                    setActiveDepartment(
+                                        lab.locations.departments[0],
+                                    )
+                                }
                             }
                         }}
                     >
@@ -111,73 +124,85 @@ const LocationSelector = () => {
             </Dropdown>
 
             {shouldShowExtra && (
-                <Dropdown
-                    disabled={!isLocationSelectable}
-                    placement="bottom-end"
-                    renderTitle={
-                        <span className="flex items-center">
-                            <Avatar size={22}>
-                                {acronym(activeLocation?.name || '')}
-                            </Avatar>
-                            <span className="ml-2">
-                                {activeLocation?.name || 'Location'}
-                            </span>
-                        </span>
-                    }
-                >
-                    {activeLab?.locations?.map((loc) => (
-                        <Dropdown.Item
-                            key={loc?.id}
-                            onClick={() => {
-                                const store = useSessionUser.getState()
-                                store.setActiveLocation(loc)
-
-                                // ✅ reset or auto select department
-                                store.setActiveDepartment(
-                                    loc?.departments?.[0] || null,
-                                )
-                            }}
+                <>
+                    {isLocationSelectable ? (
+                        <Dropdown
+                            disabled={!isLocationSelectable}
+                            placement="bottom-end"
+                            renderTitle={
+                                <span className="flex items-center">
+                                    <Avatar size={22}>
+                                        {acronym(activeLocation?.name || '')}
+                                    </Avatar>
+                                    <span className="ml-2">
+                                        {activeLocation?.name || 'Location'}
+                                    </span>
+                                </span>
+                            }
                         >
-                            <span className="ml-2">{loc?.name}</span>
-                            {activeLocation?.id === loc?.id && (
-                                <HiCheck className="text-emerald-500 text-lg" />
-                            )}
-                        </Dropdown.Item>
-                    ))}
-                </Dropdown>
+                            {activeLab?.locations?.map((loc) => (
+                                <Dropdown.Item
+                                    key={loc?.id}
+                                    onClick={() => {
+                                        const store = useSessionUser.getState()
+                                        store.setActiveLocation(loc)
+
+                                        // ✅ reset or auto select department
+                                        store.setActiveDepartment(
+                                            loc?.departments?.[0] || null,
+                                        )
+                                    }}
+                                >
+                                    <span className="ml-2">{loc?.name}</span>
+                                    {activeLocation?.id === loc?.id && (
+                                        <HiCheck className="text-emerald-500 text-lg" />
+                                    )}
+                                </Dropdown.Item>
+                            ))}
+                        </Dropdown>
+                    ) : (
+                        <></>
+                    )}
+                </>
             )}
 
             {shouldShowExtra && (
-                <Dropdown
-                    disabled={!isDeptSelectable}
-                    placement="bottom-end"
-                    renderTitle={
-                        <span className="flex items-center">
-                            <Avatar size={22}>
-                                {acronym(activeDepartment?.name || '')}
-                            </Avatar>
-                            <span className="ml-2">
-                                {activeDepartment?.name || 'Department'}
-                            </span>
-                        </span>
-                    }
-                >
-                    {activeLocation?.departments?.map((dept: any) => (
-                        <Dropdown.Item
-                            key={dept?.id}
-                            onClick={() =>
-                                useSessionUser
-                                    .getState()
-                                    .setActiveDepartment(dept)
+                <>
+                    {isDeptSelectable ? (
+                        <Dropdown
+                            disabled={!isDeptSelectable}
+                            placement="bottom-end"
+                            renderTitle={
+                                <span className="flex items-center">
+                                    <Avatar size={22}>
+                                        {acronym(activeDepartment?.name || '')}
+                                    </Avatar>
+                                    <span className="ml-2">
+                                        {activeDepartment?.name || 'Department'}
+                                    </span>
+                                </span>
                             }
                         >
-                            <span className="ml-2">{dept?.name}</span>
-                            {activeDepartment?.id === dept?.id && (
-                                <HiCheck className="text-emerald-500 text-lg" />
-                            )}
-                        </Dropdown.Item>
-                    ))}
-                </Dropdown>
+                            {activeLocation?.departments?.map((dept: any) => (
+                                <Dropdown.Item
+                                    key={dept?.id}
+                                    onClick={() =>
+                                        useSessionUser
+                                            .getState()
+                                            .setActiveDepartment(dept)
+                                    }
+                                >
+                                    <span className="ml-2">{dept?.name}</span>
+                                    {activeDepartment?.id === dept?.id && (
+                                        <HiCheck className="text-emerald-500 text-lg" />
+                                    )}
+                                </Dropdown.Item>
+                            ))}
+                        </Dropdown>
+                    ) : (
+                        <></>
+                    )}
+                </>
             )}
         </div>
     )

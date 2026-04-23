@@ -220,10 +220,22 @@ function DataTable<T>(props: DataTableProps<T>) {
                         />
                     ),
                 },
+                {
+                    header: 'Sr',
+                    accessorKey: 'sr',
+                    size: 50,
+                },
                 ...columns,
             ]
         }
-        return columns
+        return [
+            {
+                header: 'Sr',
+                accessorKey: 'sr',
+                size: 50,
+            },
+            ...columns,
+        ]
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [columnsProp, selectable, loading, checkboxChecked])
 

@@ -1,12 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Dropdown, Tag, Button } from '@/components/ui'
+import { Dropdown, Tag, Button, toast, Notification } from '@/components/ui'
 import { HiX } from 'react-icons/hi'
-import { TbPlus, TbShieldCheck, TbUsers } from 'react-icons/tb'
+import { TbPlus, TbUsers } from 'react-icons/tb'
 import { apiAssignUserRole } from '@/services/LabService'
-
-/* =======================
-   Types
-======================= */
 
 interface Role {
     id: number
@@ -18,25 +14,10 @@ interface UserRolesProps {
     locationId: number
     userId: number
     roles: Role[]
-    assignments: Record<
-        number,
-        {
-            locations: any
-            users: Record<
-                number,
-                {
-                    roles: number[] // IMPORTANT: IDs only
-                }
-            >
-        }
-    >
+    assignments: any
     onUpdate: (updater: (prev: any) => any) => void
     getUserById: (id: number) => { id: number; name: string } | undefined
 }
-
-/* =======================
-   Component
-======================= */
 
 const UserRoles = ({
     labId,
@@ -47,17 +28,16 @@ const UserRoles = ({
     onUpdate,
     getUserById,
 }: UserRolesProps) => {
-    /* -----------------------
-       Source of truth (IDs)
-    ----------------------- */
     const selectedRoleIds: number[] = locationId
         ? (assignments[labId]?.locations?.[locationId]?.users?.[userId]
               ?.roles ?? [])
         : (assignments[labId]?.users?.[userId]?.roles ?? [])
 
-    const selectedRoles = roles.filter((role: Role) =>
-        selectedRoleIds.includes(role.id),
-    )
+    const isPending = selectedRoleIds.length === 0
+
+    const selectedRoles = roles.filter((r) => selectedRoleIds.includes(r.id))
+
+    const availableRoles = roles.filter((r) => !selectedRoleIds.includes(r.id))
 
     const toggleRole = async (role: Role) => {
         let action: 'assign' | 'remove' = 'assign'
@@ -76,6 +56,37 @@ const UserRoles = ({
                 ? currentRoles.filter((id: number) => id !== role.id)
                 : [...currentRoles, role.id]
 
+            if (updatedRoleIds.length === 0) {
+                if (locationId) {
+                    const users = {
+                        ...prev[labId]?.locations?.[locationId]?.users,
+                    }
+                    delete users[userId]
+
+                    return {
+                        ...prev,
+                        [labId]: {
+                            ...prev[labId],
+                            locations: {
+                                ...prev[labId]?.locations,
+                                [locationId]: { users },
+                            },
+                        },
+                    }
+                } else {
+                    const users = { ...prev[labId]?.users }
+                    delete users[userId]
+
+                    return {
+                        ...prev,
+                        [labId]: {
+                            ...prev[labId],
+                            users,
+                        },
+                    }
+                }
+            }
+
             if (locationId) {
                 return {
                     ...prev,
@@ -87,9 +98,7 @@ const UserRoles = ({
                                 users: {
                                     ...prev[labId]?.locations?.[locationId]
                                         ?.users,
-                                    [userId]: {
-                                        roles: updatedRoleIds,
-                                    },
+                                    [userId]: { roles: updatedRoleIds },
                                 },
                             },
                         },
@@ -103,9 +112,7 @@ const UserRoles = ({
                     ...prev[labId],
                     users: {
                         ...prev[labId]?.users,
-                        [userId]: {
-                            roles: updatedRoleIds,
-                        },
+                        [userId]: { roles: updatedRoleIds },
                     },
                 },
             }
@@ -119,14 +126,27 @@ const UserRoles = ({
                 role_id: role.id,
                 action,
             })
+
+            toast.push(
+                <Notification type="success">
+                    {action === 'assign'
+                        ? 'Role assigned successfully'
+                        : 'Role removed successfully'}
+                </Notification>,
+                { placement: 'top-center' },
+            )
         } catch (err) {
             console.error(err)
+
+            toast.push(
+                <Notification type="danger">Something went wrong</Notification>,
+                { placement: 'top-center' },
+            )
         }
     }
 
     return (
-        <div className="bg-white border border-gray-100 rounded-xl p-4 shadow-sm animate-in fade-in slide-in-from-top-2 duration-200">
-            {/* Header */}
+        <div className="bg-white border border-gray-100 rounded-xl p-4 shadow-sm">
             <div className="flex items-center gap-2 mb-4 border-b border-gray-50 pb-3">
                 <TbUsers className="text-primary" />
                 <span className="text-sm font-bold text-gray-700">
@@ -136,24 +156,34 @@ const UserRoles = ({
                         {getUserById(userId)?.name}
                     </span>
                 </span>
+                {isPending && (
+                    <div className="text-xs text-yellow-600 bg-yellow-50 px-2 py-1 rounded mb-2">
+                        Pending: Please assign at least one role
+                    </div>
+                )}
             </div>
 
-            {/* Selected roles */}
             <div className="flex items-center gap-2 flex-wrap">
-                {selectedRoles.map((role: Role) => (
-                    <Tag
-                        key={role.id}
-                        className="bg-primary-subtle text-primary border-primary-subtle font-bold"
-                        suffix={
-                            <HiX
-                                className="cursor-pointer ml-1 hover:text-red-500"
-                                onClick={() => toggleRole(role)}
-                            />
-                        }
-                    >
-                        {role.name}
-                    </Tag>
-                ))}
+                {selectedRoles.length > 0 ? (
+                    selectedRoles.map((role) => (
+                        <Tag
+                            key={role.id}
+                            className="bg-primary-subtle text-primary font-bold"
+                            suffix={
+                                <HiX
+                                    className="cursor-pointer ml-1 hover:text-red-500"
+                                    onClick={() => toggleRole(role)}
+                                />
+                            }
+                        >
+                            {role.name}
+                        </Tag>
+                    ))
+                ) : (
+                    <span className="text-xs text-gray-400 italic">
+                        No roles assigned
+                    </span>
+                )}
 
                 {/* Dropdown */}
                 <Dropdown
@@ -162,36 +192,29 @@ const UserRoles = ({
                             size="xs"
                             variant="default"
                             icon={<TbPlus size={14} />}
+                            disabled={availableRoles.length === 0}
                         />
                     }
                 >
                     <div className="p-2 min-w-[180px]">
-                        {roles.map((role: Role) => {
-                            const isSelected = selectedRoleIds.includes(role.id)
-
-                            return (
+                        {availableRoles.length > 0 ? (
+                            availableRoles.map((role) => (
                                 <Dropdown.Item
                                     key={role.id}
                                     onSelect={() => toggleRole(role)}
                                 >
-                                    <div className="flex items-center justify-between w-full">
-                                        <span
-                                            className={`text-sm ${
-                                                isSelected
-                                                    ? 'text-primary font-bold'
-                                                    : 'text-gray-600'
-                                            }`}
-                                        >
+                                    <div className="flex justify-between w-full">
+                                        <span className="text-sm text-gray-600">
                                             {role.name}
                                         </span>
-
-                                        {isSelected && (
-                                            <TbShieldCheck className="text-primary text-lg" />
-                                        )}
                                     </div>
                                 </Dropdown.Item>
-                            )
-                        })}
+                            ))
+                        ) : (
+                            <div className="text-xs text-gray-400 text-center py-2">
+                                No roles available
+                            </div>
+                        )}
                     </div>
                 </Dropdown>
             </div>

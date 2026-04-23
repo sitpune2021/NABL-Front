@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router'
-import { useClauseDetail } from '@/views/masters/clauses/List/hooks/useDetail'
+import { useDocumentLinks } from '@/views/masters/clauses/List/hooks/useDetail'
 import DataTable from '@/components/shared/DataTable'
 import type { ColumnDef } from '@/components/shared/DataTable'
 import endpointConfig from '@/configs/endpoint.config'
@@ -9,20 +9,15 @@ import { TbDatabase, TbMessageCircle } from 'react-icons/tb'
 import ListLayout from '@/components/layouts/ListLayout'
 import CommentDrawer from './Commentdrawer'
 import { Button } from '@/components/ui'
-import getAllDocuments from '@/helpers/getAllDocuments'
-import { useSessionUser } from '@/store/authStore'
 
 const ClauseDocumentListTable = () => {
-    const activeLab = useSessionUser((state) => state.activeLab)
-    const { clause, isLoading } = useClauseDetail(activeLab?.standard_id, {
+    const { documentLinks, isLoading } = useDocumentLinks({
         type: 'bysingle',
     })
+
     const navigate = useNavigate()
     const [drawerOpen, setDrawerOpen] = useState(false)
     const [selectedDocument, setSelectedDocument] = useState<any>(null)
-
-    // FINAL
-    const data = getAllDocuments(clause?.clauses || [])
 
     const handleEntryDetails = (document: any) => {
         const path = endpointConfig.works.tasks.dataEntryList.replace(
@@ -41,18 +36,19 @@ const ClauseDocumentListTable = () => {
         () => [
             {
                 header: 'Clause',
-                accessorKey: 'clauseTitle',
+                accessorKey: 'clause',
             },
             {
                 header: 'Document Name',
-                accessorKey: 'name',
+                accessorKey: 'document',
+                size: 400,
                 cell: ({ row }) => (
                     <div>
                         <span className="font-semibold">
-                            {row.original.document.name}
+                            {row.original.document}
                         </span>
                         <div className="text-xs text-gray-500">
-                            {row.original.document.number}
+                            {row.original.number}
                         </div>
                     </div>
                 ),
@@ -63,16 +59,11 @@ const ClauseDocumentListTable = () => {
             },
             {
                 header: 'Version',
-                accessorKey: 'current_version.full_version',
-                cell: ({ row }) =>
-                    row.original.document.current_version?.full_version || '—',
+                accessorKey: 'version',
             },
             {
                 header: 'Schedule',
                 accessorKey: 'schedule',
-                cell: ({ row }) =>
-                    row.original.document.current_version?.schedule?.type ||
-                    '—',
             },
             {
                 header: '',
@@ -83,9 +74,7 @@ const ClauseDocumentListTable = () => {
                             size="xs"
                             variant="plain"
                             icon={<TbDatabase />}
-                            onClick={() =>
-                                handleEntryDetails(row.original.document)
-                            }
+                            onClick={() => handleEntryDetails(row.original)}
                         >
                             Records
                         </Button>
@@ -94,9 +83,7 @@ const ClauseDocumentListTable = () => {
                             size="xs"
                             variant="plain"
                             icon={<TbMessageCircle />}
-                            onClick={() =>
-                                handleOpenComments(row.original.document)
-                            }
+                            onClick={() => handleOpenComments(row.original)}
                         >
                             Comments
                         </Button>
@@ -114,9 +101,9 @@ const ClauseDocumentListTable = () => {
                 Table={
                     <DataTable
                         columns={columns}
-                        data={data}
+                        data={documentLinks?.data}
                         loading={isLoading}
-                        noData={!isLoading && data.length === 0}
+                        noData={!isLoading && documentLinks.data.length === 0}
                     />
                 }
             />

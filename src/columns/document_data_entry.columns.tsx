@@ -34,12 +34,5 @@ export const buildDocumentDataEntryColumns = ({
         }),
     )
 
-    return [
-        {
-            header: 'ID',
-            accessorKey: 'id',
-        },
-
-        ...dynamicColumns,
-    ]
+    return dynamicColumns
 }

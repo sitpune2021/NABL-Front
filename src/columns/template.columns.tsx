@@ -40,10 +40,6 @@ export const buildTemplateColumns = ({
     })
     return [
         {
-            header: 'Id',
-            accessorKey: 'id',
-        },
-        {
             header: 'Name',
             accessorKey: 'name',
             cell: ({ row }) => {

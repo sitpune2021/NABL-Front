@@ -31,6 +31,14 @@ export async function apiGetClausesById(
     })
 }
 
+export async function apiGetDocumentLinks(params?: Record<string, unknown>) {
+    return ApiService.fetchDataWithAxios<any>({
+        url: `${apiEndpointConfig.documentLinks}`,
+        method: 'get',
+        params,
+    })
+}
+
 export async function apiUpdateClauses(id: string, data: any) {
     return ApiService.fetchDataWithAxios<any>({
         url: `${apiEndpointConfig.clauses}/${id}`,
