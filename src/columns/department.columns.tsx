@@ -16,10 +16,6 @@ export const buildDepartmentColumns = ({
 }: ColumnActions): ColumnDef<Department>[] => {
     return [
         {
-            header: 'Id',
-            accessorKey: 'id',
-        },
-        {
             id: 'name',
             header: 'Name',
             accessorKey: 'name',

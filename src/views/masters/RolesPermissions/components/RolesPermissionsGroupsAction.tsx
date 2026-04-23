@@ -1,5 +1,6 @@
 import Button from '@/components/ui/Button'
 import { useRolePermissionsStore } from '../store/rolePermissionsStore'
+import { TbPlaylistAdd } from 'react-icons/tb'
 
 const RolesPermissionsGroupsAction = () => {
     const { setRoleDialog } = useRolePermissionsStore()
@@ -8,6 +9,7 @@ const RolesPermissionsGroupsAction = () => {
         <div>
             <Button
                 variant="solid"
+                icon={<TbPlaylistAdd className="text-xl" />}
                 onClick={() =>
                     setRoleDialog({
                         type: 'new',
@@ -15,7 +17,7 @@ const RolesPermissionsGroupsAction = () => {
                     })
                 }
             >
-                Create role
+                New
             </Button>
         </div>
     )

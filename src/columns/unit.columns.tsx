@@ -16,10 +16,6 @@ export const buildUnitColumns = ({
 }: ColumnActions): ColumnDef<Unit>[] => {
     return [
         {
-            header: 'Id',
-            accessorKey: 'id',
-        },
-        {
             header: 'Name',
             accessorKey: 'name',
             cell: ({ row }) => {

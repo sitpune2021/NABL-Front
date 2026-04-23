@@ -545,10 +545,10 @@ const DocumentList = () => {
                 <div className="flex flex-col gap-1">
                     <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-widest text-gray-400 dark:text-gray-500">
                         <TbUserCog className="text-sm" />
-                        Lab Management
+                        Works
                         <TbChevronRight className="text-xs" />
                         <span className="text-primary-500 dark:text-primary-400">
-                            Assign Tasks
+                            Task Assignment
                         </span>
                     </div>
                     <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 tracking-tight">

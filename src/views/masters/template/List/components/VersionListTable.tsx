@@ -26,7 +26,7 @@ const VersionListTable = () => {
         toggleRow,
         setAll,
         clearSelection,
-    } = useVersionsTemplateList(id)
+    } = useVersionsTemplateList(id ? id : '')
 
     const navigateTo = useCallback((path: string) => navigate(path), [navigate])
     const { can } = useAuth()

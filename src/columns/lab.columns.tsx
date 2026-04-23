@@ -17,10 +17,6 @@ export const buildLabColumns = ({
     can,
 }: ColumnActions): ColumnDef<Lab>[] => [
     {
-        header: 'Id',
-        accessorKey: 'id',
-    },
-    {
         header: 'Name',
         accessorKey: 'name',
         cell: (props) => {

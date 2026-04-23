@@ -134,7 +134,11 @@ function AuthProvider({ children }: AuthProviderProps) {
                         setActiveRole(firstLab.roles[0])
                         if (firstLab.lab_id != 0) {
                             setActiveLocation(firstLab.locations[0])
-                            setActiveDepartment(firstLab.departments[0])
+                            if (firstLab.locations[0].departments.length > 0) {
+                                setActiveDepartment(
+                                    firstLab.locations[0].departments[0],
+                                )
+                            }
                         }
                     }
                 }

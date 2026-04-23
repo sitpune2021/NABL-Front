@@ -14,10 +14,6 @@ export const buildClusterColumns = ({
     can,
 }: ColumnActions): ColumnDef<Cluster>[] => [
     {
-        header: 'Id',
-        accessorKey: 'id',
-    },
-    {
         header: 'Zone',
         accessorKey: 'zone',
         cell: (props) => {
