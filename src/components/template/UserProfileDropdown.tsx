@@ -3,12 +3,7 @@ import Dropdown from '@/components/ui/Dropdown'
 import withHeaderItem from '@/utils/hoc/withHeaderItem'
 import { useSessionUser } from '@/store/authStore'
 import { Link } from 'react-router'
-import {
-    PiUserDuotone,
-    PiGearDuotone,
-    PiPulseDuotone,
-    PiSignOutDuotone,
-} from 'react-icons/pi'
+import { PiUserDuotone, PiPulseDuotone, PiSignOutDuotone } from 'react-icons/pi'
 import { useAuth } from '@/auth'
 import type { JSX } from 'react'
 import endpointConfig from '@/configs/endpoint.config'
@@ -24,11 +19,6 @@ const dropdownItemList: DropdownList[] = [
         label: 'Profile',
         path: `${endpointConfig.setting.account.profile}`,
         icon: <PiUserDuotone />,
-    },
-    {
-        label: 'Account Setting',
-        path: `${endpointConfig.setting.account.profile}`,
-        icon: <PiGearDuotone />,
     },
     {
         label: 'Activity Log',
