@@ -19,6 +19,10 @@ interface StandardCardProps {
     parentNumber?: string
     isExpanded: boolean
     onToggle: () => void
+    openItems?: Set<string>
+    onChildToggle?: (itemPath: string) => void
+    onChildExpandAll?: () => void
+    onChildCollapseAll?: () => void
 }
 
 const StandardCard = ({
@@ -33,6 +37,10 @@ const StandardCard = ({
     parentNumber = '',
     isExpanded,
     onToggle,
+    openItems,
+    onChildToggle,
+    onChildExpandAll,
+    onChildCollapseAll,
 }: StandardCardProps) => {
     const { setValue } = useFormContext()
     const path = `${baseName}.${index}` as const
@@ -274,7 +282,11 @@ const StandardCard = ({
                         name={`${path}.children` as any}
                         readOnly={readOnly}
                         depth={depth + 1}
-                        parentNumber={fullNumbering} // 👈 ADD THIS
+                        parentNumber={fullNumbering}
+                        openItems={openItems}
+                        onToggle={onChildToggle}
+                        onExpandAll={onChildExpandAll}
+                        onCollapseAll={onChildCollapseAll}
                     />
                 )}
             </div>
