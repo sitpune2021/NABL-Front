@@ -284,6 +284,19 @@ const DocumentList = () => {
                                             isMulti
                                             placeholder="Select locations…"
                                             options={locationOptions}
+                                            classNamePrefix="react-select"
+                                            menuPortalTarget={document.body}
+                                            menuPosition="fixed"
+                                            styles={{
+                                                menuPortal: (base) => ({
+                                                    ...base,
+                                                    zIndex: 9999,
+                                                }),
+                                                menu: (base) => ({
+                                                    ...base,
+                                                    zIndex: 9999,
+                                                }),
+                                            }}
                                             value={locationOptions?.filter(
                                                 (o) =>
                                                     selection[
@@ -350,6 +363,25 @@ const DocumentList = () => {
                                                             options={
                                                                 deptOptions
                                                             }
+                                                            classNamePrefix="react-select"
+                                                            menuPortalTarget={
+                                                                document.body
+                                                            }
+                                                            menuPosition="fixed"
+                                                            styles={{
+                                                                menuPortal: (
+                                                                    base,
+                                                                ) => ({
+                                                                    ...base,
+                                                                    zIndex: 9999,
+                                                                }),
+                                                                menu: (
+                                                                    base,
+                                                                ) => ({
+                                                                    ...base,
+                                                                    zIndex: 9999,
+                                                                }),
+                                                            }}
                                                             value={deptOptions.filter(
                                                                 (o: any) =>
                                                                     loc.departments?.some(
@@ -421,6 +453,26 @@ const DocumentList = () => {
                                                                     <Select
                                                                         isMulti
                                                                         placeholder="Select users…"
+                                                                        classNamePrefix="react-select"
+                                                                        menuPortalTarget={
+                                                                            document.body
+                                                                        }
+                                                                        menuPosition="fixed"
+                                                                        styles={{
+                                                                            menuPortal:
+                                                                                (
+                                                                                    base,
+                                                                                ) => ({
+                                                                                    ...base,
+                                                                                    zIndex: 9999,
+                                                                                }),
+                                                                            menu: (
+                                                                                base,
+                                                                            ) => ({
+                                                                                ...base,
+                                                                                zIndex: 9999,
+                                                                            }),
+                                                                        }}
                                                                         options={users.map(
                                                                             (
                                                                                 u: any,
