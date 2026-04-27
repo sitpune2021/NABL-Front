@@ -19,8 +19,8 @@ export const standardItemSchema: z.ZodType<StandardItem> = z.lazy(() =>
         .object({
             id: z.union([z.null(), z.number(), z.string()]),
             parent_id: z.union([z.null(), z.number(), z.string()]),
-            title: z.string().min(1, 'Title is required'),
-            message: z.string().min(1, 'Message is required'),
+            title: z.string().min(0, 'Title is required'),
+            message: z.string().min(0, 'Message is required'),
             note: z.boolean(),
             is_child: z.boolean(),
             children_count: z

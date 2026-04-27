@@ -423,17 +423,46 @@ const OverviewSection = ({
         })
 
     return (
-        <Card>
-            <Menu>
-                <Controller
-                    name="standard_id"
-                    control={control}
-                    defaultValue={Number(standardId)}
-                    render={({ field }) => <Input {...field} type="hidden" />}
-                />
-                {renderClauses(accordionData, { current: 0 }, '')}
-            </Menu>
-        </Card>
+        <>
+            <Card>
+                <Menu>
+                    <Controller
+                        name="standard_id"
+                        control={control}
+                        defaultValue={Number(standardId)}
+                        render={({ field }) => (
+                            <Input {...field} type="hidden" />
+                        )}
+                    />
+                    {renderClauses(accordionData, { current: 0 }, '')}
+                </Menu>
+            </Card>
+
+            <Controller
+                name="status"
+                control={control}
+                defaultValue="draft"
+                render={({ field }) => (
+                    <FormItem className="mt-4">
+                        <label className="flex items-center gap-2 cursor-pointer">
+                            <input
+                                type="checkbox"
+                                checked={field.value === 'draft'}
+                                disabled={readOnly}
+                                onChange={(e) =>
+                                    field.onChange(
+                                        e.target.checked
+                                            ? 'draft'
+                                            : 'published',
+                                    )
+                                }
+                            />
+                            <span>Save as Draft</span>
+                        </label>
+                    </FormItem>
+                )}
+            />
+        </>
     )
 }
 

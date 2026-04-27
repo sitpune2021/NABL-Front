@@ -1,19 +1,17 @@
 import ActionColumn from '@/components/form/ActionColumn'
-import { TbPencil, TbEye, TbLocationBolt } from 'react-icons/tb'
+import { TbPencil, TbEye } from 'react-icons/tb'
 import type { ColumnDef } from '@/components/shared/DataTable'
 import { Lab } from '@/@types/lab'
 
 type ColumnActions = {
     onEdit: (row: Lab) => void
     onView: (row: Lab) => void
-    onLocation: (row: Lab) => void
     can: (permission: string) => boolean
 }
 
 export const buildLabColumns = ({
     onEdit,
     onView,
-    onLocation,
     can,
 }: ColumnActions): ColumnDef<Lab>[] => [
     {
@@ -52,12 +50,6 @@ export const buildLabColumns = ({
                         tooltip: 'View',
                         onClick: () => onView(row.original),
                         show: can('clients.lab.show'),
-                    },
-                    {
-                        icon: <TbLocationBolt />,
-                        tooltip: 'Location',
-                        onClick: () => onLocation(row.original),
-                        show: can('clients.lab.location.index'),
                     },
                 ]}
             />

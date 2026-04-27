@@ -3,17 +3,24 @@ import { actionButtons } from './actionButtons'
 import LabListTableTools from './components/ListTableTools'
 import LabListSelected from './components/ListSelected'
 import LabListTable from './components/ListTable'
-import { useParams } from 'react-router'
-import LocationLabListTable from './components/LocationListTable'
+import { useLabListStore } from './store/listStore'
+import { useEffect } from 'react'
 
 const LabList = () => {
-    const { id: labId } = useParams()
+    const resetQuery = useLabListStore((state) => state.resetQuery)
+
+    useEffect(() => {
+        return () => {
+            resetQuery()
+        }
+    }, [resetQuery])
+
     return (
         <ListLayout
-            title={!labId ? 'Labs' : 'Location'}
+            title={'Labs'}
             ActionTools={actionButtons}
             TableTools={<LabListTableTools />}
-            Table={!labId ? <LabListTable /> : <LocationLabListTable />}
+            Table={<LabListTable />}
             SelectedComponent={<LabListSelected />}
         />
     )

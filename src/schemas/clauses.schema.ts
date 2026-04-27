@@ -69,6 +69,7 @@ export const ClausesSchema = z.object({
     standard_clauses: z
         .array(StandardClauseSchema)
         .min(1, 'At least one clause is required'),
+    status: z.enum(['draft', 'published']).default('draft'),
 })
 
 export type ClausesFormSchema = z.infer<typeof ClausesSchema>
