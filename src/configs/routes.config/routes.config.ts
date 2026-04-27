@@ -72,12 +72,6 @@ export const protectedRoutes: Routes = [
     },
     {
         key: 'clients.lab.index',
-        path: endpointConfig.client.lab.location,
-        component: lazy(() => import('@/views/masters/lab/List')),
-        authority: [],
-    },
-    {
-        key: 'clients.lab.index',
         path: endpointConfig.client.lab.view,
         component: lazy(() => import('@/views/masters/lab/AddEdit')),
         authority: [],

@@ -1,28 +1,24 @@
 import useLabList from '../hooks/useList'
-import LabListSearch from './ListSearch'
-import LabListTableFilter from './ListTableFilter'
-import cloneDeep from 'lodash/cloneDeep'
+import { useCallback } from 'react'
+import debounce from 'lodash/debounce'
+import { Search } from '@/components/form'
 
 const LabListTableTools = () => {
-    const { tableData, setTableData } = useLabList()
+    const { updateTable } = useLabList()
 
-    const handleInputChange = (val: string) => {
-        const newTableData = cloneDeep(tableData)
-        newTableData.query = val
-        newTableData.pageIndex = 1
-        if (typeof val === 'string' && val.length > 1) {
-            setTableData(newTableData)
-        }
-
-        if (typeof val === 'string' && val.length === 0) {
-            setTableData(newTableData)
-        }
-    }
+    const handleInputChange = useCallback(
+        debounce((val: string) => {
+            updateTable({
+                query: val,
+                pageIndex: 1,
+            })
+        }, 300),
+        [updateTable],
+    )
 
     return (
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2">
-            <LabListSearch onInputChange={handleInputChange} />
-            <LabListTableFilter />
+            <Search onInputChange={handleInputChange} />
         </div>
     )
 }

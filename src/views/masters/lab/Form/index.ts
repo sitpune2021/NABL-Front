@@ -1,3 +1,3 @@
-import LabForm from './Form'
+import LabFormStepsWrapper from './LabFormStepsWrapper'
 
-export default LabForm
+export default LabFormStepsWrapper

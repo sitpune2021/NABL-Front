@@ -19,7 +19,7 @@ import { useFormSubmit } from '@/utils/hoc/useFormSubmit'
 
 import { apiLab, apiUpdateLab } from '@/services/LabService'
 import { Lab } from '@/@types/lab'
-import LabFormStepsWrapper from '../Form/LabFormStepsWrapper'
+import LabFormStepsWrapper from '../Form'
 import { getEmptyValues } from '@/constants/lab.constant'
 import { useLocationListStore } from '../../location/List/store/listStore'
 import { useClusterListStore } from '../../cluster/List/store/listStore'

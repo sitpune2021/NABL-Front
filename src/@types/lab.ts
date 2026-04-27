@@ -50,22 +50,17 @@ export type GetLabDetailResponse = {
     data: Lab
 }
 
-export type Filter = {
-    purchasedProducts: string
-    purchaseChannel: string[]
-}
-
 export type LabListState = {
     tableData: TableQueries
-    filterData: Filter
-    selectedLab: Partial<Lab>[]
+    selected: Lab[]
 }
 
-export type LabListAction = {
-    setFilterData: (payload: Filter) => void
-    setTableData: (payload: TableQueries) => void
-    setSelectedLab: (checked: boolean, lab: Lab) => void
-    setSelectAllLab: (labs: Lab[]) => void
+export type LabListActions = {
+    updateTable: (payload: Partial<TableQueries>) => void
+    toggleRow: (checked: boolean, row: Lab) => void
+    setAll: (rows: Lab[]) => void
+    clearSelection: () => void
+    resetQuery: () => void
 }
 
 export type FormSectionBaseProps = {
