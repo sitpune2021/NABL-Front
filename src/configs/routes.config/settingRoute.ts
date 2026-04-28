@@ -88,7 +88,6 @@ const settingRoute: Routes = [
         authority: [],
         meta: {
             pageContainerType: 'contained',
-            pageBackgroundType: 'plain',
         },
     },
     {
