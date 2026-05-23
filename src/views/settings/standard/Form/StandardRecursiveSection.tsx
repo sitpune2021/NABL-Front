@@ -40,6 +40,8 @@ const StandardRecursiveSection = ({
         getValues,
         formState: { errors },
     } = useFormContext<StandardFormSchema>()
+    console.log(errors)
+
     const [openItems, setOpenItems] = useState<Set<string>>(new Set())
     const activeOpenItems = isRoot ? openItems : externalOpenItems || new Set()
 

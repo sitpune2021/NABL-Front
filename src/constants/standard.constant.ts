@@ -1,5 +1,4 @@
 import { StandardFormSchema } from '@/schemas/standard.schema'
-import { nanoid } from 'nanoid'
 import { v4 as uuidv4 } from 'uuid'
 
 const EMPTY_STANDARD_ITEM = {
@@ -25,7 +24,7 @@ export const EMPTY_VALUES: StandardFormSchema = {
 export const LIST_KEY = 'sub-category-list'
 
 export const createStandard = (depth: number) => ({
-    id: nanoid(),
+    id: null,
     parent_id: null,
     title: '',
     message: '',
