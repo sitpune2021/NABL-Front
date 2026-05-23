@@ -1,4 +1,3 @@
- 
 import Button from '@/components/ui/Button'
 import ProfileOverview from './ProfileOverview'
 import { profileSchema, type ProfileFormSchema } from '@/schemas/account.schema'
@@ -38,18 +37,17 @@ const SettingsProfile = () => {
             <MasterForm
                 schema={profileSchema}
                 defaultValues={account || EMPTY_VALUES}
+                className={''}
                 onSubmit={handleSubmit}
             >
                 <ProfileOverview />
-
-                <div className="flex items-center justify-end gap-2 p-4">
-                    <Button type="button">Reset</Button>
+                <div className="flex justify-end">
                     <Button
                         variant="solid"
                         type="submit"
                         loading={isSubmitting}
                     >
-                        Update
+                        Save
                     </Button>
                 </div>
             </MasterForm>

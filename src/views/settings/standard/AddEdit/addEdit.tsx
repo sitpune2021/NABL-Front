@@ -24,12 +24,13 @@ const AddEdit = () => {
     const navigate = useNavigate()
     const location = useLocation()
     const { id } = useParams<{ id: string }>()
+    const numericId = id ? Number(id) : undefined
 
     const mode = useMemo(() => getMode(location.pathname), [location.pathname])
     const isView = mode === 'view'
     const isEdit = mode === 'edit'
 
-    const { standard, isLoading, mutate } = useStandardDetail(id)
+    const { standard, isLoading, mutate } = useStandardDetail(numericId)
     const discard = useDiscardConfirm()
 
     const { save } = useEntityMutations<StandardFormSchema>({
@@ -37,21 +38,69 @@ const AddEdit = () => {
         apiUpdate: apiUpdateStandard,
     })
 
+    const addDepthToClauses = (data: any): StandardFormSchema => {
+        const mapItem = (item: any, currentDepth = 0) => {
+            const children = Array.isArray(item.children)
+                ? item.children.map((c: any) => mapItem(c, currentDepth + 1))
+                : []
+
+            return {
+                id: item?.id ?? null,
+                parent_id: item?.parent_id ?? null,
+                title: item?.title ?? '',
+                message: item?.message ?? '',
+                note: item?.note ?? true,
+                is_child: item?.is_child ?? false,
+                children_count: Number(item?.children_count ?? 0),
+                children,
+                numbering_type: item?.numbering_type ?? 'none',
+                numbering_value: item?.numbering_value ?? '',
+                depth: currentDepth,
+            }
+        }
+
+        return {
+            ...data,
+            clauses: Array.isArray(data?.clauses)
+                ? data.clauses.map((c: any) => mapItem(c, 0))
+                : [],
+        }
+    }
+
+    const stripDepthFromClauses = (data: any) => {
+        const mapItem = (item: any) => {
+            const { depth, reactId, ...rest } = item || {}
+            console.log(depth, reactId)
+            return {
+                ...rest,
+                children: Array.isArray(item?.children)
+                    ? item.children.map((c: any) => mapItem(c))
+                    : [],
+            }
+        }
+
+        const { clauses, ...rest } = data || {}
+        return {
+            ...rest,
+            clauses: Array.isArray(clauses)
+                ? clauses.map((c: any) => mapItem(c))
+                : [],
+        }
+    }
+
     const { handleSubmit, isSubmitting } = useFormSubmit<StandardFormSchema>({
         apiCall: async (values) => {
+            const payload = stripDepthFromClauses(values)
+
             const res = await save({
-                ...values,
+                ...payload,
                 ...(isEdit && id ? { id } : {}),
             })
+
             if (id) {
-                mutate(
-                    (prev: any) => ({
-                        ...prev,
-                        data: res.data,
-                    }),
-                    false,
-                )
+                mutate(addDepthToClauses(res.data), false)
             }
+
             return res
         },
         navigateTo: endpointConfig.setting.standard.list,
@@ -74,7 +123,9 @@ const AddEdit = () => {
         <>
             <StandardForm
                 key={id || 'new'}
-                defaultValues={standard || EMPTY_VALUES}
+                defaultValues={
+                    standard ? addDepthToClauses(standard) : EMPTY_VALUES
+                }
                 readOnly={isView}
                 onFormSubmit={handleSubmit}
             >

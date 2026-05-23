@@ -9,7 +9,7 @@ export const useStandardDetail = (id: number | undefined | null) => {
     const { data, error, isLoading, mutate } = useSWR<StandardFormSchema>(
         shouldFetch ? [LIST_KEY, id] : null,
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        ([_, id]) => apiGetStandardById(id as number),
+        ([_, id]) => apiGetStandardById(id as number).then((res) => res.data),
         { revalidateOnFocus: false },
     )
 
