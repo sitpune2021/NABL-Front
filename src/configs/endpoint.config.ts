@@ -100,6 +100,13 @@ const endpointConfig = {
         },
     },
     setting: {
+        prefixConfig: {
+            list: `${SETTING_PREFIX_PATH}/prefix-config/list`,
+            create: `${SETTING_PREFIX_PATH}/prefix-config/create`,
+            edit: `${SETTING_PREFIX_PATH}/prefix-config/edit/:id`,
+            view: `${SETTING_PREFIX_PATH}/prefix-config/view/:id`,
+        },
+
         rolesPermission: {
             list: `${SETTING_PREFIX_PATH}/roles-permission/list`,
         },

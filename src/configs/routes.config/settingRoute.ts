@@ -97,6 +97,30 @@ const settingRoute: Routes = [
         component: lazy(() => import('@/views/settings/menu/List')),
         authority: [],
     },
+    {
+        key: 'settings.prefix.index',
+        path: endpointConfig.setting.prefixConfig.list,
+        component: lazy(() => import('@/views/settings/prefixConfig/List')),
+        authority: [],
+    },
+    {
+        key: 'settings.prefix.create',
+        path: endpointConfig.setting.prefixConfig.create,
+        component: lazy(() => import('@/views/settings/prefixConfig/AddEdit')),
+        authority: [],
+    },
+    {
+        key: 'settings.prefix.edit',
+        path: endpointConfig.setting.prefixConfig.edit,
+        component: lazy(() => import('@/views/settings/prefixConfig/AddEdit')),
+        authority: [],
+    },
+    {
+        key: 'settings.prefix.show',
+        path: endpointConfig.setting.prefixConfig.view,
+        component: lazy(() => import('@/views/settings/prefixConfig/AddEdit')),
+        authority: [],
+    },
 
     // {
     //     key: 'settings.menu.index',

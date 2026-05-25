@@ -11,6 +11,7 @@ const apiEndpointConfig = {
     departments: '/departments',
     units: '/units',
     instruments: '/instruments',
+    prefixConfig: '/prefix-config',
     templates: '/templates',
     templatesVerions: '/templates/versions',
     zones: '/zones',
