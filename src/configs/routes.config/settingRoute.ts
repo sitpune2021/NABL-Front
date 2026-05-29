@@ -4,6 +4,38 @@ import endpointConfig from '../endpoint.config'
 
 const settingRoute: Routes = [
     {
+        key: 'settings.prefixConfig.index',
+        path: `${endpointConfig.setting.prefixConfig.list}`,
+        component: lazy(() => import('@/views/settings/prefixConfig/List')),
+        authority: [],
+    },
+    {
+        key: 'settings.prefixConfig.index',
+        path: `${endpointConfig.setting.prefixConfig.create}`,
+        component: lazy(() => import('@/views/settings/prefixConfig/AddEdit')),
+        authority: [],
+        meta: {
+            header: {
+                title: 'Create Prefix Config',
+                description:
+                    'Define master-wise value validation rules for prefixes and document numbers.',
+                contained: true,
+            },
+        },
+    },
+    {
+        key: 'settings.prefixConfig.index',
+        path: endpointConfig.setting.prefixConfig.edit,
+        component: lazy(() => import('@/views/settings/prefixConfig/AddEdit')),
+        authority: [],
+    },
+    {
+        key: 'settings.prefixConfig.index',
+        path: endpointConfig.setting.prefixConfig.view,
+        component: lazy(() => import('@/views/settings/prefixConfig/AddEdit')),
+        authority: [],
+    },
+    {
         key: 'settings.standard.index',
         path: `${endpointConfig.setting.standard.list}`,
         component: lazy(() => import('@/views/settings/standard/List')),

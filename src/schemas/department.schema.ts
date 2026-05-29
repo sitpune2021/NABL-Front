@@ -1,16 +1,17 @@
 import { z } from 'zod'
+import { validatePrefixRule } from '@/utils/validation/prefixConfigValidation'
 
 export const departmentSchema = z.object({
     name: z.string().min(1, { message: ' Name required' }),
     identifier: z
         .string()
         .min(1, { message: 'Prefix is required' })
-        .max(4, { message: 'Prefix must be at most 4 characters' })
-        .regex(/^[A-Z]+$/, {
-            message: 'Prefix must contain only uppercase letters',
-        })
-        .refine((val) => !/\s{2,}/.test(val), {
-            message: 'Prefix must not contain double spaces',
+        .superRefine(async (value, ctx) => {
+            const errors = await validatePrefixRule('departments', value)
+
+            errors.forEach((message) =>
+                ctx.addIssue({ code: 'custom', message }),
+            )
         }),
 })
 
