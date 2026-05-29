@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { validatePrefixRule } from '@/utils/validation/prefixConfigValidation'
 
 export const locationSchema = z.object({
     name: z.string().min(1, { message: ' name required' }),
@@ -11,8 +12,16 @@ export const locationSchema = z.object({
         z.number(),
     ]),
     short_name: z.any(),
-    identifier: z.string().regex(/^[A-Z]{1,4}-[A-Z]{1,4}-[A-Z]{1,4}$/, {
-        message: 'Prefix must follow ZZZ-YYY-XXXX (1–4 uppercase letters)',
-    }),
+    identifier: z
+        .string()
+        .min(1, 'Prefix is required')
+        .superRefine(async (value, ctx) => {
+            const errors = await validatePrefixRule('locations', value)
+
+            errors.forEach((message) =>
+                ctx.addIssue({ code: 'custom', message }),
+            )
+        }),
 })
+
 export type LocationFormSchema = z.infer<typeof locationSchema>

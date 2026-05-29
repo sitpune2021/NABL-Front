@@ -35,6 +35,7 @@ const apiEndpointConfig = {
     syncMaster: '/sync-master',
     labTaskAssign: '/lab-task-assign',
     documentLinks: '/document-links',
+    prefixConfig: 'prefix-config',
 }
 
 export default apiEndpointConfig
