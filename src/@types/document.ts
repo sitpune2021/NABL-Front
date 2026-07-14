@@ -174,6 +174,10 @@ export type FormSectionBaseProps = {
     readOnly?: boolean
     departmentList: Department[]
     categoryList: Category[]
+    categoryOptions?: Option[]
+    isCategoryLoading?: boolean
+    hasMoreCategories?: boolean
+    onLoadMoreCategories?: () => void
     templateList: TemplateSh[]
     isEdit: boolean
 }
@@ -317,6 +321,9 @@ export interface FormFieldConfig {
     minDate?: any
     placeholder?: string
     options?: Option[]
+    isLoading?: boolean
+    hasMore?: boolean
+    onLoadMore?: () => void
     readOnly?: boolean
     condition?: (values: any) => boolean // conditional rendering
     customRender?: (field: any, formValues: any, extraProps?: any) => any

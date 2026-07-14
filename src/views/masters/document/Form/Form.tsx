@@ -12,9 +12,9 @@ import DocumentInformationSection from './DocumentInformationSection'
 import FrequencySection from './FrequencySection'
 import PageContainer from '@/components/template/PageContainer'
 
-import { useCategoryList } from '../../category/List/hooks/useList'
 import useDepartmentList from '../../department/List/hooks/useList'
 import useTemplateList from '../../template/List/hooks/useList'
+import { useDocumentCategoryOptions } from './hooks/useDocumentCategoryOptions'
 
 import { DocumentFormSchema, documentSchema } from '@/schemas/document.schema'
 import { EMPTY_VALUES, STEP_ONE_FIELDS } from '@/constants/document.constant'
@@ -63,8 +63,15 @@ export default function DocumentForm({
     const [showFrequencyPopup, setShowFrequencyPopup] = useState(false)
 
     const mode = useWatch({ control, name: 'mode' })
+    const categoryId = useWatch({ control, name: 'category_id' })
 
-    const { categoryList } = useCategoryList()
+    const {
+        categoryList,
+        categoryOptions,
+        hasMore: hasMoreCategories,
+        isLoading: isCategoryLoading,
+        loadMoreCategories,
+    } = useDocumentCategoryOptions(categoryId)
     const { departmentList } = useDepartmentList()
     const { templateList, getTemplateById } = useTemplateList()
 
@@ -77,7 +84,7 @@ export default function DocumentForm({
         } else {
             setShowFrequencyPopup(true)
         }
-    }, [step, trigger, mode])
+    }, [step, trigger, mode, readOnly])
 
     const goPrev = useCallback(() => {
         setStep((prev) => Math.max(prev - 1, 0))
@@ -122,9 +129,13 @@ export default function DocumentForm({
                             <DocumentInformationSection
                                 readOnly={readOnly && loading}
                                 categoryList={categoryList}
+                                categoryOptions={categoryOptions}
+                                isCategoryLoading={isCategoryLoading}
+                                hasMoreCategories={hasMoreCategories}
                                 departmentList={departmentList}
                                 templateList={templateList}
                                 isEdit={isEdit}
+                                onLoadMoreCategories={loadMoreCategories}
                             />
                         )}
 

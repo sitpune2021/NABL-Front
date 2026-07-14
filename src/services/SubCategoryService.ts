@@ -2,6 +2,10 @@ import { Fields, GetSubCategoryDetailResponse } from '@/@types/subcategory'
 import ApiService from './ApiService'
 import apiEndpointConfig from '@/configs/api-endpoint.config'
 
+type DeleteSubCategoryResponse = {
+    message?: string
+}
+
 export async function apiGetSubCategoryList<
     T,
     U extends Record<string, unknown>,
@@ -33,6 +37,13 @@ export async function apiUpdateSubCategory(id: string, data: Fields) {
         url: `${apiEndpointConfig.subCategories}/${id}`,
         method: 'put',
         data,
+    })
+}
+
+export async function apiDeleteSubCategory(id: string) {
+    return ApiService.fetchDataWithAxios<DeleteSubCategoryResponse>({
+        url: `${apiEndpointConfig.subCategories}/${id}`,
+        method: 'delete',
     })
 }
 

@@ -2,31 +2,70 @@ import { useState, useCallback } from 'react'
 import StickyFooter from '@/components/shared/StickyFooter'
 import Button from '@/components/ui/Button'
 import ConfirmDialog from '@/components/shared/ConfirmDialog'
+import Notification from '@/components/ui/Notification'
+import toast from '@/components/ui/toast'
 import { TbChecks } from 'react-icons/tb'
 import { useCategoryList } from '../hooks/useList'
+import { apiDeleteCategory } from '@/services/CategoriesService'
+import type { AxiosError } from 'axios'
+
+type ErrorResponse = {
+    message?: string
+}
 
 const CategoryListSelected = () => {
     const { selected, categoryList, mutate, total, setAll } = useCategoryList()
 
     const [isDeleteOpen, setIsDeleteOpen] = useState(false)
+    const [isDeleting, setIsDeleting] = useState(false)
     const handleDelete = useCallback(() => setIsDeleteOpen(true), [])
     const handleCancel = useCallback(() => setIsDeleteOpen(false), [])
 
-    const handleConfirmDelete = useCallback(() => {
-        if (!selected.length) return
+    const handleConfirmDelete = useCallback(async () => {
+        if (!selected.length || isDeleting) return
+
+        setIsDeleting(true)
+
         const remainingCategories = categoryList.filter(
             (category) => !selected.some((sel) => sel.id === category.id),
         )
-        setAll([])
-        mutate(
-            {
-                data: remainingCategories,
-                total: total - selected.length,
-            },
-            false,
-        )
-        setIsDeleteOpen(false)
-    }, [categoryList, selected, total, setAll, mutate])
+
+        try {
+            const responses = await Promise.all(
+                selected.map((category) =>
+                    apiDeleteCategory(String(category.id)),
+                ),
+            )
+            const responseMessage =
+                responses.find((response) => response.message)?.message ??
+                'Categories deleted successfully'
+
+            setAll([])
+            await mutate(
+                {
+                    data: remainingCategories,
+                    total: Math.max(total - selected.length, 0),
+                },
+                false,
+            )
+            await mutate()
+
+            toast.push(
+                <Notification type="success">{responseMessage}</Notification>,
+            )
+            setIsDeleteOpen(false)
+        } catch (error) {
+            const errorMessage =
+                (error as AxiosError<ErrorResponse>).response?.data?.message ??
+                'Failed to delete categories'
+
+            toast.push(
+                <Notification type="danger">{errorMessage}</Notification>,
+            )
+        } finally {
+            setIsDeleting(false)
+        }
+    }, [categoryList, selected, total, setAll, mutate, isDeleting])
 
     if (!selected.length) return null
 
@@ -62,6 +101,13 @@ const CategoryListSelected = () => {
                 isOpen={isDeleteOpen}
                 type="danger"
                 title="Remove categories"
+                confirmText={isDeleting ? 'Deleting...' : 'Delete'}
+                confirmButtonProps={{
+                    disabled: isDeleting,
+                }}
+                cancelButtonProps={{
+                    disabled: isDeleting,
+                }}
                 onClose={handleCancel}
                 onRequestClose={handleCancel}
                 onCancel={handleCancel}
