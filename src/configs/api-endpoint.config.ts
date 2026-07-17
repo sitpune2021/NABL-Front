@@ -36,6 +36,8 @@ const apiEndpointConfig = {
     labTaskAssign: '/lab-task-assign',
     documentLinks: '/document-links',
     prefixConfig: 'prefix-config',
+    notifications: '/notifications',
+    notificationsUnreadCount: '/notifications/unread-count',
 }
 
 export default apiEndpointConfig

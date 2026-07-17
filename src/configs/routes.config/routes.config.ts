@@ -14,6 +14,16 @@ export const protectedRoutes: Routes = [
         component: lazy(() => import('@/views/dashboard/Home')),
         authority: [],
     },
+    {
+        key: 'notifications.index',
+        path: '/concepts/account/activity-log',
+        component: lazy(() => import('@/views/notifications')),
+        authority: [],
+        meta: {
+            pageContainerType: 'contained',
+            pageBackgroundType: 'plain',
+        },
+    },
     ...masterRoute,
     ...settingRoute,
     {
