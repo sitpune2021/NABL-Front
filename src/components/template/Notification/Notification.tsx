@@ -12,6 +12,8 @@ import { HiOutlineMailOpen } from 'react-icons/hi'
 import {
     apiGetNotificationList,
     apiGetNotificationCount,
+    apiMarkAllNotificationsAsRead,
+    apiMarkNotificationAsRead,
 } from '@/services/CommonService'
 import isLastChild from '@/utils/isLastChild'
 import useResponsive from '@/utils/hooks/useResponsive'
@@ -47,12 +49,17 @@ const _Notification = ({ className }: { className?: string }) => {
     const navigate = useNavigate()
 
     const getNotificationCount = async () => {
-        const resp = await apiGetNotificationCount()
-        if (resp.count > 0) {
-            setNoResult(false)
-            setUnreadNotification(true)
-        } else {
-            setNoResult(true)
+        try {
+            const resp = await apiGetNotificationCount()
+            if (resp.count > 0) {
+                setNoResult(false)
+                setUnreadNotification(true)
+            } else {
+                setUnreadNotification(false)
+                setNoResult(true)
+            }
+        } catch {
+            setUnreadNotification(false)
         }
     }
 
@@ -63,32 +70,50 @@ const _Notification = ({ className }: { className?: string }) => {
     const onNotificationOpen = async () => {
         if (notificationList.length === 0) {
             setLoading(true)
-            const resp = await apiGetNotificationList()
-            setLoading(false)
-            setNotificationList(resp)
+            try {
+                const resp = await apiGetNotificationList()
+                setNotificationList(resp)
+                setNoResult(resp.length === 0)
+            } finally {
+                setLoading(false)
+            }
         }
     }
 
-    const onMarkAllAsRead = () => {
-        const list = notificationList.map((item: NotificationList) => {
-            if (!item.readed) {
-                item.readed = true
-            }
-            return item
-        })
+    const onMarkAllAsRead = async () => {
+        await apiMarkAllNotificationsAsRead()
+        const list = notificationList.map((item: NotificationList) => ({
+            ...item,
+            readed: true,
+            status: 'read',
+        }))
         setNotificationList(list)
         setUnreadNotification(false)
     }
 
-    const onMarkAsRead = (id: string) => {
+    const onMarkAsRead = async (id: string) => {
+        const selectedNotification = notificationList.find(
+            (item) => item.id === id,
+        )
+
+        if (!selectedNotification || selectedNotification.readed) {
+            return
+        }
+
+        await apiMarkNotificationAsRead(id)
+
         const list = notificationList.map((item) => {
             if (item.id === id) {
-                item.readed = true
+                return {
+                    ...item,
+                    readed: true,
+                    status: 'read',
+                }
             }
             return item
         })
         setNotificationList(list)
-        const hasUnread = notificationList.some((item) => !item.readed)
+        const hasUnread = list.some((item) => !item.readed)
 
         if (!hasUnread) {
             setUnreadNotification(false)

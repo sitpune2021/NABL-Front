@@ -38,6 +38,9 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
             condition,
             customRender,
             onChange,
+            isLoading,
+            hasMore,
+            onLoadMore,
             minDate,
             defaultValue,
         } = fieldConfig
@@ -92,6 +95,19 @@ const DynamicForm: React.FC<DynamicFormProps> = ({
                                         }
                                         options={options}
                                         isDisabled={readOnly}
+                                        isLoading={isLoading}
+                                        noOptionsMessage={() =>
+                                            isLoading
+                                                ? 'Loading...'
+                                                : hasMore
+                                                  ? 'Scroll to load more'
+                                                  : 'No options'
+                                        }
+                                        onMenuScrollToBottom={() => {
+                                            if (hasMore && !isLoading) {
+                                                onLoadMore?.()
+                                            }
+                                        }}
                                         onChange={(option) => {
                                             field.onChange(option?.value)
                                             onChange?.(option)

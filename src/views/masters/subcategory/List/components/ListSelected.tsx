@@ -2,37 +2,72 @@ import { useCallback, useState } from 'react'
 import StickyFooter from '@/components/shared/StickyFooter'
 import Button from '@/components/ui/Button'
 import ConfirmDialog from '@/components/shared/ConfirmDialog'
+import Notification from '@/components/ui/Notification'
+import toast from '@/components/ui/toast'
 import { TbChecks } from 'react-icons/tb'
 import useSubCategoryList from '../hooks/useList'
+import { apiDeleteSubCategory } from '@/services/SubCategoryService'
+import type { AxiosError } from 'axios'
+
+type ErrorResponse = {
+    message?: string
+}
 
 const SubCategoryListSelected = () => {
     const { subcategoryList, selected, mutate, total, setAll } =
         useSubCategoryList()
 
     const [isDeleteOpen, setIsDeleteOpen] = useState(false)
+    const [isDeleting, setIsDeleting] = useState(false)
 
     const handleDelete = useCallback(() => setIsDeleteOpen(true), [])
     const handleCancel = useCallback(() => setIsDeleteOpen(false), [])
 
-    const handleConfirmDelete = useCallback(() => {
-        if (!selected.length) return
+    const handleConfirmDelete = useCallback(async () => {
+        if (!selected.length || isDeleting) return
+
+        setIsDeleting(true)
 
         const remainingCategories = subcategoryList.filter(
             (subCategory) => !selected.some((sel) => sel.id === subCategory.id),
         )
 
-        setAll([])
+        try {
+            const responses = await Promise.all(
+                selected.map((subCategory) =>
+                    apiDeleteSubCategory(String(subCategory.id)),
+                ),
+            )
+            const responseMessage =
+                responses.find((response) => response.message)?.message ??
+                'Sub categories deleted successfully'
 
-        mutate(
-            {
-                data: remainingCategories,
-                total: total - selected.length,
-            },
-            false,
-        )
+            setAll([])
+            await mutate(
+                {
+                    data: remainingCategories,
+                    total: Math.max(total - selected.length, 0),
+                },
+                false,
+            )
+            await mutate()
 
-        setIsDeleteOpen(false)
-    }, [subcategoryList, selected, total, setAll, mutate])
+            toast.push(
+                <Notification type="success">{responseMessage}</Notification>,
+            )
+            setIsDeleteOpen(false)
+        } catch (error) {
+            const errorMessage =
+                (error as AxiosError<ErrorResponse>).response?.data?.message ??
+                'Failed to delete sub categories'
+
+            toast.push(
+                <Notification type="danger">{errorMessage}</Notification>,
+            )
+        } finally {
+            setIsDeleting(false)
+        }
+    }, [subcategoryList, selected, total, setAll, mutate, isDeleting])
 
     if (!selected.length) return null
 
@@ -84,7 +119,15 @@ const SubCategoryListSelected = () => {
                 isOpen={isDeleteOpen}
                 type="danger"
                 title="Remove sub categories"
+                confirmText={isDeleting ? 'Deleting...' : 'Delete'}
+                confirmButtonProps={{
+                    disabled: isDeleting,
+                }}
+                cancelButtonProps={{
+                    disabled: isDeleting,
+                }}
                 onClose={handleCancel}
+                onRequestClose={handleCancel}
                 onCancel={handleCancel}
                 onConfirm={handleConfirmDelete}
             >

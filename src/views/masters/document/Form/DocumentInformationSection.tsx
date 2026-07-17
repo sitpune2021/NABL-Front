@@ -17,6 +17,10 @@ import { useOverviewLogic } from '../List/hooks/useOverviewLogic'
 const DocumentInformationSection = ({
     readOnly,
     categoryList,
+    categoryOptions = [],
+    isCategoryLoading,
+    hasMoreCategories,
+    onLoadMoreCategories,
     templateList,
     departmentList,
     isEdit = false,
@@ -33,12 +37,6 @@ const DocumentInformationSection = ({
         handleCategoryChange,
         handleDepartmentChange,
     } = useOverviewLogic({ categoryList })
-
-    const categoryOptions = mapToOptions(categoryList, {
-        value: 'id',
-        label: (category) =>
-            `${category.name.toUpperCase()} - ${category.identifier}`,
-    })
 
     const departmentOptions = mapToOptions(departmentList, {
         value: 'id',
@@ -81,6 +79,9 @@ const DocumentInformationSection = ({
             label: 'Document Category',
             type: 'select',
             options: categoryOptions,
+            isLoading: isCategoryLoading,
+            hasMore: hasMoreCategories,
+            onLoadMore: onLoadMoreCategories,
             onChange: handleCategoryChange,
         },
         {

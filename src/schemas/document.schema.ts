@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { validatePrefixRule } from '@/utils/validation/prefixConfigValidation'
+// import { validatePrefixRule } from '@/utils/validation/prefixConfigValidation'
 
 export const documentSchema = z.object({
     id: z.union([z.null(), z.number(), z.any()]),
@@ -10,11 +10,7 @@ export const documentSchema = z.object({
         z.number(),
     ]),
     department: z.array(z.union([z.string(), z.number()])).optional(),
-    number: z.string().superRefine(async (value, ctx) => {
-        const errors = await validatePrefixRule('documents', value)
-
-        errors.forEach((message) => ctx.addIssue({ code: 'custom', message }))
-    }),
+    number: z.string(),
     name: z.string().min(1, 'Document Name is required'),
     status: z.enum(['controlled', 'uncontrolled']),
 

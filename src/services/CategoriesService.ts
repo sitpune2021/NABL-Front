@@ -2,6 +2,10 @@ import { Fields, GetCategoryDetailResponse } from '@/@types/category'
 import ApiService from './ApiService'
 import apiEndpointConfig from '@/configs/api-endpoint.config'
 
+type DeleteCategoryResponse = {
+    message?: string
+}
+
 export async function apiGetCategoryList<T, U extends Record<string, unknown>>(
     params: U,
 ) {
@@ -32,6 +36,13 @@ export async function apiUpdateCategory(id: string, data: Fields) {
         url: `${apiEndpointConfig.categories}/${id}`,
         method: 'put',
         data,
+    })
+}
+
+export async function apiDeleteCategory(id: string) {
+    return ApiService.fetchDataWithAxios<DeleteCategoryResponse>({
+        url: `${apiEndpointConfig.categories}/${id}`,
+        method: 'delete',
     })
 }
 

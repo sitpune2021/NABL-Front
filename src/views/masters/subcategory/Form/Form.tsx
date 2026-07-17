@@ -8,7 +8,7 @@ import {
 import MasterForm from '@/components/form/MasterForm'
 import FormSectionLayout from '@/components/layouts/FormSectionLayout'
 import PrefixSelectField from '@/components/form/fields/PrefixSelectField'
-import { useCategoryList } from '../../category/List/hooks/useList'
+import { useCategoryOptions } from '../../category/List/hooks/useList'
 import { useCategoryDetail } from '../../category/List/hooks/useCategoryDetail'
 import TextField from '@/components/form/fields/TextField'
 import { FormItem, Input } from '@/components/ui'
@@ -31,7 +31,9 @@ const SubCategoryIdentifierField = ({ readOnly }: { readOnly: boolean }) => {
     const { watch, setValue, control } = useFormContext<SubCategoryFormSchema>()
     const catId = watch('cat_id')
     const identifier = watch('identifier') || ''
-    const { data: category } = useCategoryDetail(catId)
+    const { data: category } = useCategoryDetail(
+        catId ? String(catId) : undefined,
+    )
     const categoryPrefix = category?.identifier || ''
     const suffix = useMemo(
         () => getSuffix(identifier, categoryPrefix),
@@ -119,7 +121,7 @@ const SubCategoryForm = ({
                                 identifierField="identifier"
                                 label="Category"
                                 readOnly={isEditMode || readOnly}
-                                useListHook={useCategoryList}
+                                useListHook={useCategoryOptions}
                                 useDetailHook={useCategoryDetail}
                                 mapOption={(item) => ({
                                     value: item.id,

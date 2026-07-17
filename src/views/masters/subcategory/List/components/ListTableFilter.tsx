@@ -6,13 +6,13 @@ import Button from '@/components/ui/Button'
 import Dialog from '@/components/ui/Dialog'
 import { Form, FormItem } from '@/components/ui/Form'
 import { TbFilter } from 'react-icons/tb'
-import { useCategoryList } from '@/views/masters/category/List/hooks/useList'
+import { useCategoryOptions } from '@/views/masters/category/List/hooks/useList'
 import useSubCategoryList from '../hooks/useList'
 import { Select } from '@/components/ui'
 import { SELECT_ALL_VALUE } from '@/constants/common.constant'
 
 const schema = z.object({
-    categories: z.array(z.number()),
+    categories: z.array(z.union([z.number(), z.string()])),
 })
 
 export type FormSchema = z.infer<typeof schema>
@@ -21,7 +21,8 @@ const SubCategoryListTableFilter = () => {
     const [dialogIsOpen, setIsOpen] = useState(false)
 
     const { filterData, updateFilters, resetFilters } = useSubCategoryList()
-    const { categoryList } = useCategoryList()
+    const { categoryList, hasMore, isLoading, tableData, updateTable } =
+        useCategoryOptions()
 
     const options = useMemo(() => {
         const categoryOptions = categoryList.map((c) => ({
@@ -90,6 +91,7 @@ const SubCategoryListTableFilter = () => {
                                         isMulti
                                         placeholder="Select Categories"
                                         options={options}
+                                        isLoading={isLoading}
                                         value={options.filter((o) =>
                                             o.value === SELECT_ALL_VALUE
                                                 ? isAllSelected
@@ -97,6 +99,15 @@ const SubCategoryListTableFilter = () => {
                                                       o.value,
                                                   ),
                                         )}
+                                        onMenuScrollToBottom={() => {
+                                            if (hasMore && !isLoading) {
+                                                updateTable({
+                                                    pageIndex:
+                                                        (tableData.pageIndex ??
+                                                            1) + 1,
+                                                })
+                                            }
+                                        }}
                                         onChange={(selected) => {
                                             const values =
                                                 selected?.map((s) => s.value) ||
